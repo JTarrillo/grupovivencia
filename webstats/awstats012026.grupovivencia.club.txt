@@ -1,0 +1,591 @@
+AWSTATS DATA FILE 7.7 (build 20161204)
+# If you remove this file, all statistics for date 202601 will be lost/reset.
+# Last config file used to build this data file was /etc/awstats/awstats.grupovivencia.club.conf.
+
+# Position (offset in bytes) in this file for beginning of each section for
+# direct I/O access. If you made changes somewhere in this file, you should
+# also remove completely the MAP section (AWStats will rewrite it at next
+# update).
+BEGIN_MAP 28
+POS_GENERAL 2001                
+POS_TIME 2688                
+POS_VISITOR 9810                
+POS_DAY 13955               
+POS_DOMAIN 3451                
+POS_LOGIN 3904                
+POS_ROBOT 4059                
+POS_WORMS 4938                
+POS_EMAILSENDER 5069                
+POS_EMAILRECEIVER 5212                
+POS_SESSION 14620               
+POS_SIDER 14816               
+POS_FILETYPES 5347                
+POS_DOWNLOADS 5667                
+POS_OS 5849                
+POS_BROWSER 6122                
+POS_SCREENSIZE 7577                
+POS_UNKNOWNREFERER 7651                
+POS_UNKNOWNREFERERBROWSER 8137                
+POS_ORIGIN 8331                
+POS_SEREFERRALS 8470                
+POS_PAGEREFS 8633                
+POS_SEARCHWORDS 8810                
+POS_KEYWORDS 8962                
+POS_MISC 2351                
+POS_ERRORS 9021                
+POS_CLUSTER 3760                
+POS_SIDER_404 9156                
+END_MAP
+
+# LastLine    = Date of last record processed - Last record line number in last log - Last record offset in last log - Last record signature value
+# FirstTime   = Date of first visit for history file
+# LastTime    = Date of last visit for history file
+# LastUpdate  = Date of last update - Nb of parsed records - Nb of parsed old records - Nb of parsed new records - Nb of parsed corrupted - Nb of parsed dropped
+# TotalVisits = Number of visits
+# TotalUnique = Number of unique visitors
+# MonthHostsKnown   = Number of hosts known
+# MonthHostsUnKnown = Number of hosts unknown
+BEGIN_GENERAL 8
+LastLine 20260201055553 1884 691221 15022008145635
+FirstTime 20260101122459
+LastTime 20260131175302
+LastUpdate 20260202043710 1884 1875 0 0 8
+TotalVisits 107                 
+TotalUnique 97                  
+MonthHostsKnown 0                   
+MonthHostsUnknown 111                 
+END_GENERAL
+
+# Misc ID - Pages - Hits - Bandwidth
+BEGIN_MISC 10
+JavascriptDisabled 0 0 0
+TotalMisc 0 0 0
+JavaEnabled 0 0 0
+DirectorSupport 0 0 0
+WindowsMediaPlayerSupport 0 0 0
+RealPlayerSupport 0 0 0
+AddToFavourites 0 71 0
+PDFSupport 0 0 0
+FlashSupport 0 0 0
+QuickTimeSupport 0 0 0
+END_MISC
+
+# Hour - Pages - Hits - Bandwidth - Not viewed Pages - Not viewed Hits - Not viewed Bandwidth
+BEGIN_TIME 24
+0 82 257 1207751 15 53 221010
+1 6 36 249008 8 50 289080
+2 2 4 26582 7 22 112452
+3 4 5 13078 6 8 16380
+4 10 18 77568 6 13 28073
+5 9 10 26995 3 33 193822
+6 2 3 7852 8 11 28179
+7 1 1 2619 5 7 13461
+8 0 0 0 7 41 207682
+9 2 2 11708 17 42 356677
+10 0 0 0 2 7 12707
+11 3 12 45705 7 24 267082
+12 22 38 140080 6 47 221160
+13 26 65 363424 6 29 143364
+14 68 187 706605 7 23 39973
+15 87 256 2994042 13 32 54299
+16 79 225 2237190 13 40 131447
+17 18 28 120087 8 22 149374
+18 23 108 3929106 4 8 16644
+19 12 21 215079 2 16 100303
+20 24 97 4041578 12 58 306078
+21 60 258 7264911 5 32 126163
+22 191 479 4984436 16 30 48156
+23 91 278 1085967 23 53 148895
+END_TIME
+
+# Domain - Pages - Hits - Bandwidth
+# The 10 first Pages must be first (order not required for others)
+BEGIN_DOMAIN 17
+ar 661 2056 26153785
+us 74 132 623998
+se 13 16 42185
+pe 12 69 2396699
+cn 11 23 109221
+ru 9 9 23287
+de 9 11 35269
+nl 6 8 20942
+in 6 9 23556
+gb 6 7 19948
+ie 1 1 2093
+ca 5 7 24793
+bg 0 1 18730
+my 5 35 246389
+uy 2 2 5238
+at 1 1 2619
+il 1 1 2619
+END_DOMAIN
+
+# Cluster ID - Pages - Hits - Bandwidth
+BEGIN_CLUSTER 0
+END_CLUSTER
+
+# Login - Pages - Hits - Bandwidth - Last visit
+# The 10 first Pages must be first (order not required for others)
+BEGIN_LOGIN 0
+END_LOGIN
+
+# Robot ID - Hits - Bandwidth - Last visit - Hits on robots.txt
+# The 10 first Hits must be first (order not required for others)
+BEGIN_ROBOT 21
+Googlebot/ 232 1286380 20260131001815 47
+AhrefsBot/ 110 489849 20260131200916 30
+bingbot/ 93 362326 20260120214522 7
+360Spider 29 188615 20260128174913 0
+dataprovider\.com 29 241689 20260129092442 3
+robot 18 32490 20260130031017 18
+checker 9 23571 20260130140950 0
+SemrushBot/ 7 16148 20260115090117 3
+ning 7 15714 20260130043704 0
+unknown 5 20500 20260120120801 5
+curl 1 2619 20260117085024 0
+python 1 2619 20260124232623 0
+Applebot/ 2 4954 20260130175554 1
+Googlebot\-Image/ 3 7842 20260125084121 0
+bot[\s_+:,\.\;\/\\-] 5 12503 20260116041843 2
+crawl 2 5238 20260121060958 0
+baidu 4 10476 20260114150949 0
+motor 1 2619 20260121200539 0
+php 2 3610 20260127224438 0
+ELinks[\x20]\( 1 2619 20260127181744 0
+^mozilla\/5\.0$ 2 11708 20260130164253 0
+END_ROBOT
+
+# Worm ID - Hits - Bandwidth - Last visit
+# The 5 first Hits must be first (order not required for others)
+BEGIN_WORMS 0
+END_WORMS
+
+# EMail - Hits - Bandwidth - Last visit
+# The 20 first Hits must be first (order not required for others)
+BEGIN_EMAILSENDER 0
+END_EMAILSENDER
+
+# EMail - Hits - Bandwidth - Last visit
+# The 20 first hits must be first (order not required for others)
+BEGIN_EMAILRECEIVER 0
+END_EMAILRECEIVER
+
+# Files type - Hits - Bandwidth - Bandwidth without compression - Bandwidth after compression
+BEGIN_FILETYPES 14
+svg 2 805 0 0
+png 502 1734716 0 0
+php 2 4152 0 0
+Unknown 643 4768936 0 0
+map 8 14472 0 0
+html 153 399364 0 0
+gif 73 132057 0 0
+woff 6 83928 0 0
+js 285 16421048 0 0
+jpeg 5 40870 0 0
+xml 4 1904 0 0
+woff2 6 925368 0 0
+css 599 3405868 0 0
+jpg 100 1817883 0 0
+END_FILETYPES
+
+# Downloads - Hits - Bandwidth
+BEGIN_DOWNLOADS 6
+/sitemap.txt 8 0 14488
+/sitemap.xml.gz 7 0 12683
+/humans.txt 1 0 11160
+/llms.txt 1 0 11160
+/ads.txt 1 0 11160
+/security.txt 1 0 11160
+END_DOWNLOADS
+
+# OS ID - Hits
+BEGIN_OS ID - Hits - Pages 16
+winnt 6 4
+ios_ipad 4 4
+macosx12 2 2
+linuxandroid 80 21
+winxp 5 0
+win10 2129 697
+winphone 1 1
+win8 1 1
+ios_iphone 41 11
+linux 70 47
+Unknown 19 11
+macosx9 1 1
+blackberry 1 1
+macosx 20 13
+win7 6 6
+macosx11 2 2
+END_OS
+
+# Browser ID - Hits - Pages
+BEGIN_BROWSER 75
+firefox131.0 1 0
+blackberry 1 1
+firefox103.0 1 1
+chrome79.0.3945.136 1 1
+opera99.0.0.0 1 0
+w3m 1 1
+firefox57.0 1 1
+chrome114.0.0.0 2 0
+chrome143.0.0.0 2017 663
+chrome123.0.0.0 35 5
+chrome108.0.0.0 1 1
+chrome103.0.1885 1 0
+chrome91.0.4472.77 1 1
+opera117.0.0.0 1 0
+chrome80.0.3987.162 1 1
+mozilla 1 1
+chrome94.0.4606.85 1 1
+chrome100.0.4896.127 4 4
+safari18.4 1 1
+android 2 2
+chrome131.0.0.0 5 0
+chrome115.0.0.0 1 1
+safari18.7.2 7 2
+nokia 1 1
+chrome61.0.2052 1 1
+chrome105.0.0.0 6 3
+firefox115 4 4
+firefox114.0 3 2
+chrome142.0.0.0 30 20
+chrome77.0.2666 1 1
+chrome121.0.0.0 4 4
+chrome140.0.7339.52 15 1
+chrome92.0.4515.107 3 3
+chrome117.0.0.0 8 6
+sonyericsson 1 1
+chrome80.0.1423 1 1
+safari15.2 1 1
+chrome91.0.4472.114 3 3
+firefox11.0 5 0
+firefox115.0 3 1
+chrome76.0.2110 1 0
+chrome134.0.0.0 16 2
+firefox102.0 2 1
+safari7.0 3 3
+safari15.5 1 1
+safari 4 4
+safari17.1.2 1 1
+chrome118.0.5993.80 1 1
+chrome144.0.0.0 75 10
+Unknown 15 7
+chrome57.0.2987.108 2 2
+firefox49.0 2 2
+chrome94.0.4606.113 1 1
+firefox46.0 1 1
+chrome124.0.0.0 5 5
+chrome101.0.4951.54 2 2
+firefox139.0 1 1
+chrome130.0.0.0 2 0
+firefox142.0 17 12
+msie10.0 2 2
+chrome95.0.881 1 0
+chrome79.0.2529 1 1
+chrome139.0.0.0 4 3
+chrome101.0.4951.41 2 2
+chrome86.0.1250 1 0
+netscape5.0 2 2
+chrome101.0.4951.64 2 2
+chrome100.0.4896.88 2 2
+chrome101.0.0.0 1 1
+firefox53.0 1 1
+firefox120.0 1 1
+chrome98.0.4758.80 1 1
+safari18.0 35 5
+safari17.1 1 1
+lynx 1 1
+END_BROWSER
+
+# Screen size - Hits
+BEGIN_SCREENSIZE 0
+END_SCREENSIZE
+
+# Unknown referer OS - Last visit date
+BEGIN_UNKNOWNREFERER 7
+w3m/0.5.1 20260105170453
+Go-http-client/1.1 20260120120800
+Lynx/2.8.7dev.4_libwww-FM/2.14_SSL-MM/1.4.1_OpenSSL/0.9.8d 20260123162213
+NokiaN73-1/3.0649.0.0.1_Series60/3.0_Profile/MIDP2.0_Configuration/CLDC-1.1 20260115182413
+NetAPI_v1 20260117220607
+Mozilla/5.0_(compatible;_UGAResearchAgent/1.0;_Please_visit:_NISLabUGA.github.io) 20260123201451
+req/v3_(https://github.com/imroc/req) 20260116133740
+END_UNKNOWNREFERER
+
+# Unknown referer Browser - Last visit date
+BEGIN_UNKNOWNREFERERBROWSER 3
+Go-http-client/1.1 20260120120800
+NetAPI_v1 20260117220607
+req/v3_(https://github.com/imroc/req) 20260116133740
+END_UNKNOWNREFERERBROWSER
+
+# Origin - Pages - Hits 
+BEGIN_ORIGIN 6
+From0 177 238
+From1 0 0
+From2 5 5
+From3 1 1
+From4 639 2144
+From5 0 0
+END_ORIGIN
+
+# Search engine referers ID - Pages - Hits
+BEGIN_SEREFERRALS 1
+www_google_com 5 5
+END_SEREFERRALS
+
+# External page referers - Pages - Hits
+# The 10 first Pages must be first (order not required for others)
+BEGIN_PAGEREFS 1
+https://www.facebook.com 1 1
+END_PAGEREFS
+
+# Search keyphrases - Number of search
+# The 10 first number of search must be first (order not required for others)
+BEGIN_SEARCHWORDS 0
+END_SEARCHWORDS
+
+# Search keywords - Number of search
+# The 10 first number of search must be first (order not required for others)
+BEGIN_KEYWORDS 0
+END_KEYWORDS
+
+# Errors - Hits - Bandwidth
+BEGIN_ERRORS 5
+302 37 0
+500 8 37112
+403 4 47524
+404 10 83988
+503 8 180348
+END_ERRORS
+
+# URL with 404 errors - Hits - Last URL referrer
+BEGIN_SIDER_404 5
+/backoffice_new/contracts/registrarPagoCuota 5 https://grupovivencia.club/backoffice_new/contracts/cronograma/184
+/admin/comisiones/cambiar-estado 1 https://grupovivencia.club/dashboard/comisiones
+/.well-known/passkey-endpoints 1 -
+/.well-known/security.txt 2 -
+/admin/validar_pago 1 https://grupovivencia.club/dashboard/inmueble/cronograma/184
+END_SIDER_404
+
+# Host - Pages - Hits - Bandwidth - Last visit date - [Start date of last visit] - [Last page of last visit]
+# [Start date of last visit] and [Last page of last visit] are saved only if session is not finished
+# The 10 first Hits must be first (order not required for others)
+BEGIN_VISITOR 111
+186.19.165.76 657 1996 25669957 20260120183652
+200.215.229.163 10 62 2339083 20260108213338
+91.184.244.208 6 6 15714 20260114030749
+149.102.227.84 5 35 246389 20260116133707
+218.208.89.81 5 35 246389 20260115015232
+103.4.250.248 5 7 11023 20260113174807
+139.59.177.211 3 3 8667 20260117182558
+135.148.195.8 2 3 7852 20260131175302
+54.159.1.126 2 2 5238 20260111185249
+142.93.62.41 2 3 7852 20260113130328
+90.231.56.134 1 1 2105 20260115195234
+162.55.132.97 1 1 9089 20260117220607
+181.30.231.7 1 15 111197 20260120183650
+83.140.171.110 1 1 3429 20260124052535
+62.141.44.236 2 2 5238 20260115214318
+178.128.141.201 1 1 2619 20260102021746
+35.94.42.178 1 1 3429 20260116202511
+111.7.100.26 1 1 2619 20260108164835
+139.59.78.41 2 3 7852 20260129130248
+35.168.22.103 2 2 5238 20260129185323
+18.236.173.124 0 1 5716 
+152.53.210.225 1 1 2619 20260117165750
+34.228.162.120 2 2 5238 20260123162213
+3.83.144.134 2 2 5238 20260109191833
+178.73.248.186 1 1 2619 20260124052535
+106.75.64.28 2 5 25341 20260120120800
+179.6.52.198 2 7 57616 20260114175831
+138.197.109.110 2 2 5238 20260104112509
+54.201.219.58 0 1 902 
+162.243.184.250 2 3 7852 20260123124021
+54.189.178.17 1 1 2619 20260114112204
+106.75.24.100 2 5 25341 20260105040417
+24.199.118.8 2 2 5238 20260118054517
+98.93.227.183 2 2 5238 20260107171634
+181.30.231.14 1 15 130709 20260102221654
+135.148.195.14 1 2 21349 20260109154837
+74.125.213.4 0 1 18730 
+191.96.150.17 1 1 2619 20260107223312
+128.192.12.103 1 1 2619 20260123201451
+34.217.91.193 0 2 9954 
+18.212.151.92 1 1 2619 20260127181744
+193.186.4.249 1 1 2093 20260110223743
+93.158.90.168 1 1 2619 20260114190345
+62.113.113.43 2 2 5238 20260117150916
+178.156.186.130 1 1 2619 20260126015321
+3.91.56.154 2 2 5238 20260117214000
+44.244.29.194 1 1 9089 20260127045332
+165.22.186.246 2 3 7852 20260127135057
+104.218.55.248 1 1 2105 20260108135848
+164.92.195.2 2 3 7852 20260127052323
+66.102.8.66 0 2 37460 
+34.212.28.84 0 1 497 
+161.35.181.82 2 3 7852 20260125122752
+93.158.90.144 1 1 2619 20260114190344
+135.148.195.13 0 1 2614 
+152.44.253.109 1 1 2093 20260123002907
+46.228.199.158 1 1 2619 20260125074547
+68.183.93.18 2 3 7852 20260109132216
+181.199.158.5 1 15 130725 20260102221556
+135.148.195.11 0 1 2614 
+34.201.60.96 2 2 5238 20260115182413
+172.68.10.15 1 1 2335 20260129151243
+185.130.227.201 1 1 2619 20260104172041
+204.188.250.50 1 1 2619 20260116061148
+161.35.163.213 2 3 7852 20260121123241
+98.80.15.115 1 1 2619 20260121200539
+164.92.213.227 2 3 7852 20260101122459
+15.204.182.106 2 2 5214 20260115041107
+146.190.128.49 2 3 7852 20260111121016
+106.75.67.28 2 5 25341 20260105040429
+140.245.107.240 1 1 1817 20260111162237
+64.225.100.7 2 3 7852 20260113043804
+93.158.90.137 1 1 2619 20260114190343
+5.133.192.160 1 2 5233 20260129043927
+5.133.192.131 1 2 5233 20260118065620
+13.222.153.250 2 2 5238 20260125195630
+111.7.100.27 1 1 2619 20260104092737
+103.196.9.8 1 1 2105 20260113174749
+18.206.202.8 2 2 5238 20260105170453
+54.204.237.53 1 1 2619 20260113161618
+181.15.96.8 1 15 111197 20260120183617
+185.12.248.5 1 1 2619 20260127053448
+66.102.8.67 0 1 18730 
+93.158.90.155 1 1 3429 20260114190344
+192.36.137.155 1 1 2619 20260106141017
+149.56.150.116 1 1 9089 20260129092430
+185.123.95.29 1 1 2619 20260124052536
+82.80.249.211 1 1 2619 20260115164851
+135.148.195.4 0 2 21344 
+34.219.4.74 0 1 9981 
+165.22.182.139 2 3 7852 20260117125954
+106.75.7.19 2 5 25341 20260120120527
+45.88.91.37 1 1 2105 20260131045915
+159.89.125.180 2 3 7852 20260107122550
+206.189.3.250 2 3 7852 20260131135401
+44.246.230.225 0 1 838 
+111.7.100.24 1 1 2619 20260108164834
+74.125.209.66 0 1 18730 
+3.85.135.215 2 2 5238 20260119173741
+93.158.91.10 1 2 5233 20260107190135
+147.182.153.31 2 3 7852 20260119122848
+173.244.55.119 2 2 5238 20260116133740
+44.202.98.166 2 2 5238 20260101191744
+52.33.28.68 0 2 9960 
+15.204.194.30 1 2 21349 20260123030857
+18.209.105.155 2 2 5238 20260131172923
+216.26.227.223 1 1 2105 20260117152426
+83.140.244.254 1 1 2619 20260124052536
+157.245.102.141 2 3 7852 20260103122816
+51.81.245.138 1 1 2619 20260113150432
+54.157.159.198 2 2 5238 20260103162609
+END_VISITOR
+
+# Date - Pages - Hits - Bandwidth - Visits
+BEGIN_DAY 27
+20260101 4 5 13090 2
+20260102 308 873 11060002 4
+20260103 307 918 7136163 4
+20260104 18 38 190114 4
+20260105 7 13 58539 4
+20260106 1 1 2619 1
+20260107 6 9 39672 4
+20260108 13 65 2346426 4
+20260109 31 144 3809325 5
+20260110 1 1 2093 1
+20260111 5 7 33637 3
+20260113 16 20 44546 8
+20260114 9 23 114607 7
+20260115 12 42 264184 6
+20260116 9 39 257675 4
+20260117 12 13 40808 7
+20260118 3 4 10471 2
+20260119 4 5 13090 2
+20260120 15 106 3947550 5
+20260121 3 12 191212 2
+20260123 7 9 23035 5
+20260124 4 4 11286 4
+20260125 6 9 39672 4
+20260126 1 1 2619 1
+20260127 7 9 30031 5
+20260129 7 9 29747 5
+20260131 6 9 39158 4
+END_DAY
+
+# Session range - Number of visits
+BEGIN_SESSION 6
+1h+ 2
+30s-2mn 7
+15mn-30mn 1
+30mn-1h 2
+0s-30s 92
+5mn-15mn 3
+END_SESSION
+
+# URL - Pages - Bandwidth - Entry - Exit
+# The 10 first Pages must be first (order not required for others)
+BEGIN_SIDER 59
+/ 150 394448 93 85
+/dashboard/inmueble/contracts 72 1607329 0 0
+/dashboard/inmueble/api/search_customers 62 34865 0 0
+/backoffice_new/contracts/cronograma/184 47 623933 0 0
+/backoffice_new/planes/carrito 37 695371 0 0
+/admin/comisiones/inmobiliaria 35 179027 0 0
+/dashboard/inmueble/cronograma/184 31 224437 0 0
+/dashboard/inmueble 29 123678 1 0
+/backoffice_new/contracts/registrarPagoCuota 28 3171 0 0
+/iniciar-sesion/login_user 28 426 0 2
+/dashboard/inmueble/approve_contract 6 534 0 0
+/backoffice_new/contracts/detail/184 4 42484 0 0
+/dashboard/inmueble/cronograma/187 4 28259 0 2
+/backoffice_new/planes 13 142732 0 0
+/dashboard/inmueble/contracts/get_schedule/185 3 4691 0 0
+/dashboard/inmueble/getProvinces/8 3 513 0 0
+/dashboard/validate 15 765 0 0
+/backoffice_new/contracts/detail/186 6 63726 0 0
+/admin/ 1 1290 0 0
+/backoffice_new/historial 1 10676 0 0
+/dashboard/inmueble/getDepartments 4 980 0 0
+/dashboard/inmueble/create_contract 11 867 0 0
+/login 4 8372 3 1
+/dashboard/inmueble/api/payment_plans 11 2574 0 0
+/dashboard/inmueble/cronograma/185 3 20119 0 0
+/dashboard/inmueble/cronograma/188 1 7014 0 0
+/backoffice_new/contracts/cronograma/186 6 79540 0 1
+/backoffice_new 25 334619 0 0
+/wp-login.php 1 1817 1 1
+/dashboard/inmueble/api/get_project/51 1 14712 0 0
+/backoffice_new/contracts/detail/168 1 10623 0 0
+/dashboard/inmueble/api/projects 11 4301 0 0
+/backoffice_new/contracts/cronograma/168 1 12696 0 0
+/backoffice_new/cobros/send_pin 1 44 0 0
+/iniciar-sesion 19 41345 2 3
+/dashboard/inmueble/contracts/get_schedule/184 3 4805 0 0
+/backoffice_new/cobros 2 25897 0 0
+/wp-admin/setup-config.php 1 2335 1 1
+/dashboard/inmueble/projects 1 12113 0 0
+/admin 16 20640 3 2
+/dashboard/inmueble/getDistricts/68 3 384 0 1
+/assets/admin/css/bootstrap.min.css.map 8 14472 0 0
+/admin/comisiones/ 1 1809 0 0
+/dashboard/comisiones 25 128260 0 1
+/assets/metronic8/plugins/global/fonts/@fortawesome/fa-solid-900.woff2 6 925368 0 0
+/assets/admin/fonts/feather/fonts/feather.woff 3 79296 0 0
+/dashboard/estructura 2 18298 0 0
+/dashboard/inmueble/api/get_available_lots 11 3346 0 0
+/backoffice_new/contracts/detail/187 2 21244 0 0
+/recuperar-contrasena 4 13716 3 3
+/assets/admin/fonts/datta/fonts/pct.woff 3 4632 0 0
+/https%3A/grupovivencia.club/ 1 1817 0 0
+/cart/accionLote 11 5546 0 0
+/dashboard/inmueble/reject_contract 1 84 0 0
+/backoffice_new/contracts/cronograma/187 3 38116 0 0
+/https%3A/grupovivencia.club/recuperar-contrasena 1 1817 0 0
+/sitemap.xml 4 1904 0 4
+/dashboard/inmueble/api/delete_contract 21 336 0 0
+/backoffice_new/contratos 14 149911 0 0
+END_SIDER

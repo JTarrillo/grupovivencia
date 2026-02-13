@@ -1,0 +1,15 @@
+CRITICAL - 2026-01-17 06:49:22 --> Undefined array key "active"
+#0 /home/customer/www/grupovivencia.club/app/Views/backoffice_new/header.php(249): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined array...', '/home/customer/...', 249)
+#1 /home/customer/www/grupovivencia.club/system/View/View.php(427): include('/home/customer/...')
+#2 /home/customer/www/grupovivencia.club/system/View/View.php(433): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+#3 /home/customer/www/grupovivencia.club/system/Common.php(2193): CodeIgniter\View\View->render('backoffice_new/...', Array, true)
+#4 /home/customer/www/grupovivencia.club/app/Views/backoffice_new/home.php(28): view('backoffice_new/...')
+#5 /home/customer/www/grupovivencia.club/system/View/View.php(427): include('/home/customer/...')
+#6 /home/customer/www/grupovivencia.club/system/View/View.php(433): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+#7 /home/customer/www/grupovivencia.club/system/Common.php(2193): CodeIgniter\View\View->render('backoffice_new/...', Array, true)
+#8 /home/customer/www/grupovivencia.club/app/Controllers/Home.php(129): view('backoffice_new/...', Array)
+#9 /home/customer/www/grupovivencia.club/system/CodeIgniter.php(1647): App\Controllers\Home->index()
+#10 /home/customer/www/grupovivencia.club/system/CodeIgniter.php(819): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Home))
+#11 /home/customer/www/grupovivencia.club/system/CodeIgniter.php(635): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 /home/customer/www/grupovivencia.club/public_html/index.php(37): CodeIgniter\CodeIgniter->run()
+#13 {main}

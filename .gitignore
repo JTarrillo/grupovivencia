@@ -1,0 +1,16 @@
+# Ignorar dependencias y archivos temporales
+/vendor/
+/node_modules/
+/.env
+/.env.*
+/.vscode/
+/.idea/
+logs/
+writable/
+public_html/
+webstats/
+database/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

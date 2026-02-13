@@ -1,0 +1,618 @@
+AWSTATS DATA FILE 7.7 (build 20161204)
+# If you remove this file, all statistics for date 202512 will be lost/reset.
+# Last config file used to build this data file was /etc/awstats/awstats.grupovivencia.club.conf.
+
+# Position (offset in bytes) in this file for beginning of each section for
+# direct I/O access. If you made changes somewhere in this file, you should
+# also remove completely the MAP section (AWStats will rewrite it at next
+# update).
+BEGIN_MAP 28
+POS_GENERAL 2001                
+POS_TIME 2690                
+POS_VISITOR 9802                
+POS_DAY 14399               
+POS_DOMAIN 3449                
+POS_LOGIN 3879                
+POS_ROBOT 4034                
+POS_WORMS 4992                
+POS_EMAILSENDER 5123                
+POS_EMAILRECEIVER 5266                
+POS_SESSION 15128               
+POS_SIDER 15335               
+POS_FILETYPES 5401                
+POS_DOWNLOADS 5726                
+POS_OS 5859                
+POS_BROWSER 6117                
+POS_SCREENSIZE 7577                
+POS_UNKNOWNREFERER 7651                
+POS_UNKNOWNREFERERBROWSER 8338                
+POS_ORIGIN 8674                
+POS_SEREFERRALS 8815                
+POS_PAGEREFS 8980                
+POS_SEARCHWORDS 9128                
+POS_KEYWORDS 9280                
+POS_MISC 2353                
+POS_ERRORS 9339                
+POS_CLUSTER 3735                
+POS_SIDER_404 9463                
+END_MAP
+
+# LastLine    = Date of last record processed - Last record line number in last log - Last record offset in last log - Last record signature value
+# FirstTime   = Date of first visit for history file
+# LastTime    = Date of last visit for history file
+# LastUpdate  = Date of last update - Nb of parsed records - Nb of parsed old records - Nb of parsed new records - Nb of parsed corrupted - Nb of parsed dropped
+# TotalVisits = Number of visits
+# TotalUnique = Number of unique visitors
+# MonthHostsKnown   = Number of hosts known
+# MonthHostsUnKnown = Number of hosts unknown
+BEGIN_GENERAL 8
+LastLine 20260101061214 2933 1002651 12932092128201
+FirstTime 20251201030057
+LastTime 20251231114053
+LastUpdate 20260102044008 2933 2918 0 0 14
+TotalVisits 126                 
+TotalUnique 112                 
+MonthHostsKnown 0                   
+MonthHostsUnknown 119                 
+END_GENERAL
+
+# Misc ID - Pages - Hits - Bandwidth
+BEGIN_MISC 10
+PDFSupport 0 0 0
+RealPlayerSupport 0 0 0
+DirectorSupport 0 0 0
+QuickTimeSupport 0 0 0
+JavaEnabled 0 0 0
+TotalMisc 0 0 0
+JavascriptDisabled 0 0 0
+FlashSupport 0 0 0
+AddToFavourites 0 42 0
+WindowsMediaPlayerSupport 0 0 0
+END_MISC
+
+# Hour - Pages - Hits - Bandwidth - Not viewed Pages - Not viewed Hits - Not viewed Bandwidth
+BEGIN_TIME 24
+0 4 4 16946 6 71 722630
+1 5 34 259653 7 63 382853
+2 3 26 160402 2 8 20714
+3 2 2 5238 1 1 2093
+4 4 5 13090 0 1 11147
+5 11 33 169775 9 41 648308
+6 0 0 0 5 12 72078
+7 6 20 124818 8 47 402745
+8 5 21 126877 0 3 5415
+9 4 4 11339 6 22 138928
+10 42 241 4684707 7 31 146178
+11 22 103 2621147 3 23 216800
+12 19 53 567185 8 32 194661
+13 21 61 304418 9 32 287168
+14 12 34 159957 4 38 174508
+15 6 9 23556 0 15 27255
+16 29 179 6046425 2 17 33433
+17 10 14 99784 4 12 21831
+18 208 533 5277452 20 47 123849
+19 12 42 252851 4 31 189322
+20 136 712 3478924 3 15 206962
+21 6 19 121164 2 34 373237
+22 13 93 2548626 0 6 30086
+23 35 169 1001873 4 11 17387
+END_TIME
+
+# Domain - Pages - Hits - Bandwidth
+# The 10 first Pages must be first (order not required for others)
+BEGIN_DOMAIN 15
+ar 286 1058 16104899
+pe 190 1047 10477193
+us 86 206 1079728
+ca 9 33 172384
+cn 9 21 101364
+in 8 11 28794
+gb 7 10 26985
+de 6 6 22184
+nl 4 5 13090
+se 3 6 15699
+cz 1 1 2619
+au 1 1 9089
+sc 1 1 9089
+tr 3 4 10471
+ir 1 1 2619
+END_DOMAIN
+
+# Cluster ID - Pages - Hits - Bandwidth
+BEGIN_CLUSTER 0
+END_CLUSTER
+
+# Login - Pages - Hits - Bandwidth - Last visit
+# The 10 first Pages must be first (order not required for others)
+BEGIN_LOGIN 0
+END_LOGIN
+
+# Robot ID - Hits - Bandwidth - Last visit - Hits on robots.txt
+# The 10 first Hits must be first (order not required for others)
+BEGIN_ROBOT 23
+Googlebot/ 187 913550 20251231224359 73
+AhrefsBot/ 135 894907 20251231215412 20
+360Spider 34 201172 20251230185118 0
+bingbot/ 34 204704 20251230143226 5
+robot 33 59565 20251228222913 33
+dataprovider\.com 29 241689 20251230092400 3
+SemrushBot/ 7 16148 20251211191917 3
+ips\-agent 5 13337 20251206012022 2
+facebookexternalhit/ 5 55761 20251226222209 5
+unknown 5 20500 20251229110533 5
+bot[\s_+:,\.\;\/\\-] 2 4930 20251225131950 1
+Dalvik/ 1 2619 20251224192551 0
+Konqueror/ 1 2619 20251228172731 0
+BLEXBot/ 3 5146 20251203142052 2
+Googlebot\-Image/ 2 5228 20251218015557 0
+curl 4 10476 20251218064544 0
+no_user_agent 1 9089 20251230132927 0
+baidu 1 2619 20251205202329 0
+python 4 16662 20251228062022 1
+link 2 5238 20251230174746 0
+checker 2 5238 20251230184143 0
+Applebot/ 2 4670 20251228021233 2
+crawl 2 5238 20251220102441 0
+END_ROBOT
+
+# Worm ID - Hits - Bandwidth - Last visit
+# The 5 first Hits must be first (order not required for others)
+BEGIN_WORMS 0
+END_WORMS
+
+# EMail - Hits - Bandwidth - Last visit
+# The 20 first Hits must be first (order not required for others)
+BEGIN_EMAILSENDER 0
+END_EMAILSENDER
+
+# EMail - Hits - Bandwidth - Last visit
+# The 20 first hits must be first (order not required for others)
+BEGIN_EMAILRECEIVER 0
+END_EMAILRECEIVER
+
+# Files type - Hits - Bandwidth - Bandwidth without compression - Bandwidth after compression
+BEGIN_FILETYPES 14
+woff2 7 1079596 0 0
+webp 6 706676 0 0
+js 472 13727676 0 0
+jpg 25 2462590 0 0
+woff 4 79044 0 0
+Unknown 432 2865125 0 0
+css 528 4077534 0 0
+png 695 2202013 0 0
+map 3 5427 0 0
+svg 4 1373 0 0
+xml 4 1904 0 0
+gif 59 106731 0 0
+jpeg 13 333314 0 0
+html 159 427204 0 0
+END_FILETYPES
+
+# Downloads - Hits - Bandwidth
+BEGIN_DOWNLOADS 4
+/llms.txt 1 0 11160
+/ads.txt 1 0 11160
+/security.txt 1 0 11160
+/humans.txt 1 0 11160
+END_DOWNLOADS
+
+# OS ID - Hits
+BEGIN_OS ID - Hits - Pages 15
+macosx 33 22
+win7 12 3
+winphone 1 1
+sunos 1 1
+macintosh 1 1
+linux 220 61
+ios_ipad 1 1
+win8.1 1 1
+winnt 3 1
+ios_iphone 33 4
+linuxandroid 61 19
+Unknown 42 22
+win8 1 1
+macosx9 1 0
+win10 2000 477
+END_OS
+
+# Browser ID - Hits - Pages
+BEGIN_BROWSER 72
+chrome101.0.0.0 1 1
+chrome142.0.0.0 1619 411
+opera85.0.4341.75 1 1
+chrome121.0.0.0 1 1
+android 2 2
+chrome138.0.0.0 1 1
+msie7.0 1 1
+firefox115.0 1 1
+safari6.0 1 1
+chrome100.0.577 1 0
+chrome99.0.1944 1 0
+chrome80.0.3987.99 1 1
+wap 1 1
+chrome106.0.0.0 2 2
+chrome115.0.0.0 2 0
+chrome138.0.7204.23 30 2
+chrome73.0.1540 1 1
+chrome101.0.4951.41 7 7
+chrome91.0.4472.114 3 3
+opera86.0.4363.50 1 1
+chrome100.0.4896.127 3 3
+chrome130.0.0.0 15 1
+chrome99.0.4812.0 1 1
+safari7.0.3 1 0
+firefox139.0 13 9
+chrome63.0.1456 1 0
+chrome129.0.0.0 48 3
+chrome134.0.0.0 1 1
+chrome96.0.4664.45 1 1
+chrome143.0.0.0 398 62
+chrome123.0.0.0 1 1
+firefox142.0 11 6
+seamonkey 1 1
+mozilla 11 5
+chrome81.0.4044.113 1 1
+chrome131.0.0.0 1 0
+firefox102.0 2 1
+Unknown 35 17
+chrome60.0.3112.107 1 1
+chrome82.0.1516 1 1
+chrome77.0.1427 1 1
+safari18.7.2 8 4
+chrome99.0.911 1 0
+chrome100.0.4896.75 1 1
+chrome80.0.3987.162 1 1
+sonyericsson 1 1
+chrome117.0.5938.132 14 1
+firefox48.0 2 2
+safari 33 4
+chrome99.0.4844.74 1 1
+chrome73.0.3683.103 1 1
+sec\- 1 1
+chrome86.0.4240.75 1 1
+chrome101.0.4951.61 3 3
+chrome136.0.0.0 1 1
+chrome107.0.0.0 1 1
+chrome83.0.4103.61 10 1
+firefox116.0 1 0
+safari18.5 1 1
+chrome105.0.0.0 6 3
+chrome87.0.1367 1 1
+chrome104.0.0.0 3 3
+firefox120.0 4 4
+chrome98.0.4758.141 1 1
+safari17.5 1 1
+chrome124.0.0.0 5 5
+chrome139.0.0.0 6 5
+msie9.0 1 1
+chrome66.0.3359.158 1 1
+chrome125.0.0.0 15 2
+chrome62.0.3191.0 1 1
+firefox145.0 58 8
+END_BROWSER
+
+# Screen size - Hits
+BEGIN_SCREENSIZE 0
+END_SCREENSIZE
+
+# Unknown referer OS - Last visit date
+BEGIN_UNKNOWNREFERER 11
+WhatsApp/2.23.20.0 20251204170914
+GuzzleHttp/7 20251205020314
+NetAPI_v1 20251216221508
+Avant_Browser/1.2.789rel1_(http://www.avantbrowser.com) 20251224192551
+Go-http-client/1.1 20251229110533
+SonyEricssonT100/R101 20251206215220
+okhttp/5.3.0 20251214162155
+POLARIS/6.01(BREW_3.1.5;U;en-us;LG;LX265;POLARIS/6.01/WAP;)MMP/2.0_profile/MIDP-201_Configuration_/CLDC-1.1 20251214181717
+SEC-SGHX820/1.0_NetFront/3.2_Profile/MIDP-2.0_Configuration/CLDC-1.1 20251220171658
+Go-http-client/2.0 20251218080634
+Mozilla/5.0_(compatible;_InternetMeasurement/1.0;__https://internet-measurement.com/) 20251224143654
+END_UNKNOWNREFERER
+
+# Unknown referer Browser - Last visit date
+BEGIN_UNKNOWNREFERERBROWSER 7
+WhatsApp/2.23.20.0 20251204170914
+okhttp/5.3.0 20251214162155
+GuzzleHttp/7 20251205020314
+NetAPI_v1 20251216221508
+Avant_Browser/1.2.789rel1_(http://www.avantbrowser.com) 20251224192551
+Go-http-client/1.1 20251229110533
+Go-http-client/2.0 20251218080634
+END_UNKNOWNREFERERBROWSER
+
+# Origin - Pages - Hits 
+BEGIN_ORIGIN 6
+From0 177 238
+From1 0 0
+From2 10 10
+From3 0 0
+From4 428 2163
+From5 0 0
+END_ORIGIN
+
+# Search engine referers ID - Pages - Hits
+BEGIN_SEREFERRALS 1
+www_google_com 10 10
+END_SEREFERRALS
+
+# External page referers - Pages - Hits
+# The 10 first Pages must be first (order not required for others)
+BEGIN_PAGEREFS 0
+END_PAGEREFS
+
+# Search keyphrases - Number of search
+# The 10 first number of search must be first (order not required for others)
+BEGIN_SEARCHWORDS 0
+END_SEARCHWORDS
+
+# Search keywords - Number of search
+# The 10 first number of search must be first (order not required for others)
+BEGIN_KEYWORDS 0
+END_KEYWORDS
+
+# Errors - Hits - Bandwidth
+BEGIN_ERRORS 4
+500 5 41313
+302 24 0
+404 1 83800
+503 40 1527638
+END_ERRORS
+
+# URL with 404 errors - Hits - Last URL referrer
+BEGIN_SIDER_404 1
+/.well-known/security.txt 1 -
+END_SIDER_404
+
+# Host - Pages - Hits - Bandwidth - Last visit date - [Start date of last visit] - [Last page of last visit]
+# [Start date of last visit] and [Last page of last visit] are saved only if session is not finished
+# The 10 first Hits must be first (order not required for others)
+BEGIN_VISITOR 119
+186.19.165.76 268 901 14685211 20251231114053
+132.251.1.28 159 800 3871077 20251203231718
+190.42.86.30 17 117 5636725 20251203163806
+190.192.125.13 9 23 421529 20251201122105
+200.215.229.163 6 36 256957 20251217010114
+159.65.24.22 3 3 8667 20251207093641
+177.91.255.69 3 45 372647 20251203230724
+44.236.207.248 3 17 116411 20251218080634
+67.207.90.7 2 3 7852 20251228135011
+106.75.66.140 2 5 25341 20251229110415
+149.57.180.107 1 1 2619 20251216120955
+139.59.86.79 2 2 5238 20251221075403
+13.219.78.228 2 2 5238 20251207221054
+149.57.180.194 1 1 2619 20251214193638
+3.89.69.135 1 1 2619 20251224192551
+106.75.49.194 2 5 25341 20251217014549
+135.148.195.8 0 1 18730 
+54.175.75.96 2 2 5238 20251226165915
+64.227.143.149 2 3 7852 20251202151056
+52.202.159.37 2 2 5238 20251213213710
+185.130.227.201 1 1 2619 20251207072428
+181.15.96.132 1 15 111197 20251226191245
+44.211.197.180 2 2 5238 20251202233944
+104.249.27.147 1 1 2619 20251227100322
+5.133.192.99 1 2 5233 20251227040034
+3.80.19.138 2 2 5238 20251220171658
+3.82.27.165 2 2 5238 20251214181717
+185.247.137.150 0 1 2614 
+64.23.139.63 2 3 7852 20251224134512
+139.59.84.25 2 3 7852 20251230110009
+44.192.92.210 1 3 7544 20251214162155
+181.65.1.36 1 24 142224 20251203022435
+156.244.3.30 1 1 9089 20251205020314
+143.198.7.129 2 3 7852 20251226130344
+212.253.112.64 1 1 2619 20251216005216
+179.6.52.129 2 6 79649 20251211175950
+3.236.90.139 1 1 2619 20251218120334
+157.230.227.249 2 3 7852 20251220135513
+52.23.159.246 1 15 111197 20251214162246
+147.182.151.98 2 3 7852 20251206124903
+138.197.100.131 1 1 2672 20251210091513
+185.247.137.38 1 1 2619 20251224080434
+93.158.91.13 1 2 5233 20251207085744
+142.93.112.188 2 3 7852 20251202151150
+170.51.244.68 1 15 111197 20251223220530
+35.172.186.110 2 2 5238 20251205045153
+178.62.119.113 2 3 7852 20251216133112
+135.148.195.9 1 3 23963 20251205165609
+157.245.3.173 1 1 2093 20251209171958
+167.71.44.174 2 2 5238 20251207055952
+106.75.98.60 2 5 25341 20251229110425
+190.237.25.240 1 15 111197 20251211145717
+34.229.1.223 1 3 7544 20251204161800
+179.6.37.204 1 4 6717 20251219123300
+205.169.39.13 1 1 2619 20251217054906
+3.94.253.72 1 16 113811 20251207120026
+216.173.76.211 1 1 2105 20251207234759
+18.234.80.73 2 2 5238 20251222163546
+165.22.119.108 2 3 7852 20251214121626
+54.81.46.235 1 16 113811 20251202133909
+13.222.159.44 2 2 5238 20251201030057
+200.50.241.228 2 30 222394 20251231103723
+3.95.174.172 2 2 5238 20251209055923
+181.30.235.70 1 15 111197 20251231102949
+209.38.120.156 2 3 7852 20251210151818
+44.204.202.238 1 1 2093 20251218120334
+205.169.39.116 1 10 33244 20251217054849
+3.95.224.227 1 1 2619 20251228172731
+54.201.38.38 1 1 2619 20251230132926
+3.88.206.241 2 2 5238 20251211191934
+64.23.230.191 2 3 7852 20251218141152
+149.57.180.46 1 1 2619 20251201134125
+167.99.182.157 2 3 7852 20251222135318
+200.110.188.100 1 15 111197 20251231102908
+185.247.137.27 1 1 2619 20251224143653
+87.236.176.110 0 1 2614 
+54.208.107.229 2 2 5238 20251218173340
+183.207.45.109 1 1 0 20251209050717
+54.91.226.33 2 2 5238 20251216193939
+62.141.44.236 1 1 2619 20251226100536
+54.164.244.142 2 2 5238 20251206215220
+54.82.174.210 1 1 2619 20251203230245
+217.160.202.182 2 2 5238 20251216140342
+54.196.174.101 2 2 5238 20251211000026
+69.10.48.159 1 1 2105 20251215212519
+188.253.121.204 1 1 9089 20251205020318
+181.9.208.218 1 14 108583 20251201215424
+45.55.147.49 1 1 2093 20251210124112
+45.148.10.80 1 1 2619 20251201055127
+143.244.179.227 2 3 7852 20251212131413
+186.143.197.117 1 15 111197 20251201200720
+159.65.192.111 2 3 7852 20251230130930
+135.148.195.11 1 1 2619 20251212163325
+3.235.10.37 1 16 113811 20251212131013
+3.235.43.50 1 1 2619 20251219051032
+217.31.60.56 1 1 2619 20251230044633
+135.148.195.12 0 1 2614 
+162.55.132.97 1 1 9089 20251216221508
+54.212.199.11 1 1 9089 20251208004933
+34.227.148.252 1 1 2619 20251205202329
+98.80.234.26 1 1 2619 20251230174746
+149.57.180.57 1 1 2619 20251217135702
+167.99.123.113 2 3 7852 20251208141411
+91.98.139.215 1 1 2619 20251230184100
+205.169.39.18 1 14 109109 20251217073647
+3.86.238.97 2 2 5238 20251209190257
+52.203.163.37 1 1 2619 20251212160517
+181.15.96.68 1 15 111197 20251231103830
+206.81.12.161 2 3 7852 20251204142154
+205.169.39.25 1 1 2619 20251210113222
+34.123.170.104 0 13 106490 
+34.212.28.84 0 1 3509 
+104.197.69.115 1 1 2619 20251217054841
+34.214.102.235 0 1 2614 
+5.133.192.94 1 2 5233 20251215142600
+149.56.160.202 1 1 9089 20251230054249
+44.212.25.203 1 15 111197 20251204161844
+106.75.98.180 2 5 25341 20251229110533
+64.227.164.191 2 3 7852 20251216073128
+END_VISITOR
+
+# Date - Pages - Hits - Bandwidth - Visits
+BEGIN_DAY 30
+20251201 22 94 898922 8
+20251202 9 29 146872 5
+20251203 181 987 10025292 8
+20251204 209 563 5493954 7
+20251205 7 9 52617 6
+20251206 4 5 13090 2
+20251207 11 27 142911 7
+20251208 3 4 16941 2
+20251209 6 6 12569 4
+20251210 5 6 15236 4
+20251211 7 25 201322 4
+20251212 5 23 148245 4
+20251213 2 2 5238 1
+20251214 7 24 134450 5
+20251215 2 3 7338 2
+20251216 10 12 37888 7
+20251217 10 74 516353 7
+20251218 9 24 134213 5
+20251219 2 5 9336 2
+20251220 4 5 13090 2
+20251221 2 2 5238 1
+20251222 4 5 13090 2
+20251223 10 90 2534299 3
+20251224 5 8 20937 4
+20251226 7 35 235489 5
+20251227 2 3 7852 2
+20251228 3 4 10471 2
+20251229 6 15 76023 3
+20251230 9 12 37883 7
+20251231 52 310 7109048 5
+END_DAY
+
+# Session range - Number of visits
+BEGIN_SESSION 7
+30mn-1h 1
+30s-2mn 7
+2mn-5mn 2
+1h+ 1
+5mn-15mn 3
+0s-30s 111
+15mn-30mn 1
+END_SESSION
+
+# URL - Pages - Bandwidth - Entry - Exit
+# The 10 first Pages must be first (order not required for others)
+BEGIN_SIDER 78
+/ 159 427204 108 100
+/dashboard/inmueble/create_lot 43 143107 0 0
+/dashboard/inmueble/lots 41 418154 0 1
+/backoffice_new/planes/carrito 31 565792 0 3
+/dashboard/inmueble 30 126798 0 1
+/dashboard/inmueble/contracts 28 580997 0 0
+/iniciar-sesion/login_user 23 349 0 0
+/backoffice_new 21 280365 0 2
+/admin 18 23956 6 4
+/dashboard/inmueble/getDepartments 15 3675 0 0
+/backoffice_new/cobros/send_pin 1 44 0 0
+/dashboard/inmueble/api/search_customers 6 2664 0 0
+/dashboard/inmueble/projects 12 145512 0 0
+/assets/front/fonts/raleway/raleway-medium-webfont.woff 1 24636 0 0
+/cart/accionLote 6 3072 0 0
+/admin/contrato_pdf/163 1 15093 0 0
+/dashboard/clientes 1 12453 0 0
+/dashboard/inmueble/approve_contract 4 296 0 0
+/backoffice_new/contracts/cronograma/165 2 25331 0 0
+/registro/72920325 1 3894 0 0
+/backoffice_new/contracts/detail/165 1 10609 0 0
+/backoffice_new/contracts/cronograma/164 3 39591 0 0
+/dashboard/inmueble/getDistricts/68 4 512 0 0
+/backoffice_new/contracts/detail/164 2 21220 0 0
+/assets/admin/fonts/feather/fonts/feather.woff 2 52864 0 0
+/dashboard/inmueble/delete_lot/174 1 53 0 0
+/dashboard/inmueble/reject_contract 1 85 0 0
+/assets/admin/fonts/datta/fonts/pct.woff 1 1544 0 0
+/dashboard/inmueble/delete_lot/152 1 53 0 0
+/login 10 20930 10 7
+/assets/project_images/project_6928810c9be22.webp 4 416392 0 0
+/dashboard/inmueble/api/update_contract_status 1 16 0 0
+/assets/metronic8/plugins/global/fonts/@fortawesome/fa-solid-900.woff2 7 1079596 0 0
+/recuperar-contrasena 2 6101 1 1
+/dashboard/inmueble/delete_project/48 2 132 0 0
+/dashboard/inmueble/api/projects 6 2346 0 0
+/dashboard/inmueble/delete_lot/162 1 53 0 0
+/dashboard/inmueble/api/get_lot_details/162 1 446 0 0
+/dashboard/inmueble/api/get_lot_details/174 5 2242 0 0
+/dashboard/inmueble/delete_project/50 1 59 0 0
+/sitemap.xml 4 1904 0 4
+/dashboard/inmueble/getProvinces/8 4 684 0 0
+/dashboard/inmueble/api/delete_contract 7 112 0 0
+/dashboard/inmueble/delete_lot/153 1 53 0 0
+/dashboard/comisiones 3 14588 0 0
+/backoffice_new/contratos 6 64157 0 0
+/adminzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz 1 2328 1 1
+/assets/admin/js/pdfmake.min.js.map 1 1809 0 0
+/dashboard/inmueble/delete_project/33 2 132 0 0
+/iniciar-sesion 9 19363 0 1
+/dashboard/inmueble/delete_lot/157 1 53 0 0
+/assets/admin/js/bootstrap.min.js.map 1 1809 0 0
+/dashboard/inmueble/delete_lot/154 2 145 0 0
+/dashboard/inmueble/edit_lot/174 2 118 0 0
+/assets/project_images/project_692617adc5d6d.webp 2 290284 0 0
+/dashboard/inmueble/getDistricts/128 1 481 0 0
+/dashboard/inmueble/api/get_available_lots 6 2253 0 0
+/admin/contrato_word/166 1 11288 0 0
+/dashboard/inmueble/edit_lot/162 2 118 0 0
+/backoffice_new/cobros 3 38680 0 1
+/dashboard/estructura 4 36464 0 0
+/dashboard/inmueble/api/payment_plans 6 1404 0 0
+/dashboard/inmueble/delete_lot/151 2 145 0 0
+/dashboard/inmueble/delete_project/45 1 59 0 0
+/dashboard/inmueble/create_project 1 87 0 0
+/backoffice_new/contracts/registrarPagoCuota 2 110 0 0
+/dashboard/validate 9 459 0 0
+/dashboard/inmueble/delete_project/46 1 59 0 0
+/dashboard/inmueble/delete_lot/150 2 145 0 0
+/dashboard/inmueble/delete_lot/175 1 53 0 0
+/dashboard/inmueble/create_contract 2 174 0 0
+/backoffice_new/planes 13 143246 0 0
+/dashboard/inmueble/getProvinces/15 1 139 0 0
+/admin/contrato_word/165 1 22517 0 0
+/dashboard/inmueble/api/get_lot_details/175 1 444 0 0
+/assets/admin/css/bootstrap.min.css.map 1 1809 0 0
+/dashboard/inmueble/api/get_project/51 1 14712 0 0
+/admin/comisiones/inmobiliaria 7 34355 0 0
+END_SIDER

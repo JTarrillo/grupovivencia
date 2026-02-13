@@ -1,0 +1,609 @@
+@import url(animate.css);
+@import url(bootstrap.min.css);
+@import url(font-awesome.min.css);
+
+img.logo {
+    position: absolute;
+    z-index: 999;
+    width: 200px;
+    padding: 30px;
+}
+
+html {
+    overflow-x: hidden;
+}
+canvas {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    opacity: 0.4;
+    overflow: hidden;
+}
+body {
+    font-family: "Poppins", sans-serif;
+    font-family: "Open Sans", sans-serif;
+    font-family: "Montserrat", sans-serif;
+    background-color: #3e3e3e;
+    height: 100vh;
+    background-size: cover;
+    width: 100%;
+    background-repeat: no-repeat;
+    position: relative;
+    overflow: hidden;
+    z-index: 99;
+}
+
+@media (max-width: 1599px) {
+    .content h2 {
+        font-size: 85px !important;
+    }
+
+    p.content__text {
+        margin: 0 auto 200px !important;
+    }
+}
+
+@media (max-width: 1365px) {
+    .content h2 {
+        font-size: 54px !important;
+    }
+
+    .time li b {
+        font-size: 71px !important;
+    }
+}
+
+@media (max-width: 1023px) {
+    .time li {
+        width: 180px !important;
+    }
+
+    .time li span {
+        font-size: 22px !important;
+    }
+
+    p.content__text {
+        width: auto !important;
+        margin: 0 auto 300px !important;
+        max-width: 650px !important;
+        padding: 0px 20px !important;
+    }
+
+    body {
+        overflow: visible;
+        overflow-x: auto;
+    }
+}
+.load {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    z-index: 999999;
+    background: #3a2323;
+    background: -moz-radial-gradient(circle, #eee 0%, #b1b1b1 100%);
+    background: -webkit-radial-gradient(circle, #eee 0%, #b1b1b1 100%);
+    background: radial-gradient(circle, #eee 0%, #b1b1b1 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#eeeeee", endColorstr="#b1b1b1", GradientType=1);
+}
+.load .lds-ripple {
+    display: inline-block;
+    position: relative;
+    width: 64px;
+    height: 64px;
+}
+.load .lds-ripple div {
+    position: absolute;
+    border: 4px solid #363636;
+    opacity: 1;
+    border-radius: 50%;
+    animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+.load .lds-ripple div:nth-child(2) {
+    animation-delay: -0.5s;
+}
+@keyframes lds-ripple {
+    0% {
+        top: 28px;
+        left: 28px;
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+    100% {
+        top: -1px;
+        left: -1px;
+        width: 58px;
+        height: 58px;
+        opacity: 0;
+    }
+}
+.main img.logo {
+    position: relative;
+    z-index: 99;
+    padding: 20px;
+    width: 112px;
+}
+.main .content {
+    position: relative;
+    z-index: 99;
+}
+.main .content .textbox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    flex-direction: column;
+    margin-top: -120px;
+    padding-top: 100px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+@media (max-width: 999px) {
+    .main .content .textbox {
+        margin-top: 20px;
+    }
+}
+@media (max-width: 767px) {
+    .main .content .textbox {
+        margin-top: -60px;
+    }
+}
+.main .content .textbox img.logo2 {
+    padding: 20px;
+}
+@media (max-width: 767px) {
+    .inner {
+        position: unset !important;
+        margin-top: 100px !important;
+    }
+
+    p.content__text {
+        margin: 0 auto 20px !important;
+    }
+
+    .main .content .textbox img.logo2 {
+        display: none;
+    }
+    .time li b {
+        font-size: 30px !important;
+    }
+
+    .time li span {
+        font-size: 14px !important;
+    }
+
+    ul#timer {
+        display: flex;
+    }
+
+    .time li {
+        width: 23% !important;
+    }
+
+    p.content__text {
+        font-size: 15px!important;
+    }
+
+    .content h2 {
+        font-size: 33px !important;
+        padding: 0px 21px;
+        margin-top: 500px !important;
+    }
+}
+.main .content .textbox p {
+    display: block;
+    text-align: center;
+    font-size: 25px;
+    text-transform: uppercase;
+    color: #fff;
+    font-family: "Open Sans", sans-serif;
+    margin-bottom: 0px;
+    margin-top: 10px;
+}
+.main .content .textbox span {
+    color: #fff;
+    display: block;
+    max-width: 700px;
+    text-align: center;
+    margin: 38px 0px;
+    font-size: 20px;
+}
+.main .content .textbox h1 {
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 90px;
+    font-family: "Montserrat", sans-serif;
+    color: #fff;
+    position: relative;
+}
+.main .content .textbox h1:after {
+    position: absolute;
+    content: "";
+    height: 6px;
+    max-width: 251px;
+    background-color: #fff;
+    left: 0px;
+    right: 0px;
+    top: auto;
+    margin: 0 auto;
+    bottom: -20px;
+    border-radius: 20px;
+}
+.main .content .time {
+    padding: 0px;
+    text-align: center;
+}
+.main .content .time li {
+    display: inline-block;
+    width: 240px;
+    color: #fff;
+    text-align: right;
+    text-transform: uppercase;
+}
+p.content__text {
+    width: 800px;
+    margin: 0 auto 300px;
+    text-transform: capitalize;
+    line-height: 30px;
+    font-size: 19px;
+}
+.content h2 {
+    font-size: 100px;
+}
+
+.content__title b,
+.time li b {
+    color: #ffde00;
+}
+
+.inner {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    bottom: 50px;
+}
+
+.main .content .time li b {
+    font-size: 100px;
+    font-weight: 800;
+    line-height: normal;
+    color: #ffde00;
+    font-family: "Open Sans", sans-serif;
+}
+.main .content .time li span {
+    display: block;
+    font-size: 30px;
+}
+.main .content .sociallinks {
+    position: fixed;
+    z-index: 99;
+    left: 20px;
+    overflow: visible !important;
+    top: 50%;
+    transform: translatey(-50%);
+}
+.main .content .sociallinks:after {
+    position: absolute;
+    content: "";
+    height: 50%;
+    width: 1px;
+    background-color: #fff;
+    left: 20px;
+    top: 97%;
+    display: none;
+}
+.main .content .sociallinks:before {
+    position: absolute;
+    content: "";
+    height: 50%;
+    width: 1px;
+    background-color: #fff;
+    left: 20px;
+    top: -55%;
+    display: none;
+}
+.main .content .sociallinks a {
+    display: block;
+    color: #fff;
+    font-size: 15px;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.490196);
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+    margin-bottom: 15px;
+    line-height: 40px;
+    position: relative;
+}
+.main .content .sociallinks a i {
+    position: relative;
+    z-index: 999;
+}
+.main .content .sociallinks a:after {
+    position: absolute;
+    width: 40px;
+    top: 0px;
+    left: 0px;
+    height: 40px;
+    transition: 0.6s;
+    border-radius: 100%;
+    transform: scale(0);
+    transform-origin: center;
+    content: "";
+    background-color: rgba(84, 93, 98, 0.4);
+    z-index: -1;
+}
+.main .content .sociallinks a:hover:after {
+    transition: 0.5s;
+    transform: scale(1.4);
+    transform-origin: center;
+}
+.main .content span.copyrights {
+    position: fixed;
+    right: -78px;
+    top: 50%;
+    transform: translateY(-50%);
+    transform: rotate(-90deg);
+    color: #fff;
+    font-size: 16px;
+    font-family: "Open Sans", sans-serif;
+    line-height: normal;
+    text-transform: capitalize;
+}
+.main .content span.copyrights:after {
+    position: absolute;
+    content: "";
+    height: 1px;
+    width: 100%;
+    display: none;
+    background-color: #fff;
+    left: -110%;
+    top: 13px;
+}
+.main .content span.copyrights:before {
+    position: absolute;
+    content: "";
+    height: 1px;
+    display: none;
+    width: 100%;
+    background-color: #fff;
+    left: 110%;
+    top: 13px;
+}
+.main:after {
+    display: block;
+    content: "";
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    top: 0px;
+    left: 0px;
+}
+.newsletter_btn {
+    position: fixed;
+    right: 10px;
+    top: 20px;
+    width: 40px;
+    z-index: 9999;
+    outline: none !important;
+    height: 40px;
+    display: block;
+    border-radius: 100%;
+    background-color: rgba(0, 0, 0, 0.49);
+    color: #fff;
+    border: none;
+    line-height: 40px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 14px;
+}
+.newsletter_btn i.fa.fa-times {
+    transform: scale(0);
+    transition: 0.3s;
+    display: none;
+}
+.newsletterbox {
+    position: fixed;
+    left: 0pc;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    transition: 0.4s;
+    transform: scale(0);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(23, 23, 23, 0.9);
+    z-index: 99;
+}
+.newsletterbox.openit {
+    transition: 0.4s;
+    transform: scale(1);
+}
+.hideit {
+    transform: scale(0);
+    transition: 0.3s;
+    visibility: hidden;
+    display: none;
+}
+.showit {
+    transform: scale(1) !important;
+    transition: 0.3s;
+    visibility: visible;
+    display: block !important;
+}
+.newsletter {
+    width: 70%;
+    text-align: center;
+}
+.newsletter p {
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+.newsletter h2 {
+    font-size: 50px;
+    font-weight: lighter;
+    letter-spacing: 7px;
+}
+.newsletter .form-group {
+    position: relative;
+    width: 70%;
+    margin: 0 auto;
+}
+.newsletter input[type="mail"] {
+    width: 100%;
+    height: 70px;
+    background-color: rgba(204, 204, 204, 0.121569);
+    border: none;
+    border-radius: 45px;
+    padding: 0px 40px;
+    margin-top: 20px;
+    color: #fff;
+    outline: none !important;
+}
+.newsletter button {
+    position: absolute;
+    top: 32px;
+    right: 32px;
+    background-color: transparent;
+    border: none;
+    color: #a5a5a5;
+    outline: none !important;
+    font-size: 31px;
+    transition: 0.3s;
+}
+.newsletter button:hover {
+    color: #fff;
+    transition: 0.3s;
+}
+@media (max-width: 1599px) {
+    .main .content .textbox h1 {
+        font-size: 70px;
+    }
+    .main .content .time li b {
+        font-size: 55px;
+    }
+    .main .content .textbox p {
+        font-size: 15px;
+        margin-bottom: 3px;
+    }
+    .main .content .time li span {
+        font-size: 15px;
+    }
+    .main .content .time li {
+        width: 145px;
+    }
+}
+@media (max-width: 1023px) {
+    .main .content .time li {
+        width: 145px;
+    }
+    .main .content .textbox h1 {
+        font-size: 45px;
+        margin: 10px 0px;
+    }
+    .main .content .textbox h1:after {
+        height: 3px;
+        max-width: 155px;
+    }
+    body {
+        overflow-x: auto !important;
+    }
+}
+@media (max-width: 767px) {
+    .main .content .sociallinks {
+        margin: 46px auto auto auto !important;
+        width: 220px;
+        position: unset;
+    }
+    .main .content .sociallinks a {
+        margin-bottom: 0px;
+        margin-right: 15px;
+        display: inline-block;
+    }
+    .main .content .sociallinks a:last-child {
+        margin-right: 0px;
+    }
+    .main .content .time li b {
+        font-size: 40px;
+    }
+    .main .content .time li {
+        width: auto;
+        margin-right: 20px;
+    }
+    .main .content .time li:last-child {
+        margin-right: 0px;
+    }
+    span.copyrights {
+        transform: rotate(0deg) !important;
+        margin: 0 auto !important;
+        text-align: center;
+        color: #fff !important;
+        z-index: 9;
+        position: unset !important;
+        display: block;
+    }
+    .newsletter_btn {
+        right: 15px;
+        top: 17px;
+    }
+    .newsletter h2 {
+        font-size: 35px;
+        font-weight: lighter;
+        letter-spacing: 2px;
+    }
+    .newsletter p {
+        font-size: 13px;
+        margin-bottom: 7px;
+    }
+    .newsletter .form-group {
+        position: relative;
+        width: 100%;
+    }
+    .newsletter input[type="mail"] {
+        height: 60px;
+    }
+    .newsletter button {
+        position: absolute;
+        top: 33px;
+        right: 19px;
+        font-size: 21px;
+    }
+    .main {
+        height: 100%;
+        width: 100%;
+    }
+}
+@media (max-width: 479px) {
+    .main .content .textbox h1 {
+        font-size: 35px;
+    }
+    .main .content .time li b {
+        font-size: 28px;
+    }
+    .main .content .time li span {
+        font-size: 12px;
+    }
+    .main .content .textbox span {
+        margin: 33px auto 20px auto;
+        font-size: 15px;
+    }
+}
+@media (max-width: 359px) {
+    .main .content .textbox h1 {
+        font-size: 26px;
+    }
+    .newsletter h2 {
+        font-size: 26px;
+    }
+}

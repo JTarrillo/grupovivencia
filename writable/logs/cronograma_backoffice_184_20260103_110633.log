@@ -1,0 +1,982 @@
+Array
+(
+    [contractId] => 184
+    [contract] => Array
+        (
+            [id] => 184
+            [lot_id] => 171
+            [customer_id] => 203
+            [sponsor_id] => 
+            [payment_plan_id] => 2
+            [contract_number] => GV-2026-001
+            [total_amount] => 1000.00
+            [down_payment] => 0.00
+            [financed_amount] => 0.00
+            [monthly_payment] => 27.78
+            [interest_rate] => 0.00
+            [contract_date] => 2026-01-02
+            [start_date] => 0000-00-00
+            [end_date] => 0000-00-00
+            [status] => 
+            [contract_file] => uploads/comprobantes/1767399018_0dfa704d0752d703bdc5.jpg
+            [voucher_url] => uploads/comprobantes/1767399018_0dfa704d0752d703bdc5.jpg
+            [is_approved] => 0
+            [is_rejected] => 0
+            [notes] => 
+            [created_at] => 2026-01-02 19:10:18
+            [updated_at] => 2026-01-02 19:10:37
+            [financing_months] => 36
+            [reservation_amount] => 
+            [reservation_date] => 
+            [is_reserved] => 0
+            [contract_type] => arras
+            [bonus_id] => 
+        )
+
+    [cronograma] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 4632
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 36
+                    [due_date] => 2028-12-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 0.00
+                    [status] => paid
+                    [paid_date] => 2026-01-03 08:59:27
+                    [paid_amount] => 27.78
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-03 08:59:27
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [1] => Array
+                (
+                    [id] => 4631
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 35
+                    [due_date] => 2028-11-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 27.78
+                    [status] => paid
+                    [paid_date] => 2026-01-03 09:27:40
+                    [paid_amount] => 27.78
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-03 09:27:40
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [2] => Array
+                (
+                    [id] => 4630
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 34
+                    [due_date] => 2028-10-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 55.56
+                    [status] => registered
+                    [paid_date] => 2026-01-03 10:32:46
+                    [paid_amount] => 27.78
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-03 10:32:46
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => uploads/comprobantes/1767454366_4e383d65ed79d5624be2.jpg
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [3] => Array
+                (
+                    [id] => 4629
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 33
+                    [due_date] => 2028-09-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 83.33
+                    [status] => registered
+                    [paid_date] => 2026-01-03 10:36:30
+                    [paid_amount] => 27.78
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-03 10:36:30
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => uploads/comprobantes/1767454590_f6790e614fb3c350db9b.jpg
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [4] => Array
+                (
+                    [id] => 4628
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 32
+                    [due_date] => 2028-08-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 111.11
+                    [status] => registered
+                    [paid_date] => 2026-01-03 10:39:32
+                    [paid_amount] => 27.78
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-03 10:39:32
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => uploads/comprobantes/1767454772_19d2363ce2e9887aa1b0.jpg
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [5] => Array
+                (
+                    [id] => 4627
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 31
+                    [due_date] => 2028-07-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 138.89
+                    [status] => registered
+                    [paid_date] => 2026-01-03 10:45:55
+                    [paid_amount] => 27.78
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-03 10:45:55
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => uploads/comprobantes/1767455155_ad6f6b4a64996715e922.jpg
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [6] => Array
+                (
+                    [id] => 4626
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 30
+                    [due_date] => 2028-06-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 166.67
+                    [status] => registered
+                    [paid_date] => 2026-01-03 10:50:46
+                    [paid_amount] => 27.78
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => uploads/comprobantes/1767455446_fd26b599f4d106bf548a.jpg
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [7] => Array
+                (
+                    [id] => 4625
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 29
+                    [due_date] => 2028-05-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 194.44
+                    [status] => registered
+                    [paid_date] => 2026-01-03 10:53:52
+                    [paid_amount] => 27.78
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => uploads/comprobantes/1767455632_1887110fa3d6cc6e2535.jpg
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [8] => Array
+                (
+                    [id] => 4624
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 28
+                    [due_date] => 2028-04-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 222.22
+                    [status] => registered
+                    [paid_date] => 2026-01-03 10:55:03
+                    [paid_amount] => 27.78
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => uploads/comprobantes/1767455703_81f3db84a083b69a3f07.jpg
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [9] => Array
+                (
+                    [id] => 4623
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 27
+                    [due_date] => 2028-03-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 250.00
+                    [status] => registered
+                    [paid_date] => 2026-01-03 10:58:48
+                    [paid_amount] => 27.78
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => uploads/comprobantes/1767455928_c6608409ed6d25bcb000.jpg
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [10] => Array
+                (
+                    [id] => 4622
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 26
+                    [due_date] => 2028-02-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 277.78
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [11] => Array
+                (
+                    [id] => 4621
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 25
+                    [due_date] => 2028-01-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 305.56
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [12] => Array
+                (
+                    [id] => 4620
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 24
+                    [due_date] => 2027-12-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 333.33
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [13] => Array
+                (
+                    [id] => 4619
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 23
+                    [due_date] => 2027-11-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 361.11
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [14] => Array
+                (
+                    [id] => 4618
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 22
+                    [due_date] => 2027-10-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 388.89
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [15] => Array
+                (
+                    [id] => 4617
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 21
+                    [due_date] => 2027-09-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 416.67
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [16] => Array
+                (
+                    [id] => 4616
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 20
+                    [due_date] => 2027-08-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 444.44
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [17] => Array
+                (
+                    [id] => 4615
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 19
+                    [due_date] => 2027-07-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 472.22
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [18] => Array
+                (
+                    [id] => 4614
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 18
+                    [due_date] => 2027-06-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 500.00
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [19] => Array
+                (
+                    [id] => 4613
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 17
+                    [due_date] => 2027-05-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 527.78
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [20] => Array
+                (
+                    [id] => 4612
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 16
+                    [due_date] => 2027-04-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 555.56
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [21] => Array
+                (
+                    [id] => 4611
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 15
+                    [due_date] => 2027-03-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 583.33
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [22] => Array
+                (
+                    [id] => 4610
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 14
+                    [due_date] => 2027-02-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 611.11
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [23] => Array
+                (
+                    [id] => 4609
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 13
+                    [due_date] => 2027-01-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 638.89
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [24] => Array
+                (
+                    [id] => 4608
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 12
+                    [due_date] => 2026-12-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 666.67
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [25] => Array
+                (
+                    [id] => 4607
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 11
+                    [due_date] => 2026-11-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 694.44
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [26] => Array
+                (
+                    [id] => 4606
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 10
+                    [due_date] => 2026-10-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 722.22
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [27] => Array
+                (
+                    [id] => 4605
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 9
+                    [due_date] => 2026-09-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 750.00
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [28] => Array
+                (
+                    [id] => 4604
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 8
+                    [due_date] => 2026-08-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 777.78
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [29] => Array
+                (
+                    [id] => 4603
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 7
+                    [due_date] => 2026-07-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 805.56
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [30] => Array
+                (
+                    [id] => 4602
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 6
+                    [due_date] => 2026-06-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 833.33
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [31] => Array
+                (
+                    [id] => 4601
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 5
+                    [due_date] => 2026-05-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 861.11
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [32] => Array
+                (
+                    [id] => 4600
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 4
+                    [due_date] => 2026-04-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 888.89
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [33] => Array
+                (
+                    [id] => 4599
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 3
+                    [due_date] => 2026-03-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 916.67
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [34] => Array
+                (
+                    [id] => 4598
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 2
+                    [due_date] => 2026-02-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 944.44
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+            [35] => Array
+                (
+                    [id] => 4597
+                    [lot_id] => 171
+                    [payment_plan_id] => 2
+                    [installment_number] => 1
+                    [due_date] => 2026-01-02
+                    [amount] => 27.78
+                    [capital] => 27.78
+                    [interest] => 0.00
+                    [interest_accrued] => 
+                    [interest_accrued_date] => 
+                    [balance] => 972.22
+                    [status] => pending
+                    [paid_date] => 
+                    [paid_amount] => 
+                    [created_at] => 2026-01-02 19:10:18
+                    [updated_at] => 2026-01-02 19:10:18
+                    [contract_id] => 184
+                    [pdf_url] => 
+                    [xml_url] => 
+                    [comprobante_url] => 
+                    [validado_notas] => 
+                    [validated_at] => 
+                )
+
+        )
+
+    [pagos_realizados] => 0
+    [pagos_pendientes] => 36
+    [monto_realizado] => 0
+    [monto_pendiente] => 1000.08
+    [total_pagos] => 36
+    [timestamp] => 2026-01-03 11:06:33
+)

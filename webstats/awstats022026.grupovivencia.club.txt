@@ -1,0 +1,372 @@
+AWSTATS DATA FILE 7.7 (build 20161204)
+# If you remove this file, all statistics for date 202602 will be lost/reset.
+# Last config file used to build this data file was /etc/awstats/awstats.grupovivencia.club.conf.
+
+# Position (offset in bytes) in this file for beginning of each section for
+# direct I/O access. If you made changes somewhere in this file, you should
+# also remove completely the MAP section (AWStats will rewrite it at next
+# update).
+BEGIN_MAP 28
+POS_GENERAL 2001                
+POS_TIME 2675                
+POS_VISITOR 7374                
+POS_DAY 9016                
+POS_DOMAIN 3316                
+POS_LOGIN 3665                
+POS_ROBOT 3820                
+POS_WORMS 4406                
+POS_EMAILSENDER 4537                
+POS_EMAILRECEIVER 4680                
+POS_SESSION 9307                
+POS_SIDER 9485                
+POS_FILETYPES 4815                
+POS_DOWNLOADS 5089                
+POS_OS 5137                
+POS_BROWSER 5314                
+POS_SCREENSIZE 5857                
+POS_UNKNOWNREFERER 5931                
+POS_UNKNOWNREFERERBROWSER 6052                
+POS_ORIGIN 6221                
+POS_SEREFERRALS 6357                
+POS_PAGEREFS 6520                
+POS_SEARCHWORDS 6755                
+POS_KEYWORDS 6907                
+POS_MISC 2339                
+POS_ERRORS 6966                
+POS_CLUSTER 3521                
+POS_SIDER_404 7065                
+END_MAP
+
+# LastLine    = Date of last record processed - Last record line number in last log - Last record offset in last log - Last record signature value
+# FirstTime   = Date of first visit for history file
+# LastTime    = Date of last visit for history file
+# LastUpdate  = Date of last update - Nb of parsed records - Nb of parsed old records - Nb of parsed new records - Nb of parsed corrupted - Nb of parsed dropped
+# TotalVisits = Number of visits
+# TotalUnique = Number of unique visitors
+# MonthHostsKnown   = Number of hosts known
+# MonthHostsUnKnown = Number of hosts unknown
+BEGIN_GENERAL 8
+LastLine 20260211213547 1371 472413 0
+FirstTime 20260201055553
+LastTime 20260211081004
+LastUpdate 20260212044047 1371 1332 39 0 0
+TotalVisits 42                  
+TotalUnique 40                  
+MonthHostsKnown 0                   
+MonthHostsUnknown 41                  
+END_GENERAL
+
+# Misc ID - Pages - Hits - Bandwidth
+BEGIN_MISC 10
+JavaEnabled 0 0 0
+WindowsMediaPlayerSupport 0 0 0
+QuickTimeSupport 0 0 0
+FlashSupport 0 0 0
+JavascriptDisabled 0 0 0
+RealPlayerSupport 0 0 0
+PDFSupport 0 0 0
+DirectorSupport 0 0 0
+TotalMisc 0 0 0
+AddToFavourites 0 6 0
+END_MISC
+
+# Hour - Pages - Hits - Bandwidth - Not viewed Pages - Not viewed Hits - Not viewed Bandwidth
+BEGIN_TIME 24
+0 1 2 5233 1 2 2206
+1 1 1 2093 5 34 529100
+2 0 0 0 1 15 93637
+3 1 1 2105 1 18 122832
+4 0 0 0 0 0 0
+5 7 7 18629 0 0 0
+6 1 9 32728 5 9 18307
+7 0 0 0 7 11 24330
+8 8 9 24376 0 0 0
+9 1 1 2619 2 3 6240
+10 0 0 0 3 4 8848
+11 0 0 0 4 19 102647
+12 4 13 42685 0 2 3634
+13 4 4 11286 5 60 476142
+14 9 12 55423 1 18 98926
+15 0 0 0 2 3 7573
+16 0 0 0 1 14 91670
+17 23 259 6619266 3 12 108144
+18 13 55 552685 1 18 248915
+19 0 0 0 2 16 250309
+20 0 0 0 2 17 337798
+21 0 0 0 2 2 3008
+22 3 6 27960 1 16 245823
+23 3 4 25624 2 12 194954
+END_TIME
+
+# Domain - Pages - Hits - Bandwidth
+# The 10 first Pages must be first (order not required for others)
+BEGIN_DOMAIN 10
+pe 29 307 7153618
+us 22 24 100969
+se 10 11 31234
+cn 6 25 95007
+in 4 6 15704
+nl 3 4 10471
+ca 2 3 7852
+bg 1 1 2619
+ch 1 1 2619
+mt 1 1 2619
+END_DOMAIN
+
+# Cluster ID - Pages - Hits - Bandwidth
+BEGIN_CLUSTER 0
+END_CLUSTER
+
+# Login - Pages - Hits - Bandwidth - Last visit
+# The 10 first Pages must be first (order not required for others)
+BEGIN_LOGIN 0
+END_LOGIN
+
+# Robot ID - Hits - Bandwidth - Last visit - Hits on robots.txt
+# The 10 first Hits must be first (order not required for others)
+BEGIN_ROBOT 13
+AhrefsBot/ 79 613624 20260211184416 14
+Googlebot/ 77 360034 20260211143416 24
+bingbot/ 49 282293 20260211213547 5
+ning 7 18333 20260206060153 0
+SemrushBot/ 5 11194 20260207093302 2
+robot 5 9025 20260211133605 5
+nutch 3 29299 20260204011814 1
+bot[\s_+:,\.\;\/\\-] 2 4954 20260202151807 1
+php 2 3610 20260211131238 0
+scanner 1 2619 20260205212823 0
+Googlebot\-Image/ 1 2614 20260205073728 0
+checker 1 2619 20260211155107 0
+unknown 1 2335 20260210225758 1
+END_ROBOT
+
+# Worm ID - Hits - Bandwidth - Last visit
+# The 5 first Hits must be first (order not required for others)
+BEGIN_WORMS 0
+END_WORMS
+
+# EMail - Hits - Bandwidth - Last visit
+# The 20 first Hits must be first (order not required for others)
+BEGIN_EMAILSENDER 0
+END_EMAILSENDER
+
+# EMail - Hits - Bandwidth - Last visit
+# The 20 first hits must be first (order not required for others)
+BEGIN_EMAILRECEIVER 0
+END_EMAILRECEIVER
+
+# Files type - Hits - Bandwidth - Bandwidth without compression - Bandwidth after compression
+BEGIN_FILETYPES 12
+Unknown 31 210549 0 0
+png 86 330156 0 0
+jpeg 1 8174 0 0
+js 139 5581032 0 0
+svg 1 284 0 0
+gif 9 16281 0 0
+css 65 720544 0 0
+html 45 124554 0 0
+woff2 1 154228 0 0
+woff 1 26432 0 0
+xml 1 476 0 0
+jpg 3 250002 0 0
+END_FILETYPES
+
+# Downloads - Hits - Bandwidth
+BEGIN_DOWNLOADS 0
+END_DOWNLOADS
+
+# OS ID - Hits
+BEGIN_OS ID - Hits - Pages 9
+macosx 9 8
+Unknown 3 1
+ios_iphone 9 9
+winnt 1 1
+win10 307 40
+winxp 1 0
+linuxandroid 32 4
+palmos 1 1
+linux 20 15
+END_OS
+
+# Browser ID - Hits - Pages
+BEGIN_BROWSER 25
+chrome125.0.0.0 3 3
+chrome105.0.0.0 2 1
+chrome99.0.4844.51 1 1
+safari17.1.2 4 4
+chrome91.0.4472.114 1 1
+chrome100.0.4896.127 1 1
+chrome144.0.0.0 297 31
+safari17.3.1 8 8
+chrome126.0.0.0 1 1
+safari3.0 1 1
+netscape4.0 1 1
+firefox142.0 6 3
+chrome124.0.0.0 1 1
+chrome98.0.4758.80 1 1
+firefox11.0 1 0
+chrome88.0.4324.41 1 1
+chrome143.0.0.0 30 2
+chrome142.0.0.0 11 9
+chrome96.0.4664.104 1 1
+chrome114.0.0.0 3 3
+Unknown 4 2
+chrome82.0.545 1 0
+chrome66.0.1102 1 1
+chrome101.0.4951.41 1 1
+epiphany 1 1
+END_BROWSER
+
+# Screen size - Hits
+BEGIN_SCREENSIZE 0
+END_SCREENSIZE
+
+# Unknown referer OS - Last visit date
+BEGIN_UNKNOWNREFERER 1
+Go-http-client/1.1 20260210225758
+END_UNKNOWNREFERER
+
+# Unknown referer Browser - Last visit date
+BEGIN_UNKNOWNREFERERBROWSER 2
+Uzbl_(Webkit_1.3)_(Linux_i686_[i686]) 20260202184327
+Go-http-client/1.1 20260210225758
+END_UNKNOWNREFERERBROWSER
+
+# Origin - Pages - Hits 
+BEGIN_ORIGIN 6
+From0 43 85
+From1 1 1
+From2 7 7
+From3 4 20
+From4 24 270
+From5 0 0
+END_ORIGIN
+
+# Search engine referers ID - Pages - Hits
+BEGIN_SEREFERRALS 1
+www_google_com 7 7
+END_SEREFERRALS
+
+# External page referers - Pages - Hits
+# The 10 first Pages must be first (order not required for others)
+BEGIN_PAGEREFS 2
+http://www.ieamblog.online 4 4
+http://www.ieamblog.online/blog/222555587/profile/ 0 16
+END_PAGEREFS
+
+# Search keyphrases - Number of search
+# The 10 first number of search must be first (order not required for others)
+BEGIN_SEARCHWORDS 0
+END_SEARCHWORDS
+
+# Search keywords - Number of search
+# The 10 first number of search must be first (order not required for others)
+BEGIN_KEYWORDS 0
+END_KEYWORDS
+
+# Errors - Hits - Bandwidth
+BEGIN_ERRORS 2
+503 64 1621612
+302 2 0
+END_ERRORS
+
+# URL with 404 errors - Hits - Last URL referrer
+BEGIN_SIDER_404 0
+END_SIDER_404
+
+# Host - Pages - Hits - Bandwidth - Last visit date - [Start date of last visit] - [Last page of last visit]
+# [Start date of last visit] and [Last page of last visit] are saved only if session is not finished
+# The 10 first Hits must be first (order not required for others)
+BEGIN_VISITOR 41
+190.237.61.223 23 217 6447380 20260210183222
+64.190.76.4 3 3 31867 20260203142503
+16.56.19.247 3 3 6894 20260205233026
+190.216.191.102 2 30 241922 20260210170949
+106.75.65.140 2 5 25341 20260210225758
+34.235.151.160 2 2 5238 20260204173727
+23.20.248.73 2 2 5238 20260211081004
+54.174.21.162 2 2 5238 20260202184327
+175.44.42.154 2 18 65456 20260206120249
+139.59.0.142 2 3 7852 20260206143849
+179.6.63.4 1 15 130725 20260210171011
+194.103.222.73 1 1 2619 20260207052433
+193.181.18.79 1 1 3429 20260209131747
+190.216.191.101 1 15 111197 20260210170933
+193.180.222.63 1 1 3429 20260209084942
+161.115.235.36 1 1 2093 20260203010743
+205.209.106.132 1 1 2105 20260208121150
+147.182.187.41 2 3 7852 20260210141907
+192.71.52.28 1 1 2619 20260207052432
+142.93.215.24 2 3 7852 20260202145113
+194.103.213.99 1 1 2619 20260209084941
+66.102.8.65 0 1 18730 
+5.198.253.239 1 1 2619 20260207052433
+98.81.1.171 2 2 5238 20260206183634
+175.44.42.241 1 1 2105 20260206050744
+188.166.90.100 2 3 7852 20260210080401
+194.14.75.100 1 1 2619 20260209084943
+175.44.42.53 1 1 2105 20260206033608
+134.122.34.213 2 3 7852 20260208121943
+193.183.83.60 1 1 2619 20260209131748
+5.133.192.168 1 2 5233 20260207004138
+177.91.255.68 1 15 111197 20260210171005
+192.71.95.125 1 1 2619 20260209131746
+165.232.156.173 2 2 5238 20260201055553
+179.6.122.5 1 15 111197 20260210171011
+3.139.242.79 1 1 2619 20260209225144
+109.199.118.129 1 1 2619 20260204090642
+193.183.170.49 1 1 3429 20260207052432
+192.36.52.75 1 1 2619 20260209131748
+98.82.7.182 1 1 2619 20260208170733
+192.71.52.78 1 1 2619 20260209084943
+END_VISITOR
+
+# Date - Pages - Hits - Bandwidth - Visits
+BEGIN_DAY 11
+20260201 2 2 5238 1
+20260202 4 5 13090 2
+20260203 4 4 33960 2
+20260204 3 3 7857 2
+20260205 3 3 6894 1
+20260206 8 25 82756 6
+20260207 5 6 16519 5
+20260208 4 5 12576 3
+20260209 9 9 25191 9
+20260210 35 319 7213393 10
+20260211 2 2 5238 1
+END_DAY
+
+# Session range - Number of visits
+BEGIN_SESSION 4
+30s-2mn 1
+0s-30s 39
+5mn-15mn 1
+2mn-5mn 1
+END_SESSION
+
+# URL - Pages - Bandwidth - Entry - Exit
+# The 10 first Pages must be first (order not required for others)
+BEGIN_SIDER 22
+/ 45 124554 32 28
+/recuperar-contrasena 5 26673 3 5
+/iniciar-sesion 3 7857 3 3
+/admin 3 3870 2 1
+/login 2 4186 1 2
+/iniciar-sesion/login_user 2 31 0 0
+/backoffice_new/planes/carrito 2 37623 0 0
+/dashboard/inmueble 2 8443 0 0
+/dashboard/clientes 2 24780 0 0
+/dashboard/usuarios 1 4452 0 0
+/dashboard/clientes/validate 1 51 0 0
+/cart/accionLote 1 764 0 0
+/dashboard/validate 1 51 0 0
+/assets/metronic8/plugins/global/fonts/@fortawesome/fa-solid-900.woff2 1 154228 0 0
+/admin/contrato_word/189 1 22536 0 0
+/backoffice_new/planes 1 11008 1 0
+/assets/admin/fonts/feather/fonts/feather.woff 1 26432 0 0
+/sitemap.xml 1 476 0 1
+/dashboard/clientes/load/1 1 7949 0 0
+/dashboard/inmueble/contracts 1 22197 0 0
+/admin/contrato_pdf/189 1 15072 0 1
+/backoffice_new 1 13006 0 1
+END_SIDER

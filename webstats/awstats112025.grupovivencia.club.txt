@@ -1,0 +1,862 @@
+AWSTATS DATA FILE 7.7 (build 20161204)
+# If you remove this file, all statistics for date 202511 will be lost/reset.
+# Last config file used to build this data file was /etc/awstats/awstats.grupovivencia.club.conf.
+
+# Position (offset in bytes) in this file for beginning of each section for
+# direct I/O access. If you made changes somewhere in this file, you should
+# also remove completely the MAP section (AWStats will rewrite it at next
+# update).
+BEGIN_MAP 28
+POS_GENERAL 2001                
+POS_TIME 2695                
+POS_VISITOR 15376               
+POS_DAY 20984               
+POS_DOMAIN 3508                
+POS_LOGIN 3942                
+POS_ROBOT 4097                
+POS_WORMS 4704                
+POS_EMAILSENDER 4835                
+POS_EMAILRECEIVER 4978                
+POS_SESSION 21408               
+POS_SIDER 21617               
+POS_FILETYPES 5113                
+POS_DOWNLOADS 5481                
+POS_OS 5692                
+POS_BROWSER 5911                
+POS_SCREENSIZE 7393                
+POS_UNKNOWNREFERER 7467                
+POS_UNKNOWNREFERERBROWSER 7719                
+POS_ORIGIN 7966                
+POS_SEREFERRALS 8109                
+POS_PAGEREFS 8274                
+POS_SEARCHWORDS 8422                
+POS_KEYWORDS 8574                
+POS_MISC 2357                
+POS_ERRORS 8633                
+POS_CLUSTER 3798                
+POS_SIDER_404 8793                
+END_MAP
+
+# LastLine    = Date of last record processed - Last record line number in last log - Last record offset in last log - Last record signature value
+# FirstTime   = Date of first visit for history file
+# LastTime    = Date of last visit for history file
+# LastUpdate  = Date of last update - Nb of parsed records - Nb of parsed old records - Nb of parsed new records - Nb of parsed corrupted - Nb of parsed dropped
+# TotalVisits = Number of visits
+# TotalUnique = Number of unique visitors
+# MonthHostsKnown   = Number of hosts known
+# MonthHostsUnKnown = Number of hosts unknown
+BEGIN_GENERAL 8
+LastLine 20251201030057 14864 5068325 17173820829914
+FirstTime 20251118043951
+LastTime 20251130142635
+LastUpdate 20251201043721 14864 14776 10 3 74
+TotalVisits 195                 
+TotalUnique 134                 
+MonthHostsKnown 0                   
+MonthHostsUnknown 142                 
+END_GENERAL
+
+# Misc ID - Pages - Hits - Bandwidth
+BEGIN_MISC 10
+FlashSupport 0 0 0
+JavaEnabled 0 0 0
+RealPlayerSupport 0 0 0
+AddToFavourites 0 319 0
+PDFSupport 0 0 0
+DirectorSupport 0 0 0
+TotalMisc 0 0 0
+WindowsMediaPlayerSupport 0 0 0
+JavascriptDisabled 0 0 0
+QuickTimeSupport 0 0 0
+END_MISC
+
+# Hour - Pages - Hits - Bandwidth - Not viewed Pages - Not viewed Hits - Not viewed Bandwidth
+BEGIN_TIME 24
+0 151 652 15752079 21 26 22428
+1 60 204 1114970 3 8 11664
+2 45 268 3962006 9 9 0
+3 119 430 4986469 9 17 24263
+4 12 109 753384 4 6 8564
+5 3 3 22609 0 2 3610
+6 8 50 400407 4 6 22566
+7 1 2 5233 0 0 0
+8 4 18 118746 0 2 4140
+9 2 2 4930 1 1 2619
+10 10 96 1091461 2 5 8016
+11 59 258 7930300 7 10 35119
+12 45 273 6952167 31 47 340291
+13 116 405 8705879 23 47 117451
+14 86 376 3960735 23 41 252674
+15 250 939 24279043 41 74 259711
+16 444 1827 16158024 47 216 2218285
+17 336 1284 16736208 22 52 104997
+18 533 1745 15321051 33 59 50237
+19 302 1189 12474424 38 78 113802
+20 522 2153 30364480 58 151 297256
+21 199 693 9669266 21 65 389192
+22 148 729 11986560 29 49 67628
+23 24 102 2351439 8 8 22171
+END_TIME
+
+# Domain - Pages - Hits - Bandwidth
+# The 10 first Pages must be first (order not required for others)
+BEGIN_DOMAIN 15
+ar 2256 8336 115756236
+pe 1109 5005 76146993
+us 70 253 1751525
+ca 16 130 886224
+kr 5 18 119585
+sg 4 4 10168
+sa 4 43 343120
+cn 4 4 31206
+gb 3 4 10471
+hk 2 2 4954
+ru 1 2 5233
+se 2 3 7852
+es 1 1 2335
+de 1 1 2619
+ua 1 1 23349
+END_DOMAIN
+
+# Cluster ID - Pages - Hits - Bandwidth
+BEGIN_CLUSTER 0
+END_CLUSTER
+
+# Login - Pages - Hits - Bandwidth - Last visit
+# The 10 first Pages must be first (order not required for others)
+BEGIN_LOGIN 0
+END_LOGIN
+
+# Robot ID - Hits - Bandwidth - Last visit - Hits on robots.txt
+# The 10 first Hits must be first (order not required for others)
+BEGIN_ROBOT 14
+dataprovider\.com 29 241689 20251128214411 3
+Googlebot/ 25 52684 20251130174247 24
+robot 9 16245 20251130044325 9
+Applebot/ 8 19816 20251127123211 4
+curl 8 33892 20251127231612 0
+ips\-agent 4 9908 20251120203148 2
+python 3 7857 20251126091351 0
+^mozilla\/5\.0$ 3 7573 20251126035205 0
+baidu 2 378 20251118185043 0
+unknown 2 4670 20251126152928 2
+crawl 1 2619 20251127160101 0
+Konqueror/ 1 2619 20251120233208 0
+360Spider 1 2619 20251130200050 0
+link 2 5238 20251127233210 0
+END_ROBOT
+
+# Worm ID - Hits - Bandwidth - Last visit
+# The 5 first Hits must be first (order not required for others)
+BEGIN_WORMS 0
+END_WORMS
+
+# EMail - Hits - Bandwidth - Last visit
+# The 20 first Hits must be first (order not required for others)
+BEGIN_EMAILSENDER 0
+END_EMAILSENDER
+
+# EMail - Hits - Bandwidth - Last visit
+# The 20 first hits must be first (order not required for others)
+BEGIN_EMAILRECEIVER 0
+END_EMAILRECEIVER
+
+# Files type - Hits - Bandwidth - Bandwidth without compression - Bandwidth after compression
+BEGIN_FILETYPES 15
+gif 658 1191300 0 0
+jpeg 93 3707515 0 0
+html 365 1042775 0 0
+map 102 184518 0 0
+Unknown 2889 21708854 0 0
+woff2 46 4515208 0 0
+js 2369 107765791 0 0
+jpg 172 11274194 0 0
+woff 58 1159732 0 0
+xml 1 476 0 0
+pdf 3 1288580 0 0
+css 3224 20918236 0 0
+webp 18 2325248 0 0
+png 3767 18002925 0 0
+svg 42 16518 0 0
+END_FILETYPES
+
+# Downloads - Hits - Bandwidth
+BEGIN_DOWNLOADS 5
+/dashboard/mostrarComprobante/1764430878_c7dabdec126642a41014.pdf 3 0 1288580
+/security.txt 1 0 11160
+/llms.txt 1 0 11160
+/humans.txt 1 0 11160
+/ads.txt 1 0 11160
+END_DOWNLOADS
+
+# OS ID - Hits
+BEGIN_OS ID - Hits - Pages 11
+win7 21 3
+linux 238 43
+linuxandroid 666 94
+unix 1 1
+Unknown 70 34
+win8.1 1 1
+macosx 822 176
+win10 11253 2999
+ios_iphone 727 125
+symbian 1 1
+ios_ipad 7 2
+END_OS
+
+# Browser ID - Hits - Pages
+BEGIN_BROWSER 71
+chrome101.0.4951.41 3 3
+chrome101.0.4951.61 1 1
+safari15.4 2 2
+chrome117.0.5938.132 29 3
+chrome83.0.4103.97 1 1
+chrome107.0.0.0 1 1
+safari 623 116
+chrome60.0.2701 1 0
+chrome72.0.3626.121 1 1
+chrome141.0.0.0 90 6
+msie10.0 1 1
+safari18.5 15 1
+chrome135.0.0.0 2 2
+safari10.0 44 5
+firefox145.0 467 133
+Unknown 70 34
+chrome131.0.0.0 15 1
+chrome87.0.4280.67 1 1
+chrome129.0.0.0 32 2
+chrome137.0.0.0 126 30
+chrome105.0.0.0 2 1
+firefox102.0 1 0
+chrome80.0.3987.162 1 1
+firefox115.0 1 0
+chrome95.0.4638.69 1 1
+safari18.7.2 742 155
+chrome83.0.4103.61 20 2
+firefox120.0 7 7
+firefox114.0 3 2
+netscape5.0 2 2
+chrome80.0.3987.132 19 6
+chrome142.0.0.0 11086 2883
+chrome136.0.0.0 45 3
+arora 1 1
+chrome76.0.3809.132 3 3
+chrome103.0.5060.66 30 2
+chrome91.0.4472.114 1 1
+chrome140.0.7339.214 15 1
+chrome100.0.4896.75 1 1
+iphone 14 1
+chrome140.0.0.0 31 2
+chrome125.0.6422.60 15 2
+safari18.6 30 2
+chrome64.0.658 1 1
+chrome98.0.4758.101 1 1
+safari16.2 1 1
+safari2.0.1 1 1
+safari16.6.1 67 11
+chrome96.0.4664.45 1 1
+chrome92.0.4515.107 2 2
+chrome94.0.4606.113 1 1
+chrome115 1 1
+chrome102.0.5005.63 1 1
+safari11.0 1 1
+firefox139.0 2 1
+chrome112.0.5615.136 1 1
+safari17.0 1 0
+chrome139.0.0.0 31 12
+chrome121.0.0.0 1 1
+mozilla 7 0
+chrome93.0.4577.63 1 1
+msie7.0 1 1
+chrome138.0.7204.23 15 1
+chrome125.0.0.0 31 5
+chrome123.0.0.0 1 1
+chrome113.0.0.0 1 1
+chrome115.0.0.0 1 0
+firefox98.0 1 1
+chrome79.0.3945.130 1 1
+chrome100.0.4896.127 2 2
+chrome114.0.0.0 35 5
+END_BROWSER
+
+# Screen size - Hits
+BEGIN_SCREENSIZE 0
+END_SCREENSIZE
+
+# Unknown referer OS - Last visit date
+BEGIN_UNKNOWNREFERER 5
+WhatsApp/2.2585.5_W 20251122211734
+okhttp/5.3.0 20251124163130
+Go-http-client/1.1 20251121063807
+WhatsApp/2.23.20.0 20251127175509
+Go-http-client/2.0 20251120082753
+END_UNKNOWNREFERER
+
+# Unknown referer Browser - Last visit date
+BEGIN_UNKNOWNREFERERBROWSER 5
+okhttp/5.3.0 20251124163130
+WhatsApp/2.2585.5_W 20251122211734
+Go-http-client/2.0 20251120082753
+Go-http-client/1.1 20251121063807
+WhatsApp/2.23.20.0 20251127175509
+END_UNKNOWNREFERERBROWSER
+
+# Origin - Pages - Hits 
+BEGIN_ORIGIN 6
+From0 451 578
+From1 0 0
+From2 50 50
+From3 0 0
+From4 2978 13179
+From5 0 0
+END_ORIGIN
+
+# Search engine referers ID - Pages - Hits
+BEGIN_SEREFERRALS 1
+www_google_com 50 50
+END_SEREFERRALS
+
+# External page referers - Pages - Hits
+# The 10 first Pages must be first (order not required for others)
+BEGIN_PAGEREFS 0
+END_PAGEREFS
+
+# Search keyphrases - Number of search
+# The 10 first number of search must be first (order not required for others)
+BEGIN_SEARCHWORDS 0
+END_SEARCHWORDS
+
+# Search keywords - Number of search
+# The 10 first number of search must be first (order not required for others)
+BEGIN_KEYWORDS 0
+END_KEYWORDS
+
+# Errors - Hits - Bandwidth
+BEGIN_ERRORS 7
+500 98 255880
+404 224 2514741
+403 52 630639
+499 1 0
+301 11 2669
+302 149 0
+400 1 248
+END_ERRORS
+
+# URL with 404 errors - Hits - Last URL referrer
+BEGIN_SIDER_404 84
+/public/assets/front/css/ut.core.fonts.min.css 1 https://grupovivencia.club/public/
+/public/assets/front/js/ut-scriptlibrary.min.js 1 https://grupovivencia.club/public/
+/public/assets/front/js/jquery.utmasonry.min.js 1 https://grupovivencia.club/public/
+/backoffice_new/contracts/delete/111 1 https://grupovivencia.club/backoffice_new/contratos
+/dashboard/inmueble/api/validate_lot 1 https://grupovivencia.club/dashboard/inmueble/create_lot
+/assets/front/js/digital.min.js 4 https://grupovivencia.club/public/
+/public/assets/front/js/jquery.js 1 https://grupovivencia.club/public/
+/api/consulta_dni 1 https://grupovivencia.club/dashboard/nuevo_socio
+/backoffice_new/contracts/registrarPagoCuota 13 https://grupovivencia.club/backoffice_new/contracts/cronograma/137
+/backoffice_new/contracts/delete/118 2 https://grupovivencia.club/backoffice_new/contratos
+/iniciar-sesion/login_user 7 https://grupovivencia.club/public/
+/assets/front/js/ut.scplugin.min.js 4 https://grupovivencia.club/public/
+/public/assets/front/js/anime.min.js 1 https://grupovivencia.club/public/
+/dashboard/inmueble/contracts/suspend/146 4 https://grupovivencia.club/dashboard/inmueble/contracts
+/dashboard/inmueble/contracts 2 https://grupovivencia.club/dashboard/inmueble/contracts
+/dashboard/nuevo_socio 1 https://grupovivencia.club/admin/comisiones/multinivel_demo
+/public/assets/front/js/ut.scplugin.min.js 1 https://grupovivencia.club/public/
+/index 1 -
+/dashboard/inmueble/contracts/activate/146 3 https://grupovivencia.club/dashboard/inmueble/contracts
+/public/assets/front/css/ut.core.plugins.min.css 1 https://grupovivencia.club/public/
+/wordpress/ 1 -
+/assets/front/js/anime.min.js 4 https://grupovivencia.club/public/
+/public/admin 1 -
+/public/assets/front/js/ut-init.min.js 1 https://grupovivencia.club/public/
+/public/assets/front/css/js_composer.min.css 1 https://grupovivencia.club/public/
+/public/assets/front/js/js_composer_front.min.js 1 https://grupovivencia.club/public/
+/public/assets/front/css/rs6.css 1 https://grupovivencia.club/public/
+/assets/front/img/logo/favicon/vivencia.png 1 https://grupovivencia.club/public/
+/assets/front/css/ut.core.fonts.min.css 4 https://grupovivencia.club/public/
+/public/assets/front/js/jquery.queryloader2.min.js 1 https://grupovivencia.club/public/
+/public/assets/front/css/ut.vc.shortcodes.min.css 1 https://grupovivencia.club/public/
+/assets/front/css/ut.theme.min.css 4 https://grupovivencia.club/public/
+/assets/front/js/ut.effects.min.js 4 https://grupovivencia.club/public/
+/grupovivencia/admin 1 -
+/assets/front/css/mystyle.css 4 https://grupovivencia.club/public/
+/assets/front/js/jquery.js 4 https://grupovivencia.club/public/
+/assets/front/js/wp-embed.min.js 4 https://grupovivencia.club/public/
+/assets/front/css/ut.shortcode.min.css 4 https://grupovivencia.club/public/
+/assets/front/js/revolution.tools.min.js 4 https://grupovivencia.club/public/
+/dashboard/inmueble/contracts/activate/147 2 https://grupovivencia.club/dashboard/inmueble/contracts
+/public/assets/front/css/ut.theme.min.css 1 https://grupovivencia.club/public/
+/assets/front/js/jquery-migrate.min.js 4 https://grupovivencia.club/public/
+/assets/front/css/ut.core.plugins.min.css 4 https://grupovivencia.club/public/
+/assets/front/js/js_composer_front.min.js 4 https://grupovivencia.club/public/
+/assets/front/js/modernizr.min.js 4 https://grupovivencia.club/public/
+/dashboard/inmueble/contracts/approve/150 2 https://grupovivencia.club/dashboard/inmueble/contracts
+/dashboard/inmueble/approve_contract 1 https://grupovivencia.club/dashboard/inmueble/contracts
+/public/assets/front/css/style.css 1 https://grupovivencia.club/public/
+/backoffice_new/contracts/edit/111 3 https://grupovivencia.club/backoffice_new/contratos
+/public 4 https://grupovivencia.club/
+/dashboard/inmueble/contracts/activate/149 1 https://grupovivencia.club/dashboard/inmueble/contracts
+/assets/front/js/jquery.utmasonry.min.js 4 https://grupovivencia.club/public/
+/assets/front/js/app/login.js 4 https://grupovivencia.club/public/
+/public/assets/front/js/digital.min.js 1 https://grupovivencia.club/public/
+/assets/front/js/jquery.queryloader2.min.js 4 https://grupovivencia.club/public/
+/public/assets/front/js/rs6.min.js 1 https://grupovivencia.club/public/
+/assets/front/css/js_composer.min.css 4 https://grupovivencia.club/public/
+/public/assets/front/js/modernizr.min.js 1 https://grupovivencia.club/public/
+/assets/front/js/rs6.min.js 4 https://grupovivencia.club/public/
+/assets/front/js/ut-scriptlibrary.min.js 4 https://grupovivencia.club/public/
+/public/assets/front/img/logo/favicon/vivencia.png 1 https://grupovivencia.club/public/
+/assets/front/css/rs6.css 4 https://grupovivencia.club/public/
+/public/assets/front/img/logo/logo_2025.png 1 https://grupovivencia.club/public/
+/public/assets/front/css/styles.css 1 https://grupovivencia.club/public/
+/grupovicencia 2 -
+/assets/front/css/styles.css 4 https://grupovivencia.club/public/
+/public/assets/front/img/logo/favicon/site.webmanifest 1 https://grupovivencia.club/public/
+/public/assets/front/js/ut.effects.min.js 1 https://grupovivencia.club/public/
+/dashboard/inmueble/contracts/suspend/149 1 https://grupovivencia.club/dashboard/inmueble/contracts
+/public/assets/front/js/revolution.tools.min.js 1 https://grupovivencia.club/public/
+/.well-known/security.txt 1 -
+/assets/front/img/logo/favicon/site.webmanifest 5 https://grupovivencia.club/public/
+/public/assets/front/js/jquery-migrate.min.js 1 https://grupovivencia.club/public/
+/dashboard/inmueble/reject_contract 2 https://grupovivencia.club/dashboard/inmueble/contracts
+/public/assets/front/css/ut.shortcode.min.css 1 https://grupovivencia.club/public/
+/admin 11 -
+/dashboard/inmueble/projects 12 https://grupovivencia.club/dashboard/inmueble/projects
+/assets/front/js/ut-init.min.js 4 https://grupovivencia.club/public/
+/assets/front/img/logo/logo_2025.png 4 https://grupovivencia.club/public/
+/public/assets/front/js/wp-embed.min.js 1 https://grupovivencia.club/public/
+/public/assets/front/css/mystyle.css 1 https://grupovivencia.club/public/
+/assets/front/css/ut.vc.shortcodes.min.css 4 https://grupovivencia.club/public/
+/public/assets/front/js/app/login.js 1 https://grupovivencia.club/public/
+/assets/front/css/style.css 4 https://grupovivencia.club/public/
+END_SIDER_404
+
+# Host - Pages - Hits - Bandwidth - Last visit date - [Start date of last visit] - [Last page of last visit]
+# [Start date of last visit] and [Last page of last visit] are saved only if session is not finished
+# The 10 first Hits must be first (order not required for others)
+BEGIN_VISITOR 142
+186.19.165.76 2182 7718 106951189 20251129184415
+181.65.36.87 431 1803 25655445 20251125221508
+138.84.38.170 198 963 9817751 20251128191716
+181.65.36.242 108 470 16594244 20251122211734
+38.253.157.195 102 350 2418650 20251127170108
+190.42.86.30 85 331 2472716 20251129154453
+181.67.43.42 77 238 7189046 20251126215756
+200.215.229.163 37 211 5340648 20251127234651
+190.192.125.13 26 100 3783440 20251127141226
+179.7.72.169 23 175 2151532 20251127180015
+111.7.100.21 1 1 2619 20251126195002
+118.253.180.93 1 1 23349 20251118043951
+135.148.195.5 0 1 18730 
+200.49.120.197 1 15 111197 20251121001636
+190.216.191.100 2 30 222394 20251125204817
+159.89.113.84 2 3 7852 20251120142112
+165.154.162.212 2 5 25341 20251121063807
+135.148.195.11 1 1 2619 20251120160629
+181.15.96.68 2 30 241922 20251129171626
+149.57.180.82 1 1 2148 20251118201623
+164.90.133.158 2 3 7852 20251128141624
+143.105.157.25 1 1 2093 20251120043419
+93.158.90.42 1 1 2619 20251126152929
+98.81.205.105 1 3 7544 20251119162158
+205.169.39.7 1 1 23349 20251118061630
+161.132.34.5 3 45 333591 20251126215401
+190.13.226.197 1 15 111197 20251125141526
+161.115.239.241 1 1 2105 20251128120948
+179.7.73.2 10 37 1383554 20251119180305
+54.237.31.209 1 1 17371 20251118103842
+49.13.16.93 1 1 2619 20251124131307
+8.219.219.141 1 1 2619 20251120161258
+205.169.39.17 1 14 109109 20251122043000
+181.15.96.72 1 15 111197 20251127130424
+135.148.195.6 0 1 2614 
+135.148.195.13 0 2 21344 
+54.147.228.97 1 16 113811 20251122114229
+107.22.130.18 2 2 5238 20251129000329
+190.216.191.102 4 60 444788 20251127165002
+190.116.191.5 1 15 111197 20251122205218
+149.34.250.37 1 1 9089 20251120180018
+190.92.233.29 1 1 2619 20251119062547
+181.30.235.196 1 15 111197 20251124012031
+181.9.206.79 2 5 12119 20251125224941
+181.199.158.5 2 30 222394 20251128191507
+98.94.69.87 1 1 2619 20251120233208
+205.169.39.137 1 10 33244 20251122043046
+144.217.135.169 1 1 9089 20251128214356
+172.225.22.83 0 5 9850 
+104.248.51.255 1 1 9089 20251119121914
+111.7.100.23 1 1 2619 20251126195002
+35.175.247.134 2 2 5238 20251123035202
+149.57.180.182 1 1 2619 20251121201439
+117.132.188.204 1 1 2619 20251130142635
+95.177.163.4 3 29 234537 20251120060314
+149.57.180.168 1 1 2619 20251124184348
+18.234.48.38 2 2 5238 20251125225007
+179.6.52.129 4 13 91183 20251123235126
+45.141.66.110 1 1 2335 20251128141327
+13.222.95.7 1 14 160139 20251127101719
+135.148.195.4 0 1 18730 
+190.94.160.196 1 14 108583 20251124014507
+172.225.22.86 1 1 2093 20251128190842
+47.84.117.2 1 1 2619 20251123154845
+149.57.180.86 1 1 2619 20251126112143
+44.227.127.2 3 17 116411 20251120082753
+59.14.17.48 5 18 119585 20251121213938
+159.65.132.48 2 2 4930 20251129092022
+98.82.36.51 1 1 17371 20251118103845
+45.152.215.239 1 1 2619 20251122070346
+161.132.34.4 3 45 353119 20251127175918
+181.30.235.101 1 15 111197 20251127130347
+54.91.25.175 2 2 5238 20251129231506
+3.81.55.80 2 2 5238 20251127054151
+192.232.16.69 1 15 111197 20251120043424
+190.216.191.101 5 75 575641 20251126215419
+181.9.209.96 2 29 219780 20251119230322
+34.122.147.229 0 39 319470 
+131.202.14.152 1 1 2619 20251119165534
+46.173.89.142 1 1 23349 20251118103821
+200.3.169.133 1 15 111197 20251127130313
+135.148.195.1 1 1 2619 20251123211540
+181.15.96.137 1 15 111197 20251121035707
+34.123.170.104 3 3 28587 20251122043041
+181.15.96.9 1 15 111197 20251124011958
+104.131.168.254 2 3 7852 20251126132532
+181.15.96.5 1 15 111197 20251128191518
+179.6.28.230 1 15 111197 20251118204132
+132.157.128.108 1 1 2093 20251120210627
+104.197.69.115 3 3 7857 20251122043038
+149.57.180.79 1 1 2619 20251119130033
+165.227.73.189 2 3 7852 20251130132021
+190.11.146.6 1 15 111197 20251121001011
+190.92.243.241 1 1 2335 20251119081724
+205.169.39.6 1 14 109109 20251122043247
+177.91.255.68 3 45 333591 20251127234700
+34.227.93.159 2 2 5238 20251127174630
+3.85.33.27 1 1 2619 20251125003515
+34.230.82.139 2 2 5238 20251121230720
+18.209.35.127 1 16 113811 20251127121605
+3.230.123.150 1 1 2619 20251119024608
+149.57.180.103 1 1 2619 20251124210509
+181.9.206.32 19 110 1953303 20251128191611
+5.133.192.160 1 2 5233 20251129031516
+95.177.180.85 1 14 108583 20251121063959
+135.148.195.10 1 1 2619 20251128162306
+190.8.63.228 2 30 241906 20251128021155
+179.7.98.29 1 1 2093 20251124123408
+205.169.39.128 1 10 33244 20251122042941
+216.251.130.76 2 29 219780 20251124172853
+186.160.223.198 1 15 111197 20251118204209
+190.122.64.6 1 15 111197 20251121035708
+181.30.240.5 1 15 111197 20251128191604
+179.7.72.139 1 14 129044 20251118223305
+165.227.35.190 2 3 7852 20251122121640
+170.233.116.37 1 15 111197 20251127130401
+135.148.195.16 0 1 2614 
+8.219.51.231 1 1 2619 20251120161258
+98.83.27.92 1 16 113811 20251127101437
+200.91.33.69 1 15 111197 20251125144018
+161.115.235.28 2 2 4789 20251128120949
+179.7.72.50 3 15 63756 20251128203904
+192.234.199.186 1 14 108583 20251122173920
+54.90.57.57 2 2 5238 20251119205122
+181.15.96.40 1 15 130725 20251128191603
+200.3.169.134 1 15 111723 20251127130300
+200.110.188.100 2 30 222394 20251121122100
+3.231.107.47 1 14 160305 20251127101716
+3.92.2.0 1 16 113811 20251127101442
+138.68.141.108 2 3 7852 20251124151735
+194.226.184.72 0 1 2614 
+54.237.92.197 2 2 5238 20251124003014
+204.101.161.15 2 30 222394 20251125170519
+157.173.122.176 1 1 2619 20251125022830
+54.196.3.61 1 1 2619 20251127233210
+54.209.248.33 1 3 7544 20251124163130
+149.57.180.101 1 1 2619 20251124204258
+161.132.90.136 1 1 2093 20251127122618
+177.91.255.69 2 30 222394 20251124164836
+34.201.114.201 1 15 111197 20251119162253
+179.7.72.142 1 1 2093 20251129031300
+100.26.143.192 2 2 5238 20251119032210
+END_VISITOR
+
+# Date - Pages - Hits - Bandwidth - Visits
+BEGIN_DAY 13
+20251118 262 720 13054844 21
+20251119 289 1132 15605557 18
+20251120 30 141 4314943 13
+20251121 195 1136 28841009 21
+20251122 97 454 11478402 14
+20251123 11 59 2019219 5
+20251124 248 1165 13157891 21
+20251125 637 2599 38821404 14
+20251126 501 1597 13212232 12
+20251127 802 3066 36500059 27
+20251128 284 1299 14773107 18
+20251129 120 435 3312732 9
+20251130 3 4 10471 2
+END_DAY
+
+# Session range - Number of visits
+BEGIN_SESSION 7
+2mn-5mn 5
+15mn-30mn 6
+1h+ 13
+30mn-1h 10
+0s-30s 148
+30s-2mn 6
+5mn-15mn 7
+END_SESSION
+
+# URL - Pages - Bandwidth - Entry - Exit
+# The 10 first Pages must be first (order not required for others)
+BEGIN_SIDER 250
+/ 284 648767 123 103
+/dashboard/inmueble/contracts 274 5462119 1 8
+/backoffice_new/planes/carrito 230 4071552 1 7
+/dashboard/inmueble 206 879581 0 1
+/backoffice_new 144 1878329 2 5
+/dashboard/inmueble/lots 120 1342557 0 0
+/dashboard/inmueble/getDepartments 118 28910 0 0
+/backoffice_new/planes 111 1281068 0 3
+/iniciar-sesion/login_user 105 1608 0 2
+/admin/comisiones/inmobiliaria 84 391940 1 1
+/dashboard/inmueble/delete_lot/112 1 53 0 0
+/dashboard/inmueble/delete_lot/123 1 53 0 0
+/backoffice_new/planes/ 9 108031 0 0
+/backoffice_new/documentos 9 94721 0 0
+/admin/contrato_word/162 1 22559 0 0
+/backoffice_new/contracts/detail/122 2 21204 0 0
+/dashboard/inmueble/edit_contract/120 1 4649 0 0
+/dashboard/inmueble/getProvinces/5 1 171 0 0
+/admin/comisiones/multinivel_demo 6 26058 0 0
+/dashboard/penalties 6 24899 0 0
+/dashboard/inmueble/delete_lot/132 1 53 0 0
+/admin 69 99571 13 6
+/dashboard/inmueble/edit_project/45 1 63 0 0
+/dashboard/inmueble/api/get_project/49 1 14720 0 0
+/dashboard/ 2 3618 0 0
+/dashboard/facturasContratos 5 25648 0 0
+/iniciar-sesion 34 71162 1 0
+/backoffice_new/contracts 2 20971 0 0
+/dashboard/inmueble/delete_project/39 2 132 0 0
+/dashboard/validate 51 2597 2 0
+/dashboard/inmueble/approve_contract 3 213 0 0
+/dashboard/inmueble/delete_lot/97 1 53 0 0
+/dashboard/inmueble/delete_lot/107 1 53 0 0
+/dashboard/inmueble/delete_lot/101 1 53 0 0
+/dashboard/inmueble/edit_project/35 1 63 0 0
+/dashboard/inmueble/contracts/get_schedule/141 1 717 0 0
+/dashboard/inmueble/delete_lot/114 1 53 0 0
+/dashboard/inmueble/delete_lot/139 1 53 0 0
+/dashboard/inmueble/getProvinces/19 1 91 0 0
+/dashboard/inmueble/delete_lot/119 1 53 0 0
+/admin/contrato_word/138 1 22559 0 0
+/backoffice_new/contracts/detail/144 5 53062 0 0
+/dashboard/inmueble/delete_lot/106 1 53 0 0
+/dashboard/inmueble/api/get_project/46 3 44646 0 0
+/dashboard/inmueble/getDistricts/128 40 19240 0 1
+/assets/admin/fonts/feather/fonts/feather.woff 32 819392 0 0
+/dashboard/inmueble/delete_project/42 1 59 0 0
+/dashboard/inmueble/edit_lot/154 2 118 0 0
+/dashboard/inmueble/api/get_lot_details/153 6 5922 0 0
+/dashboard/clientes/load/205 1 7842 0 0
+/dashboard/inmueble/api/get_project/33 5 73819 0 0
+/backoffice_new/contracts/cronograma/140 1 12227 0 0
+/dashboard/inmueble/api/get_project/47 3 44172 0 0
+/dashboard/clientes/load/87 7 55096 0 0
+/dashboard/inmueble/delete_lot/111 1 53 0 0
+/dashboard/inmueble/api/get_project/43 1 14699 0 0
+/dashboard/inmueble/delete_lot/100 1 53 0 0
+/backoffice_new/contracts/detail/113 1 10600 0 0
+/dashboard/inmueble/contracts/view/96 1 6468 0 0
+/dashboard/inmueble/delete_lot/144 1 53 0 0
+/dashboard/inmueble/getProvinces/15 45 6255 0 0
+/dashboard/inmueble/delete_lot/143 1 53 0 0
+/dashboard/inmueble/ 1 1809 0 0
+/backoffice_new/unilevel 8 98199 0 0
+/dashboard/inmueble/contracts/view/146 1 6383 0 0
+/sitemap.xml 1 476 0 1
+/dashboard/inmueble/contracts/get_schedule/137 5 5017 0 1
+/backoffice_new/directos 5 57807 0 0
+/wordpress/ 1 2323 0 1
+/admin/contrato_word/122 1 22542 0 0
+/dashboard/inmueble/delete_lot/147 1 53 0 0
+/backoffice_new/configuracion 7 89350 0 0
+/dashboard/inmueble/delete_lot/99 1 53 0 0
+/dashboard/inmueble/reject_contract 2 168 0 0
+/backoffice_new/contratos 38 402474 0 0
+/dashboard/inmueble/delete_lot/120 1 53 0 0
+/dashboard/inmueble/create_lot 57 207291 0 0
+/backoffice_new/contracts/cronograma/144 1 13238 0 0
+/dashboard/inmueble/getDistricts/130 3 306 0 0
+/registro/08371731 1 3776 0 0
+/login 61 127673 43 40
+/dashboard/inmueble/delete_lot/137 1 53 0 0
+/registro/65432165 4 15061 0 0
+/dashboard/inmueble/getDistricts/185 4 436 0 0
+/assets/metronic8/plugins/global/fonts/bootstrap-icons/bootstrap-icons.woff2 4 409520 0 1
+/dashboard/inmueble/delete_lot/128 1 53 0 0
+/backoffice_new/cobros 12 153693 0 0
+/dashboard/inmueble/api/get_lot_details/146 1 453 0 0
+/dashboard/inmueble/delete_project/47 3 205 0 0
+/dashboard/inmueble/getDistricts/80 1 123 0 0
+/dashboard/clientes/load/206 1 7919 0 0
+/dashboard/inmueble/api/get_lot_details/154 5 5194 0 0
+/assets/admin/fonts/datta/fonts/pct.woff 13 20072 0 0
+/dashboard/inmueble/delete_lot/134 1 53 0 0
+/dashboard/inmueble/payment_plans/create_payment_plan 1 7139 0 0
+/assets/admin/js/bootstrap.min.js.map 34 61506 0 0
+/dashboard/inmueble/api/get_project/35 1 14753 0 0
+/dashboard/inmueble/getDistricts/68 5 640 0 0
+/dashboard/inmueble/api/delete_contract 54 864 1 0
+/dashboard/inmueble/delete_lot/140 1 53 0 0
+/cart/registrarPago 5 840 0 0
+/backoffice_new/contracts/detail/111 1 10597 0 0
+/dashboard/inmueble/edit_project/36 1 63 0 0
+/dashboard/inmueble/delete_lot/95 1 53 0 0
+/cart/accionLote 62 36570 0 0
+/backoffice_new/contracts/detail/142 5 53035 0 0
+/dashboard/inmueble/edit_project/46 1 63 0 0
+/dashboard/inmueble/delete_lot/141 1 53 0 0
+/dashboard/inmueble/edit_contract/119 1 4662 0 0
+/dashboard/comisiones 64 297254 0 2
+/dashboard/inmueble/getDistricts/74 3 402 0 0
+/dashboard/concepto_ticket 1 4726 0 0
+/dashboard/inmueble/api/projects 30 26833 1 0
+/public/ 65 272274 0 0
+/dashboard/estructura 34 303290 0 0
+/backoffice_new/plan 1 0 0 0
+/dashboard/inmueble/contracts/get_schedule/98 1 1599 0 0
+/dashboard/inmueble/edit_project/48 1 63 0 0
+/dashboard/inmueble/delete_lot/142 1 53 0 0
+/dashboard/inmueble/delete_lot/102 1 53 0 0
+/dashboard/clientes/load/80 1 7909 0 0
+/dashboard/inmueble/contracts/edit/120 1 1809 0 0
+/dashboard/inmueble/edit_project/34 1 63 0 0
+/dashboard/inmueble/api/get_lot_details/143 1 647 0 0
+/backoffice_new/contracts/detail/139 10 106000 0 0
+/backoffice_new/home 8 14472 0 0
+/dashboard/inmueble/contracts/payments/120 2 3618 0 0
+/dashboard/facturas/generarFactura 7 218 0 0
+/backoffice_new/contracts/detail/96 1 10600 0 0
+/backoffice_new/perfil 20 221815 0 0
+/contracts/create 1 1809 0 0
+/dashboard/inmueble/getProvinces/4 4 472 0 0
+/projects/view/33 2 3618 0 0
+/dashboard/inmueble/contracts/view/158 2 12764 0 0
+/backoffice_new/contracts/cronograma/142 3 39675 0 0
+/dashboard/inmueble/edit_project/44 1 63 0 0
+/dashboard/inmueble/edit_lot/149 8 472 0 0
+/dashboard/inmueble/getProvinces/8 8 1368 0 0
+/assets/front/img/logo/favicon/site.webmanifest 12 789 0 0
+/dashboard/inmueble/projects 76 928474 1 0
+/dashboard/inmueble/getProvinces/6 2 334 0 0
+/dashboard/inmueble/contracts/view/120 3 19159 0 0
+/dashboard/inmueble/delete_lot/109 1 53 0 0
+/backoffice_new/contracts/cronograma/143 2 26254 0 0
+/dashboard/inmueble/delete_lot/96 1 53 0 0
+/backoffice_new/home/configuracion 1 1809 0 0
+/dashboard/inmueble/delete_project/35 1 59 0 0
+/dashboard/inmueble/edit_contract/158 1 4653 0 0
+/dashboard/inmueble/delete_lot/146 1 53 0 0
+/assets/admin/js/pdfmake.min.js.map 34 61506 0 0
+/dashboard/inmueble/api/get_lot_details/149 5 4297 0 0
+/admin/contrato_pdf/162 1 15094 0 0
+/data: 1 2335 1 1
+/dashboard/clientes/validate 8 408 0 0
+/backoffice_new/contracts/cronograma/146 1 12677 0 0
+/backoffice_new/contracts/detail/146 2 21246 0 1
+/dashboard/inmueble/create_project 11 937 0 0
+/dashboard/usuarios 12 54995 0 0
+/backoffice_new/contracts/cronograma/122 2 22306 0 0
+/admin/contrato_pdf/125 1 8374 0 0
+/dashboard/inmueble/delete_lot/148 1 53 0 0
+/dashboard/inmueble/getDistricts/55 1 90 0 1
+/dashboard/inmueble/delete_project/44 1 59 0 0
+/backoffice_new/planes/add_cart_product 7 287 0 0
+/assets/metronic8/plugins/global/fonts/@fortawesome/fa-regular-400.woff2 10 95760 0 1
+/dashboard/inmueble/edit_contract/140 1 4658 0 0
+/backoffice_new/facturas 4 43374 0 0
+/dashboard/inmueble/api/update_contract_status 3 48 0 0
+/dashboard/inmueble/delete_lot/127 1 53 0 0
+/dashboard/inmueble/getProvinces/22 4 600 0 0
+/backoffice_new/contracts/cronograma/139 7 85087 0 0
+/registro/45887343 29 103149 1 0
+/backoffice_new/contracts/cronograma/137 46 574981 2 2
+/backoffice_new/contracts/detail/102 1 10599 0 0
+/backoffice_new/contracts/detail/137 4 42368 0 0
+/assets/admin/css/bootstrap.min.css.map 34 61506 0 0
+/dashboard/inmueble/delete_project/36 1 59 0 0
+/dashboard/inmueble/delete_lot/113 1 53 0 0
+/dashboard/inmueble/delete_lot/131 1 53 0 0
+/65432165 1 1809 0 0
+/dashboard/inmueble/payment_plans 6 55439 0 0
+/dashboard/inmueble/delete_lot/118 1 53 0 0
+/backoffice_new/documentos/presentacion 2 25128 0 0
+/dashboard/inmueble/delete_lot/116 1 53 0 0
+/backoffice_new/historial 11 116254 0 0
+/dashboard/clientes/load/28 1 8087 0 0
+/dashboard/inmueble/api/get_project/36 1 14746 0 0
+/backoffice_new/contracts/cronograma/141 1 12084 0 0
+/dashboard/inmueble/api/payment_plans 30 7020 0 0
+/backoffice_new/contracts/detail/143 5 53021 0 0
+/dashboard/inmueble/delete_lot/138 1 53 0 0
+/dashboard/inmueble/getDistricts/35 4 1432 0 0
+/dashboard/inmueble/contracts/view/150 3 19146 0 0
+/assets/project_images/project_6928810c9be22.webp 7 728686 0 0
+/dashboard/inmueble/api/get_project/45 2 29536 0 0
+/dashboard/inmueble/delete_lot/136 1 53 0 0
+/dashboard/inmueble/contracts/view/139 1 6383 0 0
+/dashboard/inmueble/delete_project/43 1 59 0 0
+/assets/project_images/project_692617adc5d6d.webp 11 1596562 0 0
+/backoffice_new/contracts/detail/ 2 3618 0 0
+/dashboard/inmueble/delete_lot/104 1 53 0 0
+/dashboard/inmueble/delete_lot/98 1 53 0 0
+/dashboard/inmueble/delete_lot/117 1 53 0 0
+/dashboard/inmueble/api/get_project/34 2 29520 0 0
+/dashboard/inmueble/delete_lot/135 1 53 0 0
+/dashboard/inmueble/delete_lot/103 1 53 0 0
+/dashboard/inmueble/contracts/get_schedule/150 1 1320 0 0
+/dashboard/inmueble/contracts/get_schedule/140 2 1434 0 0
+/dashboard/inmueble/delete_lot/115 1 53 0 0
+/dashboard/inmueble/delete_lot/129 1 53 0 0
+/backoffice_new/contracts/cronograma/96 1 11167 0 0
+/dashboard/inmueble/create_contract 11 930 0 0
+/dashboard/inmueble/api/get_project/48 1 14730 0 0
+/dashboard/inmueble/api/get_project/44 1 14644 0 0
+/dashboard/inmueble/delete_lot/108 1 53 0 0
+/dashboard/inmueble/edit_project/33 5 315 0 0
+/dashboard/inmueble/delete_lot/105 1 53 0 0
+/dashboard/inmueble/contracts/get_schedule/122 1 1506 0 0
+/dashboard/inmueble/delete_lot/110 1 53 0 0
+/backoffice_new/contracts/detail/141 2 21198 0 0
+/recuperar-contrasena 6 13577 0 1
+/dashboard/inmueble/delete_lot/145 1 53 0 0
+/assets/metronic8/plugins/global/fonts/@fortawesome/fa-solid-900.woff2 32 4009928 0 0
+/dashboard/inmueble/delete_lot/133 1 53 0 0
+/dashboard/inmueble/contracts/get_schedule/158 1 1320 0 0
+/dashboard/inmueble/delete_lot/121 1 53 0 0
+/admin/contrato_word/120 2 45134 0 0
+/dashboard/inmueble/api/search_customers 40 17314 0 1
+/dashboard/inmueble/delete_lot/149 1 53 0 0
+/dashboard/inmueble/getDistricts/45 1 100 0 1
+/dashboard/clientes 38 473921 0 1
+/dashboard/inmueble/api/get_available_lots 30 7001 0 1
+/projects/view/34 1 1809 0 0
+/dashboard/inmueble/delete_project/33 2 146 0 0
+/dashboard/inmueble/delete_project/37 1 59 0 0
+/dashboard/inmueble/delete_project/34 1 59 0 0
+/api/consulta_dni 30 2544 0 0
+/projects/view/37 1 1809 0 0
+/c/ 1 2335 1 1
+/dashboard/inmueble/delete_lot/126 1 53 0 0
+/assets/front/fonts/raleway/raleway-medium-webfont.woff 13 320268 0 0
+/backoffice_new/contracts/detail/140 3 21196 0 0
+/dashboard/nuevo_socio 13 98880 0 0
+/backoffice_new/contracts/registrarPagoCuota 11 605 0 0
+/dashboard/inmueble/api/get_project/37 1 14760 0 0
+/dashboard/inmueble/delete_lot/130 1 53 0 0
+/dashboard/clientes/load/207 2 15719 0 0
+/dashboard/inmueble/delete_lot/122 1 53 0 0
+/register/validacion 18 822 0 0
+/dashboard/inmueble/delete_lot/125 1 53 0 0
+END_SIDER

@@ -1,0 +1,74 @@
+// project-add.js
+// Lógica para crear proyectos inmobiliarios
+
+function showCreateProjectModal() {
+    document.getElementById('create-project-form').reset();
+    document.getElementById('createProjectErrorMsg').classList.add('d-none');
+    $('#createProjectModal').modal('show');
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    var createProjectForm = document.getElementById('create-project-form');
+    if (createProjectForm) {
+        // Avoid attaching the handler more than once (some views also register an inline handler)
+        if (createProjectForm.dataset.hasSubmitHandler) return;
+        createProjectForm.dataset.hasSubmitHandler = '1';
+
+        createProjectForm.addEventListener('submit', function(e) {
+            // If another handler already started submission, ignore
+            if (this.dataset.submitting) {
+                e.preventDefault();
+                return false;
+            }
+            this.dataset.submitting = '1';
+            // Disable submit buttons to avoid duplicate posts
+            const submitButtons = this.querySelectorAll('button[type="submit"]');
+            submitButtons.forEach(b => b.setAttribute('disabled', 'disabled'));
+            const formData = new FormData(this);
+            // Validaciones aquí...
+            // ...
+            const params = new URLSearchParams();
+            for (const pair of formData) {
+                params.append(pair[0], pair[1]);
+            }
+            fetch('/dashboard/inmueble/create_project', {
+                method: 'POST',
+                body: params,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(async response => {
+                let text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    data = { success: false, message: 'Respuesta no es JSON', raw: text };
+                }
+                const errorDiv = document.getElementById('createProjectErrorMsg');
+                if (data.success) {
+                    $('#createProjectModal').modal('hide');
+                    Swal.fire({ icon: 'success', title: '¡Éxito!', text: data.message || 'Proyecto creado exitosamente', timer: 1800, showConfirmButton: false });
+                    setTimeout(() => location.reload(), 1800);
+                } else {
+                    errorDiv.textContent = data.message || 'Error desconocido';
+                    errorDiv.classList.remove('d-none');
+                }
+            })
+            .catch(error => {
+                const errorDiv = document.getElementById('createProjectErrorMsg');
+                errorDiv.textContent = 'Error al procesar la solicitud';
+                errorDiv.classList.remove('d-none');
+            })
+            .finally(() => {
+                // Re-enable submit buttons and clear submitting flag
+                delete this.dataset.submitting;
+                const submitButtons = this.querySelectorAll('button[type="submit"]');
+                submitButtons.forEach(b => b.removeAttribute('disabled'));
+            });
+        });
+    }
+});

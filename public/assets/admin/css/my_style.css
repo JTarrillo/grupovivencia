@@ -1,0 +1,25 @@
+.valid{
+    -webkit-box-shadow: 0px 0px 5px 1px rgba(26,153,34,1);
+    -moz-box-shadow: 0px 0px 5px 1px rgba(26,153,34,1);
+    box-shadow: 0px 0px 5px 1px rgba(26,153,34,1);
+}
+.invalid{
+    -webkit-box-shadow: 0px 0px 3px 1px rgba(204,0,0,1);
+    -moz-box-shadow: 0px 0px 3px 1px rgba(204,0,0,1);
+    box-shadow: 0px 0px 3px 1px rgba(204,0,0,1);
+}
+.active_nav{
+    color:#1dc4e9 !important;
+}
+.text-white{
+    color:white !important;
+}
+.text-success {
+    color: #28a745 !important;
+}
+.text-danger {
+    color: red !important;
+}
+.sweetalert-bg{
+    background-color: #3f4d67;
+}

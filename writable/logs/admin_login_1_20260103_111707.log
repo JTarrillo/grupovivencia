@@ -1,0 +1,12 @@
+{
+    "datetime": "2026-01-03 11:17:07",
+    "admin_id": "1",
+    "customer_array": {
+        "id": "1",
+        "name": "Rolando",
+        "lastname": "Contreras Huidobro",
+        "email": "software.contreras@gmail.com",
+        "privilage": "3",
+        "active": "1"
+    }
+}
