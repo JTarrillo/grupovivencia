@@ -154,6 +154,7 @@
                                                                 $estado = strtolower($pago['status'] ?? 'pending');
                                                                 $registrado = !empty($pago['paid_date']);
                                                                 $validado = ($estado === 'paid' || $estado === 'pagado');
+                                                                $installment_number = $pago['installment_number'] ?? ($i + 1);
                                                             ?>
                                                         <tr
                                                             class="<?= $validado ? 'table-success' : ($registrado ? 'table-info' : '') ?>">
@@ -161,10 +162,10 @@
                                                                 <strong><?= ($i + 1) ?></strong>
                                                             </td>
                                                             <td>
-                                                                <?php if ($i == 0): ?>
+                                                                <?php if ($installment_number == 0): ?>
                                                                 <span class="badge badge-warning">INICIAL</span>
                                                                 <?php else: ?>
-                                                                <span class="badge badge-primary">CUOTA <?= $i ?></span>
+                                                                <span class="badge badge-primary">CUOTA <?= $installment_number ?></span>
                                                                 <?php endif; ?>
                                                             </td>
                                                             <td>
@@ -198,8 +199,8 @@
                                                                     ?>
                                                             </td>
                                                             <td>
-                                                                <?php if (!empty($pago['comprobante_url'])): ?>
-                                                                <a href="<?= base_url($pago['comprobante_url']) ?>"
+                                                                <?php if (!empty($pago['voucher_url'])): ?>
+                                                                <a href="<?= base_url($pago['voucher_url']) ?>"
                                                                     target="_blank" class="btn btn-sm btn-outline-info">
                                                                     <i class="fa fa-file-pdf"></i> Ver
                                                                 </a>
@@ -208,9 +209,14 @@
                                                                 <?php endif; ?>
                                                             </td>
                                                             <td>
-                                                                <?php if ($registrado && !$validado): ?>
+                                                                <?php 
+                                                                // Mostrar Validar si: tiene voucher O está registrado, y NO está validado
+                                                                $tieneVoucher = !empty($pago['voucher_url']);
+                                                                $puedeValidar = ($registrado || $tieneVoucher) && !$validado;
+                                                                ?>
+                                                                <?php if ($puedeValidar): ?>
                                                                 <button class="btn btn-sm btn-success"
-                                                                    onclick="abrirModalValidacion(<?= $pago['id'] ?>, '<?= number_format($pago['amount'], 2) ?>', '<?= $pago['comprobante_url'] ? base_url($pago['comprobante_url']) : '' ?>')">
+                                                                    onclick="abrirModalValidacion(<?= $pago['id'] ?>, '<?= number_format($pago['amount'], 2) ?>', '<?= !empty($pago['voucher_url']) ? base_url($pago['voucher_url']) : '' ?>')">
                                                                     <i class="fa fa-check-circle"></i> Validar
                                                                 </button>
                                                                 <?php elseif ($validado): ?>
