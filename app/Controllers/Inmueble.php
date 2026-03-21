@@ -1,6 +1,5 @@
 <?php
 namespace App\Controllers;
-
 use App\Models\InmuebleModel;
 use App\Models\ProjectModel;
 use App\Models\LotModel;

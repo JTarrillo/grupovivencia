@@ -108,6 +108,14 @@
                                         </thead>
                                         <tbody>
                                             <?php if(isset($contracts) && count($contracts) > 0): ?>
+                                            <?php 
+                                            // Ordenar contratos: más recientes primero
+                                            usort($contracts, function($a, $b) {
+                                                $dateA = strtotime($a['signed_date'] ?? $a['created_at'] ?? '0');
+                                                $dateB = strtotime($b['signed_date'] ?? $b['created_at'] ?? '0');
+                                                return $dateB - $dateA; // Descendente (más reciente primero)
+                                            });
+                                            ?>
                                             <?php foreach($contracts as $contract): ?>
                                             <tr>
                                                 <td>

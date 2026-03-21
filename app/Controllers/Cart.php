@@ -275,33 +275,47 @@ class Cart extends BaseController
             if ($unilevel && !empty($unilevel['sponsor_id'])) {
                 $sponsor_id = $unilevel['sponsor_id'];
             }
+            
+            // ✅ CORRECCIÓN: Obtener el precio REAL del lote desde la base de datos
+            // Si el precio del formulario está vacío, usar current_price del lote
+            $precio_lote = floatval($precio);
+            if ($precio_lote <= 0) {
+                $precio_lote = floatval($lote['current_price'] ?? 0);
+            }
+            $cuota_inicial = floatval($inicial);        // Lo que pagó el cliente como inicial
+            $monto_financiado = $precio_lote - $cuota_inicial;  // Lo que queda por pagar
+            $monto_cuota_mensual = $monto_financiado / intval($plan_cuotas);  // Cuota mensual sobre lo financiado
+            
             $contrato_data = [
                 'lot_id' => $lote['id'],
                 'customer_id' => $cliente_id,
-                'total_amount' => $inicial,
+                'total_amount' => $precio_lote,                    // ✅ Precio total del lote
+                'down_payment' => $cuota_inicial,                  // ✅ Cuota inicial pagada
+                'financed_amount' => $monto_financiado,            // ✅ Monto a financiar
                 'financing_months' => $plan_cuotas,
-                'monthly_payment' => round(floatval($inicial) / intval($plan_cuotas), 2),
+                'monthly_payment' => round($monto_cuota_mensual, 2),  // ✅ Cuota mensual correcta
                 'contract_date' => date('Y-m-d'),
+                'start_date' => date('Y-m-d', strtotime('+1 month')),
+                'end_date' => date('Y-m-d', strtotime('+' . $plan_cuotas . ' months')),
                 'status' => 'active',
                 'contract_file' => $comprobante_url,
                 'voucher_url' => $comprobante_url,
                 'contract_number' => $contract_number,
                 'payment_plan_id' => $payment_plan_id,
-                'contract_type' => 'arras',
+                'contract_type' => 'inicial',                      // ✅ Tipo correcto
                 'sponsor_id' => $sponsor_id
             ];
             $contract_id = $ContractModel->insert($contrato_data);
-            // Generar cronograma de pagos
+            
+            // ✅ Generar cronograma con el MONTO FINANCIADO (no la inicial)
             $monthlyRate = 0;
-            $financedAmount = floatval($inicial);
-            $balance = $financedAmount;
-            $start_date = date('Y-m-d');
-            $monto_cuota = floatval($inicial) / intval($plan_cuotas);
+            $balance = $monto_financiado;
+            $start_date = date('Y-m-d', strtotime('+1 month'));
             $cronograma = [];
             for ($i = 1; $i <= intval($plan_cuotas); $i++) {
                 $dueDate = date('Y-m-d', strtotime($start_date . ' +' . ($i - 1) . ' months'));
                 $interestPayment = $balance * $monthlyRate;
-                $principalPayment = $monto_cuota - $interestPayment;
+                $principalPayment = $monto_cuota_mensual - $interestPayment;
                 $balance -= $principalPayment;
                 $cuota_data = [
                     'contract_id' => $contract_id,
@@ -309,7 +323,7 @@ class Cart extends BaseController
                     'payment_plan_id' => $payment_plan_id,
                     'installment_number' => $i,
                     'due_date' => $dueDate,
-                    'amount' => round($monto_cuota, 2),
+                    'amount' => round($monto_cuota_mensual, 2),
                     'capital' => round($principalPayment, 2),
                     'interest' => round($interestPayment, 2),
                     'interest_accrued' => null,
@@ -333,7 +347,14 @@ class Cart extends BaseController
             $logData = [
                 'datetime' => date('Y-m-d H:i:s'),
                 'contrato_data' => $contrato_data,
-                'cronograma' => $cronograma
+                'cronograma' => $cronograma,
+                'calculo' => [
+                    'precio_lote' => $precio_lote,
+                    'cuota_inicial' => $cuota_inicial,
+                    'monto_financiado' => $monto_financiado,
+                    'monto_cuota_mensual' => $monto_cuota_mensual,
+                    'plan_cuotas' => $plan_cuotas
+                ]
             ];
             $logFile = WRITEPATH . 'logs/registro_inicial_' . date('Ymd_His') . '.log';
             file_put_contents($logFile, json_encode($logData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
