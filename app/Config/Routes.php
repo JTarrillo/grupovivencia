@@ -74,7 +74,7 @@ $routes->get('/backoffice_new/contracts/cronograma/(:num)', 'B_contratos::schedu
 $routes->get('/backoffice_new/contratos', 'B_contratos::index', ['filter' => 'authGuard']);
 $routes->get('/backoffice_new/contratos/load/(:num)', 'B_contratos::load/$1', ['filter' => 'authGuard']);
 $routes->post('/backoffice_new/contratos/validate', 'B_contratos::validacion', ['filter' => 'authGuard']);
-$routes->post('/backoffice_new/contracts/registrarPagoCuota', 'ContractController::registrarPagoCuota', ['filter' => 'authGuard']);
+$routes->post('/backoffice_new/contracts/registrarPagoCuota', 'BackofficeNew\ContractsController::registrarPagoCuota', ['filter' => 'authGuard']);
 
 $routes->post('/backoffice_new/contracts/activate/(:num)', 'B_contratos::activate/$1', ['filter' => 'authGuard']);
 $routes->post('/backoffice_new/contracts/suspend/(:num)', 'B_contratos::suspend/$1', ['filter' => 'authGuard']);

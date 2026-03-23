@@ -27,6 +27,7 @@ class PaymentScheduleModel extends Model
         'paid_date',
         'paid_amount',
         'comprobante_url',
+        'voucher_url',
         'validado_notas'
     ];
 

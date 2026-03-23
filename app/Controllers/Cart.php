@@ -307,6 +307,30 @@ class Cart extends BaseController
             ];
             $contract_id = $ContractModel->insert($contrato_data);
             
+            // ✅ CUOTA INICIAL (cuota 0) - con el voucher del cliente
+            $cuota_inicial_data = [
+                'contract_id' => $contract_id,
+                'lot_id' => $lote['id'],
+                'payment_plan_id' => $payment_plan_id,
+                'installment_number' => 0,
+                'due_date' => date('Y-m-d'),
+                'amount' => round($cuota_inicial, 2),
+                'capital' => round($cuota_inicial, 2),
+                'interest' => 0,
+                'interest_accrued' => null,
+                'interest_accrued_date' => null,
+                'balance' => round($monto_financiado, 2),
+                'status' => 'registered',  // Registrado, esperando validación de HR
+                'paid_date' => date('Y-m-d H:i:s'),
+                'paid_amount' => round($cuota_inicial, 2),
+                'voucher_url' => $comprobante_url,  // ✅ Guardar el voucher del cliente
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+                'pdf_url' => null,
+                'xml_url' => null
+            ];
+            $PaymentScheduleModel->insert($cuota_inicial_data);
+            
             // ✅ Generar cronograma con el MONTO FINANCIADO (no la inicial)
             $monthlyRate = 0;
             $balance = $monto_financiado;

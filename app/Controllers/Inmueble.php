@@ -2324,7 +2324,7 @@ class Inmueble extends BaseController {
 
                 // Solo generar cronograma si no es venta futura
                 if ($contractType !== 'futura') {
-                    $this->generatePaymentSchedule($contractId, $lotId, $paymentPlanId, $startDate, $financingMonths, $monthlyPayment, $financedAmount, $monthlyRate);
+                    $this->generatePaymentSchedule($contractId, $lotId, $paymentPlanId, $startDate, $financingMonths, $monthlyPayment, $financedAmount, $monthlyRate, $downPayment, $contractDate, $voucher_url);
                     log_message('debug', $log_prefix . 'Cronograma de pagos generado. contractId=' . $contractId);
                 }
 
@@ -2470,11 +2470,30 @@ class Inmueble extends BaseController {
         ]);
     }
     
-    private function generatePaymentSchedule($contractId, $lotId, $paymentPlanId, $startDate, $months, $monthlyPayment, $financedAmount, $monthlyRate)
+    private function generatePaymentSchedule($contractId, $lotId, $paymentPlanId, $startDate, $months, $monthlyPayment, $financedAmount, $monthlyRate, $downPayment = 0, $contractDate = null, $voucherUrl = null)
     {
         $scheduleModel = new \App\Models\PaymentScheduleModel();
         $balance = $financedAmount;
         
+        // ✅ CUOTA INICIAL (installment_number = 0) con el monto del down_payment
+        if ($downPayment > 0) {
+            $initialDate = $contractDate ?? date('Y-m-d');
+            $scheduleModel->insert([
+                'lot_id' => $lotId,
+                'payment_plan_id' => $paymentPlanId,
+                'contract_id' => $contractId,
+                'installment_number' => 0,
+                'due_date' => $initialDate,
+                'amount' => round($downPayment, 2),
+                'capital' => round($downPayment, 2),
+                'interest' => 0,
+                'balance' => round($financedAmount, 2),
+                'status' => 'pending',
+                'voucher_url' => $voucherUrl
+            ]);
+        }
+        
+        // Cuotas mensuales (1 a N)
         for ($i = 1; $i <= $months; $i++) {
             $dueDate = date('Y-m-d', strtotime($startDate . ' +' . ($i - 1) . ' months'));
             $interestPayment = $balance * $monthlyRate;

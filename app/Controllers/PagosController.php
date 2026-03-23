@@ -31,9 +31,9 @@ class PagosController extends BaseController
             return redirect()->to('/dashboard/inmueble/contracts')->with('error', 'Contrato no encontrado');
         }
 
-        // Obtener pagos ordenados (DESC - más recientes primero)
+        // Obtener pagos ordenados (ASC - cronológicamente)
         $payments = $paymentScheduleModel->where('contract_id', $contractId)
-            ->orderBy('due_date', 'DESC')
+            ->orderBy('installment_number', 'ASC')
             ->findAll();
 
         // Calcular estadísticas
@@ -112,11 +112,11 @@ class PagosController extends BaseController
                 ]);
             }
 
-            // Procesar comprobante si existe
+            // Procesar comprobante si existe (admin sube uno)
             $comprobanteUrl = null;
             if ($comprobante && $comprobante->isValid() && !$comprobante->hasMoved()) {
                 // Crear directorio si no existe
-                $uploadPath = ROOTPATH . 'writable/uploads/comprobantes';
+                $uploadPath = FCPATH . 'uploads/comprobantes';
                 if (!is_dir($uploadPath)) {
                     mkdir($uploadPath, 0755, true);
                 }
@@ -126,8 +126,10 @@ class PagosController extends BaseController
                 $comprobanteUrl = 'uploads/comprobantes/' . $newName;
             }
 
-            // Validación: Si el cliente no subió comprobante, el admin DEBE subir uno
-            if (empty($pago['comprobante_url']) && !$comprobanteUrl) {
+            // Verificar si el cliente ya subió voucher o el admin lo sube ahora
+            $tieneVoucher = !empty($pago['voucher_url']) || $comprobanteUrl;
+            
+            if (!$tieneVoucher) {
                 return $this->response->setJSON([
                     'success' => false,
                     'message' => 'Debe proporcionar un comprobante para validar el pago'
@@ -138,54 +140,23 @@ class PagosController extends BaseController
             $updateData = [
                 'status' => 'paid',
                 'paid_date' => date('Y-m-d H:i:s'),
+                'paid_amount' => $pago['amount'],
                 'validado_notas' => $notas,
-                'validated_at' => date('Y-m-d H:i:s')
+                'updated_at' => date('Y-m-d H:i:s')
             ];
 
-            // Agregar comprobante si el admin lo subió
+            // Agregar voucher si el admin lo subió (sobreescribe si ya existe)
             if ($comprobanteUrl) {
-                $updateData['comprobante_url'] = $comprobanteUrl;
+                $updateData['voucher_url'] = $comprobanteUrl;
             }
 
-            // Usar Query Builder directo con SQL
-            $db = \Config\Database::connect();
+            $scheduleModel->update($idPago, $updateData);
             
-            $setClause = [];
-            $params = [];
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Pago validado correctamente'
+            ]);
             
-            foreach ($updateData as $key => $value) {
-                $setClause[] = "`$key` = ?";
-                $params[] = $value;
-            }
-            
-            $params[] = $idPago;
-            
-            $query = "UPDATE `payment_schedules` SET " . implode(', ', $setClause) . " WHERE `id` = ?";
-            $update = $db->query($query, $params);
-            
-            if ($db->affectedRows() > 0) {
-                // Validar que se guardó correctamente
-                $scheduleModel = new \App\Models\PaymentScheduleModel();
-                $registroActualizado = $scheduleModel->find($idPago);
-                
-                // Verificar que tiene comprobante
-                if (empty($registroActualizado['comprobante_url'])) {
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => 'Error: El comprobante no se guardó correctamente'
-                    ]);
-                }
-                
-                return $this->response->setJSON([
-                    'success' => true,
-                    'message' => 'Pago validado correctamente'
-                ]);
-            } else {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'No se pudo validar el pago'
-                ]);
-            }
         } catch (\Throwable $e) {
             return $this->response->setJSON([
                 'success' => false,
