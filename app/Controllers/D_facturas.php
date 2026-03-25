@@ -256,7 +256,8 @@ class D_facturas extends BaseController
         $respuesta = $sunat->emitirComprobante($datosComprobante);
 
         // LOG de la respuesta completa
-        log_message('debug', 'SUNAT Response completa: ' . print_r($respuesta, true));
+        log_message('info', 'SUNAT Response Type: ' . gettype($respuesta));
+        log_message('info', 'SUNAT Response completa: ' . print_r($respuesta, true));
 
         // Procesar respuesta de SUNAT
         // Verificar si la respuesta tiene alguno de estos formatos:
@@ -389,6 +390,151 @@ class D_facturas extends BaseController
         } else {
             return $this->response->setJSON(['success' => false, 'error' => 'No se pudo crear la factura.']);
         }
+    }
+
+    /**
+     * Método de DEBUG para verificar la configuración y conectividad con SUNAT
+     */
+    public function debugSunat()
+    {
+        // Verificar permisos (solo admin)
+        if (!isset($_SESSION['id'])) {
+            return $this->response->setJSON(['error' => 'No autenticado']);
+        }
+
+        $debug = [
+            'timestamp' => date('Y-m-d H:i:s'),
+            'environment' => ENVIRONMENT,
+            'php_version' => phpversion(),
+            'curl_enabled' => extension_loaded('curl'),
+            'sunat_config' => [
+                'api_url' => env('SUNAT_API_URL'),
+                'token_prefix' => substr(env('SUNAT_TOKEN', ''), 0, 20) . '...',
+                'company_id' => env('SUNAT_COMPANY_ID', 'NO CONFIGURADO'),
+            ],
+            'test_curl' => [],
+            'database_check' => []
+        ];
+
+        // Test 1: Verificar conexión a la API SUNAT
+        $apiUrl = env('SUNAT_API_URL');
+        $token = env('SUNAT_TOKEN');
+
+        if (!$apiUrl || !$token) {
+            return $this->response->setJSON([
+                'error' => 'Configuración incompleta',
+                'debug' => $debug,
+                'missing' => [
+                    'api_url' => empty($apiUrl),
+                    'token' => empty($token)
+                ]
+            ]);
+        }
+
+        // Test CURL
+        $ch = curl_init($apiUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $token,
+            'Content-Type: application/json'
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        $debug['test_curl'] = [
+            'url' => $apiUrl,
+            'http_code' => $httpCode,
+            'curl_error' => $curlError ?: 'Sin errores',
+            'response_length' => strlen($response),
+            'response_preview' => substr($response, 0, 500)
+        ];
+
+        // Test 2: Verificar base de datos
+        $db = \Config\Database::connect();
+        try {
+            $result = $db->query('SELECT 1')->getResult();
+            $debug['database_check'] = [
+                'status' => 'Conectada',
+                'connection' => $db->getDatabase()
+            ];
+        } catch (\Exception $e) {
+            $debug['database_check'] = [
+                'status' => 'Error',
+                'error' => $e->getMessage()
+            ];
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'debug' => $debug
+        ]);
+    }
+
+    /**
+     * Test de emisión con datos de prueba
+     */
+    public function testEmitirFactura()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['error' => 'Solo AJAX']);
+        }
+
+        log_message('info', '=== INICIANDO TEST EMISIÓN FACTURA ===');
+
+        // Datos de prueba
+        $datosComprobante = [
+            "scenario" => "Boleta Gravada",
+            "company_id" => env('SUNAT_COMPANY_ID', 1),
+            "branch_id" => 1,
+            "serie" => "B001",
+            "numero" => 1,
+            "fecha_emision" => date('Y-m-d'),
+            "moneda" => "PEN",
+            "tipo_operacion" => "0101",
+            "metodo_envio" => "resumen_diario",
+            "forma_pago_tipo" => "Contado",
+            "client" => [
+                "tipo_documento" => "1",
+                "numero_documento" => "12345678",
+                "razon_social" => "Cliente Test",
+                "direccion" => "Dirección Test",
+                "telefono" => "999999999",
+                "email" => "test@test.com"
+            ],
+            "detalles" => [
+                [
+                    "codigo" => "TEST-001",
+                    "descripcion" => "Producto Test",
+                    "unidad" => "NIU",
+                    "cantidad" => 1,
+                    "mto_valor_unitario" => 100.00,
+                    "porcentaje_igv" => 18,
+                    "tip_afe_igv" => "10",
+                    "codigo_producto_sunat" => "95121601"
+                ]
+            ],
+            "usuario_creacion" => $_SESSION['id'] ?? 'test'
+        ];
+
+        log_message('info', 'Datos de prueba: ' . json_encode($datosComprobante, JSON_PRETTY_PRINT));
+
+        $sunat = new Sunat();
+        $respuesta = $sunat->emitirComprobante($datosComprobante);
+
+        log_message('info', 'Respuesta SUNAT: ' . json_encode($respuesta, JSON_PRETTY_PRINT));
+        log_message('info', '=== FIN TEST EMISIÓN FACTURA ===');
+
+        return $this->response->setJSON([
+            'success' => true,
+            'datos_enviados' => $datosComprobante,
+            'respuesta_sunat' => $respuesta,
+            'logs_path' => WRITEPATH . 'logs/'
+        ]);
     }
 
 }

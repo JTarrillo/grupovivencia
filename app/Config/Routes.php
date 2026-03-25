@@ -34,6 +34,7 @@ $routes->setAutoRoute(true);
  */
 
 $routes->get('/dashboard/facturas/detalle/(:num)', 'D_facturas::detalle/$1', ['filter' => 'authGuard']);
+$routes->get('/dashboard/debugSunat', 'D_facturas::debugSunat');
 
 $routes->post('/dashboard/inmueble/aprobarMejor', 'Inmueble::aprobarMejor');
 
