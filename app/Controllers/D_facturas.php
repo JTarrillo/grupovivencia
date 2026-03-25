@@ -1,18 +1,19 @@
 <?php
 
 namespace App\Controllers;
+
 use App\Models\InvoicesModel;
 use App\Models\MembershipsModel;
 use App\Libraries\Nubefact;
 
 class D_facturas extends BaseController
-   
+
 {
 
-     public function emitirDesdeContrato($id)
+    public function emitirDesdeContrato($id)
     {
         // Obtener datos del contrato usando el ID
-    $contrato = model('ContractModel')->find($id);
+        $contrato = model('ContractModel')->find($id);
         // Puedes obtener también el cliente y el inmueble si lo necesitas
         // $cliente = model('CustomersModel')->find($contrato['customer_id']);
         // $inmueble = model('LotsModel')->find($contrato['lot_id']);
@@ -55,15 +56,15 @@ class D_facturas extends BaseController
         );
         return view('admin/facturas/facturas_contratos', $data);
     }
-    
+
     public function load($id = false)
     {
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
         $Invoices = new InvoicesModel();
         $Membership = new MembershipsModel();
         //isset id
-        if ($id != false){
+        if ($id != false) {
             $obj_invoices = $Invoices->get_data_customer_kit($id);
         }
         //get kit
@@ -74,10 +75,11 @@ class D_facturas extends BaseController
             'obj_kit' => $obj_kit,
             'session_name' => $session_name,
         );
-        return view('admin/facturas/load',$data);
+        return view('admin/facturas/load', $data);
     }
 
-    public function validacion(){
+    public function validacion()
+    {
         if ($this->request->isAJAX()) {
             $Invoices = new InvoicesModel();
             //get data session
@@ -90,17 +92,17 @@ class D_facturas extends BaseController
             //update table invoices
             $param = array(
                 'active' => $active
-                );   
+            );
             //update table invoices
             $result = $Invoices->update($invoice_id, $param);
-            if(!is_null($result)){
+            if (!is_null($result)) {
                 $data['status'] = true;
                 $data['message'] = SAVED;
-            }else{
+            } else {
                 $data['status'] = false;
                 $data['message'] = ERROR;
             }
-            echo json_encode($data);   
+            echo json_encode($data);
             exit();
         }
     }
@@ -132,7 +134,7 @@ class D_facturas extends BaseController
         }
     }
 
-    public function emitirFactura()
+    public function emitirFactura1()
     {
         if (!$this->request->isAJAX()) {
             return redirect()->to('/dashboard/facturasContratos');
@@ -329,6 +331,72 @@ class D_facturas extends BaseController
             'nubefact_response' => $respuesta
         ]);
     }
+
+
+    public function emitirFactura()
+    {
+        if (!$this->request->isAJAX()) {
+            return redirect()->to('/dashboard/facturasContratos');
+        }
+        // DEBUG: Ver datos recibidos
+        $debugData = $this->request->getPost();
+        log_message('debug', 'emitirFactura POST: ' . print_r($debugData, true));
+        $Invoices = new InvoicesModel();
+        $contract_id = $this->request->getPost('contract_id');
+        $contrato = model('ContractModel')->find($contract_id);
+        if (!$contrato) {
+            return $this->response->setJSON(['success' => false, 'error' => 'Contrato no encontrado.']);
+        }
+        // CORRECCIÓN: Usar el modelo correcto
+        $cliente = model('CustomerModel')->find($contrato['customer_id']);
+        if (!$cliente) {
+            return $this->response->setJSON(['success' => false, 'error' => 'Cliente no encontrado.']);
+        }
+        // Validar DNI
+        if (!isset($cliente['dni']) || strlen($cliente['dni']) !== 8) {
+            return $this->response->setJSON([
+                'success' => false,
+                'error' => 'El cliente no tiene un DNI válido (8 dígitos).'
+            ]);
+        }
+        // Obtener la última factura para calcular el número
+        $serie = 'BBB1'; // Puedes cambiar la lógica de serie si lo necesitas
+        $ultimo = $Invoices->orderBy('numero', 'DESC')->where('serie', $serie)->first();
+        $numero = $ultimo && isset($ultimo['numero']) ? $ultimo['numero'] + 1 : 1;
+
+        $data = [
+            'customer_id' => $contrato['customer_id'],
+            'contract_id' => $contrato['id'],
+            'membership_id' => null,
+            'qty' => 1,
+            'amount' => $contrato['total_amount'],
+            'address' => '',
+            'phone' => '',
+            'details' => 'Factura generada desde contrato',
+            'store_id' => 1,
+            'period_id' => null,
+            'temporal_membership' => null,
+            'sub_total' => $contrato['total_amount'],
+            'payment' => '',
+            'igv' => '0.00',
+            'total' => $contrato['total_amount'],
+            'points' => 0,
+            'delivery' => '0',
+            'delivery_date' => null,
+            'img' => '',
+            'date' => date('Y-m-d H:i:s'),
+            'cash' => '0.00',
+            'yape' => '0.00',
+            'card' => '0.00',
+            'active' => '1',
+            'serie' => $serie,
+            'numero' => $numero
+        ];
+
+        print_r($data);
+    }
+
+
     public function detalle($id)
     {
         $Invoices = new InvoicesModel();
@@ -344,41 +412,119 @@ class D_facturas extends BaseController
             'urlComprobante' => $urlComprobante
         ]);
     }
+
+
     public function generarFactura()
     {
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON(['success' => false, 'error' => 'Petición inválida.']);
         }
+
         $contract_id = $this->request->getPost('contract_id');
+
+        // 1. Obtener datos del contrato usando tu modelo
         $contrato = model('ContractModel')->find($contract_id);
+
         if (!$contrato) {
             return $this->response->setJSON(['success' => false, 'error' => 'Contrato no encontrado.']);
         }
+
+        // 2. Obtener datos del cliente para traer el Name, DNI/RUC, etc.
         $cliente = model('CustomerModel')->find($contrato['customer_id']);
+
         if (!$cliente) {
-            return $this->response->setJSON(['success' => false, 'error' => 'Cliente no encontrado.']);
+            return $this->response->setJSON(['success' => false, 'error' => 'Cliente no encontrado en la tabla customers.']);
         }
-        $Invoices = new \App\Models\InvoicesModel();
-        // Validar que no exista ya una factura para este contrato
-        $existe = $Invoices->where('contract_id', $contract_id)->first();
-        if ($existe) {
-            return $this->response->setJSON(['success' => false, 'error' => 'Ya existe una factura asociada a este contrato.']);
-        }
-        $data = [
-            'customer_id' => $contrato['customer_id'],
-            'contract_id' => $contrato['id'],
-            'amount' => $contrato['total_amount'],
-            'date' => date('Y-m-d H:i:s'),
-            'active' => '1',
-            'store_id' => 1, // ID válido de la tienda
-            // Puedes agregar más campos si lo necesitas
+
+        // 3. Cálculos de montos (Base Imponible e IGV)
+        $total = (float) $contrato['total_amount'];
+        $porcentaje_igv = 18;
+        // SUNAT requiere el valor unitario sin IGV
+        $mto_valor_unitario = round($total / 1.18, 2);
+
+        // 4. Lógica de comprobante (Boleta vs Factura)
+        $esRuc = !empty($cliente['ruc']);
+        $tipo_doc = $esRuc ? "6" : "1"; // 6: RUC, 1: DNI
+        $serie = $esRuc ? "F001" : "B001";
+        $num_doc = $esRuc ? $cliente['ruc'] : $cliente['dni'];
+
+        // 5. Armado de la estructura final
+        $data_facturacion = [
+            "scenario" => $esRuc ? "Factura Gravada" : "Boleta Gravada",
+            "company_id" => 1,
+            "branch_id" => 1,
+            "serie" => $serie,
+            "fecha_emision" => date('Y-m-d'),
+            "moneda" => "PEN",
+            "tipo_operacion" => "0101",
+            "metodo_envio" => "individual",
+            "forma_pago_tipo" => "Contado",
+
+            "client" => [
+                "tipo_documento" => $tipo_doc,
+                "numero_documento" => $num_doc,
+                "razon_social" => trim(($cliente['name'] ?? '') . ' ' . ($cliente['lastname'] ?? '')),
+                "direccion" => $cliente['address'] ?: "Lima, Perú",
+                "telefono" => $cliente['phone'] ?? '',
+                "email" => $cliente['email'] ?? ''
+            ],
+
+            "detalles" => [
+                [
+                    "codigo" => $contrato['contract_number'], // <--- Usando el número de contrato
+                    "descripcion" => "LOTE DE TERRENO - CONTRATO " . $contrato['contract_number'],
+                    "unidad" => "NIU",
+                    "cantidad" => 1,
+                    "mto_valor_unitario" => $mto_valor_unitario,
+                    "porcentaje_igv" => $porcentaje_igv,
+                    "tip_afe_igv" => "10",
+                    "codigo_producto_sunat" => "95121601"
+                ]
+            ],
+
+            "usuario_creacion" => "vendedor01"
         ];
-        $invoice_id = $Invoices->insertar($data);
-        if ($invoice_id) {
-            return $this->response->setJSON(['success' => true]);
-        } else {
-            return $this->response->setJSON(['success' => false, 'error' => 'No se pudo crear la factura.']);
-        }
+
+        // Llamar a la funcion de envio
+
+        $respuestaApi = $this->enviarFacturaSunat($data_facturacion);
+
+        return $this->response->setJSON($respuestaApi);
     }
 
+    private function enviarFacturaSunat($data)
+    {
+
+        $url   = 'https://apifacturacion.groupdispensersac.com/api/v1/boletas';
+        $token = '3|sunat_0F4WtkWSuV7N8KjXWpV9G5zIA6F35HqHYaVGdDmf6f01006b';
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL            => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POSTFIELDS     => json_encode($data),
+            CURLOPT_HTTPHEADER     => [
+                'Accept: application/json',
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $token
+            ],
+        ]);
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+
+        // --- SISTEMA DE LOGS ---
+        $logPath = WRITEPATH . 'logs/facturacion_' . date('Y-m-d') . '.log';
+        $logData = "HORA: " . date('H:i:s') . "\n";
+        $logData .= "ENVIO: " . json_encode($data) . "\n";
+        $logData .= "RESPUESTA: " . ($err ? "ERROR CURL: $err" : $response) . "\n";
+        $logData .= "----------------------------------------------------------\n";
+
+        file_put_contents($logPath, $logData, FILE_APPEND);
+
+        // Retornamos el resultado decodificado
+        return json_decode($response, true);
+    }
 }
