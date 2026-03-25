@@ -1,0 +1,213 @@
+═══════════════════════════════════════════════════════════════════════════════
+              ANÁLISIS DE LA ESTRUCTURA DE LA BASE DE DATOS
+              Grupo Vivencia - grupovivencia
+═══════════════════════════════════════════════════════════════════════════════
+
+📊 ESTADO ACTUAL DE LA BD
+═══════════════════════════════════════════════════════════════════════════════
+
+Total de Tablas: 42
+
+───────────────────────────────────────────────────────────────────────────────
+✅ 1. MÓDULO INMOBILIARIO (YA EXISTE)
+───────────────────────────────────────────────────────────────────────────────
+
+Tablas:
+  • contracts              → Contrato inmobiliario
+  • payment_schedules      → Cronograma de pagos
+  • lots                   → Lotes/inmuebles
+  • projects              → Proyectos inmobiliarios
+  • customers             → Clientes/compradores
+  • comisiones_inmobiliarias → Comisiones de ventas
+
+Campos principales en CONTRACTS:
+  - id, lot_id, customer_id, contract_number
+  - total_amount, down_payment, financed_amount, monthly_payment
+  - interest_rate, contract_date, start_date, end_date
+  - status (active, completed, cancelled, suspended, rejected)
+  - contract_type, is_approved, is_rejected, financing_months
+
+Campos principales en PAYMENT_SCHEDULES:
+  - id, contract_id, installment_number, due_date
+  - amount, capital, interest, balance
+  - status (pending, paid, overdue, cancelled, registered)
+  - paid_date, paid_amount, voucher_url
+  - pdf_url, xml_url, comprobante_url
+
+📌 CONCLUSIÓN: El módulo inmobiliario está bien establecido y funcional.
+
+───────────────────────────────────────────────────────────────────────────────
+✅ 2. MÓDULO DE FACTURAS/BOLETAS (YA EXISTE)
+───────────────────────────────────────────────────────────────────────────────
+
+Tabla:
+  • invoices → Facturas electrónicas
+
+Campos principales:
+  - id, customer_id, invoice_type, series, number
+  - status (issued, paid, cancelled, etc.)
+  - pdf_url, xml_url, api_response
+  - amount, sub_total, igv, total, points
+  - date, created_at, updated_at
+  - payment (cash, yape, card), contract_id
+
+Campos SUNAT:
+  - codigo_hash, cadena_para_codigo_qr, codigo_de_barras
+  - digest_value, enlace_del_pdf, enlace_del_xml, enlace_del_cdr
+
+📌 CONCLUSIÓN: Las facturas electrónicas ya están integradas con SUNAT.
+
+───────────────────────────────────────────────────────────────────────────────
+⚠️  3. MÓDULO BANCARIO (PARCIALMENTE EXISTE)
+───────────────────────────────────────────────────────────────────────────────
+
+Tabla existente:
+  • bank → Bancos registrados
+    Campos: id, name, phone, address, created_at, updated_at
+
+Tablas NECESARIAS (que creaste):
+  • cuentas_bancarias         → Cuentas bancarias por banco
+  • movimientos_bancarios     → Registro de movimientos (entrada/salida)
+  • conciliaciones_bancarias  → Conciliaciones bancarias
+
+❌ FALTA: Sincronizar con PAYMENTS y validación de movimientos
+
+───────────────────────────────────────────────────────────────────────────────
+⚠️  4. MÓDULO DE PROVEEDORES Y PAGOS
+───────────────────────────────────────────────────────────────────────────────
+
+Tabla existente:
+  • suppliers → Proveedores
+    Campos: id, name, ruc, phone, address, date, active
+
+Tablas NECESARIAS:
+  • proveedores              → Proveedor (duplicada con suppliers, unificar)
+  • pagos_proveedores        → Registro de pagos a proveedores
+  • recibos_honorarios       → Recibos por servicios profesionales
+
+❌ FALTA: Vincular suppliers con pagos_proveedores
+❌ FALTA: Crear tabla de recibos con validación SUNAT
+
+───────────────────────────────────────────────────────────────────────────────
+❌ 5. MÓDULO TRIBUTARIO (NO EXISTE)
+───────────────────────────────────────────────────────────────────────────────
+
+Tablas NECESARIAS:
+  • compras               → Registro de compras (facturas de proveedores)
+  • ventas                → Registro de ventas (facturas a clientes)
+  • declaraciones_tributarias → PDT - IGV, Renta, etc.
+  • costos_proyecto       → Costos asignados a proyectos
+  • clasificaciones_compra → Clasificación de compras (bienes, servicios, activos)
+
+Campos sugeridos para COMPRAS:
+  - id, proveedor_id, numero_comprobante, tipo_comprobante
+  - fecha_compra, subtotal, igv, total
+  - descripcion, clasificacion, estado
+  - fecha_registro
+
+Campos sugeridos para VENTAS:
+  - id, cliente_id, numero_comprobante, tipo_comprobante
+  - fecha_venta, subtotal, igv, total
+  - descripcion, estado, fecha_registro
+
+Campos sugeridos para DECLARACIONES:
+  - id, periodo, total_ventas, total_compras
+  - igv_a_pagar, estado, fecha_creacion, usuario_id
+
+📌 ACCIÓN: Crear estas tablas mediante migraciones
+
+───────────────────────────────────────────────────────────────────────────────
+❌ 6. MÓDULO DOCUMENTAL (NO EXISTE)
+───────────────────────────────────────────────────────────────────────────────
+
+Tablas NECESARIAS:
+  • archivos_digitales    → Almacenamiento de documentos
+  • requerimientos        → Seguimiento de requerimientos a clientes
+  • documentos            → Gestor de documentos internos
+
+Campos sugeridos para ARCHIVOS_DIGITALES:
+  - id, nombre_original, nombre_almacenado, tipo_documento
+  - tamaño, ruta_archivo, contrato_id, cliente_id
+  - descripcion, fecha_subida, usuario_id, estado
+  - hash_archivo (para integridad)
+
+Campos sugeridos para REQUERIMIENTOS:
+  - id, cliente_id, contrato_id, tipo_requerimiento
+  - descripcion, documento_requerido, fecha_vencimiento
+  - estado (pendiente, completado, vencido), fecha_creacion
+  - usuario_id, observaciones
+
+Campos sugeridos para DOCUMENTOS:
+  - id, nombre, tipo_documento, descripcion, contenido
+  - version, fecha_creacion, usuario_creador_id, estado
+  - última_modificación
+
+📌 ACCIÓN: Crear estas tablas mediante migraciones
+
+───────────────────────────────────────────────────────────────────────────────
+📈 RESUMEN DE ACCIONES REQUERIDAS
+───────────────────────────────────────────────────────────────────────────────
+
+INMEDIATO:
+  ✅ Módulo Inmobiliario      → COMPLETO (contratos, cronograma, lotes)
+  ✅ Módulo Facturas/Boletas   → COMPLETO (integrado con SUNAT)
+
+CORTO PLAZO:
+  ⏳ Completar Módulo Bancario:
+     - Crear migraciones para cuentas_bancarias, movimientos_bancarios
+     - Vincular con tabla de pagos (payment_schedules)
+     - Crear reconciliación automática
+
+  ⏳ Módulo de Proveedores y Pagos:
+     - Unificar suppliers con proveedores
+     - Crear tabla pagos_proveedores
+     - Crear recibos_honorarios con firma electrónica
+
+MEDIANO PLAZO:
+  ⏳ Módulo Tributario:
+     - Crear tabla compras (integrada con suppliers)
+     - Crear tabla ventas (integrada con invoices)
+     - Crear tabla declaraciones_tributarias
+     - Crear tabla costos_proyecto
+     - Integrar con Sunat para PDT
+
+  ⏳ Módulo Documental:
+     - Crear tabla archivos_digitales
+     - Crear tabla requerimientos
+     - Crear tabla documentos
+     - Implementar sistema de versioning
+
+───────────────────────────────────────────────────────────────────────────────
+🔗 RELACIONES ENTRE MÓDULOS
+───────────────────────────────────────────────────────────────────────────────
+
+contracts (inmobiliario)
+    ↓
+payment_schedules (pagos clientes)
+    ↓
+invoices (facturas a clientes)
+    ↓
+declaraciones_tributarias (módulo tributario)
+
+suppliers (proveedores)
+    ↓
+compras (tributario)
+    ↓
+pagos_proveedores (pagos)
+    ↓
+cuentas_bancarias (bancario)
+
+archivos_digitales (documental)
+    ↓
+requerimientos (documental)
+    ↓
+contratos, clientes (inmobiliario)
+
+───────────────────────────────────────────────────────────────────────────────
+✨ PRIORIDAD SUGERIDA
+───────────────────────────────────────────────────────────────────────────────
+
+1. Módulo Bancario (cuentas, movimientos, conciliaciones)
+2. Módulo Tributario (compras, ventas, declaraciones)
+3. Módulo Documental (archivos, requerimientos)
+4. Integración total entre módulos

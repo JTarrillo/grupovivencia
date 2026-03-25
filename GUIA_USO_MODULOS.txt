@@ -1,0 +1,268 @@
+═══════════════════════════════════════════════════════════════════════════════
+                         GUÍA DE USO RÁPIDO - MÓDULOS
+═══════════════════════════════════════════════════════════════════════════════
+
+ACCESO A LOS MÓDULOS
+═══════════════════════════════════════════════════════════════════════════════
+
+Todos los módulos requieren estar LOGUEADO (filter: authGuard)
+
+───────────────────────────────────────────────────────────────────────────────
+1️⃣ MÓDULO BANCARIO
+───────────────────────────────────────────────────────────────────────────────
+
+URL Base: http://localhost:8081/admin/bancario/
+
+Funcionalidades:
+  • Cuentas Bancarias
+    - Ver todas: /admin/bancario/cuentas
+    - Crear: /admin/bancario/crear_cuenta
+    - Editar: /admin/bancario/editar_cuenta/{id}
+
+  • Movimientos Bancarios
+    - Ver por cuenta: /admin/bancario/movimientos/{id}
+    - Agregar: /admin/bancario/agregar_movimiento/{id}
+    - Tipos: entrada, salida
+
+  • Conciliaciones
+    - Ver todas: /admin/bancario/conciliaciones
+    - Crear: /admin/bancario/crear_conciliacion
+    - Registra diferencias entre banco y sistema
+
+CASOS DE USO:
+1. Registrar una nueva cuenta bancaria en el sistema
+2. Registrar movimiento de entrada (depósito)
+3. Registrar movimiento de salida (pago)
+4. Realizar conciliación mensual
+5. Validar saldo en sistema vs. estado de cuenta
+
+───────────────────────────────────────────────────────────────────────────────
+2️⃣ MÓDULO PAGOS
+───────────────────────────────────────────────────────────────────────────────
+
+URL Base: http://localhost:8081/pagos/
+
+Funcionalidades:
+
+  A) PROVEEDORES
+    - Ver: /pagos/proveedores
+    - Crear: /pagos/crear_proveedor
+    - Editar: /pagos/editar_proveedor/{id}
+
+  B) COMISIONES
+    - Ver: /pagos/comisiones
+    - Crear: /pagos/crear_comision
+    - Tipos: porcentaje, monto fijo
+    - Estados: pendiente, pagada
+
+  C) PAGOS A PROVEEDORES
+    - Ver: /pagos/pagos_proveedores
+    - Registrar: /pagos/registrar_pago
+    - Métodos: banco, efectivo, cheque
+
+  D) RECIBOS POR HONORARIOS
+    - Ver: /pagos/recibos_honorarios
+    - Crear: /pagos/crear_recibo
+    - Generación de número automático (RH-YYYYMMDD-XXXX)
+
+CASOS DE USO:
+1. Registrar nuevo proveedor en el sistema
+2. Registrar pago realizado a proveedor
+3. Crear comisión de venta
+4. Generar recibo de honorarios para profesional
+
+───────────────────────────────────────────────────────────────────────────────
+3️⃣ MÓDULO TRIBUTARIO
+───────────────────────────────────────────────────────────────────────────────
+
+URL Base: http://localhost:8081/tributario/
+
+Funcionalidades:
+
+  A) COMPRAS
+    - Ver: /tributario/compras
+    - Registrar: /tributario/registrar_compra
+    - Datos: proveedor, comprobante, fecha, monto, IGV
+    - Clasificación: materiales, servicios, activos, suministros
+
+  B) VENTAS
+    - Ver: /tributario/ventas
+    - Registrar: /tributario/registrar_venta
+    - Datos: cliente, comprobante, fecha, monto, IGV
+    - Vinculado con invoices automáticamente
+
+  C) DECLARACIONES TRIBUTARIAS
+    - Ver: /tributario/declaraciones
+    - Crear: /tributario/crear_declaracion
+    - Período: YYYY-MM
+    - Calcula: Total ventas, total compras, IGV a pagar
+
+  D) COSTOS DE PROYECTO
+    - Ver: /tributario/costo_proyecto
+    - Registrar: /tributario/registrar_costo
+    - Asignar costos a proyectos inmobiliarios
+
+  E) CLASIFICACIONES
+    - Ver: /tributario/clasificacion_compras
+    - Valores precargados: MAT, SRV, ACT, SUM, OTR
+
+CASOS DE USO:
+1. Registrar todas las compras del mes
+2. Exportar declaración de ventas
+3. Generar PDF de declaración para SUNAT
+4. Analizar costos por proyecto
+5. Validar clasificación de compras
+
+───────────────────────────────────────────────────────────────────────────────
+4️⃣ MÓDULO DOCUMENTAL
+───────────────────────────────────────────────────────────────────────────────
+
+URL Base: http://localhost:8081/documental/
+
+Funcionalidades:
+
+  A) ARCHIVOS DIGITALES
+    - Ver: /documental/archivos
+    - Subir: /documental/subir_archivo
+    - Descargar: /documental/descargar_archivo/{id}
+    - Eliminar: /documental/eliminar_archivo/{id}
+    - Tipos: PDF, DOC, JPG, PNG, etc.
+    - Vinculación: Contrato, Cliente
+
+  B) REQUERIMIENTOS
+    - Ver: /documental/requerimientos
+    - Crear: /documental/crear_requerimiento
+    - Actualizar: /documental/actualizar_requerimiento/{id}
+    - Estados: pendiente, completado, vencido
+    - Seguimiento de documentación requerida a clientes
+
+  C) DOCUMENTOS INTERNOS
+    - Ver: /documental/documentos
+    - Crear: /documental/crear_documento
+    - Versioning automático
+    - Tipos: contratos, políticas, procedimientos
+
+CASOS DE USO:
+1. Guardar copia digital de contrato firmado
+2. Solicitar documentación adicional a cliente
+3. Rastrear estado de documentos requeridos
+4. Guardar procedimientos internos
+5. Mantener histórico de documentos con versiones
+
+═══════════════════════════════════════════════════════════════════════════════
+INTEGRACIONES AUTOMÁTICAS
+═══════════════════════════════════════════════════════════════════════════════
+
+Cuando registras una COMPRA:
+  ✓ Se crea en tabla compras
+  ✓ Se puede vincular con proveedor
+  ✓ Se clasifica automáticamente
+  ✓ Contribuye a declaraciones tributarias
+
+Cuando registras una VENTA:
+  ✓ Se crea en tabla ventas
+  ✓ Se vincula con cliente
+  ✓ Se recalculan totales de declaración
+  ✓ Se puede exportar a SUNAT
+
+Cuando subes un ARCHIVO:
+  ✓ Se guarda en servidor
+  ✓ Se registra en archivos_digitales
+  ✓ Se puede vincular a contrato/cliente
+  ✓ Se calcula hash para integridad
+
+Cuando creas un REQUERIMIENTO:
+  ✓ Se notifica al cliente
+  ✓ Se registra fecha de vencimiento
+  ✓ Se puede vincular a contrato
+  ✓ Sistema alerta si vence
+
+═══════════════════════════════════════════════════════════════════════════════
+FLUJOS DE TRABAJO TÍPICOS
+═══════════════════════════════════════════════════════════════════════════════
+
+FLUJO 1: Venta Inmobiliaria Completa
+───────────────────────────────────────
+1. Crear contrato (Inmobiliario existente)
+2. Crear cronograma de pagos
+3. Registrar comisión de venta (Módulo Pagos)
+4. Subir contrato digitalizado (Módulo Documental)
+5. Crear requerimiento de documentación (Módulo Documental)
+6. Registrar entrada de dinero (Módulo Bancario)
+7. Registrar venta en declaración (Módulo Tributario)
+
+FLUJO 2: Pago a Proveedor
+────────────────────────
+1. Registrar proveedor (Módulo Pagos)
+2. Registrar compra de materiales (Módulo Tributario)
+3. Registrar pago a proveedor (Módulo Pagos)
+4. Registrar salida bancaria (Módulo Bancario)
+5. Guardar comprobante (Módulo Documental)
+
+FLUJO 3: Declaración Tributaria Mensual
+──────────────────────────────────────
+1. Registrar todas las compras del mes (Tributario)
+2. Registrar todas las ventas del mes (Tributario)
+3. Crear declaración tributaria (Tributario)
+4. Validar IGV calculado
+5. Exportar PDF para SUNAT
+6. Guardar constancia (Documental)
+
+───────────────────────────────────────────────────────────────────────────────
+VALIDACIONES Y RESTRICCIONES
+───────────────────────────────────────────────────────────────────────────────
+
+Cuentas Bancarias:
+  ✓ No puede haber duplicados de número de cuenta
+  ✓ Saldo se actualiza automáticamente con movimientos
+  ✓ No permite saldo negativo (validación)
+
+Proveedores:
+  ✓ RUC es único
+  ✓ Email debe ser válido (si se ingresa)
+  ✓ No puede registrar proveedor duplicado
+
+Compras/Ventas:
+  ✓ Número de comprobante es único
+  ✓ IGV se calcula automáticamente (18%)
+  ✓ Total = Subtotal + IGV
+  ✓ Fecha no puede ser futura
+
+Documentos:
+  ✓ Tamaño máximo: 50MB
+  ✓ Tipos permitidos: PDF, DOC, DOCX, JPG, PNG, XLS, XLSX
+  ✓ Se guarda hash para verificar integridad
+
+═══════════════════════════════════════════════════════════════════════════════
+PERMISOS REQUERIDOS (Filter: authGuard)
+═══════════════════════════════════════════════════════════════════════════════
+
+Todos los módulos requieren estar logueado.
+
+Para acceso específico, considera agregar filtros adicionales como:
+  • ['filter' => 'role:admin']     → Solo administradores
+  • ['filter' => 'role:contador']  → Solo contadores
+  • ['filter' => 'role:gerente']   → Solo gerentes
+
+═══════════════════════════════════════════════════════════════════════════════
+SOPORTE Y TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════════
+
+Error: No puedo ver las vistas
+→ Verifica que las carpetas existan en app/Views/admin/
+
+Error: Las rutas no funcionan
+→ Limpia caché de CodeIgniter (delete writable/cache/*)
+→ Verifica que Routes.php esté bien guardado
+→ Reinicia el servidor
+
+Error: Base de datos
+→ Verifica conexión en .env
+→ Ejecuta migraciones: php spark migrate
+
+No aparecen datos
+→ Verifica que estés logueado
+→ Comprueba que la tabla exista en la BD
+→ Revisa los logs: writable/logs/
+
+═══════════════════════════════════════════════════════════════════════════════

@@ -429,7 +429,8 @@
                                                                                 href="<?= base_url('dashboard/inmueble/edit_contract/' . $contract['id']) ?>">
                                                                                 <i class="fa fa-edit"></i> Editar
                                                                             </a>
-                                                                            <a class="dropdown-item" href="/dashboard/inmueble/cronograma/<?= $contract['id'] ?>">
+                                                                            <a class="dropdown-item"
+                                                                                href="/dashboard/inmueble/cronograma/<?= $contract['id'] ?>">
                                                                                 <i class="fa fa-calendar"></i>
                                                                                 Cronograma
                                                                             </a>

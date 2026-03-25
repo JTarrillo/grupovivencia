@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
@@ -17,19 +18,18 @@ class B_admin extends BaseController
 
         $id = $session->get('id');
 
+        
 
-
-        if(is_null($session)){
+        if (is_null($session)) {
 
             return redirect()->route('dashboard/panel');
-
         }
 
 
 
         return view('admin');
-
     }
+    
     public function contrato_pdf($id = null)
     {
         // Inicializa el modelo correctamente
@@ -92,6 +92,8 @@ class B_admin extends BaseController
         $password = $request->getPostGet('password');
         $user = new UsersModel();
         $res = $user->get_data_by_email($email);
+        /* print_r($res);
+        exit; */
         //validate
         if ($res) {
             $pass = $res->password;
@@ -102,6 +104,7 @@ class B_admin extends BaseController
                     'name' => $res->name,
                     'lastname' => $res->lastname,
                     'email' => $res->email,
+                    'dni'        => $res->dni,
                     'privilegio' => isset($res->privilegio) ? $res->privilegio : (isset($res->privilage) ? $res->privilage : 'admin'),
                     'active' => $res->active,
                     'isLoggedIn' => TRUE
@@ -161,7 +164,7 @@ class B_admin extends BaseController
         return view('admin/inmueble/cronograma_modal', ['payments' => $payments]);
     }
 
-       public function contrato_word($id = null)
+    public function contrato_word($id = null)
     {
         $contractModel = new \App\Models\ContractModel();
         if ($id !== null) {
@@ -202,7 +205,7 @@ class B_admin extends BaseController
 
         // Renderiza la vista como HTML
 
-    $html = view($viewName, $data);
+        $html = view($viewName, $data);
 
         // Prepara el archivo Word usando HTML (sin dependencias externas)
         $filename = 'contrato_' . ($contracts[0]['contract_number'] ?? $id) . '.doc';
@@ -221,7 +224,7 @@ class B_admin extends BaseController
             . '</body></html>';
         exit;
     }
-     public function exportWord($id)
+    public function exportWord($id)
     {
         // Asegúrate de tener PHPWord instalado (phpoffice/phpword)
         // Obtén los datos del contrato
@@ -264,7 +267,7 @@ class B_admin extends BaseController
         $section->addText('Precio total: S/ ' . ($contract['total_amount'] ?? '__________'));
         $section->addText('Cuota inicial: S/ ' . ($contract['down_payment'] ?? '__________'));
         $section->addText('Monto financiado: S/ ' . ($contract['financed_amount'] ?? '__________'));
-        $section->addText('N° meses: ' . ($contract['end_date'] && $contract['start_date'] ? ((strtotime($contract['end_date']) - strtotime($contract['start_date'])) / (30*24*60*60)) : '__________'));
+        $section->addText('N° meses: ' . ($contract['end_date'] && $contract['start_date'] ? ((strtotime($contract['end_date']) - strtotime($contract['start_date'])) / (30 * 24 * 60 * 60)) : '__________'));
         $section->addText('Cuota mensual: S/ ' . ($contract['monthly_payment'] ?? '__________'));
         $section->addText('Tasa interés: ' . ($contract['interest_rate'] ?? '__________') . ' %');
         $section->addTextBreak();
@@ -283,7 +286,7 @@ class B_admin extends BaseController
         exit;
     }
 
-     public function crear_contrato_y_cronograma()
+    public function crear_contrato_y_cronograma()
     {
         $request = \Config\Services::request();
         $contractModel = new \App\Models\ContractModel();

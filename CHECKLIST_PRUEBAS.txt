@@ -1,0 +1,294 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    ✅ CHECKLIST DE PRUEBAS - MÓDULOS
+═══════════════════════════════════════════════════════════════════════════════
+
+ANTES DE EMPEZAR:
+═══════════════════════════════════════════════════════════════════════════════
+
+□ XAMPP iniciado (Apache + MySQL)
+□ Proyecto en: C:\xampp\htdocs\grupovivencia
+□ Acceder a: http://localhost:8081/
+□ Loguearse en el sistema
+□ BD "grupovivencia" activa
+
+───────────────────────────────────────────────────────────────────────────────
+PRUEBA 1: MÓDULO BANCARIO
+═══════════════════════════════════════════════════════════════════════════════
+
+PASO 1: Crear Cuenta Bancaria
+───────────────────────────────
+□ Ir a: http://localhost:8081/admin/bancario/cuentas
+□ Debe aparecer tabla de cuentas (probablemente vacía)
+□ Clic en "+ Nueva Cuenta"
+□ Formulario debe tener:
+  - Banco: "BCP" o similar
+  - N° Cuenta: "191-123456"
+  - Tipo de Cuenta: "Corriente"
+  - Saldo Inicial: "5000.00"
+  - Moneda: "SOL"
+□ Enviar formulario
+□ Debe redirigir a cuentas y mostrar éxito
+
+PASO 2: Registrar Movimiento Bancario
+──────────────────────────────────────
+□ Ir a: http://localhost:8081/admin/bancario/cuentas
+□ Clic en "Movimientos" en la cuenta creada
+□ Clic en "+ Nuevo Movimiento"
+□ Formulario debe tener:
+  - Tipo: Entrada / Salida
+  - Monto: "1000.00"
+  - Fecha: (hoy)
+  - Descripción: "Depósito cliente"
+□ Enviar
+□ Debe actualizar saldo en la cuenta (5000 + 1000 = 6000)
+
+PASO 3: Crear Conciliación
+───────────────────────────
+□ Ir a: http://localhost:8081/admin/bancario/conciliaciones
+□ Clic en "+ Nueva Conciliación"
+□ Formulario debe tener:
+  - Cuenta Bancaria: (la que creamos)
+  - Saldo Sistema: "6000.00"
+  - Saldo Banco: "6000.00"
+  - Fecha: (hoy)
+□ Enviar
+□ Diferencia debe ser: 0.00
+
+───────────────────────────────────────────────────────────────────────────────
+PRUEBA 2: MÓDULO PAGOS
+═══════════════════════════════════════════════════════════════════════════════
+
+PASO 1: Crear Proveedor
+────────────────────────
+□ Ir a: http://localhost:8081/pagos/proveedores
+□ Clic en "+ Nuevo Proveedor"
+□ Formulario debe tener:
+  - Razón Social: "Constructora XYZ SAC"
+  - RUC: "20123456789"
+  - Contacto: "Juan Pérez"
+  - Teléfono: "987654321"
+  - Email: "contacto@xyx.com"
+  - Dirección: "Av. Principal 123"
+  - Tipo: "Servicio"
+□ Enviar
+□ Debe crear y redirigir a lista
+
+PASO 2: Crear Comisión
+──────────────────────
+□ Ir a: http://localhost:8081/pagos/comisiones
+□ Clic en "+ Nueva Comisión"
+□ Formulario debe tener:
+  - Contrato: (si hay alguno existente)
+  - Agente: (ID del agente)
+  - Porcentaje: "5.00"
+  - Monto Total: "100000.00"
+□ Enviar
+□ Debe calcular automáticamente: Monto = 100000 * 5% = 5000
+□ Estado debe ser "pendiente"
+
+PASO 3: Registrar Pago Proveedor
+─────────────────────────────────
+□ Ir a: http://localhost:8081/pagos/registrar_pago
+□ Formulario debe tener:
+  - Proveedor: "Constructora XYZ SAC"
+  - Monto: "10000.00"
+  - Fecha Pago: (hoy)
+  - Método Pago: "Banco"
+  - Referencia: "Orden PO-001"
+□ Enviar
+□ Debe registrar y redirigir a /pagos/pagos_proveedores
+
+PASO 4: Crear Recibo por Honorarios
+────────────────────────────────────
+□ Ir a: http://localhost:8081/pagos/crear_recibo
+□ Formulario debe tener:
+  - Beneficiario: "Dr. Carlos López"
+  - DNI/RUC: "12345678"
+  - Monto: "2000.00"
+  - Concepto: "Asesoría legal - Contrato"
+□ Enviar
+□ Debe generar número automático: RH-YYYYMMDD-XXXX
+□ Estado: "generado"
+
+───────────────────────────────────────────────────────────────────────────────
+PRUEBA 3: MÓDULO TRIBUTARIO
+═══════════════════════════════════════════════════════════════════════════════
+
+PASO 1: Registrar Compra
+─────────────────────────
+□ Ir a: http://localhost:8081/tributario/registrar_compra
+□ Formulario debe tener:
+  - Proveedor: "Constructora XYZ SAC"
+  - N° Comprobante: "001-000001"
+  - Tipo Comprobante: "Factura"
+  - Fecha: (hoy)
+  - Subtotal: "5000.00"
+  - IGV: (debe calcularse automáticamente = 900)
+  - Total: (debe ser 5900)
+  - Clasificación: "Materiales"
+□ Enviar
+□ Debe crear registro en tabla compras
+
+PASO 2: Registrar Venta
+───────────────────────
+□ Ir a: http://localhost:8081/tributario/registrar_venta
+□ Formulario debe tener:
+  - Cliente: (si hay cliente existente)
+  - N° Comprobante: "001-000005"
+  - Tipo: "Factura"
+  - Fecha: (hoy)
+  - Subtotal: "50000.00"
+  - IGV: (debe calcularse automáticamente = 9000)
+  - Total: 59000
+□ Enviar
+□ Debe crear registro en tabla ventas
+
+PASO 3: Crear Declaración Tributaria
+──────────────────────────────────────
+□ Ir a: http://localhost:8081/tributario/crear_declaracion
+□ Formulario debe tener:
+  - Período: "2026-03" (año-mes)
+□ Enviar
+□ Debe calcular:
+  - Total Ventas: 59000.00
+  - Total Compras: 5900.00
+  - IGV a Pagar: (59000*0.18) - (5900*0.18) = 10620 - 1062 = 9558
+□ Estado: "borrador"
+
+PASO 4: Ver Costo del Proyecto
+───────────────────────────────
+□ Ir a: http://localhost:8081/tributario/costo_proyecto
+□ Debe mostrar tabla (probablemente vacía)
+□ Clic en "Registrar Costo"
+□ Formulario:
+  - Proyecto: (si hay proyecto inmobiliario)
+  - Descripción: "Materiales de construcción"
+  - Monto: "50000.00"
+  - Tipo: "Materiales"
+□ Enviar
+
+───────────────────────────────────────────────────────────────────────────────
+PRUEBA 4: MÓDULO DOCUMENTAL
+═══════════════════════════════════════════════════════════════════════════════
+
+PASO 1: Subir Archivo
+──────────────────────
+□ Ir a: http://localhost:8081/documental/subir_archivo
+□ Formulario debe tener:
+  - Seleccionar Archivo: (seleccionar PDF o imagen)
+  - Tipo Documento: "Contrato"
+  - Cliente: (opcional, ID)
+  - Contrato: (opcional, ID)
+  - Descripción: "Contrato de venta de lote 101"
+□ Enviar
+□ Debe subirse el archivo
+□ Debe aparecer en /documental/archivos
+
+PASO 2: Ver Archivos Subidos
+──────────────────────────────
+□ Ir a: http://localhost:8081/documental/archivos
+□ Debe mostrar tabla con:
+  - Nombre original
+  - Tipo documento
+  - Tamaño
+  - Fecha subida
+  - Botones: Descargar, Eliminar
+
+PASO 3: Crear Requerimiento
+─────────────────────────────
+□ Ir a: http://localhost:8081/documental/crear_requerimiento
+□ Formulario debe tener:
+  - Cliente: (seleccionar existente)
+  - Contrato: (opcional)
+  - Tipo: "Documentación Requerida"
+  - Descripción: "Falta copia de DNI"
+  - Documento Requerido: "DNI del cliente"
+  - Fecha Vencimiento: (en 7 días)
+□ Enviar
+□ Estado: "pendiente"
+□ Debe aparecer en /documental/requerimientos
+
+PASO 4: Ver Requerimientos
+──────────────────────────
+□ Ir a: http://localhost:8081/documental/requerimientos
+□ Debe mostrar tabla con el requerimiento creado
+□ Clic en "Actualizar"
+□ Cambiar estado a "completado"
+□ Agregar observación: "DNI recibido"
+□ Enviar
+
+PASO 5: Crear Documento Interno
+─────────────────────────────────
+□ Ir a: http://localhost:8081/documental/crear_documento
+□ Formulario:
+  - Nombre: "Política de Devoluciones"
+  - Tipo: "Política"
+  - Descripción: "Política interna"
+  - Contenido: (copiar/pegar contenido)
+□ Enviar
+□ Debe crear con versión 1
+
+───────────────────────────────────────────────────────────────────────────────
+PRUEBA 5: VALIDACIONES Y ERRORES
+═══════════════════════════════════════════════════════════════════════════════
+
+DEBE MOSTRAR ERRORES EN:
+□ Campo vacío obligatorio
+□ Email inválido
+□ RUC duplicado
+□ Número de comprobante duplicado
+□ Fecha futura
+□ Saldo negativo en cuenta
+
+DEBE PERMITIR:
+□ Editar registros existentes
+□ Eliminar registros
+□ Búsqueda/filtrado de datos
+□ Paginación (si hay muchos registros)
+
+───────────────────────────────────────────────────────────────────────────────
+PRUEBA 6: INTEGRACIONES
+═══════════════════════════════════════════════════════════════════════════════
+
+□ Compra debe estar vinculada a Proveedor
+□ Venta debe estar vinculada a Cliente
+□ Movimiento bancario debe actualizar saldo de cuenta
+□ Requerimiento debe mostrarse vinculado a Cliente
+□ Declaración debe leer datos de compras y ventas
+
+───────────────────────────────────────────────────────────────────────────────
+RESUMEN FINAL
+═══════════════════════════════════════════════────────────────────────────────
+
+Total de pruebas: 25+
+
+Si todo funciona:
+  ✅ Módulos listos para producción
+  ✅ Base de datos sincronizada
+  ✅ Rutas configuradas correctamente
+  ✅ Vistas renderizando correctamente
+
+Si hay errores:
+  1. Revisar logs en writable/logs/
+  2. Verificar que las tablas existan en BD
+  3. Comprobar que los controladores estén bien escritos
+  4. Validar que las rutas estén correctas en Routes.php
+
+═══════════════════════════════════════════════════════════════════════════════
+COMANDOS ÚTILES
+═══════════════════════════════════════════════════════════════════════════════
+
+Limpiar caché:
+  cd C:\xampp\htdocs\grupovivencia
+  php spark cache:clear
+
+Ver registros de BD:
+  C:\xampp\mysql\bin\mysql.exe -u root grupovivencia -e "SELECT * FROM compras LIMIT 5;"
+
+Ejecutar migraciones:
+  php spark migrate
+
+Ver estado de migraciones:
+  php spark migrate:status
+
+═══════════════════════════════════════════════════════════════════════════════

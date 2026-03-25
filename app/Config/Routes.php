@@ -361,8 +361,8 @@ $routes->get('/dashboard/recargas_pendientes/load/(:num)', 'D_recarga::load/$1',
 $routes->post('/dashboard/recargas_pendientes/validate', 'D_recarga::validacion', ['filter' => 'authGuard']);
 $routes->post('/dashboard/recargas_pendientes/eliminar', 'D_recarga::eliminar', ['filter' => 'authGuard']);
 
-//Crud Comisiones
-$routes->match(['get', 'post'], '/dashboard/comisiones', 'D_comisiones::index', ['filter' => 'authGuard']);
+//Crud Comisiones - Unified under Pagos module
+$routes->match(['get', 'post'], '/dashboard/comisiones', 'Pagos::comisiones_inmobiliarias', ['filter' => 'authGuard']);
 $routes->get('/dashboard/comisiones/load/(:num)', 'D_comisiones::load/$1', ['filter' => 'authGuard']);
 $routes->post('/dashboard/comisiones/validate', 'D_comisiones::validacion', ['filter' => 'authGuard']);
 $routes->post('/dashboard/comisiones/eliminar', 'D_comisiones::eliminar', ['filter' => 'authGuard']);
@@ -612,6 +612,74 @@ $routes->get('/admin/comisiones/multinivel_demo', function() {
     echo view('admin/comisiones/multinivel_demo');
 }, ['filter' => 'authGuard']);
 $routes->get('/dashboard/usuarios/load/(:num)', 'D_usuarios::load/$1', ['filter' => 'authGuard']);
+
+// ===== MÓDULO BANCARIO =====
+$routes->group('dashboard/bancario', ['namespace' => 'App\Controllers', 'filter' => 'authGuard'], function($routes) {
+    $routes->get('cuentas', 'Bancario::cuentas');
+    $routes->get('crear_cuenta', 'Bancario::crear_cuenta');
+    $routes->post('crear_cuenta', 'Bancario::crear_cuenta');
+    $routes->get('editar_cuenta/(:num)', 'Bancario::editar_cuenta/$1');
+    $routes->post('editar_cuenta/(:num)', 'Bancario::editar_cuenta/$1');
+    $routes->get('movimientos/(:num)', 'Bancario::movimientos/$1');
+    $routes->get('agregar_movimiento/(:num)', 'Bancario::agregar_movimiento/$1');
+    $routes->post('agregar_movimiento/(:num)', 'Bancario::agregar_movimiento/$1');
+    $routes->get('conciliaciones', 'Bancario::conciliaciones');
+    $routes->get('crear_conciliacion', 'Bancario::crear_conciliacion');
+    $routes->post('crear_conciliacion', 'Bancario::crear_conciliacion');
+});
+
+// ===== MÓDULO PAGOS =====
+$routes->group('dashboard/pagos', ['namespace' => 'App\Controllers', 'filter' => 'authGuard'], function($routes) {
+    $routes->get('proveedores', 'Pagos::proveedores');
+    $routes->get('crear_proveedor', 'Pagos::crear_proveedor');
+    $routes->post('crear_proveedor', 'Pagos::crear_proveedor');
+    $routes->get('editar_proveedor/(:num)', 'Pagos::editar_proveedor/$1');
+    $routes->post('editar_proveedor/(:num)', 'Pagos::editar_proveedor/$1');
+    $routes->get('comisiones', 'Pagos::comisiones');
+    $routes->get('crear_comision', 'Pagos::crear_comision');
+    $routes->post('crear_comision', 'Pagos::crear_comision');
+    $routes->get('pagos_proveedores', 'Pagos::pagos_proveedores');
+    $routes->get('registrar_pago', 'Pagos::registrar_pago');
+    $routes->post('registrar_pago', 'Pagos::registrar_pago');
+    $routes->get('recibos_honorarios', 'Pagos::recibos_honorarios');
+    $routes->get('crear_recibo', 'Pagos::crear_recibo');
+    $routes->post('crear_recibo', 'Pagos::crear_recibo');
+});
+
+// ===== MÓDULO TRIBUTARIO =====
+$routes->group('dashboard/tributario', ['namespace' => 'App\Controllers', 'filter' => 'authGuard'], function($routes) {
+    $routes->get('compras', 'Tributario::compras');
+    $routes->get('registrar_compra', 'Tributario::registrar_compra');
+    $routes->post('registrar_compra', 'Tributario::registrar_compra');
+    $routes->get('ventas', 'Tributario::ventas');
+    $routes->get('registrar_venta', 'Tributario::registrar_venta');
+    $routes->post('registrar_venta', 'Tributario::registrar_venta');
+    $routes->get('declaraciones', 'Tributario::declaraciones');
+    $routes->get('crear_declaracion', 'Tributario::crear_declaracion');
+    $routes->post('crear_declaracion', 'Tributario::crear_declaracion');
+    $routes->get('costo_proyecto', 'Tributario::costo_proyecto');
+    $routes->get('registrar_costo', 'Tributario::registrar_costo');
+    $routes->post('registrar_costo', 'Tributario::registrar_costo');
+    $routes->get('clasificacion_compras', 'Tributario::clasificacion_compras');
+});
+
+// ===== MÓDULO DOCUMENTAL =====
+$routes->group('dashboard/documental', ['namespace' => 'App\Controllers', 'filter' => 'authGuard'], function($routes) {
+    $routes->get('archivos', 'Documental::archivos');
+    $routes->get('subir_archivo', 'Documental::subir_archivo');
+    $routes->post('subir_archivo', 'Documental::subir_archivo');
+    $routes->get('descargar_archivo/(:num)', 'Documental::descargar_archivo/$1');
+    $routes->get('eliminar_archivo/(:num)', 'Documental::eliminar_archivo/$1');
+    $routes->get('requerimientos', 'Documental::requerimientos');
+    $routes->get('crear_requerimiento', 'Documental::crear_requerimiento');
+    $routes->post('crear_requerimiento', 'Documental::crear_requerimiento');
+    $routes->get('actualizar_requerimiento/(:num)', 'Documental::actualizar_requerimiento/$1');
+    $routes->post('actualizar_requerimiento/(:num)', 'Documental::actualizar_requerimiento/$1');
+    $routes->get('documentos', 'Documental::documentos');
+    $routes->get('crear_documento', 'Documental::crear_documento');
+    $routes->post('crear_documento', 'Documental::crear_documento');
+});
+
 $routes->get('/(:any)', 'Home::otras');
 $routes->get('/dashboard/inmueble/api/get_customer/(:num)', 'Inmueble::get_customer/$1', ['filter' => 'authGuard']);
 $routes->get('/dashboard/inmueble/api/get_lot_details/(:num)', 'Inmueble::get_lot_details/$1', ['filter' => 'authGuard']);

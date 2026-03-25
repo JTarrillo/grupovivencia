@@ -482,7 +482,13 @@ class InvoicesModel extends Model{
 
     public function insertar($data){
         $obj_comments = $this->db->table($this->table);
-        $obj_comments->insert($data);
+        $result = $obj_comments->insert($data);
+        
+        if (!$result) {
+            $error = $this->db->error();
+            throw new \Exception('Error al insertar factura: ' . ($error['message'] ?? 'Error desconocido'));
+        }
+        
         return $this->db->insertId();
     }
 

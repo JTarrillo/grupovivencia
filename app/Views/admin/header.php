@@ -528,6 +528,62 @@
                         <span class="pcoded-mtext">Usuarios</span>
                     </a>
                 </li>
+                
+                <!-- ===== MÓDULOS NUEVOS ===== -->
+                
+                <!-- MÓDULO BANCARIO -->
+                <li class="nav-item pcoded-hasmenu">
+                    <a href="javascript:void(0);" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-credit-card"></i></span>
+                        <span class="pcoded-mtext">Bancario</span>
+                    </a>
+                    <ul class="pcoded-submenu">
+                        <li><a href="/dashboard/bancario/cuentas">Cuentas Bancarias</a></li>
+                        <li><a href="/dashboard/bancario/conciliaciones">Conciliaciones</a></li>
+                    </ul>
+                </li>
+
+                <!-- MÓDULO PAGOS -->
+                <li class="nav-item pcoded-hasmenu">
+                    <a href="javascript:void(0);" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-dollar-sign"></i></span>
+                        <span class="pcoded-mtext">Pagos</span>
+                    </a>
+                    <ul class="pcoded-submenu">
+                        <li><a href="/dashboard/pagos/proveedores">Proveedores</a></li>
+                        <li><a href="/dashboard/pagos/comisiones">Comisiones</a></li>
+                        <li><a href="/dashboard/pagos/pagos_proveedores">Pagos Proveedores</a></li>
+                        <li><a href="/dashboard/pagos/recibos_honorarios">Recibos de Honorarios</a></li>
+                    </ul>
+                </li>
+
+                <!-- MÓDULO TRIBUTARIO -->
+                <li class="nav-item pcoded-hasmenu">
+                    <a href="javascript:void(0);" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-calculator"></i></span>
+                        <span class="pcoded-mtext">Tributario</span>
+                    </a>
+                    <ul class="pcoded-submenu">
+                        <li><a href="/dashboard/tributario/compras">Compras</a></li>
+                        <li><a href="/dashboard/tributario/ventas">Ventas</a></li>
+                        <li><a href="/dashboard/tributario/declaraciones">Declaraciones</a></li>
+                        <li><a href="/dashboard/tributario/costo_proyecto">Costos por Proyecto</a></li>
+                    </ul>
+                </li>
+
+                <!-- MÓDULO DOCUMENTAL -->
+                <li class="nav-item pcoded-hasmenu">
+                    <a href="javascript:void(0);" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-file-text"></i></span>
+                        <span class="pcoded-mtext">Documental</span>
+                    </a>
+                    <ul class="pcoded-submenu">
+                        <li><a href="/dashboard/documental/archivos">Archivos Digitales</a></li>
+                        <li><a href="/dashboard/documental/requerimientos">Requerimientos</a></li>
+                        <li><a href="/dashboard/documental/documentos">Documentos</a></li>
+                    </ul>
+                </li>
+
                 <!-- <li class="nav-item pcoded-hasmenu <?php echo $integracion_pagos_style; ?>">
                     <a href="#!" class="nav-link"><span class="pcoded-micon"><i
                                 class="feather icon-plus"></i></span><span class="pcoded-mtext">Integración</span></a>
