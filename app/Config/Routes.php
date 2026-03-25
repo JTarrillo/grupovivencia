@@ -366,7 +366,7 @@ $routes->match(['get', 'post'], '/dashboard/comisiones', 'D_comisiones::index', 
 $routes->get('/dashboard/comisiones/load/(:num)', 'D_comisiones::load/$1', ['filter' => 'authGuard']);
 $routes->post('/dashboard/comisiones/validate', 'D_comisiones::validacion', ['filter' => 'authGuard']);
 $routes->post('/dashboard/comisiones/eliminar', 'D_comisiones::eliminar', ['filter' => 'authGuard']);
-$routes->post('/dashboard/facturas/emitirFactura', 'D_facturas::emitirFactura', ['filter' => 'authGuard']);
+/* $routes->post('/dashboard/facturas/emitirFactura', 'D_facturas::emitirFactura', ['filter' => 'authGuard']); */
 //Crud Facturas
 $routes->get('dashboard/inmueble/contracts/view/(:num)', 'Inmueble::view_contract/$1', ['filter' => 'authGuard']);
 $routes->get('/dashboard/facturas', 'D_facturas::index', ['filter' => 'authGuard']);
