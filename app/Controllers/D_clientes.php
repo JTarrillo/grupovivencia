@@ -21,9 +21,28 @@ class D_clientes extends BaseController
         } else {
             $session_name = 'Usuario';
         }
-        //get data invoices by customer
+        //get data customers con JOIN LEFT para traer clientes sin rango o país asignado
         $Customer = new CustomerModel();
-        $obj_customer = $Customer->get_customer_by_kit();
+        $obj_customer = $Customer->db->query("
+            SELECT DISTINCT
+                `customers`.`id`, 
+                `customers`.`dni`, 
+                `customers`.`code`, 
+                `customers`.`ruc`,  
+                `customers`.`name`, 
+                `customers`.`lastname`,
+                `customers`.`mother_last`,
+                `customers`.`email`, 
+                `customers`.`active`, 
+                `customers`.`civil_status`, 
+                `customers`.`tipo_agente`, 
+                COALESCE(countries.img, 'pe.png') as img, 
+                COALESCE(ranges.name, 'Sin asignar') as `range`
+            FROM `customers` 
+            LEFT JOIN ranges ON customers.range_id = ranges.id
+            LEFT JOIN countries ON customers.country_id = countries.id
+            ORDER BY customers.id DESC
+        ")->getResult();
 
         //send
         $data = array(
@@ -31,6 +50,135 @@ class D_clientes extends BaseController
             'session_name' => $session_name
         );
         return view('admin/clientes/list', $data);
+    }
+
+    /**
+     * Mostrar formulario para crear nuevo cliente
+     */
+    public function create()
+    {
+        $Paises = new CountriesModel();
+        $obj_paises = $Paises->get_data();
+        
+        $data = array(
+            'obj_paises' => $obj_paises,
+        );
+        return view('admin/clientes/create', $data);
+    }
+
+    /**
+     * Guardar nuevo cliente (función separada)
+     */
+    public function store()
+    {
+        if (strtoupper($this->request->getMethod()) !== 'POST') {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Método no permitido'
+            ]);
+        }
+
+        $Customer = new CustomerModel();
+        $res = $this->request->getVar();
+
+        // Validar datos requeridos
+        if (empty($res['name']) || empty($res['lastname']) || empty($res['dni']) || empty($res['email'])) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Faltan campos requeridos (nombre, apellido, DNI, email)'
+            ]);
+        }
+
+        // Preparar datos para insertar
+        $param = array(
+            'name' => $res['name'],
+            'lastname' => $res['lastname'],
+            'mother_last' => isset($res['mother_last']) ? $res['mother_last'] : '',
+            'dni' => $res['dni'],
+            'ruc' => isset($res['ruc']) ? $res['ruc'] : '',
+            'email' => $res['email'],
+            'civil_status' => isset($res['civil_status']) ? $res['civil_status'] : '',
+            'tipo_agente' => isset($res['tipo_agente']) ? $res['tipo_agente'] : '',
+            'phone' => isset($res['phone']) ? $res['phone'] : '',
+            'country_id' => isset($res['country_id']) ? $res['country_id'] : 0,
+            'address' => isset($res['address']) ? $res['address'] : '',
+            'active' => isset($res['active']) ? $res['active'] : 1,
+            'date' => date('Y-m-d H:i:s'),
+        );
+
+        // Intentar insertar
+        if ($Customer->insert($param)) {
+            $customer_id = $Customer->getInsertID();
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Cliente creado correctamente',
+                'customer_id' => $customer_id
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al crear el cliente'
+            ]);
+        }
+    }
+
+    /**
+     * Actualizar cliente (función separada)
+     */
+    public function update()
+    {
+        if (strtoupper($this->request->getMethod()) !== 'POST') {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Método no permitido'
+            ]);
+        }
+
+        $Customer = new CustomerModel();
+        $res = $this->request->getVar();
+
+        if (empty($res['customer_id'])) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'ID de cliente no válido'
+            ]);
+        }
+
+        $customer_id = $res['customer_id'];
+
+        // Preparar datos para actualizar
+        $param = array(
+            'name' => isset($res['name']) ? $res['name'] : '',
+            'lastname' => isset($res['lastname']) ? $res['lastname'] : '',
+            'mother_last' => isset($res['mother_last']) ? $res['mother_last'] : '',
+            'dni' => isset($res['dni']) ? $res['dni'] : '',
+            'ruc' => isset($res['ruc']) ? $res['ruc'] : '',
+            'email' => isset($res['email']) ? $res['email'] : '',
+            'civil_status' => isset($res['civil_status']) ? $res['civil_status'] : '',
+            'tipo_agente' => isset($res['tipo_agente']) ? $res['tipo_agente'] : '',
+            'phone' => isset($res['phone']) ? $res['phone'] : '',
+            'country_id' => isset($res['country_id']) ? $res['country_id'] : 0,
+            'address' => isset($res['address']) ? $res['address'] : '',
+            'active' => isset($res['active']) ? $res['active'] : 1,
+        );
+
+        // Manejar cambio de contraseña si se proporciona
+        if (isset($res['password']) && !empty($res['password'])) {
+            $param['password'] = password_hash($res['password'], PASSWORD_DEFAULT);
+        }
+
+        // Intentar actualizar
+        if ($Customer->update($customer_id, $param)) {
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Cliente actualizado correctamente'
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al actualizar el cliente'
+            ]);
+        }
     }
     
     public function load($id = false)

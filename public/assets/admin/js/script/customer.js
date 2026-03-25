@@ -33,7 +33,110 @@ function validate() {
             }
         }
     });
+}
 
+/**
+ * Crear nuevo cliente - función separada para STORE
+ */
+function createCustomer() {
+    document.getElementById("submit").disabled = true;
+    document.getElementById("submit").innerHTML = "<span class='spinner-border spinner-border-sm' role='status'></span> Creando...";
+    
+    var oData = new FormData(document.forms.namedItem("form-customer"));
+    
+    $.ajax({
+        url: site + "dashboard/clientes/store",
+        method: "POST",
+        data: oData,
+        contentType: false,
+        cache: false,
+        processData: false,
+        success: function (data) {
+            if (data.success == true) {
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Cliente creado correctamente',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                window.setTimeout(function () {
+                    window.location = site + "dashboard/clientes";
+                }, 1500);
+            } else {
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'Error al crear el cliente'
+                });
+                document.getElementById("submit").disabled = false;
+                document.getElementById("submit").innerHTML = "Crear Cliente";
+            }
+        },
+        error: function() {
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Error de conexión',
+                text: 'Intente nuevamente'
+            });
+            document.getElementById("submit").disabled = false;
+            document.getElementById("submit").innerHTML = "Crear Cliente";
+        }
+    });
+}
+
+/**
+ * Actualizar cliente - función separada para UPDATE
+ */
+function updateCustomer() {
+    document.getElementById("submit").disabled = true;
+    document.getElementById("submit").innerHTML = "<span class='spinner-border spinner-border-sm' role='status'></span> Actualizando...";
+    
+    var oData = new FormData(document.forms.namedItem("form-customer"));
+    
+    $.ajax({
+        url: site + "dashboard/clientes/update",
+        method: "POST",
+        data: oData,
+        contentType: false,
+        cache: false,
+        processData: false,
+        success: function (data) {
+            if (data.success == true) {
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Cliente actualizado correctamente',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                window.setTimeout(function () {
+                    window.location = site + "dashboard/clientes";
+                }, 1500);
+            } else {
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'Error al actualizar el cliente'
+                });
+                document.getElementById("submit").disabled = false;
+                document.getElementById("submit").innerHTML = "Guardar";
+            }
+        },
+        error: function() {
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Error de conexión',
+                text: 'Intente nuevamente'
+            });
+            document.getElementById("submit").disabled = false;
+            document.getElementById("submit").innerHTML = "Guardar";
+        }
+    });
 }
 
 function validate_user(username) {
@@ -60,11 +163,19 @@ function validate_user(username) {
     }
 }
 
+/**
+ * Ir a formulario de crear cliente
+ */
+function create_customer() {
+    var url = 'dashboard/clientes/create';
+    location.href = site + url;
+}
 
 function edit_customer(customer_id) {
     var url = 'dashboard/clientes/load/' + customer_id;
     location.href = site + url;
 }
+
 function cancelar_customer() {
     var url = 'dashboard/clientes';
     location.href = site + url;
