@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controllers;
+
 use App\Models\CustomerModel;
 use App\Models\Customer_bankModel;
 use App\Models\CountriesModel;
@@ -10,7 +11,7 @@ use App\Models\MembershipsModel;
 use App\Models\UnilevelsModel;
 
 class D_clientes extends BaseController
-{   
+{
     public function index()
     {
         //get data session
@@ -59,7 +60,7 @@ class D_clientes extends BaseController
     {
         $Paises = new CountriesModel();
         $obj_paises = $Paises->get_data();
-        
+
         $data = array(
             'obj_paises' => $obj_paises,
         );
@@ -89,30 +90,83 @@ class D_clientes extends BaseController
             ]);
         }
 
-        // Preparar datos para insertar
+        $session = session();
+
+        // 1. Preparar datos para tu base de datos local
         $param = array(
-            'name' => $res['name'],
-            'lastname' => $res['lastname'],
-            'mother_last' => isset($res['mother_last']) ? $res['mother_last'] : '',
-            'dni' => $res['dni'],
-            'ruc' => isset($res['ruc']) ? $res['ruc'] : '',
-            'email' => $res['email'],
+            'name'         => $res['name'],
+            'lastname'     => $res['lastname'],
+            'mother_last'  => isset($res['mother_last']) ? $res['mother_last'] : '',
+            'dni'          => $res['dni'],
+            'ruc'          => isset($res['ruc']) ? $res['ruc'] : '',
+            'email'        => $res['email'],
             'civil_status' => isset($res['civil_status']) ? $res['civil_status'] : '',
-            'tipo_agente' => isset($res['tipo_agente']) ? $res['tipo_agente'] : '',
-            'phone' => isset($res['phone']) ? $res['phone'] : '',
-            'country_id' => isset($res['country_id']) ? $res['country_id'] : 0,
-            'address' => isset($res['address']) ? $res['address'] : '',
-            'active' => isset($res['active']) ? $res['active'] : 1,
-            'date' => date('Y-m-d H:i:s'),
+            'tipo_agente'  => isset($res['tipo_agente']) ? $res['tipo_agente'] : '',
+            'phone'        => isset($res['phone']) ? $res['phone'] : '',
+            'country_id'   => isset($res['country_id']) ? $res['country_id'] : 0,
+            'address'      => isset($res['address']) ? $res['address'] : '',
+            'active'       => isset($res['active']) ? $res['active'] : 1,
+            'date'         => date('Y-m-d H:i:s'),
         );
 
-        // Intentar insertar
+        // 2. Intentar insertar localmente
         if ($Customer->insert($param)) {
             $customer_id = $Customer->getInsertID();
+
+            // --- INICIO INTEGRACIÓN API FACTURACIÓN ---
+            $client = \Config\Services::curlrequest();
+            $token = $session->get('api_access_token');
+            $tokenType = $session->get('api_token_type') ?? 'Bearer';
+
+            // Lógica de tipo de documento para la API
+            $tipoDoc = "1"; // DNI por defecto
+            $numDoc  = $param['dni'];
+            if (!empty($param['ruc'])) {
+                $tipoDoc = "6"; // Si hay RUC, mandamos 6
+                $numDoc  = $param['ruc'];
+            }
+
+            // El array especial que pediste
+            $jsonApi = [
+                "company_id"       => 1,
+                "tipo_documento"   => $tipoDoc,
+                "numero_documento" => $numDoc,
+                "razon_social"     => trim($param['name'] . ' ' . $param['lastname'] . ' ' . $param['mother_last']),
+                "direccion"        => !empty($param['address']) ? $param['address'] : "Lima",
+                "ubigeo"           => "150101",
+                "distrito"         => "Lima",
+                "provincia"        => "Lima",
+                "departamento"     => "Lima",
+                "telefono"         => !empty($param['phone']) ? $param['phone'] : "999999999",
+                "email"            => $param['email']
+            ];
+
+            // Consumir API si tenemos token
+            $apiMessage = "API no ejecutada (sin token)";
+            if ($token) {
+                try {
+                    $response = $client->post('https://apifacturacion.groupdispensersac.com/api/v1/clients', [
+                        'headers' => [
+                            'Authorization' => $tokenType . ' ' . $token,
+                            'Accept'        => 'application/json',
+                        ],
+                        'json' => $jsonApi,
+                        'http_errors' => false
+                    ]);
+                    $apiResult = json_decode($response->getBody(), true);
+                    $apiMessage = "API ejecutada";
+                } catch (\Exception $e) {
+                    $apiMessage = "Error API: " . $e->getMessage();
+                }
+            }
+            // --- FIN INTEGRACIÓN API FACTURACIÓN ---
+
             return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Cliente creado correctamente',
-                'customer_id' => $customer_id
+                'success'     => true,
+                'message'     => 'Cliente creado correctamente',
+                'customer_id' => $customer_id,
+                'api_status'  => $apiMessage,
+                'api_debug'   => $jsonApi // Opcional: para ver qué se mandó
             ]);
         } else {
             return $this->response->setJSON([
@@ -180,7 +234,7 @@ class D_clientes extends BaseController
             ]);
         }
     }
-    
+
     public function load($id = false)
     {
         //get data session
@@ -193,7 +247,7 @@ class D_clientes extends BaseController
         }
         //isset id
         $obj_sponsor = null;
-        if ($id != ""){
+        if ($id != "") {
             //get data customer
             $Customer = new CustomerModel();
             $obj_customer = $Customer->get_data_customer($id);
@@ -222,10 +276,11 @@ class D_clientes extends BaseController
             'obj_ranges' => $obj_ranges,
             'session_name' => $session_name,
         );
-        return view('admin/clientes/load',$data);
+        return view('admin/clientes/load', $data);
     }
 
-    public function validacion(){
+    public function validacion()
+    {
         // Permite activar/desactivar cliente con solo id y active, o actualizar datos completos
         if (strtolower($this->request->getMethod()) !== 'post') {
             return $this->response->setJSON([
@@ -233,10 +288,10 @@ class D_clientes extends BaseController
                 'message' => 'Método no permitido'
             ]);
         }
-
+        $Customer = new CustomerModel();
         // Log siempre que sea POST
         $res = $this->request->getVar();
-    log_message('debug', 'POST data recibido en validacion: ' . print_r($res, true));
+        log_message('debug', 'POST data recibido en validacion: ' . print_r($res, true));
 
         // 1. Activar/desactivar rápido (solo si NO viene customer_id)
         if (isset($res['id']) && isset($res['active']) && !isset($res['customer_id'])) {
@@ -264,7 +319,7 @@ class D_clientes extends BaseController
         if (isset($res['customer_id'])) {
             $Customer = new CustomerModel();
             $Customer_bank = new Customer_bankModel();
-            $customer_id = $res['customer_id']; 
+            $customer_id = $res['customer_id'];
             $country = $res['country_id'];
             $unilevel_id = $res['unilevel_id'];
             $sponsor_id = $res['sponsor_id'];
@@ -278,97 +333,97 @@ class D_clientes extends BaseController
                 'range_id' => $res['range_id'],
                 'email' => $res['email'],
                 'membership_id' => $res['membership_id'],
-                'dni' => $res['dni'],  
-                'pay' => $res['pay'],  
+                'dni' => $res['dni'],
+                'pay' => $res['pay'],
                 'phone' => $res['phone'],
                 'country_id' => $country,
                 'civil_status' => $res['civil_status'],
                 'tipo_agente' => $res['tipo_agente'],
                 'active' => $res['active'],
-            );  
-            $Customer->update($customer_id, $param);    
-            if($password){
+            );
+            $Customer->update($customer_id, $param);
+            if ($password) {
                 $param = array(
-                    'password'=> password_hash($password, PASSWORD_DEFAULT)
-                );  
-                $Customer->update($customer_id, $param);    
+                    'password' => password_hash($password, PASSWORD_DEFAULT)
+                );
+                $Customer->update($customer_id, $param);
             }
-            if($customer_bank_id){
+            if ($customer_bank_id) {
                 $param = array(
                     'bank_id' => $res['bank_id'],
                     'number' => $res['number'],
                     'cci' => $res['cci']
-                );  
-                $Customer_bank->update($customer_bank_id, $param);    
+                );
+                $Customer_bank->update($customer_bank_id, $param);
             }
             $Unilevels = new UnilevelsModel();
             $param = array(
                 'sponsor_id' => $sponsor_id
-            );  
-            $result = $Unilevels->update($unilevel_id, $param);    
-            if(!is_null($result)){
+            );
+            $result = $Unilevels->update($unilevel_id, $param);
+            if (!is_null($result)) {
                 $data['status'] = true;
                 $data['message'] = 'Guardado correctamente';
-            }else{
+            } else {
                 $data['status'] = false;
                 $data['message'] = 'Error al guardar';
-            }     
+            }
             return $this->response->setJSON($data);
         }
-            // ...actualización completa de datos (formulario)
-            $session = session();
-            $id = $session->get('id');
-            $Customer_bank = new Customer_bankModel();
-            $customer_id = $res['customer_id']; 
-            $country = $res['country_id'];
-            $unilevel_id = $res['unilevel_id'];
-            $sponsor_id = $res['sponsor_id'];
-            $password = $res['password'];
-            $customer_bank_id = $res['customer_bank_id'];
+        // ...actualización completa de datos (formulario)
+        $session = session();
+        $id = $session->get('id');
+        $Customer_bank = new Customer_bankModel();
+        $customer_id = $res['customer_id'];
+        $country = $res['country_id'];
+        $unilevel_id = $res['unilevel_id'];
+        $sponsor_id = $res['sponsor_id'];
+        $password = $res['password'];
+        $customer_bank_id = $res['customer_bank_id'];
+        $param = array(
+            'name' => $res['name'],
+            'lastname' => $res['lastname'],
+            'code' => $res['code'],
+            'range_id' => $res['range_id'],
+            'email' => $res['email'],
+            'membership_id' => $res['membership_id'],
+            'dni' => $res['dni'],
+            'pay' => $res['pay'],
+            'phone' => $res['phone'],
+            'country_id' => $country,
+            'civil_status' => $res['civil_status'],
+            'pay' => $res['pay'],
+            'active' => $res['active'],
+        );
+        $Customer->update($customer_id, $param);
+        if ($password) {
             $param = array(
-                'name' => $res['name'],
-                'lastname' => $res['lastname'],
-                'code' => $res['code'],
-                'range_id' => $res['range_id'],
-                'email' => $res['email'],
-                'membership_id' => $res['membership_id'],
-                'dni' => $res['dni'],  
-                'pay' => $res['pay'],  
-                'phone' => $res['phone'],
-                'country_id' => $country,
-                'civil_status' => $res['civil_status'],
-                'pay' => $res['pay'],
-                'active' => $res['active'],
-            );  
-            $Customer->update($customer_id, $param);    
-            if($password){
-                $param = array(
-                    'password'=> password_hash($password, PASSWORD_DEFAULT)
-                );  
-                $Customer->update($customer_id, $param);    
-            }
-            if($customer_bank_id){
-                $param = array(
-                    'bank_id' => $res['bank_id'],
-                    'number' => $res['number'],
-                    'cci' => $res['cci']
-                );  
-                $Customer_bank->update($customer_bank_id, $param);    
-            }
-            $Unilevels = new UnilevelsModel();
+                'password' => password_hash($password, PASSWORD_DEFAULT)
+            );
+            $Customer->update($customer_id, $param);
+        }
+        if ($customer_bank_id) {
             $param = array(
-                'sponsor_id' => $sponsor_id
-            );  
-            $result = $Unilevels->update($unilevel_id, $param);    
-            if(!is_null($result)){
-                $data['status'] = true;
-                $data['message'] = SAVED;
-            }else{
-                $data['status'] = false;
-                $data['message'] = ERROR;
-            }     
-            return $this->response->setJSON($data);
-        
+                'bank_id' => $res['bank_id'],
+                'number' => $res['number'],
+                'cci' => $res['cci']
+            );
+            $Customer_bank->update($customer_bank_id, $param);
+        }
+        $Unilevels = new UnilevelsModel();
+        $param = array(
+            'sponsor_id' => $sponsor_id
+        );
+        $result = $Unilevels->update($unilevel_id, $param);
+        if (!is_null($result)) {
+            $data['status'] = true;
+            $data['message'] = SAVED;
+        } else {
+            $data['status'] = false;
+            $data['message'] = ERROR;
+        }
+        return $this->response->setJSON($data);
+
 
         // Si no se procesó la petición, devolver respuesta JSON por defecto
         return $this->response->setJSON([
@@ -398,7 +453,8 @@ class D_clientes extends BaseController
             }
         }
         // Obtener lista de clientes para los selects
-$clientes = $Customer->select('id, code, name, lastname, dni')->findAll();        return view('admin/clientes/asignar_patocinador', [
+        $clientes = $Customer->select('id, code, name, lastname, dni')->findAll();
+        return view('admin/clientes/asignar_patocinador', [
             'clientes' => $clientes,
             'msg' => $msg
         ]);
@@ -429,5 +485,4 @@ $clientes = $Customer->select('id, code, name, lastname, dni')->findAll();      
             exit();
         }
     }
-    
 }

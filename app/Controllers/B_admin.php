@@ -18,7 +18,7 @@ class B_admin extends BaseController
 
         $id = $session->get('id');
 
-        
+
 
         if (is_null($session)) {
 
@@ -29,7 +29,7 @@ class B_admin extends BaseController
 
         return view('admin');
     }
-    
+
     public function contrato_pdf($id = null)
     {
         // Inicializa el modelo correctamente
@@ -84,6 +84,7 @@ class B_admin extends BaseController
         // Descarga el PDF
         $dompdf->stream("contrato.pdf", ["Attachment" => false]);
     }
+
     public function login_admin()
     {
         $session = session();
@@ -92,53 +93,85 @@ class B_admin extends BaseController
         $password = $request->getPostGet('password');
         $user = new UsersModel();
         $res = $user->get_data_by_email($email);
-        /* print_r($res);
-        exit; */
-        //validate
+
         if ($res) {
             $pass = $res->password;
             $authenticatePassword = password_verify($password, $pass);
+
             if ($authenticatePassword) {
+
+                // --- CONSUMO DE API DE FACTURACIÓN ---
+                $client = \Config\Services::curlrequest();
+                $accessToken = null;
+                $tokenType = null;
+
+                try {
+                    $response = $client->post('https://apifacturacion.groupdispensersac.com/api/auth/login', [
+                        'json' => [
+                            'email'      => 'admin@gmail.com',
+                            'password'   => 'Admin123!@#',
+                            'token_name' => '1|sunat_zVUOcxDrglm5jqnLLI1zgPloGgb6q4UVhH7ogFSXe889bdeb',
+                            'abilities'  => ["*"]
+                        ],
+                        'http_errors' => false,
+                        'verify' => false // Úsalo solo si tienes problemas de certificado SSL en local
+                    ]);
+
+                    $apiResponse = json_decode($response->getBody(), true);
+
+                    // Si la API devuelve los tokens, los asignamos
+                    if (isset($apiResponse['access_token'])) {
+                        $accessToken = $apiResponse['access_token'];
+                        $tokenType   = $apiResponse['token_type'];
+                    }
+                } catch (\Exception $e) {
+                    // Error de conexión o timeout
+                    $apiResponse = ['error' => $e->getMessage()];
+                }
+
+                // --- PREPARAR DATOS DE SESIÓN ---
                 $ses_data = [
-                    'id' => $res->id,
-                    'name' => $res->name,
-                    'lastname' => $res->lastname,
-                    'email' => $res->email,
-                    'dni'        => $res->dni,
-                    'privilegio' => isset($res->privilegio) ? $res->privilegio : (isset($res->privilage) ? $res->privilage : 'admin'),
-                    'active' => $res->active,
-                    'isLoggedIn' => TRUE
+                    'id'           => $res->id,
+                    'name'         => $res->name,
+                    'lastname'     => $res->lastname,
+                    'email'        => $res->email,
+                    'dni'          => $res->dni,
+                    'privilegio'   => $res->privilegio ?? ($res->privilage ?? 'admin'),
+                    'active'       => $res->active,
+                    'isLoggedIn'   => TRUE,
+                    // Guardamos los tokens de la API en la sesión de CI4
+                    'api_access_token' => $accessToken,
+                    'api_token_type'   => $tokenType
                 ];
+
                 $session->set($ses_data);
-                $data2['status'] = true;
-                $data2['message'] = 'Bienvenido al sistema.';
-                // LOG: Guardar array del usuario (customer) al iniciar sesión admin
+
+                // --- LOG: GUARDAR TODO EN EL ARCHIVO .LOG ---
                 $logData = [
                     'datetime' => date('Y-m-d H:i:s'),
-                    'admin_id' => $res->id,
-                    'customer_array' => [
-                        'id' => $res->id,
-                        'name' => $res->name,
-                        'lastname' => $res->lastname,
-                        'email' => $res->email,
-                        'privilage' => $res->privilage,
-                        'active' => $res->active
+                    'admin_user' => [
+                        'id'    => $res->id,
+                        'email' => $res->email
+                    ],
+                    'api_response' => [
+                        'status_code'  => $response->getStatusCode() ?? 'N/A',
+                        'access_token' => $accessToken, // Aquí verás el token en el log
+                        'token_type'   => $tokenType,
+                        'full_body'    => $apiResponse // Guardamos toda la respuesta por si hay errores
                     ]
                 ];
+
                 $logFile = WRITEPATH . 'logs/admin_login_' . $res->id . '_' . date('Ymd_His') . '.log';
                 file_put_contents($logFile, json_encode($logData, JSON_PRETTY_PRINT));
+
+                $data2['status'] = true;
+                $data2['message'] = 'Bienvenido al sistema.';
                 return json_encode($data2);
             } else {
-                $session->setFlashdata('msg', 'Password is incorrect.');
-                $data2['status'] = false;
-                $data2['message'] = 'Password is incorrect.';
-                return json_encode($data2);
+                return json_encode(['status' => false, 'message' => 'Password is incorrect.']);
             }
         } else {
-            $session->setFlashdata('msg', 'Email does not exist.');
-            $data2['status'] = false;
-            $data2['message'] = 'Email does not exist.';
-            return json_encode($data2);
+            return json_encode(['status' => false, 'message' => 'Email does not exist.']);
         }
     }
 
