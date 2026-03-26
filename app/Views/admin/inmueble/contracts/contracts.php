@@ -1125,7 +1125,7 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <button type="button" class="btn btn-secondary btn-cancelar" data-bs-dismiss="modal">
                             <i class="feather icon-x"></i> Cancelar
                         </button>
 
@@ -2332,6 +2332,18 @@
         $(document).on('click', '#newContractModal .btn-cancelar, #newContractModal .btn-cancel', function(e) {
             $('#newContractModal').modal('hide');
         });
+        
+        // Limpiar el formulario cuando se cierre el modal
+        $('#newContractModal').on('hidden.bs.modal', function () {
+            // Limpiar el formulario
+            document.getElementById('new-contract-form').reset();
+            // Resetear los campos de select
+            $('#contract_type').val('arras').trigger('change');
+            $('#sponsor_id').val('');
+            // Resetear tabs a la primera pestaña
+            $('#customerTab').tab('show');
+        });
+        
         $(document).on('hidden.bs.modal', '.modal', function() {
             setTimeout(function() {
                 if ($('.modal.show').length === 0) {

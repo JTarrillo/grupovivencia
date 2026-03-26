@@ -32,7 +32,7 @@
                                                 <h5>Listado de Clientes</h5>
                                             </div>
                                             <div class="col-12">
-                                                <button class="btn btn-success" onclick="create_customer();"
+                                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCreateCustomer"
                                                     title="Crear nuevo cliente">
                                                     <i class="fa fa-plus"></i> Crear Cliente
                                                 </button>
@@ -274,7 +274,140 @@
     btnExport.addEventListener("click", () => {
         exportToExcel(data)
     })
+
+    // Limpiar formulario cuando se cierre el modal
+    const modalCreateCustomer = document.getElementById('modalCreateCustomer');
+    if (modalCreateCustomer) {
+        modalCreateCustomer.addEventListener('hidden.bs.modal', function () {
+            document.getElementById('form-customer').reset();
+        });
+    }
     </script>
     <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    
+    <!-- Modal Crear Cliente -->
+    <div class="modal fade" id="modalCreateCustomer" tabindex="-1" role="dialog" aria-labelledby="modalCreateCustomerLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCreateCustomerLabel">Crear Nuevo Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form name="form-customer" id="form-customer" enctype="multipart/form-data"
+                        method="post" action="javascript:void(0);" onsubmit="createCustomer();">
+                        <input type="hidden" name="action" value="create">
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Nombre <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" id="name" name="name"
+                                    placeholder="Nombre" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Apellido Paterno <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" id="lastname"
+                                    name="lastname" placeholder="Apellido Paterno" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Apellido Materno</label>
+                                <input class="form-control" type="text" id="mother_last"
+                                    name="mother_last" placeholder="Apellido Materno">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Tipo de Documento <span class="text-danger">*</span></label>
+                                <select class="form-control" id="doc_type" name="doc_type" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="DNI">DNI</option>
+                                    <option value="RUC">RUC</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Número de Documento <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" id="doc_number" name="doc_number"
+                                    placeholder="Número" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Email <span class="text-danger">*</span></label>
+                                <input class="form-control" type="email" id="email" name="email"
+                                    placeholder="Email" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Teléfono</label>
+                                <input class="form-control" type="text" id="phone" name="phone"
+                                    placeholder="Teléfono">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Estado Civil</label>
+                                <select class="form-control" id="civil_status"
+                                    name="civil_status">
+                                    <option value="">Seleccionar</option>
+                                    <option value="Soltero">Soltero</option>
+                                    <option value="Casado">Casado</option>
+                                    <option value="Divorciado">Divorciado</option>
+                                    <option value="Viudo">Viudo</option>
+                                    <option value="Unión libre">Unión libre</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Tipo de Agente</label>
+                                <select class="form-control" id="tipo_agente"
+                                    name="tipo_agente">
+                                    <option value="">Seleccionar</option>
+                                    <option value="Interno">Interno</option>
+                                    <option value="Externo">Externo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>País <span class="text-danger">*</span></label>
+                                <select class="form-control" id="country_id" name="country_id"
+                                    required>
+                                    <option value="">Seleccionar País</option>
+                                    <?php if(isset($obj_paises)): ?>
+                                    <?php foreach($obj_paises as $pais): ?>
+                                    <option value="<?php echo $pais->id; ?>">
+                                        <?php echo $pais->nombre; ?></option>
+                                    <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Dirección</label>
+                                <input class="form-control" type="text" id="address"
+                                    name="address" placeholder="Dirección">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Estado</label>
+                                <select class="form-control" id="active" name="active">
+                                    <option value="1">Activo</option>
+                                    <option value="0">No Activo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="document.getElementById('form-customer').dispatchEvent(new Event('submit'));">Crear Cliente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="<?php echo base_url('assets/admin/js/script/customer.js?2025'); ?>"></script>
     <?php echo view("admin/footer"); ?>
