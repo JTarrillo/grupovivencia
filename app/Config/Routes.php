@@ -283,6 +283,10 @@ $routes->get('/dashboard/estructura/(:num)', 'D_panel::estructura/$1', ['filter'
 $routes->get('/dashboard/nuevo_socio', 'D_panel::nuevo_socio', ['filter' => 'authGuard']);
 
 
+//modulo ventas
+$routes->get('/dashboard/ventas', 'D_ventas::index', ['filter' => 'authGuard']);
+$routes->get('dashboard/ventas', 'D_ventas::index', ['filter' => 'authGuard']);
+$routes->get('dashboard/get_boletas_api', 'D_ventas::get_boletas_api', ['filter' => 'authGuard']);
 
 
 //nuevo venta
@@ -403,7 +407,10 @@ $routes->post('/dashboard/puntos/eliminar', 'D_puntos::eliminar', ['filter' => '
 
 //Crud Clientes 
 $routes->get('/dashboard/clientes', 'D_clientes::index', ['filter' => 'authGuard']);
+$routes->get('/dashboard/clientes/create', 'D_clientes::create', ['filter' => 'authGuard']);
+$routes->post('/dashboard/clientes/store', 'D_clientes::store', ['filter' => 'authGuard']);
 $routes->get('/dashboard/clientes/load/(:num)', 'D_clientes::load/$1', ['filter' => 'authGuard']);
+$routes->post('/dashboard/clientes/update', 'D_clientes::update', ['filter' => 'authGuard']);
 $routes->post('/dashboard/clientes/validate', 'D_clientes::validacion', ['filter' => 'authGuard']);
 $routes->post('/dashboard/clientes/eliminar', 'D_clientes::eliminar', ['filter' => 'authGuard']);
 $routes->post('/dashboard/clientes/validacion', 'D_clientes::validacion');

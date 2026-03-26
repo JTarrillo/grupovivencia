@@ -32,6 +32,10 @@
                                                 <h5>Listado de Clientes</h5>
                                             </div>
                                             <div class="col-12">
+                                                <button class="btn btn-success" onclick="create_customer();"
+                                                    title="Crear nuevo cliente">
+                                                    <i class="fa fa-plus"></i> Crear Cliente
+                                                </button>
                                                 <button class="btn btn-primary" id="btn-export">
                                                     Exportar
                                                 </button>
