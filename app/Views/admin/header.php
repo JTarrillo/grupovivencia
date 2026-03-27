@@ -430,6 +430,12 @@
                         <span class="pcoded-mtext">Ventas</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="<?php echo base_url('dashboard/documentario'); ?>" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-shopping-cart"></i></span>
+                        <span class="pcoded-mtext">Documentario</span>
+                    </a>
+                </li>
                 <!-- <li class="nav-item <?php echo $sugerencias_style; ?>">
                     <a href="/dashboard/sugerencias" class="nav-link <?php echo $sugerencias_color; ?>">
                         <span class="pcoded-micon"><i class="feather icon-help-circle"></i></span>

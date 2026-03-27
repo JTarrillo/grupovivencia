@@ -422,33 +422,29 @@ class D_facturas extends BaseController
 
         $contract_id = $this->request->getPost('contract_id');
 
-        // 1. Obtener datos del contrato usando tu modelo
+        // 1. Obtener datos del contrato
         $contrato = model('ContractModel')->find($contract_id);
-
         if (!$contrato) {
             return $this->response->setJSON(['success' => false, 'error' => 'Contrato no encontrado.']);
         }
 
-        // 2. Obtener datos del cliente para traer el Name, DNI/RUC, etc.
+        // 2. Obtener datos del cliente
         $cliente = model('CustomerModel')->find($contrato['customer_id']);
-
         if (!$cliente) {
-            return $this->response->setJSON(['success' => false, 'error' => 'Cliente no encontrado en la tabla customers.']);
+            return $this->response->setJSON(['success' => false, 'error' => 'Cliente no encontrado.']);
         }
 
-        // 3. Cálculos de montos (Base Imponible e IGV)
+        // 3. Cálculos de montos
         $total = (float) $contrato['total_amount'];
-        $porcentaje_igv = 18;
-        // SUNAT requiere el valor unitario sin IGV
         $mto_valor_unitario = round($total / 1.18, 2);
 
-        // 4. Lógica de comprobante (Boleta vs Factura)
+        // 4. Lógica de comprobante (DNI vs RUC)
         $esRuc = !empty($cliente['ruc']);
-        $tipo_doc = $esRuc ? "6" : "1"; // 6: RUC, 1: DNI
+        $tipo_doc = $esRuc ? "6" : "1";
         $serie = $esRuc ? "F001" : "B001";
         $num_doc = $esRuc ? $cliente['ruc'] : $cliente['dni'];
 
-        // 5. Armado de la estructura final
+        // 5. Armado de la estructura
         $data_facturacion = [
             "scenario" => $esRuc ? "Factura Gravada" : "Boleta Gravada",
             "company_id" => 1,
@@ -459,7 +455,6 @@ class D_facturas extends BaseController
             "tipo_operacion" => "0101",
             "metodo_envio" => "individual",
             "forma_pago_tipo" => "Contado",
-
             "client" => [
                 "tipo_documento" => $tipo_doc,
                 "numero_documento" => $num_doc,
@@ -468,35 +463,61 @@ class D_facturas extends BaseController
                 "telefono" => $cliente['phone'] ?? '',
                 "email" => $cliente['email'] ?? ''
             ],
-
             "detalles" => [
                 [
-                    "codigo" => $contrato['contract_number'], // <--- Usando el número de contrato
+                    "codigo" => $contrato['contract_number'],
                     "descripcion" => "LOTE DE TERRENO - CONTRATO " . $contrato['contract_number'],
                     "unidad" => "NIU",
                     "cantidad" => 1,
                     "mto_valor_unitario" => $mto_valor_unitario,
-                    "porcentaje_igv" => $porcentaje_igv,
+                    "porcentaje_igv" => 18,
                     "tip_afe_igv" => "10",
                     "codigo_producto_sunat" => "95121601"
                 ]
             ],
-
-            "usuario_creacion" => "vendedor01"
+            "usuario_creacion" => session()->get('user_name') ?? "vendedor_sistema"
         ];
 
-        // Llamar a la funcion de envio
-
+        // Llamar a la función de envío pasando el token de sesión
         $respuestaApi = $this->enviarFacturaSunat($data_facturacion);
+
+        // 4. ACTUALIZACIÓN LOCAL (Aquí es donde podía dar el error 500)
+        // Verificamos que la respuesta sea un array y que success sea true
+        if (is_array($respuestaApi) && ($respuestaApi['success'] ?? false) === true) {
+            try {
+                $updateData = [
+                    'api_factura_id'           => $respuestaApi['data']['id'],
+                    'factura_serie_correlativo' => $respuestaApi['data']['numero_completo'],
+                    'factura_emitida'          => 1,
+                    'updated_at'               => date('Y-m-d H:i:s')
+                ];
+
+                // Guardamos en una variable para verificar si falló algo interno
+                $dbUpdate = model('ContractModel')->update($contract_id, $updateData);
+
+                if (!$dbUpdate) {
+                    log_message('error', 'Fallo al actualizar tabla contracts: ' . json_encode(model('ContractModel')->errors()));
+                }
+            } catch (\Exception $e) {
+                log_message('error', 'Error al actualizar contrato ' . $contract_id . ': ' . $e->getMessage());
+            }
+        }
 
         return $this->response->setJSON($respuestaApi);
     }
 
     private function enviarFacturaSunat($data)
     {
+        // --- RECUPERAR TOKEN DE SESIÓN ---
+        $session = session();
+        $token   = $session->get('api_access_token');
+        $type    = $session->get('api_token_type') ?? 'Bearer'; // Por defecto Bearer si no existe
 
-        $url   = 'https://apifacturacion.groupdispensersac.com/api/v1/boletas';
-        $token = '3|sunat_0F4WtkWSuV7N8KjXWpV9G5zIA6F35HqHYaVGdDmf6f01006b';
+        if (empty($token)) {
+            return ['success' => false, 'message' => 'No hay una sesión activa de API o el token expiró.'];
+        }
+
+        $url = 'https://apifacturacion.groupdispensersac.com/api/v1/boletas';
 
         $curl = curl_init();
         curl_setopt_array($curl, [
@@ -507,8 +528,9 @@ class D_facturas extends BaseController
             CURLOPT_HTTPHEADER     => [
                 'Accept: application/json',
                 'Content-Type: application/json',
-                'Authorization: Bearer ' . $token
+                'Authorization: ' . $type . ' ' . $token // Usamos el token dinámico aquí
             ],
+            CURLOPT_SSL_VERIFYPEER => false // Importante si tienes problemas de certificados en local
         ]);
 
         $response = curl_exec($curl);
@@ -517,14 +539,13 @@ class D_facturas extends BaseController
 
         // --- SISTEMA DE LOGS ---
         $logPath = WRITEPATH . 'logs/facturacion_' . date('Y-m-d') . '.log';
-        $logData = "HORA: " . date('H:i:s') . "\n";
+        $logData = "HORA: " . date('H:i:s') . " | TOKEN: " . substr($token, 0, 10) . "...\n";
         $logData .= "ENVIO: " . json_encode($data) . "\n";
         $logData .= "RESPUESTA: " . ($err ? "ERROR CURL: $err" : $response) . "\n";
         $logData .= "----------------------------------------------------------\n";
 
         file_put_contents($logPath, $logData, FILE_APPEND);
 
-        // Retornamos el resultado decodificado
         return json_decode($response, true);
     }
 }
