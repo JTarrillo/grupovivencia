@@ -90,4 +90,80 @@ class D_ventas extends BaseController
             ])->setStatusCode(500);
         }
     }
+
+
+
+    public function operacion_facturacion()
+    {
+        $request = \Config\Services::request();
+        $id      = $request->getPost('id');
+        $tipo    = $request->getPost('tipo'); // 'send', 'pdf', 'xml', 'cdr'
+        $nombre  = $request->getPost('nombre'); // Ej: B001-000001
+
+        $session = session();
+        $token   = $session->get('api_access_token');
+        $tType   = $session->get('api_token_type') ?? 'Bearer';
+
+        // 1. Configurar URL según la acción
+        $baseUrlApi = "https://apifacturacion.groupdispensersac.com/api/v1/boletas/{$id}/";
+
+        switch ($tipo) {
+            case 'send':
+                $url = $baseUrlApi . "send-sunat";
+                break;
+            case 'pdf':
+                $url = $baseUrlApi . "download-pdf?format=A4";
+                break;
+            case 'xml':
+                $url = $baseUrlApi . "download-xml";
+                break;
+            case 'cdr':
+                $url = $baseUrlApi . "download-cdr";
+                break;
+            default:
+                return $this->response->setJSON(['status' => false, 'msg' => 'Tipo no válido']);
+        }
+
+        $client = \Config\Services::curlrequest();
+
+        try {
+            $response = $client->request($tipo == 'send' ? 'POST' : 'GET', $url, [
+                'headers' => [
+                    'Authorization' => "{$tType} {$token}",
+                    'Accept'        => 'application/json',
+                ],
+                'http_errors' => false,
+                'verify' => false // Para evitar problemas de SSL en Localhost
+            ]);
+
+            $body = $response->getBody();
+
+            // CASO 1: EMISIÓN A SUNAT (Respuesta JSON)
+            if ($tipo == 'send') {
+                return $this->response->setJSON(json_decode($body));
+            }
+
+            // CASO 2: DESCARGAS (Guardar en carpeta)
+            if ($response->getStatusCode() === 200) {
+                $folderPath = FCPATH . 'comprobantes/' . $nombre;
+                if (!is_dir($folderPath)) mkdir($folderPath, 0777, true);
+
+                $extension = ($tipo == 'pdf') ? '.pdf' : '.xml';
+                $fileName  = $nombre . '_' . strtoupper($tipo) . $extension;
+                $fullPath  = $folderPath . '/' . $fileName;
+
+                file_put_contents($fullPath, $body);
+
+                return $this->response->setJSON([
+                    'status' => true,
+                    'message' => "Archivo {$tipo} guardado en local.",
+                    'file_url' => base_url("comprobantes/{$nombre}/{$fileName}")
+                ]);
+            }
+
+            return $this->response->setJSON(['status' => false, 'message' => "Error API: " . $response->getStatusCode()]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
 }

@@ -284,10 +284,12 @@ $routes->get('/dashboard/nuevo_socio', 'D_panel::nuevo_socio', ['filter' => 'aut
 
 
 //modulo ventas
-$routes->get('/dashboard/ventas', 'D_ventas::index', ['filter' => 'authGuard']);
+/* $routes->get('/dashboard/ventas', 'D_ventas::index', ['filter' => 'authGuard']); */
 $routes->get('dashboard/ventas', 'D_ventas::index', ['filter' => 'authGuard']);
 $routes->get('dashboard/get_boletas_api', 'D_ventas::get_boletas_api', ['filter' => 'authGuard']);
 
+//modulo documentario
+$routes->get('dashboard/documentario', 'D_documentario::index', ['filter' => 'authGuard']);
 
 //nuevo venta
 $routes->get('/dashboard/nueva_venta', 'D_nueva_venta::index', ['filter' => 'authGuard']);
@@ -623,3 +625,8 @@ $routes->get('/(:any)', 'Home::otras');
 $routes->get('/dashboard/inmueble/api/get_customer/(:num)', 'Inmueble::get_customer/$1', ['filter' => 'authGuard']);
 $routes->get('/dashboard/inmueble/api/get_lot_details/(:num)', 'Inmueble::get_lot_details/$1', ['filter' => 'authGuard']);
 $routes->get('/dashboard/inmueble/api/get_contract_details/(:num)', 'Inmueble::get_contract_details/$1', ['filter' => 'authGuard']);
+
+
+//rutas para generar documentos
+$routes->post('dashboard/operacion-facturacion', 'D_ventas::operacion_facturacion');
+
