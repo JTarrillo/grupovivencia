@@ -6,21 +6,21 @@
         <div class="pcoded-wrapper">
             <div class="pcoded-content">
                 <div class="pcoded-inner-content">
-                    <div class="page-header">
+                    <div class="page-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);">
                         <div class="page-block">
                             <div class="row align-items-center">
                                 <div class="col-md-12">
                                     <div class="page-header-title">
-                                        <h5>Validación de Pagos - Cronograma</h5>
+                                        <h3 style="color: white; font-weight: 700; margin: 0;">
+                                            <i class="feather icon-calendar" style="margin-right: 12px;"></i>Validación de Pagos - Cronograma
+                                        </h3>
+                                        <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 0.95rem;">Gestiona y valida los pagos de tu contrato</p>
                                     </div>
-                                    <ul class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="/dashboard/panel">Panel</a></li>
-                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble">Gestión
-                                                Inmobiliaria</a></li>
-                                        <li class="breadcrumb-item"><a
-                                                href="/dashboard/inmueble/contracts">Contratos</a>
-                                        </li>
-                                        <li class="breadcrumb-item"><a>Cronograma de Pagos</a></li>
+                                    <ul class="breadcrumb" style="margin: 12px 0 0 0;">
+                                        <li class="breadcrumb-item"><a href="/dashboard/panel" style="color: rgba(255,255,255,0.9);">Panel</a></li>
+                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble" style="color: rgba(255,255,255,0.9);">Gestión Inmobiliaria</a></li>
+                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble/contracts" style="color: rgba(255,255,255,0.9);">Contratos</a></li>
+                                        <li class="breadcrumb-item"><a style="color: rgba(255,255,255,0.7);">Cronograma de Pagos</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -84,68 +84,78 @@
                                     </div>
 
                                     <!-- Card de Resumen de Pagos -->
-                                    <div class="row mb-3">
-                                        <div class="col-md-3">
-                                            <div class="card bg-success text-white">
-                                                <div class="card-body text-center">
-                                                    <h2><?= $stats['pagados_count'] ?? 0 ?></h2>
-                                                    <p class="mb-0">Pagos Validados</p>
-                                                    <small>S/
-                                                        <?= number_format($stats['pagados_monto'] ?? 0, 2) ?></small>
+                                    <div class="row mb-4">
+                                        <div class="col-md-3 mb-3">
+                                            <div class="card" style="border: none; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(76, 175, 80, 0.15); transition: transform 0.3s ease, box-shadow 0.3s ease; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 32px rgba(76, 175, 80, 0.25)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(76, 175, 80, 0.15)'">
+                                                <div class="card-body text-center text-white p-4">
+                                                    <div style="font-size: 2.5rem; margin-bottom: 12px;">
+                                                        <i class="fa fa-check-circle"></i>
+                                                    </div>
+                                                    <h2 style="font-size: 2.5rem; font-weight: 700; margin: 0;"><?= $stats['pagados_count'] ?? 0 ?></h2>
+                                                    <p class="mb-0" style="font-weight: 600; margin-top: 8px;">Pagos Validados</p>
+                                                    <small style="opacity: 0.95;">S/ <?= number_format($stats['pagados_monto'] ?? 0, 2) ?></small>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
-                                            <div class="card bg-warning text-white">
-                                                <div class="card-body text-center">
-                                                    <h2><?= $stats['pendientes_count'] ?? 0 ?></h2>
-                                                    <p class="mb-0">Pendientes de Validar</p>
-                                                    <small>S/
-                                                        <?= number_format($stats['pendientes_monto'] ?? 0, 2) ?></small>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="card" style="border: none; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(255, 193, 7, 0.15); transition: transform 0.3s ease, box-shadow 0.3s ease; background: linear-gradient(135deg, #FFC107 0%, #FFB300 100%);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 32px rgba(255, 193, 7, 0.25)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(255, 193, 7, 0.15)'">
+                                                <div class="card-body text-center text-dark p-4">
+                                                    <div style="font-size: 2.5rem; margin-bottom: 12px; color: #333;">
+                                                        <i class="fa fa-clock"></i>
+                                                    </div>
+                                                    <h2 style="font-size: 2.5rem; font-weight: 700; margin: 0; color: #333;"><?= $stats['pendientes_count'] ?? 0 ?></h2>
+                                                    <p class="mb-0" style="font-weight: 600; margin-top: 8px; color: #555;">Pendientes de Validar</p>
+                                                    <small style="color: #666;">S/ <?= number_format($stats['pendientes_monto'] ?? 0, 2) ?></small>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
-                                            <div class="card bg-info text-white">
-                                                <div class="card-body text-center">
-                                                    <h2><?= $stats['registrados_count'] ?? 0 ?></h2>
-                                                    <p class="mb-0">Registrados (Sin Validar)</p>
-                                                    <small>S/
-                                                        <?= number_format($stats['registrados_monto'] ?? 0, 2) ?></small>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="card" style="border: none; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(33, 150, 243, 0.15); transition: transform 0.3s ease, box-shadow 0.3s ease; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 32px rgba(33, 150, 243, 0.25)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(33, 150, 243, 0.15)'">
+                                                <div class="card-body text-center text-white p-4">
+                                                    <div style="font-size: 2.5rem; margin-bottom: 12px;">
+                                                        <i class="fa fa-file-alt"></i>
+                                                    </div>
+                                                    <h2 style="font-size: 2.5rem; font-weight: 700; margin: 0;"><?= $stats['registrados_count'] ?? 0 ?></h2>
+                                                    <p class="mb-0" style="font-weight: 600; margin-top: 8px;">Registrados (Sin Validar)</p>
+                                                    <small style="opacity: 0.95;">S/ <?= number_format($stats['registrados_monto'] ?? 0, 2) ?></small>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
-                                            <div class="card bg-secondary text-white">
-                                                <div class="card-body text-center">
-                                                    <h2><?= $stats['total_count'] ?? 0 ?></h2>
-                                                    <p class="mb-0">Total de Cuotas</p>
-                                                    <small>S/
-                                                        <?= number_format($stats['total_monto'] ?? 0, 2) ?></small>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="card" style="border: none; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(156, 39, 176, 0.15); transition: transform 0.3s ease, box-shadow 0.3s ease; background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 32px rgba(156, 39, 176, 0.25)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(156, 39, 176, 0.15)'">
+                                                <div class="card-body text-center text-white p-4">
+                                                    <div style="font-size: 2.5rem; margin-bottom: 12px;">
+                                                        <i class="fa fa-list"></i>
+                                                    </div>
+                                                    <h2 style="font-size: 2.5rem; font-weight: 700; margin: 0;"><?= $stats['total_count'] ?? 0 ?></h2>
+                                                    <p class="mb-0" style="font-weight: 600; margin-top: 8px;">Total de Cuotas</p>
+                                                    <small style="opacity: 0.95;">S/ <?= number_format($stats['total_monto'] ?? 0, 2) ?></small>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Tabla de Cronograma -->
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h5>Cronograma de Pagos - Validación de Comprobantes</h5>
+                                    <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); overflow: hidden;">
+                                        <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 1.5rem;">
+                                            <h5 style="color: white; margin: 0; font-weight: 700; font-size: 1.1rem;">
+                                                <i class="feather icon-check-square" style="margin-right: 10px;"></i>Cronograma de Pagos - Validación de Comprobantes
+                                            </h5>
                                         </div>
                                         <div class="card-body p-0">
                                             <div class="table-responsive">
-                                                <table class="table table-hover table-striped mb-0">
-                                                    <thead class="bg-light">
+                                                <table class="table table-hover mb-0" style="border-collapse: collapse;">
+                                                    <thead style="background: #f8f9fa; border-bottom: 2px solid #e9ecef;">
                                                         <tr>
-                                                            <th>#</th>
-                                                            <th>Tipo</th>
-                                                            <th>Fecha Vencimiento</th>
-                                                            <th>Monto</th>
-                                                            <th>Estado de Pago</th>
-                                                            <th>Registrado</th>
-                                                            <th>Fecha Pago</th>
-                                                            <th>Comprobante</th>
-                                                            <th>Acciones</th>
+                                                            <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">#</th>
+                                                            <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Tipo</th>
+                                                            <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Fecha Vencimiento</th>
+                                                            <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Monto</th>
+                                                            <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Estado de Pago</th>
+                                                            <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Registrado</th>
+                                                            <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Fecha Pago</th>
+                                                            <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Comprobante</th>
+                                                            <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Acciones</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -156,83 +166,79 @@
                                                                 $validado = ($estado === 'paid' || $estado === 'pagado');
                                                                 $installment_number = $pago['installment_number'] ?? ($i + 1);
                                                             ?>
-                                                        <tr
-                                                            class="<?= $validado ? 'table-success' : ($registrado ? 'table-info' : '') ?>">
-                                                            <td>
-                                                                <strong><?= ($i + 1) ?></strong>
+                                                        <tr style="border-bottom: 1px solid #e9ecef; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='white'">
+                                                            <td style="padding: 1rem; vertical-align: middle;">
+                                                                <strong style="color: #667eea; font-size: 1.1rem;"><?= ($i + 1) ?></strong>
                                                             </td>
-                                                            <td>
+                                                            <td style="padding: 1rem; vertical-align: middle;">
                                                                 <?php if ($installment_number == 0): ?>
-                                                                <span class="badge badge-warning">INICIAL</span>
+                                                                <span class="badge" style="background: linear-gradient(135deg, #FFC107 0%, #FFB300 100%); color: #333; padding: 8px 12px; font-weight: 600; border-radius: 8px; font-size: 0.8rem;">INICIAL</span>
                                                                 <?php else: ?>
-                                                                <span class="badge badge-primary">CUOTA
-                                                                    <?= $installment_number ?></span>
+                                                                <span class="badge" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; padding: 8px 12px; font-weight: 600; border-radius: 8px; font-size: 0.8rem;">CUOTA <?= $installment_number ?></span>
                                                                 <?php endif; ?>
                                                             </td>
-                                                            <td>
+                                                            <td style="padding: 1rem; vertical-align: middle; color: #555; font-weight: 500;">
                                                                 <?php 
                                                                     $fecha_vencimiento = $pago['due_date'] ?? null;
                                                                     echo $fecha_vencimiento ? date('d/m/Y', strtotime($fecha_vencimiento)) : '-';
                                                                     ?>
                                                             </td>
-                                                            <td>
-                                                                <strong>S/
-                                                                    <?= number_format($pago['amount'] ?? 0, 2) ?></strong>
+                                                            <td style="padding: 1rem; vertical-align: middle;">
+                                                                <strong style="color: #4CAF50; font-size: 1rem;">S/ <?= number_format($pago['amount'] ?? 0, 2) ?></strong>
                                                             </td>
-                                                            <td>
+                                                            <td style="padding: 1rem; vertical-align: middle;">
                                                                 <?php if ($validado): ?>
-                                                                <span class="badge badge-success">✓ VALIDADO</span>
+                                                                <span class="badge" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 8px 12px; font-weight: 600; border-radius: 8px; font-size: 0.8rem;">✓ VALIDADO</span>
                                                                 <?php elseif ($registrado): ?>
-                                                                <span class="badge badge-info">⏳ REGISTRADO</span>
+                                                                <span class="badge" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; padding: 8px 12px; font-weight: 600; border-radius: 8px; font-size: 0.8rem;">⏳ REGISTRADO</span>
                                                                 <?php else: ?>
-                                                                <span class="badge badge-danger">✗ PENDIENTE</span>
+                                                                <span class="badge" style="background: linear-gradient(135deg, #f44336 0%, #e53935 100%); color: white; padding: 8px 12px; font-weight: 600; border-radius: 8px; font-size: 0.8rem;">✗ PENDIENTE</span>
                                                                 <?php endif; ?>
                                                             </td>
-                                                            <td>
+                                                            <td style="padding: 1rem; vertical-align: middle; text-align: center; font-weight: 600; color: #667eea;">
                                                                 <?php 
-                                                                    echo $registrado ? '✓' : '✗';
+                                                                    echo $registrado ? '<i class="fa fa-check" style="color: #4CAF50; font-size: 1.2rem;"></i>' : '<i class="fa fa-times" style="color: #f44336; font-size: 1.2rem;"></i>';
                                                                     ?>
                                                             </td>
-                                                            <td>
+                                                            <td style="padding: 1rem; vertical-align: middle; color: #555; font-size: 0.95rem;">
                                                                 <?php 
                                                                     $fecha_pago = $pago['paid_date'] ?? null;
                                                                     echo $fecha_pago ? date('d/m/Y H:i', strtotime($fecha_pago)) : '-';
                                                                     ?>
                                                             </td>
-                                                            <td>
+                                                            <td style="padding: 1rem; vertical-align: middle;">
                                                                 <?php if (!empty($pago['voucher_url'])): ?>
                                                                 <a href="<?= base_url($pago['voucher_url']) ?>"
-                                                                    target="_blank" class="btn btn-sm btn-outline-info">
+                                                                    target="_blank" class="btn btn-sm" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; transition: transform 0.2s ease;">
                                                                     <i class="fa fa-file-pdf"></i> Ver
                                                                 </a>
                                                                 <?php else: ?>
                                                                 <span class="text-muted">—</span>
                                                                 <?php endif; ?>
                                                             </td>
-                                                            <td>
-                                                                <div class="btn-group" role="group">
+                                                            <td style="padding: 1rem; vertical-align: middle;">
+                                                                <div class="btn-group" role="group" style="display: flex; gap: 8px;">
                                                                     <?php 
                                                                     // Mostrar Validar si: tiene voucher O está registrado, y NO está validado
                                                                     $tieneVoucher = !empty($pago['voucher_url']);
                                                                     $puedeValidar = ($registrado || $tieneVoucher) && !$validado;
                                                                     ?>
                                                                     <?php if ($puedeValidar): ?>
-                                                                    <button class="btn btn-sm btn-success"
+                                                                    <button class="btn btn-sm" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(76, 175, 80, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'" 
                                                                         onclick="abrirModalValidacion(<?= $pago['id'] ?>, '<?= number_format($pago['amount'], 2) ?>', '<?= !empty($pago['voucher_url']) ? base_url($pago['voucher_url']) : '' ?>')">
                                                                         <i class="fa fa-check-circle"></i> Validar
                                                                     </button>
                                                                     <?php elseif ($validado): ?>
-                                                                    <button class="btn btn-sm btn-success" disabled>
+                                                                    <button class="btn btn-sm" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;" disabled>
                                                                         <i class="fa fa-check"></i> Validado
                                                                     </button>
-                                                                    <button class="btn btn-sm btn-primary"
+                                                                    <button class="btn btn-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'"
                                                                         onclick="generarFacturaCuota(<?= $pago['id'] ?>, <?= $contract['id'] ?>, '<?= number_format($pago['amount'], 2) ?>')">
                                                                         <i class="fa fa-file-invoice"></i> Factura
                                                                     </button>
                                                                     <?php else: ?>
-                                                                    <span class="text-muted text-center"
-                                                                        style="display: block;">
-                                                                        <small>Esperando pago</small>
+                                                                    <span class="text-muted" style="padding: 8px 14px; font-size: 0.85rem; font-weight: 600;">
+                                                                        <i class="fa fa-hourglass-half"></i> Esperando pago
                                                                     </span>
                                                                     <?php endif; ?>
                                                                 </div>
@@ -252,8 +258,8 @@
                                         </div>
                                     </div>
 
-                                    <div class="mt-3 text-center">
-                                        <a href="/dashboard/inmueble/contracts" class="btn btn-secondary">
+                                    <div class="mt-4 text-center">
+                                        <a href="/dashboard/inmueble/contracts" class="btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 32px; border-radius: 8px; font-weight: 600; border: none; transition: all 0.3s ease; text-decoration: none;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(102, 126, 234, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.2)'">
                                             <i class="fa fa-arrow-left"></i> Volver a Contratos
                                         </a>
                                     </div>
