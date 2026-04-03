@@ -336,64 +336,90 @@ class D_facturas extends BaseController
     public function emitirFactura()
     {
         if (!$this->request->isAJAX()) {
-            return redirect()->to('/dashboard/facturasContratos');
+            return $this->response->setJSON(['success' => false, 'error' => 'Petición inválida.']);
         }
-        // DEBUG: Ver datos recibidos
-        $debugData = $this->request->getPost();
-        log_message('debug', 'emitirFactura POST: ' . print_r($debugData, true));
-        $Invoices = new InvoicesModel();
+
         $contract_id = $this->request->getPost('contract_id');
+
+        // 1. Obtener datos del contrato
         $contrato = model('ContractModel')->find($contract_id);
         if (!$contrato) {
             return $this->response->setJSON(['success' => false, 'error' => 'Contrato no encontrado.']);
         }
-        // CORRECCIÓN: Usar el modelo correcto
+
+        // 2. Obtener datos del cliente
         $cliente = model('CustomerModel')->find($contrato['customer_id']);
         if (!$cliente) {
             return $this->response->setJSON(['success' => false, 'error' => 'Cliente no encontrado.']);
         }
-        // Validar DNI
-        if (!isset($cliente['dni']) || strlen($cliente['dni']) !== 8) {
-            return $this->response->setJSON([
-                'success' => false,
-                'error' => 'El cliente no tiene un DNI válido (8 dígitos).'
-            ]);
-        }
-        // Obtener la última factura para calcular el número
-        $serie = 'BBB1'; // Puedes cambiar la lógica de serie si lo necesitas
-        $ultimo = $Invoices->orderBy('numero', 'DESC')->where('serie', $serie)->first();
-        $numero = $ultimo && isset($ultimo['numero']) ? $ultimo['numero'] + 1 : 1;
 
-        $data = [
-            'customer_id' => $contrato['customer_id'],
-            'contract_id' => $contrato['id'],
-            'membership_id' => null,
-            'qty' => 1,
-            'amount' => $contrato['total_amount'],
-            'address' => '',
-            'phone' => '',
-            'details' => 'Factura generada desde contrato',
-            'store_id' => 1,
-            'period_id' => null,
-            'temporal_membership' => null,
-            'sub_total' => $contrato['total_amount'],
-            'payment' => '',
-            'igv' => '0.00',
-            'total' => $contrato['total_amount'],
-            'points' => 0,
-            'delivery' => '0',
-            'delivery_date' => null,
-            'img' => '',
-            'date' => date('Y-m-d H:i:s'),
-            'cash' => '0.00',
-            'yape' => '0.00',
-            'card' => '0.00',
-            'active' => '1',
-            'serie' => $serie,
-            'numero' => $numero
+        // 3. Cálculos de montos
+        // INMOBILIARIA: Operación INAFECTA, no se aplica IGV.
+        $total = (float) $contrato['down_payment'];
+        $mto_valor_unitario = round($total, 2);
+
+        // 4. Lógica de comprobante (DNI vs RUC)
+        $esRuc  = !empty($cliente['ruc']);
+        $tipo_doc = $esRuc ? "6" : "1";
+        $serie    = $esRuc ? "F001" : "B001";
+        $num_doc  = $esRuc ? $cliente['ruc'] : $cliente['dni'];
+
+        // 5. Armado de la estructura
+        $data_facturacion = [
+            "scenario"       => $esRuc ? "Factura Inafecta" : "Boleta Inafecta",
+            "company_id"     => 1,
+            "branch_id"      => 1,
+            "serie"          => $serie,
+            "fecha_emision"  => date('Y-m-d'),
+            "moneda"         => "PEN",
+            "tipo_operacion" => "0101",
+            "metodo_envio"   => "individual",
+            "forma_pago_tipo" => "Contado",
+            "client" => [
+                "tipo_documento"   => $tipo_doc,
+                "numero_documento" => $num_doc,
+                "razon_social"     => trim(($cliente['name'] ?? '') . ' ' . ($cliente['lastname'] ?? '')),
+                "direccion"        => $cliente['address'] ?: "Lima, Perú",
+                "telefono"         => $cliente['phone'] ?? '',
+                "email"            => $cliente['email'] ?? ''
+            ],
+            "detalles" => [
+                [
+                    "codigo"             => $contrato['contract_number'],
+                    "descripcion"        => "LOTE DE TERRENO - CONTRATO " . $contrato['contract_number'] . " ***Pago Anticipado***",
+                    "unidad"             => "NIU",
+                    "cantidad"           => 1,
+                    "mto_valor_unitario" => $mto_valor_unitario,
+                    "porcentaje_igv"     => 0,
+                    "tip_afe_igv"        => "30"
+                ]
+            ],
+            "usuario_creacion" => session()->get('user_name') ?? "vendedor_sistema"
         ];
 
-        print_r($data);
+        // 6. Llamar a la función de envío
+        $respuestaApi = $this->enviarFacturaSunat($data_facturacion);
+
+        // 7. Actualización local si la API respondió con éxito
+        if (is_array($respuestaApi) && ($respuestaApi['success'] ?? false) === true) {
+            try {
+                $updateData = [
+                    'api_factura_id'           => $respuestaApi['data']['id'],
+                    'factura_serie_correlativo' => $respuestaApi['data']['numero_completo'],
+                    'factura_emitida'          => 1,
+                    'updated_at'               => date('Y-m-d H:i:s')
+                ];
+
+                $dbUpdate = model('ContractModel')->update($contract_id, $updateData);
+                if (!$dbUpdate) {
+                    log_message('error', 'Fallo al actualizar tabla contracts: ' . json_encode(model('ContractModel')->errors()));
+                }
+            } catch (\Exception $e) {
+                log_message('error', 'Error al actualizar contrato ' . $contract_id . ': ' . $e->getMessage());
+            }
+        }
+
+        return $this->response->setJSON($respuestaApi);
     }
 
 
