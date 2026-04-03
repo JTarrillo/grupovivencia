@@ -54,6 +54,7 @@ $routes->get('/dashboard/inmueble/contracts/get_schedule/(:num)', 'B_admin::get_
 // Rutas para gestión de pagos y validación
 $routes->get('/dashboard/inmueble/cronograma/(:num)', 'PagosController::cronograma_completo/$1', ['filter' => 'authGuard']);
 $routes->post('/dashboard/inmueble/validar_pago', 'PagosController::validar_pago', ['filter' => 'authGuard']);
+$routes->post('/dashboard/inmueble/generar_factura_cuota', 'PagosController::generar_factura_cuota', ['filter' => 'authGuard']);
 
 //inicio
 $routes->get('/lang/{locale}', 'Language::index');

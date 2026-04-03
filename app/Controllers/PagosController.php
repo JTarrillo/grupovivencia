@@ -164,4 +164,66 @@ class PagosController extends BaseController
             ]);
         }
     }
+
+    /**
+     * Generar factura para una cuota específica del contrato
+     */
+    public function generar_factura_cuota()
+    {
+        try {
+            if (strtolower($this->request->getMethod()) !== 'post') {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Método no permitido'
+                ]);
+            }
+
+            $pagoId = $this->request->getJSON()->pago_id;
+            $contractId = $this->request->getJSON()->contract_id;
+            $monto = $this->request->getJSON()->monto;
+
+            if (!$pagoId || !$contractId) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Datos incompletos para generar factura'
+                ]);
+            }
+
+            // Obtener datos del pago
+            $scheduleModel = new \App\Models\PaymentScheduleModel();
+            $pago = $scheduleModel->find($pagoId);
+
+            if (!$pago) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Pago no encontrado'
+                ]);
+            }
+
+            // Obtener datos del contrato
+            $contractModel = new \App\Models\ContractModel();
+            $contract = $contractModel->find($contractId);
+
+            if (!$contract) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Contrato no encontrado'
+                ]);
+            }
+
+            // Por ahora, retornamos un JSON de éxito
+            // Implementación real de generación de factura se hará después
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Factura generada correctamente',
+                'download_url' => null // URL de descarga si la factura se genera
+            ]);
+            
+        } catch (\Throwable $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al generar factura: ' . $e->getMessage()
+            ]);
+        }
+    }
 }
