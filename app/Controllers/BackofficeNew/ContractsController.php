@@ -114,7 +114,21 @@ class ContractsController extends BaseController
         $contractModel = new ContractModel();
         $paymentScheduleModel = new PaymentScheduleModel();
 
-        $contract = $contractModel->find($id);
+        $contractRaw = $contractModel->find($id);
+        
+        // Mapear campos de BD a nombres esperados por la vista
+        $contract = [
+            'id' => $contractRaw['id'],
+            'code' => $contractRaw['contract_number'] ?? 'GV-' . $contractRaw['id'],
+            'total' => $contractRaw['total_amount'] ?? 0,
+            'cuota_mensual' => $contractRaw['monthly_payment'] ?? 0,
+            'total_amount' => $contractRaw['total_amount'] ?? 0,
+            'monthly_payment' => $contractRaw['monthly_payment'] ?? 0,
+            'down_payment' => $contractRaw['down_payment'] ?? 0,
+            'financing_months' => $contractRaw['financing_months'] ?? 12,
+            'status' => $contractRaw['status'] ?? 'activo'
+        ];
+        
         $cronograma = $paymentScheduleModel->where('contract_id', $id)->findAll();
         
         // Ordenar cronograma de forma ASCENDENTE (cuota 1, 2, 3... - fecha más cercana primero)
