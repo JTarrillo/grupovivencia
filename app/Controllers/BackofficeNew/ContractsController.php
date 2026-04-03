@@ -130,7 +130,8 @@ class ContractsController extends BaseController
         $total_pagos = count($cronograma);
 
         foreach ($cronograma as $pago) {
-            if ($pago['status'] == 'Pagado') {
+            $estado = strtolower($pago['status'] ?? 'pending');
+            if ($estado == 'pagado' || $estado == 'paid') {
                 $pagos_realizados++;
                 $monto_realizado += $pago['amount'];
             } else {
