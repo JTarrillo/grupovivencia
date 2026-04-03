@@ -167,7 +167,8 @@ if (isset($facturas_contratos) && $facturas_contratos) {
                     html +=
                         '<div class="alert alert-success text-center">Comprobante emitido correctamente.</div>' +
                         '<div class="text-center"><a href="' + resp.urlComprobante +
-                        '" target="_blank" class="btn btn-primary btn-lg">Ver Comprobante Electrónico</a></div>';
+                        '" target="_blank" class="btn btn-primary btn-lg">Ver Comprobante Electrónico</a></div>' +
+                        '<div class="text-center mt-3"><button class="btn btn-info" onclick="location.reload()">Refrescar listado</button></div>';
                 } else if (resp.error) {
                     html += '<div class="alert alert-danger text-center">' + resp.error + '</div>';
                 } else if (!html) {
@@ -181,6 +182,13 @@ if (isset($facturas_contratos) && $facturas_contratos) {
                 }
                 $('#modalComprobanteBody').html(html);
                 $('#modalComprobante').modal('show');
+                
+                // Auto-reload después de 3 segundos si fue exitoso
+                if (resp.success) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                }
             },
             error: function() {
                 $('#modalComprobanteBody').html(
