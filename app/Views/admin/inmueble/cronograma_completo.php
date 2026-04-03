@@ -6,22 +6,32 @@
         <div class="pcoded-wrapper">
             <div class="pcoded-content">
                 <div class="pcoded-inner-content">
-                    <div class="page-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);">
+                    <div class="page-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2.5rem; border-radius: 14px; margin-bottom: 2rem; box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);">
                         <div class="page-block">
                             <div class="row align-items-center">
-                                <div class="col-md-12">
+                                <div class="col-md-8">
                                     <div class="page-header-title">
-                                        <h3 style="color: white; font-weight: 700; margin: 0;">
-                                            <i class="feather icon-calendar" style="margin-right: 12px;"></i>Validación de Pagos - Cronograma
+                                        <h3 style="color: white; font-weight: 700; margin: 0; font-size: 1.8rem;">
+                                            <i class="feather icon-calendar" style="margin-right: 14px;"></i>Validación de Pagos - Cronograma
                                         </h3>
-                                        <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 0.95rem;">Gestiona y valida los pagos de tu contrato</p>
+                                        <p style="color: rgba(255,255,255,0.95); margin: 8px 0 0 0; font-size: 0.95rem;">Gestiona y valida los pagos de tu contrato</p>
                                     </div>
                                     <ul class="breadcrumb" style="margin: 12px 0 0 0;">
-                                        <li class="breadcrumb-item"><a href="/dashboard/panel" style="color: rgba(255,255,255,0.9);">Panel</a></li>
-                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble" style="color: rgba(255,255,255,0.9);">Gestión Inmobiliaria</a></li>
-                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble/contracts" style="color: rgba(255,255,255,0.9);">Contratos</a></li>
-                                        <li class="breadcrumb-item"><a style="color: rgba(255,255,255,0.7);">Cronograma de Pagos</a></li>
+                                        <li class="breadcrumb-item"><a href="/dashboard/panel" style="color: rgba(255,255,255,0.95);">Panel</a></li>
+                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble" style="color: rgba(255,255,255,0.95);">Gestión Inmobiliaria</a></li>
+                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble/contracts" style="color: rgba(255,255,255,0.95);">Contratos</a></li>
+                                        <li class="breadcrumb-item"><a style="color: rgba(255,255,255,0.8);">Cronograma de Pagos</a></li>
                                     </ul>
+                                </div>
+                                <div class="col-md-4">
+                                    <div style="background: rgba(255,255,255,0.15); border-radius: 10px; padding: 1rem; backdrop-filter: blur(10px);">
+                                        <div style="text-align: right; color: white;">
+                                            <div style="font-size: 0.85rem; opacity: 0.9;">Contrato</div>
+                                            <div style="font-size: 1.3rem; font-weight: 700;"><?= esc($contract['contract_number'] ?? '-') ?></div>
+                                            <div style="font-size: 0.8rem; margin-top: 8px; opacity: 0.85;"><?= esc($contract['customer_name'] ?? '-') ?></div>
+                                            <div style="font-size: 0.75rem; opacity: 0.8;">DNI: <?= esc($contract['customer_dni'] ?? '-') ?></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -86,7 +96,7 @@
                                     <!-- Card de Resumen de Pagos -->
                                     <div class="row mb-4">
                                         <div class="col-md-3 mb-3">
-                                            <div class="card" style="border: none; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(76, 175, 80, 0.15); transition: transform 0.3s ease, box-shadow 0.3s ease; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 32px rgba(76, 175, 80, 0.25)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(76, 175, 80, 0.15)'">
+                                            <div class="card" style="border: none; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(45, 206, 137, 0.2); transition: transform 0.3s ease, box-shadow 0.3s ease; background: linear-gradient(135deg, #2dce89 0%, #10b981 100%);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 8px 24px rgba(45, 206, 137, 0.35)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(45, 206, 137, 0.2)'">
                                                 <div class="card-body text-center text-white p-4">
                                                     <div style="font-size: 2.5rem; margin-bottom: 12px;">
                                                         <i class="fa fa-check-circle"></i>
@@ -98,7 +108,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-3 mb-3">
-                                            <div class="card" style="border: none; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(255, 193, 7, 0.15); transition: transform 0.3s ease, box-shadow 0.3s ease; background: linear-gradient(135deg, #FFC107 0%, #FFB300 100%);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 32px rgba(255, 193, 7, 0.25)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(255, 193, 7, 0.15)'">
+                                            <div class="card" style="border: none; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(255, 184, 28, 0.2); transition: transform 0.3s ease, box-shadow 0.3s ease; background: linear-gradient(135deg, #ffb71d 0%, #ffa500 100%);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 8px 24px rgba(255, 184, 28, 0.35)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(255, 184, 28, 0.2)'">
                                                 <div class="card-body text-center text-dark p-4">
                                                     <div style="font-size: 2.5rem; margin-bottom: 12px; color: #333;">
                                                         <i class="fa fa-clock"></i>
@@ -110,7 +120,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-3 mb-3">
-                                            <div class="card" style="border: none; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(33, 150, 243, 0.15); transition: transform 0.3s ease, box-shadow 0.3s ease; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 32px rgba(33, 150, 243, 0.25)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(33, 150, 243, 0.15)'">
+                                            <div class="card" style="border: none; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(17, 205, 239, 0.2); transition: transform 0.3s ease, box-shadow 0.3s ease; background: linear-gradient(135deg, #11cdef 0%, #00bcd4 100%);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 8px 24px rgba(17, 205, 239, 0.35)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(17, 205, 239, 0.2)'">
                                                 <div class="card-body text-center text-white p-4">
                                                     <div style="font-size: 2.5rem; margin-bottom: 12px;">
                                                         <i class="fa fa-file-alt"></i>
@@ -122,7 +132,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-3 mb-3">
-                                            <div class="card" style="border: none; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(156, 39, 176, 0.15); transition: transform 0.3s ease, box-shadow 0.3s ease; background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 32px rgba(156, 39, 176, 0.25)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(156, 39, 176, 0.15)'">
+                                            <div class="card" style="border: none; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(141, 92, 230, 0.2); transition: transform 0.3s ease, box-shadow 0.3s ease; background: linear-gradient(135deg, #8d5ce6 0%, #6c63ff 100%);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 8px 24px rgba(141, 92, 230, 0.35)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(141, 92, 230, 0.2)'">
                                                 <div class="card-body text-center text-white p-4">
                                                     <div style="font-size: 2.5rem; margin-bottom: 12px;">
                                                         <i class="fa fa-list"></i>
@@ -136,7 +146,7 @@
                                     </div>
 
                                     <!-- Tabla de Cronograma -->
-                                    <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); overflow: hidden;">
+                                        <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); overflow: hidden;">
                                         <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 1.5rem;">
                                             <h5 style="color: white; margin: 0; font-weight: 700; font-size: 1.1rem;">
                                                 <i class="feather icon-check-square" style="margin-right: 10px;"></i>Cronograma de Pagos - Validación de Comprobantes
@@ -172,9 +182,9 @@
                                                             </td>
                                                             <td style="padding: 1rem; vertical-align: middle;">
                                                                 <?php if ($installment_number == 0): ?>
-                                                                <span class="badge" style="background: linear-gradient(135deg, #FFC107 0%, #FFB300 100%); color: #333; padding: 8px 12px; font-weight: 600; border-radius: 8px; font-size: 0.8rem;">INICIAL</span>
+                                                                <span class="badge" style="background: linear-gradient(135deg, #ffb71d 0%, #ffa500 100%); color: #333; padding: 8px 12px; font-weight: 600; border-radius: 8px; font-size: 0.8rem;">INICIAL</span>
                                                                 <?php else: ?>
-                                                                <span class="badge" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; padding: 8px 12px; font-weight: 600; border-radius: 8px; font-size: 0.8rem;">CUOTA <?= $installment_number ?></span>
+                                                                <span class="badge" style="background: linear-gradient(135deg, #11cdef 0%, #00bcd4 100%); color: white; padding: 8px 12px; font-weight: 600; border-radius: 8px; font-size: 0.8rem;">CUOTA <?= $installment_number ?></span>
                                                                 <?php endif; ?>
                                                             </td>
                                                             <td style="padding: 1rem; vertical-align: middle; color: #555; font-weight: 500;">
@@ -184,20 +194,20 @@
                                                                     ?>
                                                             </td>
                                                             <td style="padding: 1rem; vertical-align: middle;">
-                                                                <strong style="color: #4CAF50; font-size: 1rem;">S/ <?= number_format($pago['amount'] ?? 0, 2) ?></strong>
+                                                                <strong style="color: #2dce89; font-size: 1rem;">S/ <?= number_format($pago['amount'] ?? 0, 2) ?></strong>
                                                             </td>
                                                             <td style="padding: 1rem; vertical-align: middle;">
                                                                 <?php if ($validado): ?>
-                                                                <span class="badge" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 8px 12px; font-weight: 600; border-radius: 8px; font-size: 0.8rem;">✓ VALIDADO</span>
+                                                                <span class="badge" style="background: linear-gradient(135deg, #2dce89 0%, #10b981 100%); color: white; padding: 8px 12px; font-weight: 600; border-radius: 8px; font-size: 0.8rem;">✓ VALIDADO</span>
                                                                 <?php elseif ($registrado): ?>
-                                                                <span class="badge" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; padding: 8px 12px; font-weight: 600; border-radius: 8px; font-size: 0.8rem;">⏳ REGISTRADO</span>
+                                                                <span class="badge" style="background: linear-gradient(135deg, #11cdef 0%, #00bcd4 100%); color: white; padding: 8px 12px; font-weight: 600; border-radius: 8px; font-size: 0.8rem;">⏳ REGISTRADO</span>
                                                                 <?php else: ?>
-                                                                <span class="badge" style="background: linear-gradient(135deg, #f44336 0%, #e53935 100%); color: white; padding: 8px 12px; font-weight: 600; border-radius: 8px; font-size: 0.8rem;">✗ PENDIENTE</span>
+                                                                <span class="badge" style="background: linear-gradient(135deg, #ff5252 0%, #ff1744 100%); color: white; padding: 8px 12px; font-weight: 600; border-radius: 8px; font-size: 0.8rem;">✗ PENDIENTE</span>
                                                                 <?php endif; ?>
                                                             </td>
                                                             <td style="padding: 1rem; vertical-align: middle; text-align: center; font-weight: 600; color: #667eea;">
                                                                 <?php 
-                                                                    echo $registrado ? '<i class="fa fa-check" style="color: #4CAF50; font-size: 1.2rem;"></i>' : '<i class="fa fa-times" style="color: #f44336; font-size: 1.2rem;"></i>';
+                                                                    echo $registrado ? '<i class="fa fa-check" style="color: #2dce89; font-size: 1.2rem;"></i>' : '<i class="fa fa-times" style="color: #ff5252; font-size: 1.2rem;"></i>';
                                                                     ?>
                                                             </td>
                                                             <td style="padding: 1rem; vertical-align: middle; color: #555; font-size: 0.95rem;">
@@ -209,7 +219,7 @@
                                                             <td style="padding: 1rem; vertical-align: middle;">
                                                                 <?php if (!empty($pago['voucher_url'])): ?>
                                                                 <a href="<?= base_url($pago['voucher_url']) ?>"
-                                                                    target="_blank" class="btn btn-sm" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; transition: transform 0.2s ease;">
+                                                                    target="_blank" class="btn btn-sm" style="background: linear-gradient(135deg, #11cdef 0%, #00bcd4 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; transition: transform 0.2s ease;">
                                                                     <i class="fa fa-file-pdf"></i> Ver
                                                                 </a>
                                                                 <?php else: ?>
@@ -224,15 +234,15 @@
                                                                     $puedeValidar = ($registrado || $tieneVoucher) && !$validado;
                                                                     ?>
                                                                     <?php if ($puedeValidar): ?>
-                                                                    <button class="btn btn-sm" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(76, 175, 80, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'" 
+                                                                    <button class="btn btn-sm" style="background: linear-gradient(135deg, #2dce89 0%, #10b981 100%); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(45, 206, 137, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'" 
                                                                         onclick="abrirModalValidacion(<?= $pago['id'] ?>, '<?= number_format($pago['amount'], 2) ?>', '<?= !empty($pago['voucher_url']) ? base_url($pago['voucher_url']) : '' ?>')">
                                                                         <i class="fa fa-check-circle"></i> Validar
                                                                     </button>
                                                                     <?php elseif ($validado): ?>
-                                                                    <button class="btn btn-sm" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;" disabled>
+                                                                    <button class="btn btn-sm" style="background: linear-gradient(135deg, #2dce89 0%, #10b981 100%); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;" disabled>
                                                                         <i class="fa fa-check"></i> Validado
                                                                     </button>
-                                                                    <button class="btn btn-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+                                                                    <button class="btn btn-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'"
                                                                         onclick="generarFacturaCuota(<?= $pago['id'] ?>, <?= $contract['id'] ?>, '<?= number_format($pago['amount'], 2) ?>')">
                                                                         <i class="fa fa-file-invoice"></i> Factura
                                                                     </button>
@@ -259,7 +269,7 @@
                                     </div>
 
                                     <div class="mt-4 text-center">
-                                        <a href="/dashboard/inmueble/contracts" class="btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 32px; border-radius: 8px; font-weight: 600; border: none; transition: all 0.3s ease; text-decoration: none;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(102, 126, 234, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.2)'">
+                                        <a href="/dashboard/inmueble/contracts" class="btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 32px; border-radius: 8px; font-weight: 600; border: none; transition: all 0.3s ease; text-decoration: none;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.3)'">
                                             <i class="fa fa-arrow-left"></i> Volver a Contratos
                                         </a>
                                     </div>
