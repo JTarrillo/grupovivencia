@@ -192,11 +192,13 @@
                                                     <?php if ($estado_btn == 'paid' || $estado_btn == 'pagado'): ?>
                                                     <button
                                                         class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm"
-                                                        title="Pago validado por admin"><i class="fa fa-check"></i></button>
+                                                        title="Pago validado por admin"><i
+                                                            class="fa fa-check"></i></button>
                                                     <?php elseif ($estado_btn == 'registered'): ?>
                                                     <button
                                                         class="btn btn-icon btn-bg-light btn-active-color-warning btn-sm"
-                                                        title="Pago registrado, esperando validación"><i class="fa fa-hourglass-half"></i></button>
+                                                        title="Pago registrado, esperando validación"><i
+                                                            class="fa fa-hourglass-half"></i></button>
                                                     <?php else: ?>
                                                     <button
                                                         class="btn btn-icon btn-bg-light btn-active-color-success btn-sm"
