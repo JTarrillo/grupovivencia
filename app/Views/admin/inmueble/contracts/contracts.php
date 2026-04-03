@@ -437,11 +437,6 @@
                                                                                 onclick="printContract('<?= $contract['id'] ?>')">
                                                                                 <i class="fa fa-print"></i> Imprimir
                                                                             </a>
-                                                                            <a class="dropdown-item" href="#"
-                                                                                onclick="generarFacturaContrato(<?= $contract['id'] ?>)">
-                                                                                <i class="fa fa-file-invoice"></i>
-                                                                                Generar Factura
-                                                                            </a>
                                                                         </div>
                                                                     </div>
                                                                     <button type="button"
@@ -464,12 +459,6 @@
                                                                         title="Descargar Word" target="_blank">
                                                                         <i class="fa fa-file-word"></i>
                                                                     </a>
-                                                                    <button type="button"
-                                                                        class="btn btn-success btn-sm ml-1"
-                                                                        title="Generar Factura"
-                                                                        onclick="generarFacturaContrato(<?= $contract['id'] ?>)">
-                                                                        <i class="fa fa-file-invoice"></i>
-                                                                    </button>
                                                                     <button type="button" class="btn btn-sm ml-1 <?php 
                                                                         if (!empty($contract['is_approved']) && $contract['is_approved'] == 1) {
                                                                             echo 'btn-success';

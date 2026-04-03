@@ -165,7 +165,8 @@
                                                                 <?php if ($installment_number == 0): ?>
                                                                 <span class="badge badge-warning">INICIAL</span>
                                                                 <?php else: ?>
-                                                                <span class="badge badge-primary">CUOTA <?= $installment_number ?></span>
+                                                                <span class="badge badge-primary">CUOTA
+                                                                    <?= $installment_number ?></span>
                                                                 <?php endif; ?>
                                                             </td>
                                                             <td>
@@ -209,26 +210,32 @@
                                                                 <?php endif; ?>
                                                             </td>
                                                             <td>
-                                                                <?php 
-                                                                // Mostrar Validar si: tiene voucher O está registrado, y NO está validado
-                                                                $tieneVoucher = !empty($pago['voucher_url']);
-                                                                $puedeValidar = ($registrado || $tieneVoucher) && !$validado;
-                                                                ?>
-                                                                <?php if ($puedeValidar): ?>
-                                                                <button class="btn btn-sm btn-success"
-                                                                    onclick="abrirModalValidacion(<?= $pago['id'] ?>, '<?= number_format($pago['amount'], 2) ?>', '<?= !empty($pago['voucher_url']) ? base_url($pago['voucher_url']) : '' ?>')">
-                                                                    <i class="fa fa-check-circle"></i> Validar
-                                                                </button>
-                                                                <?php elseif ($validado): ?>
-                                                                <button class="btn btn-sm btn-success" disabled>
-                                                                    <i class="fa fa-check"></i> Validado
-                                                                </button>
-                                                                <?php else: ?>
-                                                                <span class="text-muted text-center"
-                                                                    style="display: block;">
-                                                                    <small>Esperando pago</small>
-                                                                </span>
-                                                                <?php endif; ?>
+                                                                <div class="btn-group" role="group">
+                                                                    <?php 
+                                                                    // Mostrar Validar si: tiene voucher O está registrado, y NO está validado
+                                                                    $tieneVoucher = !empty($pago['voucher_url']);
+                                                                    $puedeValidar = ($registrado || $tieneVoucher) && !$validado;
+                                                                    ?>
+                                                                    <?php if ($puedeValidar): ?>
+                                                                    <button class="btn btn-sm btn-success"
+                                                                        onclick="abrirModalValidacion(<?= $pago['id'] ?>, '<?= number_format($pago['amount'], 2) ?>', '<?= !empty($pago['voucher_url']) ? base_url($pago['voucher_url']) : '' ?>')">
+                                                                        <i class="fa fa-check-circle"></i> Validar
+                                                                    </button>
+                                                                    <?php elseif ($validado): ?>
+                                                                    <button class="btn btn-sm btn-success" disabled>
+                                                                        <i class="fa fa-check"></i> Validado
+                                                                    </button>
+                                                                    <button class="btn btn-sm btn-primary"
+                                                                        onclick="generarFacturaCuota(<?= $pago['id'] ?>, <?= $contract['id'] ?>, '<?= number_format($pago['amount'], 2) ?>')">
+                                                                        <i class="fa fa-file-invoice"></i> Factura
+                                                                    </button>
+                                                                    <?php else: ?>
+                                                                    <span class="text-muted text-center"
+                                                                        style="display: block;">
+                                                                        <small>Esperando pago</small>
+                                                                    </span>
+                                                                    <?php endif; ?>
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                         <?php endforeach; ?>
@@ -456,6 +463,56 @@
                 btn.innerHTML = '<i class="fa fa-check"></i> Validar Pago';
             });
     });
+
+    // Función para generar factura de una cuota específica
+    function generarFacturaCuota(pagoId, contractId, monto) {
+        Swal.fire({
+            title: '¿Generar Factura?',
+            text: 'Se generará una factura por S/ ' + monto,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Generar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Llamar a la función generarFacturaContrato del archivo contracts.php
+                // o enviar una petición al servidor
+                fetch('<?= site_url("/dashboard/inmueble/generar_factura_cuota") ?>', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            pago_id: pagoId,
+                            contract_id: contractId,
+                            monto: monto
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Factura Generada!',
+                                text: 'La factura se ha generado correctamente',
+                                confirmButtonText: 'Aceptar'
+                            }).then(() => {
+                                if (data.download_url) {
+                                    window.open(data.download_url, '_blank');
+                                }
+                            });
+                        } else {
+                            Swal.fire('Error', data.message || 'No se pudo generar la factura', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'Error en la conexión', 'error');
+                    });
+            }
+        });
+    }
     </script>
 </body>
 
