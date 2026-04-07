@@ -162,21 +162,26 @@
                                 <td><span class="badge badge-light-dark font-weight-bold" style="font-size:13px">${item.moneda} ${item.mto_imp_venta}</span></td>
                                 <td><span class="badge badge-soft-success text-uppercase">${item.estado_sunat}</span></td>
                                 <td class="text-center">
-                                    <div class="d-flex justify-content-center">
-                                        <button onclick="ejecutarAccion('send', '${item.id}', '${item.numero_completo}')" class="btn btn-action btn-outline-danger" title="Enviar a SUNAT">
-                                            <i data-feather="zap"></i>
-                                        </button>
-                                        <button onclick="ejecutarAccion('pdf', '${item.id}', '${item.numero_completo}')" class="btn btn-action btn-outline-primary" title="PDF">
-                                            <i data-feather="file-text"></i>
-                                        </button>
-                                        <button onclick="ejecutarAccion('xml', '${item.id}', '${item.numero_completo}')" class="btn btn-action btn-outline-success" title="XML">
-                                            <i data-feather="download"></i>
-                                        </button>
-                                        <button onclick="ejecutarAccion('cdr', '${item.id}', '${item.numero_completo}')" class="btn btn-action btn-outline-info" title="CDR">
-                                            <i data-feather="mail"></i>
-                                        </button>
-                                    </div>
-                                </td>
+        <div class="d-flex justify-content-center">
+            
+            <button onclick="ejecutarAccion('generate', '${item.id}', '${item.numero_completo}')" class="btn btn-action btn-outline-warning" title="Generar PDF API">
+                <i data-feather="printer"></i>
+            </button>
+
+            <button onclick="ejecutarAccion('send', '${item.id}', '${item.numero_completo}')" class="btn btn-action btn-outline-danger" title="Enviar a SUNAT">
+                <i data-feather="zap"></i>
+            </button>
+            <button onclick="ejecutarAccion('pdf', '${item.id}', '${item.numero_completo}')" class="btn btn-action btn-outline-primary" title="PDF Local">
+                <i data-feather="file-text"></i>
+            </button>
+            <button onclick="ejecutarAccion('xml', '${item.id}', '${item.numero_completo}')" class="btn btn-action btn-outline-success" title="XML Local">
+                <i data-feather="download"></i>
+            </button>
+            <button onclick="ejecutarAccion('cdr', '${item.id}', '${item.numero_completo}')" class="btn btn-action btn-outline-info" title="CDR Local">
+                <i data-feather="mail"></i>
+            </button>
+        </div>
+    </td>
                             </tr>`;
                         });
                         tbody.html(html);

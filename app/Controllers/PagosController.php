@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
@@ -128,7 +129,7 @@ class PagosController extends BaseController
 
             // Verificar si el cliente ya subió voucher o el admin lo sube ahora
             $tieneVoucher = !empty($pago['voucher_url']) || $comprobanteUrl;
-            
+
             if (!$tieneVoucher) {
                 return $this->response->setJSON([
                     'success' => false,
@@ -151,17 +152,136 @@ class PagosController extends BaseController
             }
 
             $scheduleModel->update($idPago, $updateData);
-            
+
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Pago validado correctamente'
             ]);
-            
         } catch (\Throwable $e) {
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'Error interno: ' . $e->getMessage()
             ]);
         }
+    }
+
+
+    public function generar_factura_cuota()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Petición inválida.']);
+        }
+
+        // 1. Recibir JSON del Front
+        $json = $this->request->getJSON();
+        $pago_id = $json->pago_id ?? null;
+        $contract_id = $json->contract_id ?? null;
+        $monto_cuota = $json->monto ?? null;
+
+        if (!$contract_id || !$monto_cuota) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Faltan datos (Contrato o Monto).']);
+        }
+
+        // 2. Obtener datos del contrato
+        $contrato = model('ContractModel')->find($contract_id);
+        if (!$contrato) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Contrato no encontrado.']);
+        }
+
+        // 3. Obtener datos del cliente
+        $cliente = model('CustomerModel')->find($contrato['customer_id']);
+        if (!$cliente) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Cliente no encontrado.']);
+        }
+
+        // 4. Configuración de montos (Usando el monto de la cuota enviado)
+        $total = (float) $monto_cuota;
+        $mto_valor_unitario = round($total, 2);
+
+        // 5. Lógica de comprobante (DNI vs RUC)
+        $esRuc  = !empty($cliente['ruc']);
+        $tipo_doc = $esRuc ? "6" : "1";
+        $serie    = $esRuc ? "F001" : "B001";
+        $num_doc  = $esRuc ? $cliente['ruc'] : $cliente['dni'];
+
+        // 6. Armado de la estructura para la API
+        $data_facturacion = [
+            "scenario"        => $esRuc ? "Factura Inafecta" : "Boleta Inafecta",
+            "company_id"      => 1,
+            "branch_id"       => 1,
+            "serie"           => $serie,
+            "fecha_emision"   => date('Y-m-d'),
+            "moneda"          => "PEN",
+            "tipo_operacion"  => "0101",
+            "metodo_envio"    => "individual",
+            "forma_pago_tipo" => "Contado",
+            "client" => [
+                "tipo_documento"   => $tipo_doc,
+                "numero_documento" => $num_doc,
+                "razon_social"     => trim(($cliente['name'] ?? '') . ' ' . ($cliente['lastname'] ?? '')),
+                "direccion"        => $cliente['address'] ?: "Lima, Perú",
+                "telefono"         => $cliente['phone'] ?? '',
+                "email"            => $cliente['email'] ?? ''
+            ],
+            "detalles" => [
+                [
+                    "codigo"             => $contrato['contract_number'],
+                    "descripcion"        => "PAGO DE CUOTA - CONTRATO " . $contrato['contract_number'] . " ***Pago Anticipado***",
+                    "unidad"             => "NIU",
+                    "cantidad"           => 1,
+                    "mto_valor_unitario" => $mto_valor_unitario,
+                    "porcentaje_igv"     => 0,
+                    "tip_afe_igv"        => "30" // INAFECTO
+                ]
+            ],
+            "usuario_creacion" => session()->get('user_name') ?? "vendedor_sistema"
+        ];
+
+        // 7. Llamar a la función de envío (La que ya tienes implementada)
+        $respuestaApi = $this->enviarFacturaSunat($data_facturacion);
+
+        return $this->response->setJSON($respuestaApi);
+    }
+    private function enviarFacturaSunat($data)
+    {
+        // --- RECUPERAR TOKEN DE SESIÓN ---
+        $session = session();
+        $token   = $session->get('api_access_token');
+        $type    = $session->get('api_token_type') ?? 'Bearer'; // Por defecto Bearer si no existe
+
+        if (empty($token)) {
+            return ['success' => false, 'message' => 'No hay una sesión activa de API o el token expiró.'];
+        }
+
+        $url = 'https://apifacturacion.groupdispensersac.com/api/v1/boletas';
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL            => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POSTFIELDS     => json_encode($data),
+            CURLOPT_HTTPHEADER     => [
+                'Accept: application/json',
+                'Content-Type: application/json',
+                'Authorization: ' . $type . ' ' . $token // Usamos el token dinámico aquí
+            ],
+            CURLOPT_SSL_VERIFYPEER => false // Importante si tienes problemas de certificados en local
+        ]);
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+
+        // --- SISTEMA DE LOGS ---
+        $logPath = WRITEPATH . 'logs/facturacion_' . date('Y-m-d') . '.log';
+        $logData = "HORA: " . date('H:i:s') . " | TOKEN: " . substr($token, 0, 10) . "...\n";
+        $logData .= "ENVIO: " . json_encode($data) . "\n";
+        $logData .= "RESPUESTA: " . ($err ? "ERROR CURL: $err" : $response) . "\n";
+        $logData .= "----------------------------------------------------------\n";
+
+        file_put_contents($logPath, $logData, FILE_APPEND);
+
+        return json_decode($response, true);
     }
 }

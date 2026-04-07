@@ -97,53 +97,75 @@ class D_ventas extends BaseController
     {
         $request = \Config\Services::request();
         $id      = $request->getPost('id');
-        $tipo    = $request->getPost('tipo'); // 'send', 'pdf', 'xml', 'cdr'
+        $tipo    = $request->getPost('tipo');   // 'send', 'pdf', 'xml', 'cdr', 'generate'
         $nombre  = $request->getPost('nombre'); // Ej: B001-000001
 
         $session = session();
         $token   = $session->get('api_access_token');
         $tType   = $session->get('api_token_type') ?? 'Bearer';
 
-        // 1. Configurar URL según la acción
-        $baseUrlApi = "https://apifacturacion.groupdispensersac.com/api/v1/boletas/{$id}/";
+        // 1. Detección de Factura o Boleta para el segmento de la URL
+        $esFactura = (strpos(strtoupper($nombre), 'F') === 0);
+        $segmento  = $esFactura ? 'invoices' : 'boletas';
 
-        switch ($tipo) {
-            case 'send':
-                $url = $baseUrlApi . "send-sunat";
-                break;
-            case 'pdf':
-                $url = $baseUrlApi . "download-pdf?format=A4";
-                break;
-            case 'xml':
-                $url = $baseUrlApi . "download-xml";
-                break;
-            case 'cdr':
-                $url = $baseUrlApi . "download-cdr";
-                break;
-            default:
-                return $this->response->setJSON(['status' => false, 'msg' => 'Tipo no válido']);
+        // 2. Definir URL y MÉTODO (POST para 'send' y 'generate')
+        $metodoHttp = 'GET';
+
+        if ($tipo === 'generate') {
+            $metodoHttp = 'POST'; // <--- CAMBIO CLAVE: La API exige POST para generar
+            $url = "https://apifacturacion.groupdispensersac.com/api/v1/{$segmento}/{$id}/generate-pdf?format=A4";
+        } else {
+            // Tus rutas de descarga/envío que ya te funcionan
+            $baseUrlApi = "https://apifacturacion.groupdispensersac.com/api/v1/boletas/{$id}/";
+            switch ($tipo) {
+                case 'send':
+                    $metodoHttp = 'POST';
+                    $url = $baseUrlApi . "send-sunat";
+                    break;
+                case 'pdf':
+                    $url = $baseUrlApi . "download-pdf?format=A4";
+                    break;
+                case 'xml':
+                    $url = $baseUrlApi . "download-xml";
+                    break;
+                case 'cdr':
+                    $url = $baseUrlApi . "download-cdr";
+                    break;
+                default:
+                    return $this->response->setJSON(['status' => false, 'msg' => 'Tipo no válido']);
+            }
         }
 
         $client = \Config\Services::curlrequest();
 
         try {
-            $response = $client->request($tipo == 'send' ? 'POST' : 'GET', $url, [
+            // Usamos el $metodoHttp dinámico (POST o GET)
+            $response = $client->request($metodoHttp, $url, [
                 'headers' => [
                     'Authorization' => "{$tType} {$token}",
                     'Accept'        => 'application/json',
                 ],
                 'http_errors' => false,
-                'verify' => false // Para evitar problemas de SSL en Localhost
+                'verify' => false
             ]);
 
             $body = $response->getBody();
 
-            // CASO 1: EMISIÓN A SUNAT (Respuesta JSON)
+            // 3. Respuesta para GENERAR (JSON con link)
+            if ($tipo === 'generate') {
+                $apiRes = json_decode($body, true);
+                return $this->response->setJSON([
+                    'status'   => $apiRes['success'] ?? false,
+                    'message'  => $apiRes['message'] ?? 'PDF Generado',
+                    'file_url' => $apiRes['data']['file_url'] ?? $apiRes['link'] ?? '#'
+                ]);
+            }
+
+            // 4. Tu lógica de descarga local para 'pdf', 'xml', 'cdr' (Binarios)
             if ($tipo == 'send') {
                 return $this->response->setJSON(json_decode($body));
             }
 
-            // CASO 2: DESCARGAS (Guardar en carpeta)
             if ($response->getStatusCode() === 200) {
                 $folderPath = FCPATH . 'comprobantes/' . $nombre;
                 if (!is_dir($folderPath)) mkdir($folderPath, 0777, true);
@@ -164,6 +186,65 @@ class D_ventas extends BaseController
             return $this->response->setJSON(['status' => false, 'message' => "Error API: " . $response->getStatusCode()]);
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function generar_pdf_api()
+    {
+        $session = session();
+        $token     = $session->get('api_access_token');
+        $tokenType = $session->get('api_token_type') ?? 'Bearer';
+
+        // Recibir datos del AJAX
+        $id     = $this->request->getPost('id');     // ID interno de la API
+        $numero = $this->request->getPost('nombre'); // Ejemplo: B001-12 o F001-5
+
+        if (!$id || !$numero) {
+            return $this->response->setJSON(['status' => false, 'message' => 'ID o Número de documento faltante.']);
+        }
+
+        // 1. Determinar el tipo de documento según la primera letra del número
+        $primeraLetra = strtoupper(substr($numero, 0, 1));
+
+        // Configurar URL según el tipo (Factura o Boleta)
+        if ($primeraLetra === 'F') {
+            $endpoint = "https://apifacturacion.groupdispensersac.com/api/v1/invoices/{$id}/generate-pdf";
+        } else {
+            // Por defecto Boleta si empieza con B
+            $endpoint = "https://apifacturacion.groupdispensersac.com/api/v1/boletas/{$id}/generate-pdf";
+        }
+
+        $client = \Config\Services::curlrequest();
+
+        try {
+            $response = $client->get($endpoint, [
+                'headers' => [
+                    'Authorization' => $tokenType . ' ' . $token,
+                    'Accept'        => 'application/json',
+                ],
+                'http_errors' => false
+            ]);
+
+            $result = json_decode($response->getBody(), true);
+
+            // La API suele devolver un success y el file_url o link del PDF
+            if (isset($result['success']) && $result['success']) {
+                return $this->response->setJSON([
+                    'status'   => true,
+                    'message'  => 'PDF generado con éxito',
+                    'file_url' => $result['data']['file_url'] ?? $result['link'] ?? '#'
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'status'  => false,
+                    'message' => $result['message'] ?? 'La API no pudo generar el PDF.'
+                ]);
+            }
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => false,
+                'message' => 'Error de conexión: ' . $e->getMessage()
+            ])->setStatusCode(500);
         }
     }
 }
