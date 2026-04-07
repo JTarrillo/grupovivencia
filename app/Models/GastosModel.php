@@ -10,7 +10,7 @@ class GastosModel extends Model
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
-    protected $useSoftDeletes = true;
+    protected $useSoftDeletes = false;
     protected $allowedFields = [
         'proveedor_id', 'numero_comprobante', 'tipo_comprobante', 'fecha_compra',
         'subtotal', 'igv', 'total', 'descripcion', 'clasificacion', 'estado',
@@ -21,29 +21,24 @@ class GastosModel extends Model
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
-    protected $deletedField = 'deleted_at';
-
-    protected $validationRules = [
-        'proveedor_id' => 'required|integer',
-        'numero_comprobante' => 'required|string|max_length[50]',
-        'tipo_comprobante' => 'required|in_list[Factura,Boleta]',
-        'fecha_compra' => 'required|valid_date',
-        'subtotal' => 'required|numeric',
-        'igv' => 'numeric',
-        'total' => 'required|numeric',
-        'clasificacion' => 'integer'
-    ];
 
     /**
      * Obtener todos los gastos (compras clasificadas) con detalles
      */
     public function getGastosWithDetails()
     {
-        return $this->select('compras.*, suppliers.name as proveedor_nombre, suppliers.ruc')
-            ->where('compras.estado !=', 'registrado')
-            ->join('suppliers', 'suppliers.id = compras.proveedor_id', 'left')
-            ->orderBy('compras.fecha_compra', 'DESC')
-            ->findAll();
+        $db = db_connect();
+        $query = $db->query("
+            SELECT 
+                c.id, c.numero_comprobante, c.tipo_comprobante, c.fecha_compra,
+                c.subtotal, c.igv, c.total, c.estado, c.clasificacion,
+                s.name as proveedor_nombre, s.ruc
+            FROM compras c
+            LEFT JOIN suppliers s ON s.id = c.proveedor_id
+            WHERE c.estado != 'registrado'
+            ORDER BY c.fecha_compra DESC
+        ");
+        return $query->getResultArray();
     }
 
     /**
@@ -51,71 +46,55 @@ class GastosModel extends Model
      */
     public function getGastosPorPeriodo($fecha_inicio, $fecha_fin)
     {
-        return $this->select('compras.*, suppliers.name as proveedor_nombre')
-            ->whereBetween('DATE(compras.fecha_compra)', [$fecha_inicio, $fecha_fin])
-            ->where('compras.estado !=', 'registrado')
-            ->join('suppliers', 'suppliers.id = compras.proveedor_id', 'left')
-            ->orderBy('compras.fecha_compra', 'DESC')
-            ->findAll();
+        $db = db_connect();
+        $query = $db->query("
+            SELECT 
+                c.id, c.numero_comprobante, c.tipo_comprobante, c.fecha_compra,
+                c.subtotal, c.igv, c.total, c.estado, c.clasificacion,
+                s.name as proveedor_nombre
+            FROM compras c
+            LEFT JOIN suppliers s ON s.id = c.proveedor_id
+            WHERE DATE(c.fecha_compra) >= ? AND DATE(c.fecha_compra) <= ?
+            AND c.estado != 'registrado'
+            ORDER BY c.fecha_compra DESC
+        ", [$fecha_inicio, $fecha_fin]);
+        return $query->getResultArray();
     }
 
     /**
      * Obtener gastos por clasificación
-     * Retorna resumen de gastos agrupados por tipo
      */
     public function getGastosPorClasificacion()
     {
-        return $this->selectSum('total', 'total_gasto')
-            ->selectCount('id', 'cantidad')
-            ->where('estado !=', 'registrado')
-            ->groupBy('clasificacion')
-            ->findAll();
+        $db = db_connect();
+        $query = $db->query("
+            SELECT 
+                clasificacion, 
+                COUNT(id) as cantidad, 
+                SUM(total) as total_gasto
+            FROM compras
+            WHERE estado != 'registrado'
+            GROUP BY clasificacion
+        ");
+        return $query->getResultArray();
     }
 
     /**
-     * Obtener total de gastos por tipo (Administrativo, Ventas, etc)
+     * Obtener total de gastos por tipo
      */
     public function getTotalGastosPorTipo()
     {
-        $tipos = [
-            1 => 'Materiales',
-            2 => 'Servicios',
-            3 => 'Activos',
-            4 => 'Suministros',
-            5 => 'Otros'
-        ];
-
-        $resultado = [];
-
-        foreach ($tipos as $id => $nombre) {
-            $datos = $this->select('COUNT(id) as cantidad, SUM(total) as monto')
-                ->where('clasificacion', $id)
-                ->where('estado !=', 'registrado')
-                ->first();
-
-            $resultado[] = [
-                'tipo_id' => $id,
-                'tipo_nombre' => $nombre,
-                'cantidad' => $datos['cantidad'] ?? 0,
-                'monto' => $datos['monto'] ?? 0
-            ];
-        }
-
-        return $resultado;
-    }
-
-    /**
-     * Obtener gastos por proyecto
-     * Útil para análisis de costos por proyecto
-     */
-    public function getGastosPorProyecto($proyecto_id)
-    {
-        return $this->select('compras.*, suppliers.name as proveedor_nombre')
-            ->where('compras.proyecto_id', $proyecto_id)
-            ->where('compras.estado !=', 'registrado')
-            ->join('suppliers', 'suppliers.id = compras.proveedor_id', 'left')
-            ->orderBy('compras.fecha_compra', 'DESC')
-            ->findAll();
+        $db = db_connect();
+        $query = $db->query("
+            SELECT 
+                clasificacion, 
+                COUNT(id) as cantidad, 
+                SUM(total) as monto
+            FROM compras
+            WHERE estado != 'registrado'
+            GROUP BY clasificacion
+        ");
+        return $query->getResultArray();
     }
 
     /**
@@ -123,43 +102,50 @@ class GastosModel extends Model
      */
     public function getEstadisticasGastos()
     {
+        $db = db_connect();
+        $query = $db->query("
+            SELECT 
+                COUNT(id) as total_compras,
+                SUM(total) as total_gasto,
+                AVG(total) as gasto_promedio,
+                MAX(total) as mayor_gasto,
+                MIN(total) as menor_gasto
+            FROM compras
+            WHERE estado != 'registrado'
+        ");
+        $stats = $query->getRow();
+        
+        $query2 = $db->query("SELECT COUNT(id) as sin_clasificar FROM compras WHERE estado = 'registrado'");
+        $sin_clasificar = $query2->getRow();
+
         return [
-            'total_gasto' => $this->where('estado !=', 'registrado')->selectSum('total')->first()['total'] ?? 0,
-            'total_compras' => $this->where('estado !=', 'registrado')->countAllResults(),
-            'compras_sin_clasificar' => $this->where('estado', 'registrado')->countAllResults(),
-            'gasto_promedio' => $this->where('estado !=', 'registrado')->selectAvg('total')->first()['total'] ?? 0,
-            'mayor_gasto' => $this->where('estado !=', 'registrado')->selectMax('total')->first()['total'] ?? 0,
-            'menor_gasto' => $this->where('estado !=', 'registrado')->selectMin('total')->first()['total'] ?? 0
+            'total_gasto' => $stats->total_gasto ?? 0,
+            'total_compras' => $stats->total_compras ?? 0,
+            'compras_sin_clasificar' => $sin_clasificar->sin_clasificar ?? 0,
+            'gasto_promedio' => $stats->gasto_promedio ?? 0,
+            'mayor_gasto' => $stats->mayor_gasto ?? 0,
+            'menor_gasto' => $stats->menor_gasto ?? 0
         ];
     }
 
     /**
-     * Obtener gastos para estado de resultados
-     * Agrupa gastos por mes para análisis de tendencias
+     * Obtener gastos por mes
      */
     public function getGastosPorMes($año = null)
     {
         $año = $año ?? date('Y');
-        
-        return $this->selectRaw('DATE_FORMAT(fecha_compra, "%m") as mes, SUM(total) as total_mes, COUNT(id) as cantidad')
-            ->where('estado !=', 'registrado')
-            ->where('YEAR(fecha_compra)', $año)
-            ->groupBy('mes')
-            ->orderBy('mes', 'ASC')
-            ->findAll();
-    }
-
-    /**
-     * Obtener gastos pendientes de aprobación
-     */
-    public function getGastosPendientesAprobacion()
-    {
-        return $this->select('compras.*, suppliers.name as proveedor_nombre')
-            ->where('compras.estado', 'clasificado')
-            ->where('compras.approved_by', null)
-            ->join('suppliers', 'suppliers.id = compras.proveedor_id', 'left')
-            ->orderBy('compras.created_at', 'ASC')
-            ->findAll();
+        $db = db_connect();
+        $query = $db->query("
+            SELECT 
+                DATE_FORMAT(fecha_compra, '%m') as mes, 
+                SUM(total) as total_mes, 
+                COUNT(id) as cantidad
+            FROM compras
+            WHERE estado != 'registrado' AND YEAR(fecha_compra) = ?
+            GROUP BY DATE_FORMAT(fecha_compra, '%m')
+            ORDER BY mes ASC
+        ", [$año]);
+        return $query->getResultArray();
     }
 
     /**
@@ -167,63 +153,34 @@ class GastosModel extends Model
      */
     public function getResumenGastos()
     {
-        return [
-            'mes_actual' => $this->where('estado !=', 'registrado')
-                ->where('MONTH(fecha_compra)', date('m'))
-                ->where('YEAR(fecha_compra)', date('Y'))
-                ->selectSum('total')
-                ->first()['total'] ?? 0,
-            
-            'mes_anterior' => $this->where('estado !=', 'registrado')
-                ->where('MONTH(fecha_compra)', date('m') - 1)
-                ->where('YEAR(fecha_compra)', date('Y'))
-                ->selectSum('total')
-                ->first()['total'] ?? 0,
+        $db = db_connect();
+        
+        $mes_actual = $db->query("
+            SELECT COALESCE(SUM(total), 0) as total FROM compras
+            WHERE estado != 'registrado' 
+            AND MONTH(fecha_compra) = MONTH(NOW())
+            AND YEAR(fecha_compra) = YEAR(NOW())
+        ")->getRow();
 
-            'trimestre_actual' => $this->where('estado !=', 'registrado')
-                ->whereBetween('fecha_compra', [
-                    date('Y-m-01', strtotime('first day of this quarter')),
-                    date('Y-m-t', strtotime('last day of this quarter'))
-                ])
-                ->selectSum('total')
-                ->first()['total'] ?? 0,
+        $mes_anterior = $db->query("
+            SELECT COALESCE(SUM(total), 0) as total FROM compras
+            WHERE estado != 'registrado' 
+            AND MONTH(fecha_compra) = MONTH(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+            AND YEAR(fecha_compra) = YEAR(DATE_SUB(NOW(), INTERVAL 1 MONTH))
+        ")->getRow();
 
-            'año_actual' => $this->where('estado !=', 'registrado')
-                ->where('YEAR(fecha_compra)', date('Y'))
-                ->selectSum('total')
-                ->first()['total'] ?? 0,
-
-            'gasto_mayor' => $this->where('estado !=', 'registrado')
-                ->orderBy('total', 'DESC')
-                ->first()
-        ];
-    }
-
-    /**
-     * Validar gasto antes de clasificar
-     */
-    public function validarGasto($id)
-    {
-        $gasto = $this->find($id);
-
-        if (!$gasto) {
-            return [
-                'valid' => false,
-                'message' => 'Gasto no encontrado'
-            ];
-        }
-
-        if ($gasto['estado'] !== 'registrado') {
-            return [
-                'valid' => false,
-                'message' => 'El gasto ya ha sido clasificado'
-            ];
-        }
+        $trimestre_actual = $db->query("
+            SELECT COALESCE(SUM(total), 0) as total FROM compras
+            WHERE estado != 'registrado' 
+            AND QUARTER(fecha_compra) = QUARTER(NOW())
+            AND YEAR(fecha_compra) = YEAR(NOW())
+        ")->getRow();
 
         return [
-            'valid' => true,
-            'message' => 'Gasto listo para clasificar',
-            'gasto' => $gasto
+            'mes_actual' => $mes_actual->total ?? 0,
+            'mes_anterior' => $mes_anterior->total ?? 0,
+            'trimestre_actual' => $trimestre_actual->total ?? 0
         ];
     }
 }
+
