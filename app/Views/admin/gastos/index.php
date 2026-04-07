@@ -1,0 +1,138 @@
+<html>
+<?php echo view("admin/head"); ?>
+
+<body>
+    <?php echo view("admin/header"); ?>
+    <section class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <div class="page-header">
+                        <div class="page-block">
+                            <div class="row align-items-center">
+                                <div class="col-md-12">
+                                    <div class="page-header-title">
+                                        <h5 class="m-b-10">Módulo de Gastos</h5>
+                                    </div>
+                                    <ul class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/dashboard/">Panel</a></li>
+                                        <li class="breadcrumb-item"><a>Gastos</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            <h6 class="text-muted">Gastos Este Mes</h6>
+                                            <h3 class="mb-0">S/. <?php echo number_format($resumen['mes_actual'] ?? 0, 2); ?></h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            <h6 class="text-muted">Mes Anterior</h6>
+                                            <h3 class="mb-0">S/. <?php echo number_format($resumen['mes_anterior'] ?? 0, 2); ?></h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            <h6 class="text-muted">Acumulado Trimestral</h6>
+                                            <h3 class="mb-0">S/. <?php echo number_format($resumen['trimestre_actual'] ?? 0, 2); ?></h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            <h6 class="text-muted">Total Gastos</h6>
+                                            <h3 class="mb-0">S/. <?php echo number_format(array_sum(array_column($gastos ?? [], 'total')), 2); ?></h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Listado de Gastos Clasificados</h5>
+                                            <div class="col-12 mt-3">
+                                                <a href="<?php echo base_url('dashboard/compras'); ?>" class="btn btn-primary">
+                                                    <i class="fa fa-plus"></i> Registrar Nueva Compra
+                                                </a>
+                                                <a href="<?php echo base_url('dashboard/gastos/reporte'); ?>" class="btn btn-info">
+                                                    <i class="fa fa-bar-chart"></i> Ver Reporte
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="card-block">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Comprobante</th>
+                                                            <th>Fecha</th>
+                                                            <th>Proveedor</th>
+                                                            <th>Clasificación</th>
+                                                            <th>Total</th>
+                                                            <th>Estado</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php if (!empty($gastos)): ?>
+                                                            <?php foreach ($gastos as $gasto): ?>
+                                                                <tr>
+                                                                    <td><?php echo $gasto['numero_comprobante']; ?></td>
+                                                                    <td><?php echo date('d/m/Y', strtotime($gasto['fecha_compra'] ?? date('Y-m-d'))); ?></td>
+                                                                    <td><?php echo $gasto['proveedor_nombre'] ?? 'N/A'; ?></td>
+                                                                    <td>
+                                                                        <?php 
+                                                                            $clasificaciones = [
+                                                                                '1' => 'Materiales',
+                                                                                '2' => 'Servicios',
+                                                                                '3' => 'Activos',
+                                                                                '4' => 'Suministros',
+                                                                                '5' => 'Otros'
+                                                                            ];
+                                                                            echo $clasificaciones[$gasto['clasificacion']] ?? 'N/A';
+                                                                        ?>
+                                                                    </td>
+                                                                    <td>S/. <?php echo number_format($gasto['total'] ?? 0, 2); ?></td>
+                                                                    <td>
+                                                                        <span class="badge badge-<?php echo match($gasto['estado']) { 'aprobado' => 'success', 'clasificado' => 'info', default => 'warning' }; ?>">
+                                                                            <?php echo ucfirst($gasto['estado']); ?>
+                                                                        </span>
+                                                                    </td>
+                                                                </tr>
+                                                            <?php endforeach; ?>
+                                                        <?php else: ?>
+                                                            <tr>
+                                                                <td colspan="6" class="text-center p-4">
+                                                                    <p class="text-muted">No hay gastos clasificados</p>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endif; ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <?php echo view("admin/footer"); ?>
+</body>
+</html>

@@ -78,6 +78,10 @@
         $comisiones_color = null;
         $facturas_style = null;
         $facturas_color = null;
+        $compras_style = null;
+        $compras_color = null;
+        $gastos_style = null;
+        $gastos_color = null;
         $facturascontratos_style = null;
         $facturascontratos_color = null;
         $kit_afiliacion_style = null;
@@ -185,6 +189,14 @@
                 $mantenimientos_style = "active pcoded-trigger";
                 $facturascontratos_style = "active pcoded-trigger";
                 $facturascontratos_color = "active_nav";
+                break;
+            case "compras":
+                $compras_style = "active pcoded-trigger";
+                $compras_color = "active_nav";
+                break;
+            case "gastos":
+                $gastos_style = "active pcoded-trigger";
+                $gastos_color = "active_nav";
                 break;
             case "planes":
                 $proveedores_style = "active pcoded-trigger";
@@ -535,6 +547,22 @@
                     <a href="/dashboard/facturasContratos" class="nav-link <?php echo $facturascontratos_color; ?>">
                         <span class="pcoded-micon"><i class="fa fa-file-contract"></i></span>
                         <span class="pcoded-mtext">Facturas Contratos</span>
+                    </a>
+                </li>
+
+                <!-- Compras: top-level -->
+                <li class="nav-item <?php echo $compras_style; ?>">
+                    <a href="/dashboard/compras" class="nav-link <?php echo $compras_color; ?>">
+                        <span class="pcoded-micon"><i class="fa fa-shopping-cart"></i></span>
+                        <span class="pcoded-mtext">Compras</span>
+                    </a>
+                </li>
+
+                <!-- Gastos: top-level -->
+                <li class="nav-item <?php echo $gastos_style; ?>">
+                    <a href="/dashboard/gastos" class="nav-link <?php echo $gastos_color; ?>">
+                        <span class="pcoded-micon"><i class="fa fa-money-bill-wave"></i></span>
+                        <span class="pcoded-mtext">Gastos</span>
                     </a>
                 </li>
 
