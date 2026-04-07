@@ -82,6 +82,8 @@
         $compras_color = null;
         $gastos_style = null;
         $gastos_color = null;
+        $clasificacion_style = null;
+        $clasificacion_color = null;
         $facturascontratos_style = null;
         $facturascontratos_color = null;
         $kit_afiliacion_style = null;
@@ -197,6 +199,10 @@
             case "gastos":
                 $gastos_style = "active pcoded-trigger";
                 $gastos_color = "active_nav";
+                break;
+            case "clasificacion":
+                $clasificacion_style = "active pcoded-trigger";
+                $clasificacion_color = "active_nav";
                 break;
             case "planes":
                 $proveedores_style = "active pcoded-trigger";
@@ -563,6 +569,14 @@
                     <a href="/dashboard/gastos" class="nav-link <?php echo $gastos_color; ?>">
                         <span class="pcoded-micon"><i class="fa fa-money-bill-wave"></i></span>
                         <span class="pcoded-mtext">Gastos</span>
+                    </a>
+                </li>
+
+                <!-- Clasificación de Gastos: top-level -->
+                <li class="nav-item <?php echo $clasificacion_style; ?>">
+                    <a href="/dashboard/clasificacion" class="nav-link <?php echo $clasificacion_color; ?>">
+                        <span class="pcoded-micon"><i class="fa fa-tags"></i></span>
+                        <span class="pcoded-mtext">Clasificación</span>
                     </a>
                 </li>
 

@@ -525,6 +525,23 @@ $routes->group('dashboard/gastos', static function($routes){
     $routes->get('api/estadisticas', 'D_gastos::estadisticas', ['filter' => 'authGuard']);
 });
 
+// Clasificación de Gastos routes
+$routes->group('dashboard/clasificacion', static function($routes){
+    // Main views
+    $routes->get('', 'D_clasificacion::index', ['filter' => 'authGuard']);
+    $routes->get('clasificar/(:num)', 'D_clasificacion::clasificar/$1', ['filter' => 'authGuard']);
+    $routes->get('reportes', 'D_clasificacion::reportes', ['filter' => 'authGuard']);
+    $routes->get('crear-reporte', 'D_clasificacion::crearReporte', ['filter' => 'authGuard']);
+    $routes->get('ver-reporte/(:num)', 'D_clasificacion::verReporte/$1', ['filter' => 'authGuard']);
+    
+    // AJAX Actions
+    $routes->post('guardarClasificacion', 'D_clasificacion::guardarClasificacion', ['filter' => 'authGuard']);
+    $routes->get('subcategoriasPorTipo/(:num)', 'D_clasificacion::subcategoriasPorTipo/$1', ['filter' => 'authGuard']);
+    $routes->post('subirDocumento/(:num)', 'D_clasificacion::subirDocumento/$1', ['filter' => 'authGuard']);
+    $routes->post('eliminarDocumento/(:num)', 'D_clasificacion::eliminarDocumento/$1', ['filter' => 'authGuard']);
+    $routes->post('guardarReporte', 'D_clasificacion::guardarReporte', ['filter' => 'authGuard']);
+});
+
 
 /*
  * --------------------------------------------------------------------
