@@ -87,8 +87,7 @@ class Login extends BaseController
                     'email' => $obj_customer->email,
                     'dni' => $obj_customer->dni,
                     //'username' => $obj_customer->username,
-                    'isLoggedIn' => TRUE,
-                    'user_type' => 'backoffice'
+                    'isLoggedIn' => TRUE
                 ];
                 //begin session
                 $session->set($ses_data);
