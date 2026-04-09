@@ -9,7 +9,7 @@ class D_periodos extends BaseController
     public function index()
     {
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //get data bonus
         $Period = new PeriodModel();
         //get all data
@@ -29,7 +29,7 @@ class D_periodos extends BaseController
     public function load($id = false)
     {
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //set var
         $obj_period = null;
         //verify
@@ -56,7 +56,7 @@ class D_periodos extends BaseController
     {
         //ACTIVE CUSTOMER NORMALY
         if ($this->request->isAJAX()) {
-            $id = $_SESSION['id'];
+            $id = $_SESSION['admin_id'];
             $Period = new PeriodModel();
             //get data post
             $res = service('request')->getPost();

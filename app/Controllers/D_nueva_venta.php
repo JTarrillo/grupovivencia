@@ -18,7 +18,7 @@ class D_nueva_venta extends BaseController
 {
     public function index()
     {
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //get count product shopping cart
         $cart_count = Cart::count();
         //get all producto countable
@@ -36,7 +36,7 @@ class D_nueva_venta extends BaseController
 
     public function cart()
     {
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //set var
         $obj_membership = null;
         $customer_id = null;
@@ -132,7 +132,7 @@ class D_nueva_venta extends BaseController
 
     public function checkout()
     {
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //call model
         $Store = new StoreModel();
         $Commissions = new CommissionsModel();
@@ -331,7 +331,7 @@ class D_nueva_venta extends BaseController
             //cart destroy
             Cart::destroy();
             //send message
-            //   $this->message($_SESSION['name'], $_SESSION['email'], $price, $qty, $membership_id, $details, $res['store_id']);
+            //   $this->message($_SESSION['admin_name'], $_SESSION['admin_email'], $price, $qty, $membership_id, $details, $res['store_id']);
             //update session
             $data['status'] = true;
             $data['message'] = "Compra con éxito";

@@ -142,7 +142,7 @@
                                                         class="text-muted"><?= esc($contract['installments'] ?? '36 cuotas') ?></span>
                                                 </td>
                                                 <td>
-                                                    <?php if(strtolower($contract['status']) == 'activo'): ?>
+                                                    <?php if(!empty($contract['status']) && strtolower($contract['status']) == 'activo'): ?>
                                                     <span class="badge bg-success">Activo</span>
                                                     <?php else: ?>
                                                     <span

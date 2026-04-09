@@ -39,7 +39,7 @@ class D_sugerencias extends BaseController
         //load model 
         $Suggestions = new SuggestionsModel();
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //set var
         $obj_suggestions = null;
         //verify

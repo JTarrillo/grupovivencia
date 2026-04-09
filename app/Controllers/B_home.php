@@ -22,7 +22,7 @@ class B_home extends BaseController
         $cart_count = Cart::count();
         //get data session
         $session = session();
-        $id = $session->get('id');
+        $id = $session->get('client_id');
         //get fortnightly period
         
         //get current period
@@ -39,7 +39,9 @@ class B_home extends BaseController
 
         // Obtener lotes asignados con contrato
         $LotModel = new \App\Models\LotModel();
-        $total_lotes_contrato = $LotModel->countLotsWithContract($id);
+        $ContractModel = new \App\Models\ContractModel();
+        // Contar contratos del cliente en lugar de lotes
+        $total_lotes_contrato = $ContractModel->where('customer_id', $id)->countAllResults();
 
         // Obtener total de comisiones inmobiliarias como en Home.php
         $total_periodo = $ComisionesInmobiliarias
@@ -141,7 +143,7 @@ class B_home extends BaseController
         // Obtener datos del cliente para la cabecera
         $Customer = new \App\Models\CustomerModel();
         $session = session();
-        $id = $session->get('id');
+        $id = $session->get('client_id');
         $obj_customer = $Customer->get_all_data($id);
 
         // Obtener cantidad de productos en el carrito
@@ -163,14 +165,8 @@ class B_home extends BaseController
     public function logout()
     {
         $session = session();
-        //$session->sess_destroy();
-        $ses_data = [
-            'id' => '',
-            'name' => '',
-            'email' => '',
-            'isLoggedIn' => FALSE
-        ];
-        $session->set($ses_data);
+        // Destruir completamente la sesión
+        $session->destroy();
         return redirect()->to('/iniciar-sesion');
     }
 }

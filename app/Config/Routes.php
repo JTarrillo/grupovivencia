@@ -64,7 +64,7 @@ $routes->get('/nosotros', 'Home::about');
 $routes->get('/productos', 'Home::products');
 $routes->get('/productos/(:any)', 'Home::product_detail/$1');
 $routes->get('backoffice_new/contracts/cronograma/(:num)', 'BackofficeNew\\ContractsController::cronograma/$1');
-$routes->get('/backoffice_new/contracts', 'B_contratos::index', ['filter' => 'authGuard']);
+$routes->get('/backoffice_new/contracts', 'BackofficeNew\\ContractsController::index', ['filter' => 'authGuard']);
 $routes->get('/backoffice_new/contracts/edit/(:num)', 'B_contratos::edit/$1', ['filter' => 'authGuard']);
 $routes->get('/backoffice_new/contracts/delete/(:num)', 'B_contratos::delete/$1', ['filter' => 'authGuard']);
 $routes->get('/backoffice_new/contracts/detail/(:num)', 'B_contratos::detail/$1', ['filter' => 'authGuard']);

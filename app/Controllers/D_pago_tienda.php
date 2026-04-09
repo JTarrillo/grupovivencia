@@ -18,7 +18,7 @@ class D_pago_tienda extends BaseController
     {
         //nuevas compras
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //get data invoices by customer
         $Invoices = new InvoicesModel();
         $obj_invoices = $Invoices->get_data_pay_tienda();
@@ -33,7 +33,7 @@ class D_pago_tienda extends BaseController
     public function load($id = false)
     {
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //isset id
         if ($id != "") {
             //get data invoice
@@ -89,7 +89,7 @@ class D_pago_tienda extends BaseController
     public function export_pdf($invoice_id = null)
     {
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['admin_id'];
         //get data planes
         $Invoices = new InvoicesModel();
         //get total comissions
@@ -142,7 +142,7 @@ class D_pago_tienda extends BaseController
     public function verificadas()
     {
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //get data invoices by customer
         $Invoices = new InvoicesModel();
         $obj_invoices = $Invoices->get_data_pay_tienda_2();
@@ -158,7 +158,7 @@ class D_pago_tienda extends BaseController
     public function load_verify($id = false)
     {
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //isset id
         $obj_sponsor = null;
         if ($id != "") {

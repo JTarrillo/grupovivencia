@@ -666,34 +666,20 @@
                         </div>
                         <?php
                         $session = session();
-                        $isSponsor = isset($_SESSION['tipo_agente']) && $_SESSION['tipo_agente'] === 'sponsor';
-                        $userId = isset($_SESSION['id']) ? $_SESSION['id'] : null;
+                        $userId = isset($_SESSION['admin_id']) ? $_SESSION['admin_id'] : null;
+                        $userName = isset($_SESSION['admin_name']) ? $_SESSION['admin_name'] : '';
+                        $userLastname = isset($_SESSION['admin_lastname']) ? $_SESSION['admin_lastname'] : '';
                         ?>
-                        <?php if ($isSponsor && $userId): ?>
+                        <!-- El admin logueado es automáticamente el patrocinador -->
                         <input type="hidden" name="sponsor_id" value="<?= $userId ?>">
                         <div class="form-group row">
                             <label class="col-sm-3 col-form-label"><strong>Patrocinador</strong></label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control"
-                                    value="<?= $_SESSION['name'] . ' ' . $_SESSION['lastname'] ?>" readonly>
+                                    value="<?= $userName . ' ' . $userLastname ?>" readonly>
+                                <small class="form-text text-muted">El patrocinador es quien ingresó al sistema</small>
                             </div>
                         </div>
-                        <?php else: ?>
-                        <div class="form-group row">
-                            <label for="sponsor_id" class="col-sm-3 col-form-label"><strong>Patrocinador <span
-                                        class="text-danger">*</span></strong></label>
-                            <div class="col-sm-9">
-                                <select name="sponsor_id" id="sponsor_id" class="form-control" required>
-                                    <option value="">Seleccionar patrocinador</option>
-                                    <?php foreach ($agents as $sponsor): ?>
-                                    <option value="<?= $sponsor['id'] ?>">[<?= $sponsor['code'] ?>]
-                                        <?= $sponsor['name'] ?> <?= $sponsor['lastname'] ?> (DNI:
-                                        <?= $sponsor['dni'] ?>)</option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                        <?php endif; ?>
                         <!-- Navegación de Tabs -->
                         <ul class="nav nav-tabs" id="contractTabs" role="tablist">
                             <li class="nav-item">

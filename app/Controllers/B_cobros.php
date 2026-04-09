@@ -19,7 +19,7 @@ class B_cobros extends BaseController
     //set timezone
     date_default_timezone_set("America/Lima");
     //get data session
-    $id = $_SESSION['id'];
+    $id = $_SESSION['client_id'];
     //get all pay
     $Pay = new PaysModel();
     $Customer = new CustomerModel();
@@ -91,7 +91,7 @@ class B_cobros extends BaseController
       //get data post
       $obj_data = service('request')->getPost();
       //get data session
-      $customer_id = $_SESSION['id'];
+      $customer_id = $_SESSION['client_id'];
       $name = $obj_data['name'];
       $email = $obj_data['email'];
 
@@ -121,7 +121,7 @@ class B_cobros extends BaseController
   {
     if ($this->request->isAJAX()) {
       //get data session
-      $id = $_SESSION['id'];
+      $id = $_SESSION['client_id'];
       //get data post and files
       $obj_data = service('request')->getPost();
       $amount = $obj_data['amount'];

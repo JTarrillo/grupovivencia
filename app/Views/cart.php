@@ -128,11 +128,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 use App\Models\CustomerModel;
 // Obtener datos completos del usuario logueado
-$nombre = isset($_SESSION['name']) ? $_SESSION['name'] : '';
-$apellido_paterno = isset($_SESSION['lastname']) ? $_SESSION['lastname'] : '';
+$nombre = isset($_SESSION['client_name']) ? $_SESSION['client_name'] : '';
+$apellido_paterno = isset($_SESSION['client_lastname']) ? $_SESSION['client_lastname'] : '';
 $apellido_materno = isset($_SESSION['mother_last']) ? $_SESSION['mother_last'] : '';
-$dni = isset($_SESSION['dni']) ? $_SESSION['dni'] : '';
-$email = isset($_SESSION['email']) ? $_SESSION['email'] : '';
+$dni = isset($_SESSION['client_dni']) ? $_SESSION['client_dni'] : '';
+$email = isset($_SESSION['client_email']) ? $_SESSION['client_email'] : '';
 
 // Si falta algún dato, obtener del modelo
 if (empty($nombre) || empty($apellido_paterno) || empty($apellido_materno)) {

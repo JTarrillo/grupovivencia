@@ -8,7 +8,7 @@ class D_kit_afiliacion extends BaseController
     public function index()
     {
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
         //get kit affiliation
         $Membership = new MembershipsModel();
         $params = array(
@@ -27,7 +27,7 @@ class D_kit_afiliacion extends BaseController
     
     public function load($id=false){
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
         $obj_membership = null;
         //verify id
         if ($id != false){

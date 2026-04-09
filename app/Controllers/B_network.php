@@ -18,7 +18,7 @@ class B_network extends BaseController
         //get count product shopping cart
         $cart_count = Cart::count();
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         $Unilevel =new UnilevelsModel();
         $Customer =new CustomerModel();
         //set var
@@ -75,7 +75,7 @@ class B_network extends BaseController
         //call library Evox
         $evox = new Evox();
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         //GET DATA URL
         $url = explode("/",uri_string());
         $Customer = new CustomerModel();
@@ -85,13 +85,13 @@ class B_network extends BaseController
             if (is_numeric($param)) {
                 // Buscar por dni
                 $customer_obj = $Customer->get_search_by_dni($param);
-                $customer_id = $customer_obj ? $customer_obj->id : $_SESSION['id'];
+                $customer_id = $customer_obj ? $customer_obj->id : $_SESSION['client_id'];
             } else {
                 // Buscar por id encriptado (legacy)
                 $customer_id = decrypt($param);
             }
         }else{
-            $customer_id = $_SESSION['id'];
+            $customer_id = $_SESSION['client_id'];
         }
         //set var
         $direct_3 = null;

@@ -17,7 +17,7 @@ class D_incoming extends BaseController
         $style = "disabled";
         $store_id = "";
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         $first_day = date('Y-m-01');
         $last_day = date('Y-m-t');
         //plus +1 day
@@ -69,7 +69,7 @@ class D_incoming extends BaseController
     public function load($id = false)
     {
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //set var
         $obj_incoming = null;
         //verify
@@ -102,7 +102,7 @@ class D_incoming extends BaseController
     {
         //ACTIVE CUSTOMER NORMALY
         if ($this->request->isAJAX()) {
-            $id = $_SESSION['id'];
+            $id = $_SESSION['admin_id'];
             $Incoming = new IncomingModel();
             //get data post
             $res = service('request')->getPost();
@@ -223,7 +223,7 @@ class D_incoming extends BaseController
                     'membership_id' => $membership_id,
                     'supplier_id' => $obj_supplier_id,
                     'store_id' => $obj_store_id,
-                    'user_id' => $_SESSION['id'],
+                    'user_id' => $_SESSION['admin_id'],
                     'qty' => $value['qty'],
                     'date' => date("Y-m-d H:i:s"),
                     'unit_cost' => $unit_cost,

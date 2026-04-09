@@ -48,7 +48,7 @@ class B_plan extends BaseController
 
         //get data session
 
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
 
         //get data customer
 
@@ -111,7 +111,7 @@ class B_plan extends BaseController
     {
         // Gestión inmobiliaria: mostrar proyectos
         //get data session
-        $id = $_SESSION['id'] ?? null;
+        $id = $_SESSION['client_id'] ?? null;
         //get data customer
         $Customer = new CustomerModel();
         $params = array(
@@ -155,7 +155,7 @@ class B_plan extends BaseController
     {
         //get data session
 
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
 
         //get data customer
 
@@ -214,7 +214,7 @@ class B_plan extends BaseController
         $title = "Carrito";
 
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         //get data customer
         $Customer = new CustomerModel();
         //get data customer 
@@ -346,7 +346,7 @@ class B_plan extends BaseController
 
             'id' => $id,
 
-            'name' => $_SESSION['name'],
+            'name' => $_SESSION['client_name'],
 
             'price' => $total,
 
@@ -354,7 +354,7 @@ class B_plan extends BaseController
 
             'store_id' => $store_id,
 
-            'name' => $_SESSION['name'],
+            'name' => $_SESSION['client_name'],
 
             'membership_id' => $membership_id,
 
@@ -362,7 +362,7 @@ class B_plan extends BaseController
             
             'active' => 1,
 
-            'email' => $_SESSION['email'],
+            'email' => $_SESSION['client_email'],
 
             'username' => $_SESSION['code'],
 
@@ -727,7 +727,7 @@ class B_plan extends BaseController
 
         //get data session
 
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
 
         //call customer model
 
@@ -820,7 +820,7 @@ class B_plan extends BaseController
 
         //get data session
 
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
 
         //call models
 
@@ -984,7 +984,7 @@ class B_plan extends BaseController
 
         //get data session
 
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
 
         $res = service('request')->getPost();
 
@@ -1011,7 +1011,7 @@ class B_plan extends BaseController
 
             'id' => $id,
 
-            'name' => $_SESSION['name'],
+            'name' => $_SESSION['client_name'],
 
             'price' => $total,
 
@@ -1025,7 +1025,7 @@ class B_plan extends BaseController
 
             'active' => 1,
 
-            'email' => $_SESSION['email'],
+            'email' => $_SESSION['client_email'],
 
             'code' => $_SESSION['code'],
 
@@ -1212,7 +1212,7 @@ class B_plan extends BaseController
 
             $session = session();
 
-            $id = $_SESSION['id'];
+            $id = $_SESSION['client_id'];
 
             //get data post
 
@@ -1482,7 +1482,7 @@ class B_plan extends BaseController
 
                 //send message
 
-                $this->message($_SESSION['name'], $_SESSION['email'], $total, $qty, $membership_id, "", $res['store_id']);
+                $this->message($_SESSION['client_name'], $_SESSION['client_email'], $total, $qty, $membership_id, "", $res['store_id']);
 
                 //update session
 
@@ -1490,11 +1490,11 @@ class B_plan extends BaseController
 
                     'id' => $id,
 
-                    'name' => $_SESSION['name'],
+                    'name' => $_SESSION['client_name'],
 
                     'active' => 1,
 
-                    'email' => $_SESSION['email'],
+                    'email' => $_SESSION['client_email'],
 
                     'username' => $_SESSION['username'],
 
@@ -1526,7 +1526,7 @@ class B_plan extends BaseController
             $Invoices = new InvoicesModel();
             $Customer = new CustomerModel();
             $Invoice_detail_membershipModel = new Invoice_detail_membershipModel();
-            $id = $_SESSION['id'];
+            $id = $_SESSION['client_id'];
             //get data post
             $res = service('request')->getPost();
             $content = Cart::content();
@@ -1599,7 +1599,7 @@ class B_plan extends BaseController
 
             $Invoice_detail_membershipModel = new Invoice_detail_membershipModel();
 
-            $id = $_SESSION['id'];
+            $id = $_SESSION['client_id'];
 
             //get data post
 
@@ -1725,7 +1725,7 @@ class B_plan extends BaseController
 
         $session = session();
 
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
 
         //details product
 
@@ -1929,7 +1929,7 @@ class B_plan extends BaseController
 
         //send message
 
-        //$this->message($_SESSION['name'], $_SESSION['email'], $point, $qty, $membership_id, "", $store_id);
+        //$this->message($_SESSION['client_name'], $_SESSION['client_email'], $point, $qty, $membership_id, "", $store_id);
 
         //update session
 
@@ -1937,11 +1937,11 @@ class B_plan extends BaseController
 
             'id' => $id,
 
-            'name' => $_SESSION['name'],
+            'name' => $_SESSION['client_name'],
 
             'active' => 1,
 
-            'email' => $_SESSION['email'],
+            'email' => $_SESSION['client_email'],
 
             'username' => $_SESSION['username'],
 
@@ -1971,7 +1971,7 @@ class B_plan extends BaseController
 
             $session = session();
 
-            $id = $_SESSION['id'];
+            $id = $_SESSION['client_id'];
 
             //get data post
 
@@ -2027,7 +2027,7 @@ class B_plan extends BaseController
 
                 'id' => $id,
 
-                'name' => $_SESSION['name'],
+                'name' => $_SESSION['client_name'],
 
                 'kit_id' => $kit_id,
 
@@ -2045,11 +2045,11 @@ class B_plan extends BaseController
 
                 'qty' => $qty,
 
-                'name' => $_SESSION['name'],
+                'name' => $_SESSION['client_name'],
 
                 'active' => 1,
 
-                'email' => $_SESSION['email'],
+                'email' => $_SESSION['client_email'],
 
                 'username' => $_SESSION['username'],
 

@@ -16,7 +16,7 @@ class B_admin extends BaseController
 
         $session = session();
 
-        $id = $session->get('id');
+        $id = $session->get('admin_id');
 
 
 
@@ -131,17 +131,18 @@ class B_admin extends BaseController
 
                 // --- PREPARAR DATOS DE SESIÓN ---
                 $ses_data = [
-                    'id'           => $res->id,
-                    'name'         => $res->name,
-                    'lastname'     => $res->lastname,
-                    'email'        => $res->email,
-                    'dni'          => $res->dni,
-                    'privilegio'   => $res->privilegio ?? ($res->privilage ?? 'admin'),
-                    'active'       => $res->active,
-                    'isLoggedIn'   => TRUE,
+                    'admin_id'           => $res->id,
+                    'admin_name'         => $res->name,
+                    'admin_lastname'     => $res->lastname,
+                    'admin_email'        => $res->email,
+                    'admin_dni'          => $res->dni,
+                    'admin_privilegio'   => $res->privilegio ?? ($res->privilage ?? 'admin'),
+                    'admin_active'       => $res->active,
+                    'admin_isLoggedIn'   => TRUE,
+                    'admin_type'         => 'admin',
                     // Guardamos los tokens de la API en la sesión de CI4
-                    'api_access_token' => $accessToken,
-                    'api_token_type'   => $tokenType
+                    'admin_api_access_token' => $accessToken,
+                    'admin_api_token_type'   => $tokenType
                 ];
 
                 $session->set($ses_data);

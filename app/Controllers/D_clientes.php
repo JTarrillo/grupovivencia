@@ -15,10 +15,10 @@ class D_clientes extends BaseController
     public function index()
     {
         //get data session
-        if (isset($_SESSION['first_name']) && isset($_SESSION['last_name'])) {
-            $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
-        } elseif (isset($_SESSION['name'])) {
-            $session_name = $_SESSION['name'];
+        if (isset($_SESSION['admin_name']) && isset($_SESSION['admin_lastname'])) {
+            $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
+        } elseif (isset($_SESSION['admin_name'])) {
+            $session_name = $_SESSION['admin_name'];
         } else {
             $session_name = 'Usuario';
         }
@@ -238,10 +238,10 @@ class D_clientes extends BaseController
     public function load($id = false)
     {
         //get data session
-        if (isset($_SESSION['first_name']) && isset($_SESSION['last_name'])) {
-            $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
-        } elseif (isset($_SESSION['name'])) {
-            $session_name = $_SESSION['name'];
+        if (isset($_SESSION['admin_name']) && isset($_SESSION['admin_lastname'])) {
+            $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
+        } elseif (isset($_SESSION['admin_name'])) {
+            $session_name = $_SESSION['admin_name'];
         } else {
             $session_name = 'Usuario';
         }

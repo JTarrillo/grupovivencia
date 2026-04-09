@@ -152,7 +152,7 @@ class D_clasificacion extends BaseController
             'proyecto_id' => $proyectoId ?: null,
             'contrato_id' => $contratoId ?: null,
             'observaciones' => $observaciones,
-            'clasificado_por' => session()->get('id'),
+            'clasificado_por' => session()->get('admin_id'),
             'fecha_clasificacion' => date('Y-m-d H:i:s'),
         ];
 
@@ -236,7 +236,7 @@ class D_clasificacion extends BaseController
             'tipo_mime' => $archivo->getMimeType(),
             'tamanio' => $archivo->getSize(),
             'hash_archivo' => $hash,
-            'cargado_por' => session()->get('id'),
+            'cargado_por' => session()->get('admin_id'),
             'descripcion' => $descripcion,
         ];
 
@@ -331,7 +331,7 @@ class D_clasificacion extends BaseController
             'proyecto_id' => $proyectoId ?: null,
             'tipo_gasto_id' => $tipoGastoId ?: null,
             'estado' => 'borrador',
-            'usuario_creador' => session()->get('id'),
+            'usuario_creador' => session()->get('admin_id'),
         ];
 
         if ($reporteId = $this->gastoReporteModel->insert($data, true)) {

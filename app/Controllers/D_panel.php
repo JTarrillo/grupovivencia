@@ -18,8 +18,8 @@ class D_panel extends BaseController
     public function index()
     {
         //get data session
-        $id = $_SESSION['id'];
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $id = $_SESSION['admin_id'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //get data invoices by customer
         $Customer = new CustomerModel();
         //get year
@@ -165,10 +165,10 @@ class D_panel extends BaseController
 
         //get data session
         $session_name = '';
-        if (isset($_SESSION['first_name']) && isset($_SESSION['last_name'])) {
-            $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
-        } elseif (isset($_SESSION['name'])) {
-            $session_name = $_SESSION['name'];
+        if (isset($_SESSION['admin_name']) && isset($_SESSION['admin_lastname'])) {
+            $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
+        } elseif (isset($_SESSION['admin_name'])) {
+            $session_name = $_SESSION['admin_name'];
         } else {
             $session_name = 'Usuario';
         }
@@ -260,10 +260,10 @@ class D_panel extends BaseController
         $Paises = new CountriesModel();
         //get data session
         $session_name = '';
-        if (isset($_SESSION['first_name']) && isset($_SESSION['last_name'])) {
-            $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
-        } elseif (isset($_SESSION['name'])) {
-            $session_name = $_SESSION['name'];
+        if (isset($_SESSION['admin_name']) && isset($_SESSION['admin_lastname'])) {
+            $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
+        } elseif (isset($_SESSION['admin_name'])) {
+            $session_name = $_SESSION['admin_name'];
         } else {
             $session_name = 'Usuario';
         }
@@ -271,8 +271,8 @@ class D_panel extends BaseController
         $Customer = new CustomerModel();
         if ($id) {
             $obj_customer = $Customer->get_data_by_id($id);
-        } else if (isset($_SESSION['id'])) {
-            $obj_customer = $Customer->get_data_by_id($_SESSION['id']);
+        } else if (isset($_SESSION['admin_id'])) {
+            $obj_customer = $Customer->get_data_by_id($_SESSION['admin_id']);
         } else {
             $obj_customer = null;
         }
@@ -354,7 +354,7 @@ class D_panel extends BaseController
         }
 
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //get all range
         $Store = new StoreModel();
         $obj_store = $Store->get_all();
@@ -377,7 +377,7 @@ class D_panel extends BaseController
     public function load($id = false)
     {
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         $Customer = new CustomerModel();
         $Countries = new CountriesModel();
         $Memberships = new MembershipsModel();
@@ -411,7 +411,7 @@ class D_panel extends BaseController
     public function export_pdf($invoice_id = null)
     {
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['admin_id'];
         //get data planes
         $Invoices = new InvoicesModel();
         //get total comissions
@@ -446,7 +446,7 @@ class D_panel extends BaseController
     public function qualified()
     {
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //set var
         $Calification = new CalificationModel();
         //obtain all the qualifiers of the current period
@@ -486,7 +486,7 @@ class D_panel extends BaseController
     {
         $B_home = new B_home;
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         $Calification = new CalificationModel();
         //obtain all the qualifiers of the current period
         $date = begin_end_periodo();

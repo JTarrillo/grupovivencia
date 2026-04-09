@@ -18,7 +18,7 @@ class B_perfil extends BaseController
     //get count product shopping cart
     $cart_count = Cart::count();
     //get data session
-    $id = $_SESSION['id'];
+    $id = $_SESSION['client_id'];
     $Customer = new CustomerModel();
     //get all row
     $obj_customer = $Customer->get_data_customer_perfil($id);
@@ -45,7 +45,7 @@ class B_perfil extends BaseController
     //get count product shopping cart
     $cart_count = Cart::count();
     //get data session
-    $id = $_SESSION['id'];
+    $id = $_SESSION['client_id'];
     //get data acustomer
     $Customer = new CustomerModel();
     $obj_customer = $Customer->get_data_customer_perfil($id);
@@ -78,7 +78,7 @@ class B_perfil extends BaseController
   public function save_profile()
   {
     if ($this->request->isAJAX()) {
-      $id = $_SESSION['id'];
+      $id = $_SESSION['client_id'];
       $Customer = new CustomerModel();
       $request = \Config\Services::request();
       //get data post
@@ -153,7 +153,7 @@ class B_perfil extends BaseController
     //get count product shopping cart
     $cart_count = Cart::count();
     //get data session
-    $id = $_SESSION['id'];
+    $id = $_SESSION['client_id'];
     //get data acustomer
     $Customer = new CustomerModel();
     $obj_customer = $Customer->get_data_customer_perfil($id);
@@ -183,7 +183,7 @@ class B_perfil extends BaseController
   public function kyc_validate()
   {
     if ($this->request->isAJAX()) {
-      $id = $_SESSION['id'];
+      $id = $_SESSION['client_id'];
       $Customer = new CustomerModel();
       $Kyc = new KycModel();
       //get data file
@@ -268,7 +268,7 @@ class B_perfil extends BaseController
   public function pin()
   {
     //get data session
-    $id = $_SESSION['id'];
+    $id = $_SESSION['client_id'];
     //get data acustomer
     $Customer = new CustomerModel();
     $obj_customer = $Customer->get_data_customer_perfil($id);
@@ -303,7 +303,7 @@ class B_perfil extends BaseController
   public function save_pin()
   {
     if ($this->request->isAJAX()) {
-      $id = $_SESSION['id'];
+      $id = $_SESSION['client_id'];
       $Customer = new CustomerModel();
       $request = \Config\Services::request();
       //get data post
@@ -335,9 +335,9 @@ class B_perfil extends BaseController
   public function recover_pin()
   {
     if ($this->request->isAJAX()) {
-      $name = $_SESSION['name'];
+      $name = $_SESSION['client_name'];
       $username = $_SESSION['username'];
-      $email = $_SESSION['email'];
+      $email = $_SESSION['client_email'];
       //send email recover
       $url = "https://genexlatam.com/recover-pin/$username";
       $this->message($name, $email, $url);
@@ -430,7 +430,7 @@ class B_perfil extends BaseController
     if ($this->request->isAJAX()) {
       //get session
       $db = \Config\Database::connect();
-      $id = $_SESSION['id'];
+      $id = $_SESSION['client_id'];
       $Customer = new CustomerModel();
       //get post
       $request = \Config\Services::request();
@@ -468,7 +468,7 @@ class B_perfil extends BaseController
   {
     if ($this->request->isAJAX()) {
       //get session data
-      $customer_id = $_SESSION['id'];
+      $customer_id = $_SESSION['client_id'];
       $Customer_bank = new Customer_bankModel();
       //get data post
       $res = service('request')->getPost();
@@ -593,7 +593,7 @@ class B_perfil extends BaseController
   public function save_billing()
   {
     if ($this->request->isAJAX()) {
-      $id = $_SESSION['id'];
+      $id = $_SESSION['client_id'];
       $Customer = new CustomerModel();
       $res = service('request')->getPost();
       //get data post

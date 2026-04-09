@@ -9,7 +9,7 @@ class D_recarga extends BaseController
     public function index()
     {
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
         //get data invoices by customer
         $Recharge = new RechargeModel();
         $obj_recharge = $Recharge->get_data_pending();
@@ -24,7 +24,7 @@ class D_recarga extends BaseController
     public function completed()
     {
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
         //get data invoices by customer
         $Recharge = new RechargeModel();
         $obj_recharge = $Recharge->get_data_completed();
@@ -39,7 +39,7 @@ class D_recarga extends BaseController
     public function load($id = false)
     {
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
         //isset id
         if ($id != false){
             $Recharge = new RechargeModel();
@@ -88,7 +88,7 @@ class D_recarga extends BaseController
     public function kyc_verificados()
     {
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
         //get data invoices by customer
         $Kyc = new KycModel();
         $obj_customer = $Kyc->get_customer_kyc_verify();

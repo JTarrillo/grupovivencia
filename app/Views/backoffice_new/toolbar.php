@@ -19,7 +19,7 @@
 
 
 					            </span>
-					            <?php echo isset($_SESSION['name']) ? $_SESSION['name'] : ''; ?><br><?php echo isset($_SESSION['dni']) ? $_SESSION['dni'] : ''; ?>
+					            <?php echo isset($_SESSION['client_name']) ? $_SESSION['client_name'] : ''; ?><br><?php echo isset($_SESSION['client_dni']) ? $_SESSION['client_dni'] : ''; ?>
 					        </div>
 					    </div>
 					</div>

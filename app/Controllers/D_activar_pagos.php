@@ -11,7 +11,7 @@ class D_activar_pagos extends BaseController
     public function index()
     {
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
         //get data pay
         $Pay = new PaysModel();
         $obj_pay = $Pay->get_crud_pay();

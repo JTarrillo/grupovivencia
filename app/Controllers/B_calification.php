@@ -17,7 +17,7 @@ class B_calification extends BaseController
         //obtain all the qualifiers of the current period
         $date = begin_end_periodo();
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         //get data customer
         $Customer = new CustomerModel();
         $obj_customer = $Customer->get_data_customer_perfil($id);
@@ -49,7 +49,7 @@ class B_calification extends BaseController
         //get count product shopping cart
         $cart_count = Cart::count();
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         //get data customer
         $Customer = new CustomerModel();
         $obj_customer = $Customer->get_data_customer_perfil($id);
@@ -78,7 +78,7 @@ class B_calification extends BaseController
         //get count product shopping cart
         $cart_count = Cart::count();
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         //get data customer
         $Customer = new CustomerModel();
         $obj_customer = $Customer->get_data_customer_perfil($id);

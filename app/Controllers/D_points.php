@@ -20,7 +20,7 @@ class D_points extends BaseController
 
         //get data session
 
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
 
         //get data invoices by customer
 
@@ -68,7 +68,7 @@ class D_points extends BaseController
 
         //get data session
 
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
 
         //isset id
 

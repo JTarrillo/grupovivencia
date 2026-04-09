@@ -18,12 +18,12 @@ class D_usuarios extends BaseController
 
         //get data session
 
-        $id = isset($_SESSION['id']) ? $_SESSION['id'] : null;
+        $id = isset($_SESSION['admin_id']) ? $_SESSION['admin_id'] : null;
 
-        if (isset($_SESSION['first_name']) && isset($_SESSION['last_name'])) {
-            $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
-        } elseif (isset($_SESSION['name'])) {
-            $session_name = $_SESSION['name'];
+        if (isset($_SESSION['admin_name']) && isset($_SESSION['admin_lastname'])) {
+            $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
+        } elseif (isset($_SESSION['admin_name'])) {
+            $session_name = $_SESSION['admin_name'];
         } else {
             $session_name = 'Usuario';
         }
@@ -52,7 +52,7 @@ class D_usuarios extends BaseController
 
     public function load($id=false){
 
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
 
         $obj_users = null;
 

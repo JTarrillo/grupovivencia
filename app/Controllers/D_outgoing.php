@@ -17,7 +17,7 @@ class D_outgoing extends BaseController
         $style = "disabled";
         $store_id = "";
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         $first_day = date('Y-m-01');
         $last_day = date('Y-m-t');
         //plus +1 day
@@ -68,7 +68,7 @@ class D_outgoing extends BaseController
     public function load($id = false)
     {
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //set var
         $obj_outgoing = null;
         //verify
@@ -97,7 +97,7 @@ class D_outgoing extends BaseController
     {
         //ACTIVE CUSTOMER NORMALY
         if ($this->request->isAJAX()) {
-            $id = $_SESSION['id'];
+            $id = $_SESSION['admin_id'];
             $Outgoing = new OutgoingModel();
             //get data post
             $res = service('request')->getPost();

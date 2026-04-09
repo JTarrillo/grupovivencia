@@ -244,9 +244,9 @@
                             </div>
                             <div class="d-flex flex-column">
                                 <div class="fw-bold d-flex align-items-center fs-5">
-                                    <?php echo isset($_SESSION['name']) ? $_SESSION['name'] : ''; ?>
+                                    <?php echo isset($_SESSION['client_name']) ? $_SESSION['client_name'] : ''; ?>
                                     <?php
-                                    if ($_SESSION['active'] == 1) { ?>
+                                    if ($_SESSION['client_active'] == 1) { ?>
                                     <span
                                         class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2"><?php echo lang('Global.activo'); ?></span>
                                     <?php } else { ?>
@@ -255,7 +255,7 @@
                                     <?php } ?>
                                 </div>
                                 <a
-                                    class="fw-semibold text-muted text-hover-primary fs-7"><?php echo isset($_SESSION['dni']) ? $_SESSION['dni'] : ''; ?></a>
+                                    class="fw-semibold text-muted text-hover-primary fs-7"><?php echo isset($_SESSION['client_dni']) ? $_SESSION['client_dni'] : ''; ?></a>
                             </div>
                         </div>
                     </div>

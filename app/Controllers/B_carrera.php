@@ -16,7 +16,7 @@ class B_carrera extends BaseController
         //get count product shopping cart
         $cart_count = Cart::count();
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
 
         //call library Evox
         $evox = new Evox();

@@ -19,7 +19,7 @@ class B_finanzas extends BaseController
         //get count product shopping cart
         $cart_count = Cart::count();
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         //get data planes
         $ComisionesInmobiliarias = new ComisionesInmobiliariasModel();
         $res = service('request')->getGet();
@@ -88,7 +88,7 @@ class B_finanzas extends BaseController
         //get count product shopping cart
         $cart_count = Cart::count();
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         $Invoices = new InvoicesModel();
         //get total comissions
         $obj_invoices = $Invoices->get_invoices_by_id_membership_id($id);
@@ -112,7 +112,7 @@ class B_finanzas extends BaseController
         //get count product shopping cart
         $cart_count = Cart::count();
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         //get data planes
         $Invoices = new InvoicesModel();
         //get total comissions
@@ -176,7 +176,7 @@ class B_finanzas extends BaseController
     public function export_pdf($invoice_id = null)
     {
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         //get data planes
         $Invoices = new InvoicesModel();
         //get total comissions

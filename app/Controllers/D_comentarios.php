@@ -90,7 +90,7 @@ class D_comentarios extends BaseController
         //load model 
         $Comments = new CommentsModel();
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //set var
         $obj_comments = null;
         //verify

@@ -1337,7 +1337,7 @@ class Inmueble extends BaseController {
             'total_lots' => $this->lotModel->countAll(),
             'available_lots' => $this->lotModel->where('status', 'available')->countAllResults(),
             'active_contracts' => $this->contractModel->where('status', 'active')->countAllResults(),
-            'session_name' => $_SESSION['name'] ?? 'Usuario'
+            'session_name' => $_SESSION['admin_name'] ?? 'Usuario'
         ];
         
         // --- LOG CRONOGRAMA ---
@@ -1398,7 +1398,7 @@ class Inmueble extends BaseController {
             'departamentos' => $departamentos,
             'provincias' => $provincias,
             'distritos' => $distritos,
-            'session_name' => $_SESSION['name'] ?? 'Usuario'
+            'session_name' => $_SESSION['admin_name'] ?? 'Usuario'
         ];
         // Registrar acceso en TXT
         $txtMsg = date('Y-m-d H:i:s') . "\n";
@@ -1512,7 +1512,7 @@ class Inmueble extends BaseController {
             'lots' => $lots,
             'projects' => $this->projectModel->findAll(),
             'selected_project' => $project_id,
-            'session_name' => $_SESSION['name'] ?? 'Usuario'
+            'session_name' => $_SESSION['admin_name'] ?? 'Usuario'
         ];
         return view('admin/inmueble/lots/lots', $data);
     }
@@ -1618,7 +1618,7 @@ class Inmueble extends BaseController {
         $data = [
             'title' => 'Nuevo Lote',
             'projects' => $this->projectModel->findAll(),
-            'session_name' => $_SESSION['name'] ?? 'Usuario'
+            'session_name' => $_SESSION['admin_name'] ?? 'Usuario'
         ];
         return view('admin/inmueble/lots/create_lot', $data);
     }
@@ -1784,7 +1784,7 @@ class Inmueble extends BaseController {
         $data = [
             'title' => 'Planes de Pago',
             'payment_plans' => $this->paymentPlanModel->findAll(),
-            'session_name' => $_SESSION['name'] ?? 'Usuario'
+            'session_name' => $_SESSION['admin_name'] ?? 'Usuario'
         ];
         
         return view('admin/inmueble/payment_plans/payment_plans', $data);
@@ -1905,7 +1905,7 @@ class Inmueble extends BaseController {
         // Si no es AJAX, redirigir
         $data = [
             'title' => 'Nuevo Plan de Pago',
-            'session_name' => $_SESSION['name'] ?? 'Usuario'
+            'session_name' => $_SESSION['admin_name'] ?? 'Usuario'
         ];
         return view('admin/inmueble/payment_plans/create_payment_plan', $data);
     }
@@ -1919,7 +1919,7 @@ class Inmueble extends BaseController {
         $data = [
             'title' => 'Contratos',
             'contracts' => $contractsArray,
-            'session_name' => $_SESSION['name'] ?? 'Usuario',
+            'session_name' => $_SESSION['admin_name'] ?? 'Usuario',
             'agents' => $agents
         ];
         return view('admin/inmueble/contracts/contracts', $data);
@@ -2250,7 +2250,7 @@ class Inmueble extends BaseController {
             $contractData = [
                 'lot_id' => $lotId,
                 'customer_id' => $customerId,
-                'sponsor_id' => $this->request->getPost('sponsor_id'),
+                'sponsor_id' => session()->get('admin_id'),  // El admin logueado es siempre el patrocinador
                 'payment_plan_id' => $paymentPlanId,
                 'contract_number' => $contractNumber,
                 'total_amount' => $totalAmount,

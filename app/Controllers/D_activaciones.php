@@ -21,7 +21,7 @@ class D_activaciones extends BaseController
         //get all of today's sales
         $obj_invoices = $Invoices->get_sales_pending_delivery();
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //send
         $data = array(
             'obj_invoices' => $obj_invoices,
@@ -33,7 +33,7 @@ class D_activaciones extends BaseController
     public function load($id = false)
     {
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //isset id
         if ($id != "") {
             //get data invoice
@@ -71,7 +71,7 @@ class D_activaciones extends BaseController
     public function verificadas()
     {
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         $Invoices = new InvoicesModel();
         //get data invoices by customer
         $obj_invoices = $Invoices->get_data_kit_by_customer_completed();
@@ -90,7 +90,7 @@ class D_activaciones extends BaseController
             $Invoices = new InvoicesModel();
             $Customer = new CustomerModel();
             //get data session
-            $id = $_SESSION['id'];
+            $id = $_SESSION['admin_id'];
             //get data post
             $res = service('request')->getPost();
             $invoice_id = $res['id'];

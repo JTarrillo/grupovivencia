@@ -14,7 +14,7 @@ class B_suggestion extends BaseController
         //get count product shopping cart
         $cart_count = Cart::count();
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         //get data customer
         $Customer = new CustomerModel();
         $obj_customer = $Customer->get_customer_by_membership_id($id);
@@ -40,7 +40,7 @@ class B_suggestion extends BaseController
             $Suggestions = new SuggestionsModel();
             //get data post
             $res = service('request')->getPost();
-            $customer_id = $_SESSION['id'];
+            $customer_id = $_SESSION['client_id'];
             $subject = $res['subject'];
             $content = $res['content'];
             //verify

@@ -8,7 +8,7 @@ class B_renovacion extends Controller
     public function index()
     {
         // Obtener el usuario logueado desde la sesión
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         $model = new CustomerModel();
         $user = $model->find($id);
         $obj_customer = $model->get_search_by_id($id);
@@ -26,7 +26,7 @@ class B_renovacion extends Controller
     public function pagar()
     {
         // Obtener el usuario logueado desde la sesión
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         $model = new CustomerModel();
         $user = $model->find($id);
 

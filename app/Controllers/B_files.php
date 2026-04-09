@@ -13,7 +13,7 @@ class B_files extends BaseController
         //get count product shopping cart
         $cart_count = Cart::count();
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         //get data customer
         $Customer = new CustomerModel();
         $B_perfil =new B_perfil();
@@ -44,7 +44,7 @@ class B_files extends BaseController
         //get count product shopping cart
         $cart_count = Cart::count();
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         //get data customer
         $Customer = new CustomerModel();
         $obj_customer = $Customer->get_data_customer_perfil($id);
@@ -73,7 +73,7 @@ class B_files extends BaseController
         //get count product shopping cart
         $cart_count = Cart::count();
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         //get data customer
         $Customer = new CustomerModel();
         $obj_customer = $Customer->get_data_customer_perfil($id);

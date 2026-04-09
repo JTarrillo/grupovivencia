@@ -12,7 +12,7 @@ class D_integracion_pagos extends BaseController
     public function index()
     {
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
         //get data comission by system
         $Customer = new CustomerModel();
         $obj_comissions = $Customer->comisiones_by_system();
@@ -28,7 +28,7 @@ class D_integracion_pagos extends BaseController
     public function load($id=false)
     {
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
         $Customer = new CustomerModel();
         $Bonus = new BonusesModel();
         //set var
@@ -126,7 +126,7 @@ class D_integracion_pagos extends BaseController
     //puntos binario
     public function puntos(){ 
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
         //get data comission by system
         $Customer = new CustomerModel();
         $obj_points_binary = $Customer->get_point_binary_by_customer();
@@ -142,7 +142,7 @@ class D_integracion_pagos extends BaseController
     public function puntos_load($id=false)
     {
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
         $Customer = new CustomerModel();
         //set var
         $obj_point_binary = null;
@@ -255,7 +255,7 @@ class D_integracion_pagos extends BaseController
     //puntos rango
     public function rangos(){
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
         //get data comission by system
         $Customer = new CustomerModel();
         $obj_points_ranges = $Customer->get_point_binary_ranges_by_customer();
@@ -271,7 +271,7 @@ class D_integracion_pagos extends BaseController
     public function rangos_load($id=false)
     {
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
         $Customer = new CustomerModel();
         //set var
         $obj_points_ranges = null;

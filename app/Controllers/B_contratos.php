@@ -202,7 +202,7 @@ class B_contratos extends Controller
    public function index()
     {
         $session = session();
-        $userId = $session->get('id');
+        $userId = $session->get('client_id');
         $contractModel = model('ContractModel');
         // Obtiene los contratos del usuario logueado
         $contracts = $contractModel->where('customer_id', $userId)->findAll();

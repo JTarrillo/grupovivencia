@@ -52,7 +52,7 @@ class D_report extends BaseController
             $style = "";
         }
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //get all range
         $Ranges = new RangesModel();
         $obj_ranges = $Ranges->get_all_crud();
@@ -183,7 +183,7 @@ class D_report extends BaseController
         }
 
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //get all range
         $Store = new StoreModel();
         $obj_store = $Store->get_all();
@@ -329,7 +329,7 @@ class D_report extends BaseController
             $style = "";
         }
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         //send
         $data = array(
             'obj_pagos' => $obj_pagos,
@@ -475,7 +475,7 @@ class D_report extends BaseController
         $periodData = $Period->search($param);
     
         // Obtener datos de sesión
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         $data = array(
             'obj_customer' => $obj_customer,
             'period_id' => $period_id ?? null,

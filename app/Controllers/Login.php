@@ -79,15 +79,15 @@ class Login extends BaseController
             //aunthenticate
             if ($authenticatePassword) {
                 $ses_data = [
-                    'id' => $obj_customer->id,
-                    'name' => $obj_customer->name,
-                    'lastname' => $obj_customer->lastname,
-                    'code' => $obj_customer->code,
-                    'active' => $obj_customer->active,
-                    'email' => $obj_customer->email,
-                    'dni' => $obj_customer->dni,
-                    //'username' => $obj_customer->username,
-                    'isLoggedIn' => TRUE
+                    'client_id' => $obj_customer->id,
+                    'client_name' => $obj_customer->name,
+                    'client_lastname' => $obj_customer->lastname,
+                    'client_code' => $obj_customer->code,
+                    'client_active' => $obj_customer->active,
+                    'client_email' => $obj_customer->email,
+                    'client_dni' => $obj_customer->dni,
+                    'client_isLoggedIn' => TRUE,
+                    'client_type' => 'customer'
                 ];
                 //begin session
                 $session->set($ses_data);

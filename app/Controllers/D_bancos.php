@@ -8,7 +8,7 @@ class D_bancos extends BaseController
     public function index()
     {
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
         //get data bonus
         $Bank = new BankModel();
         $obj_bank = $Bank->get_all();
@@ -22,7 +22,7 @@ class D_bancos extends BaseController
     
     public function load($id=false){
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name']." ".$_SESSION['admin_lastname'];
         //set var
         $obj_bank = null;
         //verify
@@ -42,7 +42,7 @@ class D_bancos extends BaseController
     public function validacion(){
         //ACTIVE CUSTOMER NORMALY
         if ($this->request->isAJAX()) {
-            $id = $_SESSION['id'];
+            $id = $_SESSION['admin_id'];
             $Bank = new BankModel();
             //get data post
             $res = service('request')->getPost();

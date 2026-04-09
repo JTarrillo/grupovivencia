@@ -14,7 +14,7 @@ class B_ticket extends BaseController
         //get count product shopping cart
         $cart_count = Cart::count();
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         //get data planes
         $Ticket = new TicketsModel();
         $obj_ticket = $Ticket->get_ticket_all_customer($id);
@@ -44,7 +44,7 @@ class B_ticket extends BaseController
             $Ticket = new TicketsModel();
             //get data post
             $res = service('request')->getPost();
-            $customer_id = $_SESSION['id'];
+            $customer_id = $_SESSION['client_id'];
             $subject = $res['subject'];
             $content = $res['content'];
             $newName = null;
@@ -116,7 +116,7 @@ class B_ticket extends BaseController
         //get count product shopping cart
         $cart_count = Cart::count();
         //get data session
-        $id = $_SESSION['id'];
+        $id = $_SESSION['client_id'];
         //get data planes
         $Ticket = new TicketsModel();
         $obj_ticket = $Ticket->get_data_by_id($ticket_id);

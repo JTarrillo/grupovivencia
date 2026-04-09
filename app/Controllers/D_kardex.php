@@ -16,7 +16,7 @@ class D_kardex extends BaseController
         $Memberships = new MembershipsModel();
         $style = "disabled";
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         $first_day = date('Y-m-01');
         $last_day = date('Y-m-t');
         //plus +1 day
@@ -72,7 +72,7 @@ class D_kardex extends BaseController
         $Store = new StoreModel();
         $style = "disabled";
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['admin_name'] . " " . $_SESSION['admin_lastname'];
         $first_day = date('Y-m-01');
         $last_day = date('Y-m-t');
         //plus +1 day

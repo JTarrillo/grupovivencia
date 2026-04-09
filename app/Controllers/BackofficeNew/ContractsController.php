@@ -18,7 +18,7 @@ class ContractsController extends BaseController
         $lotModel = new LotModel();
         $projectModel = new ProjectModel();
         
-        $customer_id = session()->get('id');
+        $customer_id = session()->get('client_id');
         
         // Obtener contratos del cliente
         $contractsRaw = $contractModel->where('customer_id', $customer_id)->findAll();
@@ -39,7 +39,7 @@ class ContractsController extends BaseController
                 'initial' => $c['down_payment'] ?? 0,  // ✅ Usar down_payment
                 'monthly' => $c['monthly_payment'] ?? 0,
                 'installments' => ($c['financing_months'] ?? 12) . ' cuotas',
-                'status' => $c['status'] ?? 'activo',
+                'status' => !empty($c['status']) ? $c['status'] : 'activo',
                 'signed_date' => $c['contract_date'] ?? '',
                 'start_date' => $c['start_date'] ?? $c['contract_date'] ?? '',
                 'created_at' => $c['created_at'] ?? '',
