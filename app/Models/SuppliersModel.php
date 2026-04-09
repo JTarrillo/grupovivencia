@@ -7,7 +7,7 @@ class SuppliersModel extends Model{
     protected $table      = 'suppliers';
     protected $primaryKey = 'id';
     protected $returnType = 'array';
-    protected $useSoftDeletes = true;
+    protected $useSoftDeletes = false;
     protected $allowedFields = ['name', 'ruc', 'phone', 'address', 'date', 'active', 'created_at', 'updated_at'];
     protected $useTimestamps = false;
 

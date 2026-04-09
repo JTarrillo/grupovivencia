@@ -489,6 +489,60 @@ $routes->group('dashboard/inmueble', static function($routes){
     // ...existing code...
 });
 
+// Compras (Purchases) routes
+$routes->group('dashboard/compras', static function($routes){
+    // Page views
+    $routes->get('', 'D_compras::index', ['filter' => 'authGuard']);
+    $routes->get('create', 'D_compras::create', ['filter' => 'authGuard']);
+    $routes->post('', 'D_compras::store', ['filter' => 'authGuard']);
+    $routes->get('view/(:num)', 'D_compras::view/$1', ['filter' => 'authGuard']);
+    
+    // Actions
+    $routes->post('clasificar', 'D_compras::clasificar', ['filter' => 'authGuard']);
+    $routes->post('aprobar', 'D_compras::aprobar', ['filter' => 'authGuard']);
+    
+    // Reports
+    $routes->get('reporte', 'D_compras::reporte', ['filter' => 'authGuard']);
+    
+    // Downloads
+    $routes->get('descargarComprobante/(:num)', 'D_compras::descargarComprobante/$1', ['filter' => 'authGuard']);
+});
+
+// Gastos (Expenses) routes
+$routes->group('dashboard/gastos', static function($routes){
+    // Main views
+    $routes->get('', 'D_gastos::index', ['filter' => 'authGuard']);
+    $routes->get('reporte', 'D_gastos::reporte', ['filter' => 'authGuard']);
+    $routes->get('analitico', 'D_gastos::analitico', ['filter' => 'authGuard']);
+    $routes->get('pendientes', 'D_gastos::pendientes', ['filter' => 'authGuard']);
+    $routes->get('comparativo', 'D_gastos::comparativo', ['filter' => 'authGuard']);
+    
+    // Actions
+    $routes->post('exportar', 'D_gastos::exportar', ['filter' => 'authGuard']);
+    
+    // API endpoints
+    $routes->get('api/gastos-por-proyecto', 'D_gastos::gastosPorProyecto', ['filter' => 'authGuard']);
+    $routes->get('api/estadisticas', 'D_gastos::estadisticas', ['filter' => 'authGuard']);
+});
+
+// Clasificación de Gastos routes
+$routes->group('dashboard/clasificacion', static function($routes){
+    // Main views
+    $routes->get('', 'D_clasificacion::index', ['filter' => 'authGuard']);
+    $routes->get('clasificar/(:num)', 'D_clasificacion::clasificar/$1', ['filter' => 'authGuard']);
+    $routes->get('reportes', 'D_clasificacion::reportes', ['filter' => 'authGuard']);
+    $routes->get('crear-reporte', 'D_clasificacion::crearReporte', ['filter' => 'authGuard']);
+    $routes->get('ver-reporte/(:num)', 'D_clasificacion::verReporte/$1', ['filter' => 'authGuard']);
+    
+    // AJAX Actions
+    $routes->post('guardarClasificacion', 'D_clasificacion::guardarClasificacion', ['filter' => 'authGuard']);
+    $routes->get('subcategoriasPorTipo/(:num)', 'D_clasificacion::subcategoriasPorTipo/$1', ['filter' => 'authGuard']);
+    $routes->post('subirDocumento/(:num)', 'D_clasificacion::subirDocumento/$1', ['filter' => 'authGuard']);
+    $routes->post('eliminarDocumento/(:num)', 'D_clasificacion::eliminarDocumento/$1', ['filter' => 'authGuard']);
+    $routes->post('guardarReporte', 'D_clasificacion::guardarReporte', ['filter' => 'authGuard']);
+});
+
+
 /*
  * --------------------------------------------------------------------
  * Additional Routing
