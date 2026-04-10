@@ -929,7 +929,7 @@ class Inmueble extends BaseController {
     {
         // Solo lotes disponibles y proyectos activos o en planificación
         $lots = $this->lotModel
-            ->select('lots.*, projects.name as project_name, projects.status as project_status, projects.department_id as project_department_id, projects.province_id as project_province_id, projects.district_id as project_district_id, projects.base_interest_rate')
+            ->select('lots.*, projects.name as project_name, projects.status as project_status, projects.department_id as project_department_id, projects.province_id as project_province_id, projects.district_id as project_district_id, projects.base_interest_rate, projects.min_down_payment_percentage, projects.down_payment_type as project_down_payment_type, projects.min_down_payment_fixed as project_min_down_payment_fixed')
             ->join('projects', 'projects.id = lots.project_id')
             ->where('lots.status', 'available')
             ->whereIn('projects.status', ['active', 'planning'])
@@ -950,9 +950,9 @@ class Inmueble extends BaseController {
                 'department_id' => $lot['project_department_id'] ?? ($lot['department_id'] ?? null),
                 'province_id' => $lot['project_province_id'] ?? ($lot['province_id'] ?? null),
                 'district_id' => $lot['project_district_id'] ?? ($lot['district_id'] ?? null),
-                'down_payment_type' => $lot['down_payment_type'] ?? null,
+                'down_payment_type' => $lot['project_down_payment_type'] ?? null,
                 'min_down_payment_percentage' => $lot['min_down_payment_percentage'] ?? null,
-                'min_down_payment_fixed' => $lot['min_down_payment_fixed'] ?? null,
+                'min_down_payment_fixed' => $lot['project_min_down_payment_fixed'] ?? null,
                 'base_interest_rate' => $lot['base_interest_rate'] ?? null
             ];
         }, $lots);

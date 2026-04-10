@@ -1232,7 +1232,19 @@
         document.getElementById('selected_lot_info').style.display = 'block';
         // Set minimum down payment
         const lotPrice = parseFloat(lot.current_price || 0);
-        const minDownPayment = Math.max(lotPrice * 0.15, 5000);
+        let minDownPayment;
+        
+        // Verificar si el proyecto usa monto fijo o porcentaje
+        const downPaymentType = lot.down_payment_type;
+        if (downPaymentType === 'fixed') {
+            // Usar monto fijo del proyecto
+            minDownPayment = parseFloat(lot.min_down_payment_fixed || 5000);
+        } else {
+            // Usar porcentaje
+            const minPercentage = parseFloat(lot.min_down_payment_percentage || 15) / 100;
+            minDownPayment = Math.max(lotPrice * minPercentage, 5000);
+        }
+        
         document.getElementById('min_down_payment').textContent = minDownPayment.toLocaleString('es-PE');
         document.getElementById('down_payment').setAttribute('min', minDownPayment);
         document.getElementById('down_payment').value = minDownPayment;
