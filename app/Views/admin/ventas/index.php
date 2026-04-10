@@ -7,55 +7,107 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
 <style>
-    /* MEJORAS DE DISEÑO */
-    .table thead th {
-        background-color: #f8f9fa;
-        text-transform: uppercase;
-        font-size: 11px;
-        letter-spacing: 1px;
-        font-weight: 700;
-        color: #727cf5;
-        border-bottom: 2px solid #eef2f7;
+/* MEJORAS DE DISEÑO */
+.table thead th {
+    background-color: #f8f9fa;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+    font-weight: 700;
+    color: #727cf5;
+    border-bottom: 2px solid #eef2f7;
+}
+
+.table td {
+    vertical-align: middle !important;
+}
+
+.btn-action {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    margin: 0 2px;
+    transition: all 0.2s;
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Badge suave para el estado */
+.badge-soft-success {
+    background-color: rgba(10, 207, 151, 0.15);
+    color: #0acf97;
+    border: 1px solid rgba(10, 207, 151, 0.2);
+    padding: 6px 10px;
+    font-weight: 600;
+}
+
+.rotate {
+    animation: rotation 1.5s infinite linear;
+}
+
+@keyframes rotation {
+    from {
+        transform: rotate(0deg);
     }
 
-    .table td {
-        vertical-align: middle !important;
+    to {
+        transform: rotate(359deg);
     }
+}
 
-    .btn-action {
-        width: 32px;
-        height: 32px;
-        padding: 0;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 4px;
-        margin: 0 2px;
-        transition: all 0.2s;
-    }
+/* PERSONALIZACIÓN MINIMALISTA DE SWEETALERT2 */
+.swal2-popup {
+    border-radius: 12px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
+    background-color: white !important;
+}
 
-    .btn-action:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
+.swal2-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+}
 
-    /* Badge suave para el estado */
-    .badge-soft-success {
-        background-color: rgba(10, 207, 151, 0.15);
-        color: #0acf97;
-        border: 1px solid rgba(10, 207, 151, 0.2);
-        padding: 6px 10px;
-        font-weight: 600;
-    }
+.swal2-html-container {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #666;
+}
 
-    .rotate {
-        animation: rotation 1.5s infinite linear;
-    }
+.swal2-confirm,
+.swal2-cancel {
+    padding: 10px 25px !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+}
 
-    @keyframes rotation {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(359deg); }
-    }
+.swal2-confirm {
+    background-color: #727cf5 !important;
+    color: white !important;
+}
+
+.swal2-confirm:hover {
+    background-color: #5f66c6 !important;
+}
+
+.swal2-cancel {
+    background-color: #e9ecef !important;
+    color: #495057 !important;
+}
+
+.swal2-cancel:hover {
+    background-color: #dee2e6 !important;
+}
 </style>
 
 <body class="">
@@ -73,7 +125,9 @@
                                         <h5 class="m-b-10">Ventas</h5>
                                     </div>
                                     <ul class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="<?php echo site_url("dashboard/panel"); ?>"><i class="feather icon-home"></i></a></li>
+                                        <li class="breadcrumb-item"><a
+                                                href="<?php echo site_url("dashboard/panel"); ?>"><i
+                                                    class="feather icon-home"></i></a></li>
                                         <li class="breadcrumb-item"><a href="#!">Ventas</a></li>
                                         <li class="breadcrumb-item"><a href="#!">Listado de Boletas</a></li>
                                     </ul>
@@ -109,7 +163,8 @@
                                                     <tbody id="tbodyVentas">
                                                         <tr>
                                                             <td colspan="6" class="text-center py-5">
-                                                                <div class="spinner-border text-primary" role="status"></div>
+                                                                <div class="spinner-border text-primary" role="status">
+                                                                </div>
                                                                 <p class="mt-2">Cargando datos de facturación...</p>
                                                             </td>
                                                         </tr>
@@ -132,28 +187,30 @@
     <script src="https://unpkg.com/feather-icons"></script>
 
     <script>
-        $(document).ready(function() {
+    $(document).ready(function() {
+        fetchBoletas();
+
+        $("#btnReload").click(function() {
             fetchBoletas();
-
-            $("#btnReload").click(function() {
-                fetchBoletas();
-            });
         });
+    });
 
-        function fetchBoletas() {
-            const tbody = $("#tbodyVentas");
-            tbody.html('<tr><td colspan="6" class="text-center py-5"><i data-feather="loader" class="rotate text-primary"></i><p class="mt-2">Consultando API...</p></td></tr>');
-            feather.replace();
+    function fetchBoletas() {
+        const tbody = $("#tbodyVentas");
+        tbody.html(
+            '<tr><td colspan="6" class="text-center py-5"><i data-feather="loader" class="rotate text-primary"></i><p class="mt-2">Consultando API...</p></td></tr>'
+            );
+        feather.replace();
 
-            $.ajax({
-                url: '<?php echo base_url("dashboard/get_boletas_api"); ?>',
-                type: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    let html = '';
-                    if (response.success) {
-                        response.data.forEach(item => {
-                            html += `
+        $.ajax({
+            url: '<?php echo base_url("dashboard/get_boletas_api"); ?>',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                let html = '';
+                if (response.success) {
+                    response.data.forEach(item => {
+                        html += `
                             <tr>
                                 <td>
                                     <span class="text-muted"><i data-feather="calendar" style="width:12px; height:12px"></i> ${item.fecha_emision.split('T')[0]}</span>
@@ -187,119 +244,85 @@
         </div>
     </td>
                             </tr>`;
-                        });
-                        tbody.html(html);
-                        
-                        // FIX DE ICONOS: Se ejecuta después de llenar el tbody
-                        feather.replace();
-                    }
+                    });
+                    tbody.html(html);
+
+                    // FIX DE ICONOS: Se ejecuta después de llenar el tbody
+                    feather.replace();
                 }
-            });
-        }
+            }
+        });
+    }
 
-        function ejecutarAccion(accion, id, nombreComprobante) {
-            // Mapear textos descriptivos para cada acción
-            const mapeoAcciones = {
-                'generate': { titulo: 'Generar PDF', icon: 'info', color: '#f59e0b' },
-                'send': { titulo: 'Enviar a SUNAT', icon: 'question', color: '#ef4444' },
-                'pdf': { titulo: 'Descargar PDF', icon: 'info', color: '#3b82f6' },
-                'xml': { titulo: 'Descargar XML', icon: 'info', color: '#10b981' },
-                'cdr': { titulo: 'Descargar CDR', icon: 'info', color: '#6366f1' }
-            };
+    function ejecutarAccion(accion, id, nombreComprobante) {
+        // Mapear títulos para cada acción
+        const mapeoAcciones = {
+            'generate': { titulo: 'Generar PDF', icon: 'info' },
+            'send': { titulo: 'Enviar a SUNAT', icon: 'question' },
+            'pdf': { titulo: 'Descargar PDF', icon: 'info' },
+            'xml': { titulo: 'Descargar XML', icon: 'info' },
+            'cdr': { titulo: 'Descargar CDR', icon: 'info' }
+        };
 
-            const config = mapeoAcciones[accion] || { titulo: 'Procesando', icon: 'info', color: '#666' };
+        const config = mapeoAcciones[accion] || { titulo: 'Procesando', icon: 'info' };
 
-            // Mostrar loading
-            Swal.fire({
-                title: config.titulo,
-                html: `<p>Procesando <strong>${nombreComprobante}</strong>...</p>`,
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                didOpen: (modal) => {
-                    Swal.showLoading();
-                }
-            });
+        // Mostrar modal de carga
+        Swal.fire({
+            title: config.titulo,
+            html: `<p>${nombreComprobante}</p>`,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => Swal.showLoading()
+        });
 
-            $.ajax({
-                url: '<?php echo base_url("dashboard/operacion-facturacion"); ?>',
-                type: 'POST',
-                data: {
-                    id: id,
-                    tipo: accion,
-                    nombre: nombreComprobante
-                },
-                dataType: 'json',
-                success: function(res) {
-                    // Acción SEND (envío a SUNAT)
-                    if (accion === 'send') {
-                        if (res.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: '¡Enviado a SUNAT!',
-                                html: `<p class="text-break">${res.message || 'Comprobante enviado correctamente'}</p>`,
-                                confirmButtonColor: '#10b981',
-                                confirmButtonText: 'Aceptar'
-                            }).then(() => {
-                                fetchBoletas(); // Recargar lista
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error en SUNAT',
-                                html: `<p class="text-break">${res.message || 'No se pudo enviar a SUNAT'}</p>`,
-                                confirmButtonColor: '#ef4444',
-                                confirmButtonText: 'Cerrar'
-                            });
-                        }
-                    } 
-                    // Acciones de DESCARGA (pdf, xml, cdr) o generación
-                    else {
-                        if (res.status) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: '¡Listo!',
-                                html: `<p class="text-break">${res.message}</p>`,
-                                confirmButtonColor: '#10b981',
-                                didClose: () => {
-                                    // Descargar automáticamente si hay URL
-                                    if (res.file_url && res.file_url !== '#') {
-                                        window.open(res.file_url, '_blank');
-                                    }
-                                }
-                            }).then(() => {
-                                fetchBoletas();
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error en Descarga',
-                                html: `<p class="text-break"><strong>${accion.toUpperCase()}:</strong> ${res.message || 'Ocurrió un error al procesar'}</p>`,
-                                confirmButtonColor: '#ef4444',
-                                confirmButtonText: 'Cerrar'
-                            });
-                        }
-                    }
-                },
-                error: function(xhr) {
-                    let errorMsg = 'Error del servidor';
-                    if (xhr.status === 0) {
-                        errorMsg = 'Conexión perdida. Verifica tu red.';
-                    } else if (xhr.status === 404) {
-                        errorMsg = 'Endpoint no encontrado';
-                    } else if (xhr.status === 500) {
-                        errorMsg = 'Error interno del servidor';
-                    }
-                    
+        $.ajax({
+            url: '<?php echo base_url("dashboard/operacion-facturacion"); ?>',
+            type: 'POST',
+            data: { id, tipo: accion, nombre: nombreComprobante },
+            dataType: 'json',
+            success: function(res) {
+                if (accion === 'send') {
                     Swal.fire({
-                        icon: 'error',
-                        title: 'Error de Conexión',
-                        html: `<p class="text-break">${errorMsg}</p><p class="text-muted mt-3"><small>Código: ${xhr.status}</small></p>`,
-                        confirmButtonColor: '#ef4444',
-                        confirmButtonText: 'Cerrar'
+                        icon: res.success ? 'success' : 'error',
+                        title: res.success ? 'Completado' : 'Error',
+                        text: res.message,
+                        confirmButtonColor: '#727cf5'
+                    }).then(() => {
+                        if (res.success) fetchBoletas();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: res.status ? 'success' : 'error',
+                        title: res.status ? 'Completado' : 'Error',
+                        text: res.message,
+                        confirmButtonColor: '#727cf5',
+                        didClose: () => {
+                            if (res.status && res.file_url && res.file_url !== '#') {
+                                window.open(res.file_url, '_blank');
+                            }
+                        }
+                    }).then(() => {
+                        if (res.status) fetchBoletas();
                     });
                 }
-            });
-        }
+            },
+            error: function(xhr) {
+                let errorMsg = 'Error del servidor';
+                if (xhr.status === 0) errorMsg = 'Conexión perdida';
+                else if (xhr.status === 404) errorMsg = 'Endpoint no encontrado';
+                else if (xhr.status === 500) errorMsg = 'Error interno del servidor';
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMsg,
+                    confirmButtonColor: '#727cf5'
+                });
+            }
+        });
+    }
     </script>
 </body>
+
 </html>
