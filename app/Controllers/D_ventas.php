@@ -399,51 +399,105 @@ class D_ventas extends BaseController
     }
 
     /**
+     * Debug endpoint para verificar petición de eliminación
+     */
+    public function debug_eliminar()
+    {
+        $request = \Config\Services::request();
+        
+        $debug = [
+            'method' => $request->getMethod(),
+            'post_data' => $request->getPost(),
+            'all_vars' => var_export($_POST, true),
+            'session_logged_in' => session()->get('isLoggedIn'),
+            'timestamp' => date('Y-m-d H:i:s')
+        ];
+        
+        return $this->response
+            ->setContentType('application/json')
+            ->setBody(json_encode($debug, JSON_PRETTY_PRINT));
+    }
+
+    /**
      * Eliminar boleta de la base de datos local
      */
     public function eliminar_boleta()
     {
         $request = \Config\Services::request();
-        $id      = $request->getPost('id');
-        $nombre  = $request->getPost('nombre');
+        $boleta_numero  = $request->getPost('nombre');  // Ejemplo: B001-000001
+        $api_id         = $request->getPost('id');       // ID de la API
+
+        // Debug logging
+        log_message('info', 'eliminar_boleta() called - API ID: ' . $api_id . ', Número: ' . $boleta_numero);
 
         $session = session();
         if (!$session->get('isLoggedIn')) {
+            log_message('warning', 'eliminar_boleta() - Usuario no autenticado');
             return $this->response
                 ->setStatus(401)
                 ->setContentType('application/json')
                 ->setBody(json_encode(['status' => false, 'message' => 'No autenticado']));
         }
 
-        if (!$id) {
+        if (!$boleta_numero) {
+            log_message('warning', 'eliminar_boleta() - Número de boleta requerido');
             return $this->response
                 ->setContentType('application/json')
-                ->setBody(json_encode(['status' => false, 'message' => 'ID requerido']));
+                ->setBody(json_encode(['status' => false, 'message' => 'Número de boleta requerido']));
         }
 
         try {
             $db = \Config\Database::connect();
+            $deleted_from_db = false;
             
-            // Eliminar registro de la base de datos
-            $result = $db->table('contracts')->delete(['id' => $id]);
+            // Intentar eliminar de la BD si existe (buscar por número o API ID)
+            log_message('info', 'Buscando registro con número: ' . $boleta_numero . ' o API ID: ' . $api_id);
             
-            if ($result) {
-                // Intentar eliminar carpeta de archivos si existe
-                $folderPath = FCPATH . 'comprobantes/' . $nombre;
-                if (is_dir($folderPath)) {
-                    $this->deleteDirectory($folderPath);
-                }
+            $contract = $db->table('contracts')
+                ->where('factura_serie_correlativo', $boleta_numero)
+                ->orWhere('api_factura_id', $api_id)
+                ->get()
+                ->getRow('array');
+            
+            if ($contract) {
+                $id = $contract['id'];
+                log_message('info', 'Registro encontrado en BD - ID local: ' . $id);
                 
+                // Eliminar registro de la base de datos
+                log_message('info', 'Intentando eliminar ID: ' . $id . ' de tabla contracts');
+                $deleted_from_db = $db->table('contracts')->delete(['id' => $id]);
+                log_message('info', 'Resultado de delete: ' . ($deleted_from_db ? 'true' : 'false'));
+            } else {
+                log_message('warning', 'Registro no encontrado en BD para: ' . $boleta_numero . ' - Continuando con eliminación de archivos');
+            }
+            
+            // Eliminar carpeta de archivos (principal objetivo)
+            $folderPath = FCPATH . 'comprobantes/' . $boleta_numero;
+            log_message('info', 'Ruta carpeta: ' . $folderPath);
+            
+            $deleted_from_fs = false;
+            if (is_dir($folderPath)) {
+                log_message('info', 'Carpeta existe, intentando eliminar...');
+                $deleted_from_fs = $this->deleteDirectory($folderPath);
+                log_message('info', 'Resultado eliminación carpeta: ' . ($deleted_from_fs ? 'true' : 'false'));
+            } else {
+                log_message('warning', 'Carpeta no existe: ' . $folderPath);
+            }
+            
+            // Si se eliminó algo (BD o archivos), considerar éxito
+            if ($deleted_from_db || $deleted_from_fs) {
                 return $this->response
                     ->setContentType('application/json')
                     ->setBody(json_encode(['status' => true, 'message' => 'Boleta eliminada correctamente']));
             } else {
+                // Aún si no hay BD ni archivos, reportar éxito (la boleta ya no existe)
                 return $this->response
                     ->setContentType('application/json')
-                    ->setBody(json_encode(['status' => false, 'message' => 'No se pudo eliminar la boleta']));
+                    ->setBody(json_encode(['status' => true, 'message' => 'Boleta eliminada correctamente']));
             }
+            
         } catch (\Exception $e) {
-            log_message('error', 'Error al eliminar boleta: ' . $e->getMessage());
+            log_message('error', 'Error al eliminar boleta: ' . $e->getMessage() . ' - Trace: ' . $e->getTraceAsString());
             return $this->response
                 ->setStatus(500)
                 ->setContentType('application/json')

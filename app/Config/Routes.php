@@ -686,5 +686,6 @@ $routes->get('/dashboard/inmueble/api/get_contract_details/(:num)', 'Inmueble::g
 
 
 //rutas para generar documentos
-$routes->post('dashboard/operacion-facturacion', 'D_ventas::operacion_facturacion');
-$routes->post('dashboard/eliminar-boleta', 'D_ventas::eliminar_boleta');
+$routes->post('/dashboard/operacion-facturacion', 'D_ventas::operacion_facturacion', ['filter' => 'authGuard']);
+$routes->post('/dashboard/eliminar-boleta', 'D_ventas::eliminar_boleta', ['filter' => 'authGuard']);
+$routes->post('/dashboard/debug-eliminar', 'D_ventas::debug_eliminar', ['filter' => 'authGuard']);
