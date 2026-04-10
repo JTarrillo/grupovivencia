@@ -241,9 +241,6 @@
             <button onclick="ejecutarAccion('cdr', '${item.id}', '${item.numero_completo}')" class="btn btn-action btn-outline-info" title="CDR Local">
                 <i data-feather="mail"></i>
             </button>
-            <button onclick="eliminarBoleta('${item.id}', '${item.numero_completo}')" class="btn btn-action btn-outline-secondary" title="Eliminar">
-                <i data-feather="trash-2"></i>
-            </button>
         </div>
     </td>
                             </tr>`;
@@ -348,91 +345,7 @@
         });
     }
 
-    function eliminarBoleta(id, nombreComprobante) {
-        console.log('eliminarBoleta() - id:', id, 'nombreComprobante:', nombreComprobante);
-        
-        Swal.fire({
-            title: '¿Eliminar boleta?',
-            html: `<p>¿Estás seguro de que deseas eliminar <strong>${nombreComprobante}</strong>?</p>
-                   <p style="font-size: 12px; color: #999; margin-top: 10px;">Esta acción no se puede deshacer.</p>`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#727cf5',
-            confirmButtonText: '✓ Eliminar',
-            cancelButtonText: '✗ Cancelar',
-            allowOutsideClick: false
-        }).then(result => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Eliminando...',
-                    html: `<p>Eliminando boleta...</p>`,
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    showConfirmButton: false,
-                    didOpen: () => Swal.showLoading()
-                });
 
-                console.log('Enviando AJAX a dashboard/eliminar-boleta con:', { id, nombre: nombreComprobante });
-
-                $.ajax({
-                    url: '<?php echo base_url("dashboard/eliminar-boleta"); ?>',
-                    type: 'POST',
-                    data: { 
-                        id: id, 
-                        nombre: nombreComprobante 
-                    },
-                    dataType: 'json',
-                    success: function(res) {
-                        console.log('Respuesta exitosa completa:', JSON.stringify(res));
-                        console.log('res.status:', res.status, 'res.message:', res.message);
-                        
-                        if (res.status) {
-                            // Eliminar la fila de la tabla visualmente
-                            const fila = $(`tr[data-boleta-id="${nombreComprobante}"]`);
-                            console.log('Fila encontrada:', fila.length > 0);
-                            
-                            fila.fadeOut(500, function() {
-                                $(this).remove();
-                                
-                                // Verificar si hay filas restantes
-                                const tbodyVentas = $("#tbodyVentas");
-                                if (tbodyVentas.find('tr').length === 0) {
-                                    tbodyVentas.html('<tr><td colspan="6" class="text-center py-5 text-muted">No hay boletas registradas</td></tr>');
-                                }
-                            });
-                            
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Eliminada',
-                                text: res.message || 'Boleta eliminada correctamente',
-                                confirmButtonColor: '#727cf5'
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: res.message || 'No se pudo eliminar la boleta',
-                                confirmButtonColor: '#727cf5'
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error AJAX:', status, error);
-                        console.error('XHR Response:', xhr.responseText);
-                        console.error('XHR Status:', xhr.status);
-                        
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error HTTP ' + xhr.status,
-                            text: 'Error: ' + error + '\n\n' + (xhr.responseText || 'Sin detalle'),
-                            confirmButtonColor: '#727cf5'
-                        });
-                    }
-                });
-            }
-        });
-    }
     </script>
 </body>
 
