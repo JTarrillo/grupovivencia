@@ -397,4 +397,71 @@ class D_ventas extends BaseController
             ])->setStatusCode(500);
         }
     }
+
+    /**
+     * Eliminar boleta de la base de datos local
+     */
+    public function eliminar_boleta()
+    {
+        $request = \Config\Services::request();
+        $id      = $request->getPost('id');
+        $nombre  = $request->getPost('nombre');
+
+        $session = session();
+        if (!$session->get('isLoggedIn')) {
+            return $this->response
+                ->setStatus(401)
+                ->setContentType('application/json')
+                ->setBody(json_encode(['status' => false, 'message' => 'No autenticado']));
+        }
+
+        if (!$id) {
+            return $this->response
+                ->setContentType('application/json')
+                ->setBody(json_encode(['status' => false, 'message' => 'ID requerido']));
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            
+            // Eliminar registro de la base de datos
+            $result = $db->table('contracts')->delete(['id' => $id]);
+            
+            if ($result) {
+                // Intentar eliminar carpeta de archivos si existe
+                $folderPath = FCPATH . 'comprobantes/' . $nombre;
+                if (is_dir($folderPath)) {
+                    $this->deleteDirectory($folderPath);
+                }
+                
+                return $this->response
+                    ->setContentType('application/json')
+                    ->setBody(json_encode(['status' => true, 'message' => 'Boleta eliminada correctamente']));
+            } else {
+                return $this->response
+                    ->setContentType('application/json')
+                    ->setBody(json_encode(['status' => false, 'message' => 'No se pudo eliminar la boleta']));
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error al eliminar boleta: ' . $e->getMessage());
+            return $this->response
+                ->setStatus(500)
+                ->setContentType('application/json')
+                ->setBody(json_encode(['status' => false, 'message' => 'Error: ' . $e->getMessage()]));
+        }
+    }
+
+    /**
+     * Helper para eliminar directorio recursivamente
+     */
+    private function deleteDirectory($dir) {
+        if (!is_dir($dir)) return false;
+        
+        $files = array_diff(scandir($dir), ['.', '..']);
+        foreach ($files as $file) {
+            $path = $dir . '/' . $file;
+            is_dir($path) ? $this->deleteDirectory($path) : unlink($path);
+        }
+        return rmdir($dir);
+    }
 }

@@ -199,7 +199,7 @@
         const tbody = $("#tbodyVentas");
         tbody.html(
             '<tr><td colspan="6" class="text-center py-5"><i data-feather="loader" class="rotate text-primary"></i><p class="mt-2">Consultando API...</p></td></tr>'
-            );
+        );
         feather.replace();
 
         $.ajax({
@@ -241,6 +241,9 @@
             <button onclick="ejecutarAccion('cdr', '${item.id}', '${item.numero_completo}')" class="btn btn-action btn-outline-info" title="CDR Local">
                 <i data-feather="mail"></i>
             </button>
+            <button onclick="eliminarBoleta('${item.id}', '${item.numero_completo}')" class="btn btn-action btn-outline-secondary" title="Eliminar">
+                <i data-feather="trash-2"></i>
+            </button>
         </div>
     </td>
                             </tr>`;
@@ -257,14 +260,32 @@
     function ejecutarAccion(accion, id, nombreComprobante) {
         // Mapear títulos para cada acción
         const mapeoAcciones = {
-            'generate': { titulo: 'Generar PDF', icon: 'info' },
-            'send': { titulo: 'Enviar a SUNAT', icon: 'question' },
-            'pdf': { titulo: 'Descargar PDF', icon: 'info' },
-            'xml': { titulo: 'Descargar XML', icon: 'info' },
-            'cdr': { titulo: 'Descargar CDR', icon: 'info' }
+            'generate': {
+                titulo: 'Generar PDF',
+                icon: 'info'
+            },
+            'send': {
+                titulo: 'Enviar a SUNAT',
+                icon: 'question'
+            },
+            'pdf': {
+                titulo: 'Descargar PDF',
+                icon: 'info'
+            },
+            'xml': {
+                titulo: 'Descargar XML',
+                icon: 'info'
+            },
+            'cdr': {
+                titulo: 'Descargar CDR',
+                icon: 'info'
+            }
         };
 
-        const config = mapeoAcciones[accion] || { titulo: 'Procesando', icon: 'info' };
+        const config = mapeoAcciones[accion] || {
+            titulo: 'Procesando',
+            icon: 'info'
+        };
 
         // Mostrar modal de carga
         Swal.fire({
@@ -279,7 +300,11 @@
         $.ajax({
             url: '<?php echo base_url("dashboard/operacion-facturacion"); ?>',
             type: 'POST',
-            data: { id, tipo: accion, nombre: nombreComprobante },
+            data: {
+                id,
+                tipo: accion,
+                nombre: nombreComprobante
+            },
             dataType: 'json',
             success: function(res) {
                 if (accion === 'send') {
@@ -318,6 +343,57 @@
                     title: 'Error',
                     text: errorMsg,
                     confirmButtonColor: '#727cf5'
+                });
+            }
+        });
+    }
+
+    function eliminarBoleta(id, nombreComprobante) {
+        Swal.fire({
+            title: '¿Eliminar boleta?',
+            html: `<p>¿Estás seguro de que deseas eliminar <strong>${nombreComprobante}</strong>?</p>
+                   <p style="font-size: 12px; color: #999; margin-top: 10px;">Esta acción no se puede deshacer.</p>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#727cf5',
+            confirmButtonText: '✓ Eliminar',
+            cancelButtonText: '✗ Cancelar',
+            allowOutsideClick: false
+        }).then(result => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Eliminando...',
+                    html: `<p>Eliminando boleta...</p>`,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                $.ajax({
+                    url: '<?php echo base_url("dashboard/eliminar-boleta"); ?>',
+                    type: 'POST',
+                    data: { id, nombre: nombreComprobante },
+                    dataType: 'json',
+                    success: function(res) {
+                        Swal.fire({
+                            icon: res.status ? 'success' : 'error',
+                            title: res.status ? 'Eliminada' : 'Error',
+                            text: res.message,
+                            confirmButtonColor: '#727cf5'
+                        }).then(() => {
+                            if (res.status) fetchBoletas();
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'No se pudo eliminar la boleta',
+                            confirmButtonColor: '#727cf5'
+                        });
+                    }
                 });
             }
         });
