@@ -2,6 +2,10 @@
 <html lang="es-PE">
 <?php echo view("admin/head"); ?>
 
+<!-- SweetAlert2 CSS && JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
 <style>
     /* MEJORAS DE DISEÑO */
     .table thead th {
@@ -194,6 +198,28 @@
         }
 
         function ejecutarAccion(accion, id, nombreComprobante) {
+            // Mapear textos descriptivos para cada acción
+            const mapeoAcciones = {
+                'generate': { titulo: 'Generar PDF', icon: 'info', color: '#f59e0b' },
+                'send': { titulo: 'Enviar a SUNAT', icon: 'question', color: '#ef4444' },
+                'pdf': { titulo: 'Descargar PDF', icon: 'info', color: '#3b82f6' },
+                'xml': { titulo: 'Descargar XML', icon: 'info', color: '#10b981' },
+                'cdr': { titulo: 'Descargar CDR', icon: 'info', color: '#6366f1' }
+            };
+
+            const config = mapeoAcciones[accion] || { titulo: 'Procesando', icon: 'info', color: '#666' };
+
+            // Mostrar loading
+            Swal.fire({
+                title: config.titulo,
+                html: `<p>Procesando <strong>${nombreComprobante}</strong>...</p>`,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: (modal) => {
+                    Swal.showLoading();
+                }
+            });
+
             $.ajax({
                 url: '<?php echo base_url("dashboard/operacion-facturacion"); ?>',
                 type: 'POST',
@@ -203,28 +229,74 @@
                     nombre: nombreComprobante
                 },
                 dataType: 'json',
-                beforeSend: function() {
-                    console.log("Procesando " + accion + "...");
-                },
                 success: function(res) {
+                    // Acción SEND (envío a SUNAT)
                     if (accion === 'send') {
                         if (res.success) {
-                            alert("Enviado a SUNAT: " + res.message);
-                            fetchBoletas();
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Enviado a SUNAT!',
+                                html: `<p class="text-break">${res.message || 'Comprobante enviado correctamente'}</p>`,
+                                confirmButtonColor: '#10b981',
+                                confirmButtonText: 'Aceptar'
+                            }).then(() => {
+                                fetchBoletas(); // Recargar lista
+                            });
                         } else {
-                            alert("Error SUNAT: " + (res.message || "Respuesta vacía"));
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error en SUNAT',
+                                html: `<p class="text-break">${res.message || 'No se pudo enviar a SUNAT'}</p>`,
+                                confirmButtonColor: '#ef4444',
+                                confirmButtonText: 'Cerrar'
+                            });
                         }
-                    } else {
+                    } 
+                    // Acciones de DESCARGA (pdf, xml, cdr) o generación
+                    else {
                         if (res.status) {
-                            alert(res.message);
-                            window.open(res.file_url, '_blank');
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Listo!',
+                                html: `<p class="text-break">${res.message}</p>`,
+                                confirmButtonColor: '#10b981',
+                                didClose: () => {
+                                    // Descargar automáticamente si hay URL
+                                    if (res.file_url && res.file_url !== '#') {
+                                        window.open(res.file_url, '_blank');
+                                    }
+                                }
+                            }).then(() => {
+                                fetchBoletas();
+                            });
                         } else {
-                            alert("Error en descarga: " + res.message);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error en Descarga',
+                                html: `<p class="text-break"><strong>${accion.toUpperCase()}:</strong> ${res.message || 'Ocurrió un error al procesar'}</p>`,
+                                confirmButtonColor: '#ef4444',
+                                confirmButtonText: 'Cerrar'
+                            });
                         }
                     }
                 },
                 error: function(xhr) {
-                    alert("Error en el servidor local.");
+                    let errorMsg = 'Error del servidor';
+                    if (xhr.status === 0) {
+                        errorMsg = 'Conexión perdida. Verifica tu red.';
+                    } else if (xhr.status === 404) {
+                        errorMsg = 'Endpoint no encontrado';
+                    } else if (xhr.status === 500) {
+                        errorMsg = 'Error interno del servidor';
+                    }
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de Conexión',
+                        html: `<p class="text-break">${errorMsg}</p><p class="text-muted mt-3"><small>Código: ${xhr.status}</small></p>`,
+                        confirmButtonColor: '#ef4444',
+                        confirmButtonText: 'Cerrar'
+                    });
                 }
             });
         }

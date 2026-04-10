@@ -194,6 +194,14 @@ class D_ventas extends BaseController
         $token   = $session->get('api_access_token');
         $tType   = $session->get('api_token_type') ?? 'Bearer';
 
+        // Validaciones iniciales
+        if (!$token || !$id || !$tipo || !$nombre) {
+            return $this->response
+                ->setStatus(400)
+                ->setContentType('application/json')
+                ->setBody(json_encode(['status' => false, 'message' => 'Parámetros incompletos']));
+        }
+
         // 1. Detección de Factura o Boleta para el segmento de la URL
         $esFactura = (strpos(strtoupper($nombre), 'F') === 0);
         $segmento  = $esFactura ? 'invoices' : 'boletas';
@@ -202,10 +210,10 @@ class D_ventas extends BaseController
         $metodoHttp = 'GET';
 
         if ($tipo === 'generate') {
-            $metodoHttp = 'POST'; // <--- CAMBIO CLAVE: La API exige POST para generar
+            $metodoHttp = 'POST';
             $url = "https://apifacturacion.groupdispensersac.com/api/v1/{$segmento}/{$id}/generate-pdf?format=A4";
         } else {
-            // Tus rutas de descarga/envío que ya te funcionan
+            // Rutas de descarga/envío
             $baseUrlApi = "https://apifacturacion.groupdispensersac.com/api/v1/boletas/{$id}/";
             switch ($tipo) {
                 case 'send':
@@ -222,60 +230,112 @@ class D_ventas extends BaseController
                     $url = $baseUrlApi . "download-cdr";
                     break;
                 default:
-                    return $this->response->setJSON(['status' => false, 'msg' => 'Tipo no válido']);
+                    return $this->response
+                        ->setStatus(400)
+                        ->setContentType('application/json')
+                        ->setBody(json_encode(['status' => false, 'message' => 'Tipo de operación no válida']));
             }
         }
 
-        $client = \Config\Services::curlrequest();
-
         try {
-            // Usamos el $metodoHttp dinámico (POST o GET)
-            $response = $client->request($metodoHttp, $url, [
-                'headers' => [
-                    'Authorization' => "{$tType} {$token}",
-                    'Accept'        => 'application/json',
-                ],
-                'http_errors' => false,
-                'verify' => false
+            $client = \Config\Services::curlrequest();
+            
+            // Usar CURL puro en lugar de CI4 HTTP client
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL            => $url,
+                CURLOPT_CUSTOMREQUEST  => $metodoHttp,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_TIMEOUT        => 30,
+                CURLOPT_HTTPHEADER     => [
+                    "Authorization: {$tType} {$token}",
+                    "Accept: application/json"
+                ]
             ]);
 
-            $body = $response->getBody();
+            $body = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            // Manejo de errores CURL
+            if ($curlError) {
+                return $this->response
+                    ->setStatus(500)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode(['status' => false, 'message' => 'Error CURL: ' . $curlError]));
+            }
 
             // 3. Respuesta para GENERAR (JSON con link)
             if ($tipo === 'generate') {
-                $apiRes = json_decode($body, true);
-                return $this->response->setJSON([
-                    'status'   => $apiRes['success'] ?? false,
-                    'message'  => $apiRes['message'] ?? 'PDF Generado',
-                    'file_url' => $apiRes['data']['file_url'] ?? $apiRes['link'] ?? '#'
-                ]);
+                $apiRes = is_string($body) ? json_decode($body, true) : $body;
+                $result = [
+                    'status'   => isset($apiRes['success']) ? $apiRes['success'] : false,
+                    'message'  => isset($apiRes['message']) ? $apiRes['message'] : 'PDF Generado',
+                    'file_url' => isset($apiRes['data']['file_url']) ? $apiRes['data']['file_url'] : 
+                                 (isset($apiRes['link']) ? $apiRes['link'] : '')
+                ];
+                return $this->response
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($result));
             }
 
-            // 4. Tu lógica de descarga local para 'pdf', 'xml', 'cdr' (Binarios)
-            if ($tipo == 'send') {
-                return $this->response->setJSON(json_decode($body));
+            // 4. Lógica para operaciones JSON (send)
+            if ($tipo === 'send') {
+                $apiRes = is_string($body) ? json_decode($body, true) : $body;
+                $result = isset($apiRes) && is_array($apiRes) ? $apiRes : ['status' => false, 'message' => 'Respuesta inválida'];
+                return $this->response
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($result));
             }
 
-            if ($response->getStatusCode() === 200) {
+            // 5. Validar respuesta HTTP para descargas (pdf, xml, cdr)
+            if ($httpCode === 200 && !empty($body)) {
                 $folderPath = FCPATH . 'comprobantes/' . $nombre;
                 if (!is_dir($folderPath)) mkdir($folderPath, 0777, true);
 
-                $extension = ($tipo == 'pdf') ? '.pdf' : '.xml';
+                $extension = ($tipo === 'pdf') ? '.pdf' : (($tipo === 'xml') ? '.xml' : '.zip');
                 $fileName  = $nombre . '_' . strtoupper($tipo) . $extension;
                 $fullPath  = $folderPath . '/' . $fileName;
 
-                file_put_contents($fullPath, $body);
-
-                return $this->response->setJSON([
-                    'status' => true,
-                    'message' => "Archivo {$tipo} guardado en local.",
-                    'file_url' => base_url("comprobantes/{$nombre}/{$fileName}")
-                ]);
+                // Guardar archivo
+                if (file_put_contents($fullPath, $body)) {
+                    $result = [
+                        'status'   => true,
+                        'message'  => "Archivo {$tipo} descargado correctamente",
+                        'file_url' => base_url("comprobantes/{$nombre}/{$fileName}")
+                    ];
+                } else {
+                    $result = [
+                        'status'   => false,
+                        'message'  => "Error al guardar archivo {$tipo} localmente"
+                    ];
+                }
+                return $this->response
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($result));
             }
 
-            return $this->response->setJSON(['status' => false, 'message' => "Error API: " . $response->getStatusCode()]);
+            // Error HTTP
+            $result = [
+                'status'  => false,
+                'message' => "Error API (HTTP {$httpCode}): No se pudo obtener el archivo"
+            ];
+            return $this->response
+                ->setStatus($httpCode)
+                ->setContentType('application/json')
+                ->setBody(json_encode($result));
+
         } catch (\Exception $e) {
-            return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
+            $result = [
+                'status'  => false,
+                'message' => 'Excepción: ' . $e->getMessage()
+            ];
+            return $this->response
+                ->setStatus(500)
+                ->setContentType('application/json')
+                ->setBody(json_encode($result));
         }
     }
 
