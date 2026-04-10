@@ -40,6 +40,74 @@ class D_ventas extends BaseController
     }
 
     /**
+     * Endpoint de prueba para verificar tokens en sesión
+     */
+    public function test_token()
+    {
+        $session = session();
+        $token = $session->get('api_access_token');
+        $tokenType = $session->get('api_token_type');
+
+        $data = [
+            'isLoggedIn' => $session->get('isLoggedIn'),
+            'token_exists' => !empty($token),
+            'token_type_exists' => !empty($tokenType),
+            'token_preview' => $token ? substr($token, 0, 20) . '...' : 'null',
+            'token_type' => $tokenType ?? 'null',
+            'session_data' => [
+                'api_access_token' => $token ? 'present' : 'MISSING',
+                'api_token_type' => $tokenType ? 'present' : 'MISSING'
+            ]
+        ];
+
+        return $this->response
+            ->setContentType('application/json')
+            ->setBody(json_encode($data, JSON_PRETTY_PRINT));
+    }
+
+    /**
+     * Endpoint de test para debugging profundo
+     */
+    public function test_api_debug()
+    {
+        $session = session();
+        $token = $session->get('api_access_token');
+        $tokenType = $session->get('api_token_type');
+
+        $debug = [
+            'step' => 'inicio',
+            'token_null' => is_null($token),
+            'tokenType_null' => is_null($tokenType)
+        ];
+
+        if (!$token) {
+            $debug['error'] = 'Token is null or empty';
+            return $this->response
+                ->setContentType('application/json')
+                ->setStatusCode(401)
+                ->setBody(json_encode($debug, JSON_PRETTY_PRINT));
+        }
+
+        $debug['step'] = 'token_is_valid';
+
+        // Convertir a string seguramente
+        $tokenStr = (string)$token;
+        $tokenTypeStr = isset($tokenType) ? (string)$tokenType : 'Bearer';
+
+        $debug['tokenStr_length'] = strlen($tokenStr);
+        $debug['tokenTypeStr'] = $tokenTypeStr;
+
+        // Construir header
+        $authHeader = $tokenTypeStr . ' ' . $tokenStr;
+        $debug['authHeader_length'] = strlen($authHeader);
+        $debug['step'] = 'ready_for_curl';
+
+        return $this->response
+            ->setContentType('application/json')
+            ->setBody(json_encode($debug, JSON_PRETTY_PRINT));
+    }
+
+    /**
      * Endpoint que consume la API de facturación externa
      * Este es el que llamarás con jQuery.ajax
      */
@@ -52,42 +120,64 @@ class D_ventas extends BaseController
         $tokenType = $session->get('api_token_type') ?? 'Bearer';
 
         if (!$token) {
-            return $this->response->setJSON([
-                'status'  => false,
-                'message' => 'Error de autenticación: No se encontró un token válido.'
-            ])->setStatusCode(401);
+            return $this->response
+                ->setContentType('application/json')
+                ->setStatusCode(401)
+                ->setBody(json_encode([
+                    'status'  => false,
+                    'message' => 'Error de autenticación: No se encontró un token válido.'
+                ], JSON_PRETTY_PRINT));
         }
 
-        // 2. Configurar el cliente HTTP de CodeIgniter
-        $client = \Config\Services::curlrequest();
-
         try {
-            // 3. Petición GET a la API externa
-            // Nota: Puedes mover la URL base a un archivo .env para más seguridad
-            $url = 'https://apifacturacion.groupdispensersac.com/api/v1/boletas';
-
-            $response = $client->get($url, [
-                'headers' => [
-                    'Authorization' => $tokenType . ' ' . $token,
-                    'Accept'        => 'application/json',
+            // 2. Usar CURL puro sin cliente de CI4
+            $url = 'https://apifacturacion.groupdispensersac.com/api/v1/boletas?company_id=1&branch_id=1&per_page=20';
+            
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER => [
+                    'Authorization: ' . $tokenType . ' ' . $token,
+                    'Accept: application/json',
+                    'Content-Type: application/json'
                 ],
-                'query' => [
-                    'company_id' => 1,
-                    'branch_id'  => 1,
-                    'per_page'   => 20
-                ],
-                'http_errors' => false // Evita que CI4 lance una excepción si la API da 400 o 500
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
+                CURLOPT_TIMEOUT => 15
             ]);
 
-            // 4. Retornar la respuesta tal cual la da la API
-            $body = json_decode($response->getBody());
-            return $this->response->setJSON($body);
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            if (!empty($curlError)) {
+                log_message('error', 'CURL Error: ' . $curlError);
+                return $this->response
+                    ->setContentType('application/json')
+                    ->setStatusCode(500)
+                    ->setBody(json_encode([
+                        'status'  => false,
+                        'message' => 'Error de CURL: ' . $curlError
+                    ], JSON_PRETTY_PRINT));
+            }
+
+            log_message('info', 'API Response Status: ' . $httpCode . ', Body Length: ' . strlen($response ?? ''));
+
+            return $this->response
+                ->setContentType('application/json')
+                ->setStatusCode($httpCode)
+                ->setBody($response ?? '{}');
         } catch (\Exception $e) {
-            // Manejo de errores de conexión o red
-            return $this->response->setJSON([
-                'status'  => false,
-                'message' => 'No se pudo conectar con el servidor de facturación: ' . $e->getMessage()
-            ])->setStatusCode(500);
+            log_message('error', 'Error en get_boletas_api: ' . $e->getMessage());
+            return $this->response
+                ->setContentType('application/json')
+                ->setStatusCode(500)
+                ->setBody(json_encode([
+                    'status'  => false,
+                    'message' => 'Error: ' . $e->getMessage()
+                ], JSON_PRETTY_PRINT));
         }
     }
 

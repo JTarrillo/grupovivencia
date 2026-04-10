@@ -108,10 +108,8 @@ class B_admin extends BaseController
                 try {
                     $response = $client->post('https://apifacturacion.groupdispensersac.com/api/auth/login', [
                         'json' => [
-                            'email'      => 'admin@gmail.com',
-                            'password'   => 'Admin123!@#',
-                            'token_name' => '1|sunat_zVUOcxDrglm5jqnLLI1zgPloGgb6q4UVhH7ogFSXe889bdeb',
-                            'abilities'  => ["*"]
+                            'email'    => 'admin@gmail.com',
+                            'password' => 'Admin123!@#'
                         ],
                         'http_errors' => false,
                         'verify' => false // Úsalo solo si tienes problemas de certificado SSL en local
