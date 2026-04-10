@@ -345,35 +345,24 @@ class B_admin extends BaseController
         // Guarda el contrato
         $contractId = $contractModel->insert($data);
 
-        // Genera el cronograma de pagos
-        $startDate = new \DateTime($data['start_date']);
+        // Genera el cronograma de pagos usando el método centralizado
+        $startDate = $data['start_date'];
         $months = (int)$data['financing_months'];
         $monthlyPayment = (float)$data['monthly_payment'];
         $interestRate = (float)$data['interest_rate'];
-        $capital = (float)$data['financed_amount'] / $months;
-        $balance = (float)$data['financed_amount'];
-
-        for ($i = 1; $i <= $months; $i++) {
-            $interest = $balance * ($interestRate / 100 / 12);
-            $dueDate = clone $startDate;
-            $dueDate->modify('+' . ($i - 1) . ' month');
-            $paymentScheduleModel->insert([
-                'lot_id' => $data['lot_id'],
-                'payment_plan_id' => $data['payment_plan_id'],
-                'contract_id' => $contractId,
-                'installment_number' => $i,
-                'due_date' => $dueDate->format('Y-m-d'),
-                'amount' => $monthlyPayment,
-                'capital' => $capital,
-                'interest' => $interest,
-                'balance' => $balance,
-                'status' => 'pending',
-            ]);
-            $balance -= $capital;
-        }
-
-        // Puedes agregar la cuota inicial si aplica
-        // $paymentScheduleModel->insert([...]);
+        $monthlyRate = $interestRate / 100 / 12;
+        $financedAmount = (float)$data['financed_amount'];
+        
+        $paymentScheduleModel->generatePaymentSchedule(
+            $contractId,
+            $data['lot_id'],
+            $data['payment_plan_id'],
+            $startDate,
+            $months,
+            $monthlyPayment,
+            $financedAmount,
+            $monthlyRate
+        );
 
         return redirect()->to('/backoffice_new/contracts/detail/' . $contractId)->with('success', 'Contrato y cronograma generados correctamente');
     }

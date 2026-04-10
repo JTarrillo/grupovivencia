@@ -1116,6 +1116,22 @@
                                                         toggleCronogramaSummary);
                                                     </script>
                                                 </div>
+
+                                                <!-- Campo para adjuntar comprobante/voucher -->
+                                                <hr>
+                                                <div class="form-group">
+                                                    <label for="comprobante">
+                                                        <strong>Adjuntar Comprobante de Pago</strong>
+                                                        <small class="text-muted">(Opcional - Foto del recibo/voucher de la cuota inicial)</small>
+                                                    </label>
+                                                    <div class="custom-file">
+                                                        <input type="file" class="custom-file-input" id="comprobante" 
+                                                            name="comprobante" accept="image/*,.pdf" 
+                                                            onchange="updateFileName(this)">
+                                                        <label class="custom-file-label" for="comprobante">Seleccionar archivo...</label>
+                                                    </div>
+                                                    <small class="form-text text-muted">Formatos aceptados: JPG, PNG, PDF</small>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1123,6 +1139,13 @@
                             </div>
                         </div>
                     </div>
+
+                    <script>
+                    function updateFileName(input) {
+                        var fileName = input.files[0]?.name || 'Seleccionar archivo...';
+                        input.nextElementSibling.textContent = fileName;
+                    }
+                    </script>
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">
@@ -1407,6 +1430,12 @@
         document.getElementById('selected_lot_info').style.display = 'none';
         document.getElementById('available_lots').innerHTML = '';
         document.getElementById('create_contract_btn').disabled = true;
+        // Resetear el campo de comprobante
+        const comprobanteInput = document.getElementById('comprobante');
+        if (comprobanteInput) {
+            comprobanteInput.value = '';
+            comprobanteInput.nextElementSibling.textContent = 'Seleccionar archivo...';
+        }
     }
 
     function loadProjects() {
@@ -1795,6 +1824,12 @@
         const sponsorIdElement = document.getElementById('sponsor_id');
         if (sponsorIdElement && sponsorIdElement.value) {
             formData.append('sponsor_id', sponsorIdElement.value);
+        }
+
+        // Agregar comprobante/voucher si se seleccionó
+        const comprobanteInput = document.getElementById('comprobante');
+        if (comprobanteInput && comprobanteInput.files.length > 0) {
+            formData.append('comprobante', comprobanteInput.files[0]);
         }
 
         const submitBtn = document.getElementById('create_contract_btn');

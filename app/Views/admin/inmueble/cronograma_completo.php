@@ -145,6 +145,67 @@
                                         </div>
                                     </div>
 
+                                    <!-- Resumen de Progreso - Barra Visual -->
+                                    <div class="card mb-4" style="border: none; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); overflow: hidden; background: linear-gradient(135deg, #f5f7fa 0%, #f9fafb 100%);">
+                                        <div class="card-body p-4">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-8">
+                                                    <h5 style="margin-bottom: 1.5rem; font-weight: 700; color: #333;">
+                                                        <i class="fa fa-chart-bar" style="margin-right: 10px; color: #667eea;"></i>Progreso de Pago
+                                                    </h5>
+                                                    
+                                                    <?php 
+                                                        $totalContrato = $contract['total_amount'] ?? 0;
+                                                        $totalPagado = $stats['pagados_monto'] ?? 0;
+                                                        $totalPendiente = $stats['pendientes_monto'] + $stats['registrados_monto'];
+                                                        $porcentajePagado = $totalContrato > 0 ? round(($totalPagado / $totalContrato) * 100) : 0;
+                                                    ?>
+                                                    
+                                                    <div class="mb-3">
+                                                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                                            <span style="font-weight: 600; color: #333;">Monto Pagado</span>
+                                                            <span style="font-weight: 700; color: #2dce89;">S/ <?= number_format($totalPagado, 2) ?></span>
+                                                        </div>
+                                                        <div style="background: #e9ecef; border-radius: 10px; height: 28px; overflow: hidden; position: relative;">
+                                                            <div style="background: linear-gradient(90deg, #2dce89 0%, #10b981 100%); height: 100%; width: <?= $porcentajePagado ?>%; transition: width 0.6s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; border-radius: 10px;">
+                                                                <span style="color: white; font-weight: 700; font-size: 0.85rem;"><?= $porcentajePagado ?>%</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                                            <span style="font-weight: 600; color: #333;">Saldo Pendiente</span>
+                                                            <span style="font-weight: 700; color: #ff5252;">S/ <?= number_format($totalPendiente, 2) ?></span>
+                                                        </div>
+                                                        <div style="background: #e9ecef; border-radius: 10px; height: 28px; overflow: hidden; position: relative;">
+                                                            <div style="background: linear-gradient(90deg, #ff5252 0%, #ff1744 100%); height: 100%; width: <?= (100 - $porcentajePagado) ?>%; transition: width 0.6s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; border-radius: 10px;">
+                                                                <span style="color: white; font-weight: 700; font-size: 0.85rem;"><?= (100 - $porcentajePagado) ?>%</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                                                        <div style="text-align: center;">
+                                                            <div style="font-size: 2.2rem; font-weight: 700; color: #667eea; margin-bottom: 8px;">
+                                                                <?= $porcentajePagado ?>%
+                                                            </div>
+                                                            <div style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">
+                                                                Completado
+                                                            </div>
+                                                            <hr style="margin: 1rem 0;">
+                                                            <div style="font-size: 0.85rem; color: #999;">
+                                                                Total: <strong style="color: #333; font-size: 0.95rem;">S/ <?= number_format($totalContrato, 2) ?></strong>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <!-- Tabla de Cronograma -->
                                     <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); overflow: hidden;">
                                         <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 1.5rem;">
@@ -161,6 +222,7 @@
                                                             <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Tipo</th>
                                                             <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Fecha Vencimiento</th>
                                                             <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Monto</th>
+                                                            <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Saldo</th>
                                                             <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Estado de Pago</th>
                                                             <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Registrado</th>
                                                             <th style="padding: 1rem; font-weight: 700; color: #667eea; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Fecha Pago</th>
@@ -170,11 +232,18 @@
                                                     </thead>
                                                     <tbody>
                                                         <?php if (!empty($payments)): ?>
-                                                            <?php foreach ($payments as $i => $pago):
-                                                                $estado = strtolower($pago['status'] ?? 'pending');
-                                                                $registrado = !empty($pago['paid_date']);
-                                                                $validado = ($estado === 'paid' || $estado === 'pagado');
-                                                                $installment_number = $pago['installment_number'] ?? ($i + 1);
+                                                            <?php 
+                                                                $totalAmount = $contract['total_amount'] ?? 0;
+                                                                $saldoAcumulado = $totalAmount;
+                                                                foreach ($payments as $i => $pago):
+                                                                    $estado = strtolower($pago['status'] ?? 'pending');
+                                                                    $registrado = !empty($pago['paid_date']);
+                                                                    $validado = ($estado === 'paid' || $estado === 'pagado');
+                                                                    $installment_number = $pago['installment_number'] ?? ($i + 1);
+                                                                    
+                                                                    // Restar esta cuota del saldo acumulado (así va bajando mes a mes)
+                                                                    $saldoAcumulado -= ($pago['amount'] ?? 0);
+                                                                    $saldoActual = max(0, $saldoAcumulado);
                                                             ?>
                                                                 <tr style="border-bottom: 1px solid #e9ecef; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='white'">
                                                                     <td style="padding: 1rem; vertical-align: middle;">
@@ -195,6 +264,9 @@
                                                                     </td>
                                                                     <td style="padding: 1rem; vertical-align: middle;">
                                                                         <strong style="color: #2dce89; font-size: 1rem;">S/ <?= number_format($pago['amount'] ?? 0, 2) ?></strong>
+                                                                    </td>
+                                                                    <td style="padding: 1rem; vertical-align: middle;">
+                                                                        <strong style="color: #667eea; font-size: 1rem;">S/ <?= number_format(max(0, $saldoActual), 2) ?></strong>
                                                                     </td>
                                                                     <td style="padding: 1rem; vertical-align: middle;">
                                                                         <?php if ($validado): ?>
@@ -218,7 +290,12 @@
                                                                     </td>
                                                                     <td style="padding: 1rem; vertical-align: middle;">
                                                                         <?php if (!empty($pago['voucher_url'])): ?>
-                                                                            <a href="<?= base_url($pago['voucher_url']) ?>"
+                                                                            <?php 
+                                                                                // Extraer solo el nombre del archivo de la ruta completa
+                                                                                $filename = basename($pago['voucher_url']);
+                                                                                $viewUrl = '/dashboard/mostrarComprobante/' . $filename;
+                                                                            ?>
+                                                                            <a href="<?= $viewUrl ?>"
                                                                                 target="_blank" class="btn btn-sm" style="background: linear-gradient(135deg, #11cdef 0%, #00bcd4 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; transition: transform 0.2s ease;">
                                                                                 <i class="fa fa-file-pdf"></i> Ver
                                                                             </a>

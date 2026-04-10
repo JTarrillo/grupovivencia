@@ -354,27 +354,18 @@ class ContractController extends BaseController {
     }
     private function generatePaymentSchedule($contractId, $lotId, $paymentPlanId, $startDate, $months, $monthlyPayment, $financedAmount, $monthlyRate)
     {
+        // Delegate to centralized Model method
         $scheduleModel = new \App\Models\PaymentScheduleModel();
-        $balance = $financedAmount;
-        for ($i = 1; $i <= $months; $i++) {
-            $dueDate = date('Y-m-d', strtotime($startDate . ' +' . ($i - 1) . ' months'));
-            $interestPayment = $balance * $monthlyRate;
-            $principalPayment = $monthlyPayment - $interestPayment;
-            $balance -= $principalPayment;
-            $scheduleData = [
-                'lot_id' => $lotId,
-                'payment_plan_id' => $paymentPlanId,
-                'contract_id' => $contractId,
-                'installment_number' => $i,
-                'due_date' => $dueDate,
-                'amount' => round($monthlyPayment, 2),
-                'capital' => round($principalPayment, 2),
-                'interest' => round($interestPayment, 2),
-                'balance' => round(max(0, $balance), 2),
-                'status' => 'pending'
-            ];
-            $scheduleModel->insert($scheduleData);
-        }
+        $scheduleModel->generatePaymentSchedule(
+            $contractId,
+            $lotId,
+            $paymentPlanId,
+            $startDate,
+            $months,
+            $monthlyPayment,
+            $financedAmount,
+            $monthlyRate
+        );
     }
 
    

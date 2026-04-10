@@ -121,7 +121,11 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php foreach ($cronograma as $i => $pago): ?>
+                                            <?php 
+                                                $totalAmount = $contract['total_amount'] ?? $contract['total'] ?? 0;
+                                                $saldoAcumulado = $totalAmount;
+                                                foreach ($cronograma as $i => $pago): 
+                                            ?>
                                             <tr>
                                                 <td><?= $pago['numero'] ?? ($i == 0 ? 'INICIAL' : str_pad($i, 2, '0', STR_PAD_LEFT)) ?>
                                                 </td>
@@ -149,6 +153,8 @@
                                                     <?php
                                                     // Map DB field to expected key
                                                     $importe = $pago['importe'] ?? $pago['amount'] ?? 0;
+                                                    // Restar del saldo acumulado
+                                                    $saldoAcumulado -= $importe;
                                                     ?>
                                                     S/ <?= number_format($importe, 2) ?>
                                                 </td>
@@ -176,11 +182,7 @@
                                                 </td>
                                                 </td>
                                                 <td>
-                                                    <?php
-                                                    // Map DB field to expected key
-                                                    $saldo = $pago['saldo'] ?? $pago['balance'] ?? 0;
-                                                    ?>
-                                                    S/ <?= number_format($saldo, 2) ?>
+                                                    S/ <?= number_format(max(0, $saldoAcumulado), 2) ?>
                                                 </td>
                                                 <td>
                                                     <?php

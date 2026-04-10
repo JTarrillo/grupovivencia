@@ -168,42 +168,25 @@ class Cart extends BaseController
             // NOTA: La comisión se creará DESPUÉS de que el admin apruebe el contrato
             // (después de validar que el voucher fue enviado correctamente)
             
-            // Generar cronograma de pagos para reserva
+            // Generar cronograma de pagos para reserva usando método centralizado
             $PaymentScheduleModel = new \App\Models\PaymentScheduleModel();
-            $cronograma = [];
-            $monthlyRate = 0;
             $financedAmount = floatval($precio);
-            $balance = $financedAmount;
-            $start_date = date('Y-m-d');
-            $monto_cuota = $financedAmount / intval($plan_cuotas);
-            for ($i = 1; $i <= intval($plan_cuotas); $i++) {
-                $dueDate = date('Y-m-d', strtotime($start_date . ' +' . ($i - 1) . ' months'));
-                $interestPayment = $balance * $monthlyRate;
-                $principalPayment = $monto_cuota - $interestPayment;
-                $balance -= $principalPayment;
-                $cuota_data = [
-                    'contract_id' => $contract_id,
-                    'lot_id' => $lote['id'],
-                    'payment_plan_id' => $payment_plan_id,
-                    'installment_number' => $i,
-                    'due_date' => $dueDate,
-                    'amount' => round($monto_cuota, 2),
-                    'capital' => round($principalPayment, 2),
-                    'interest' => round($interestPayment, 2),
-                    'interest_accrued' => null,
-                    'interest_accrued_date' => null,
-                    'balance' => round(max(0, $balance), 2),
-                    'status' => 'pending',
-                    'paid_date' => null,
-                    'paid_amount' => null,
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
-                    'pdf_url' => null,
-                    'xml_url' => null
-                ];
-                $PaymentScheduleModel->insert($cuota_data);
-                $cronograma[] = $cuota_data;
-            }
+            $monthlyPayment = $financedAmount / intval($plan_cuotas);
+            $PaymentScheduleModel->generatePaymentSchedule(
+                $contract_id,
+                $lote['id'],
+                $payment_plan_id,
+                date('Y-m-d'),
+                intval($plan_cuotas),
+                $monthlyPayment,
+                $financedAmount,
+                0  // monthlyRate = 0 (no interest for reservations)
+            );
+            // Obtener cronograma generado
+            $cronograma = $PaymentScheduleModel
+                ->where('contract_id', $contract_id)
+                ->orderBy('installment_number', 'ASC')
+                ->findAll();
             // Log de reserva y cronograma
             $logData = [
                 'datetime' => date('Y-m-d H:i:s'),
@@ -331,39 +314,28 @@ class Cart extends BaseController
             ];
             $PaymentScheduleModel->insert($cuota_inicial_data);
             
-            // ✅ Generar cronograma con el MONTO FINANCIADO (no la inicial)
-            $monthlyRate = 0;
-            $balance = $monto_financiado;
-            $start_date = date('Y-m-d', strtotime('+1 month'));
-            $cronograma = [];
-            for ($i = 1; $i <= intval($plan_cuotas); $i++) {
-                $dueDate = date('Y-m-d', strtotime($start_date . ' +' . ($i - 1) . ' months'));
-                $interestPayment = $balance * $monthlyRate;
-                $principalPayment = $monto_cuota_mensual - $interestPayment;
-                $balance -= $principalPayment;
-                $cuota_data = [
-                    'contract_id' => $contract_id,
-                    'lot_id' => $lote['id'],
-                    'payment_plan_id' => $payment_plan_id,
-                    'installment_number' => $i,
-                    'due_date' => $dueDate,
-                    'amount' => round($monto_cuota_mensual, 2),
-                    'capital' => round($principalPayment, 2),
-                    'interest' => round($interestPayment, 2),
-                    'interest_accrued' => null,
-                    'interest_accrued_date' => null,
-                    'balance' => round(max(0, $balance), 2),
-                    'status' => 'pending',
-                    'paid_date' => null,
-                    'paid_amount' => null,
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
-                    'pdf_url' => null,
-                    'xml_url' => null
-                ];
-                $PaymentScheduleModel->insert($cuota_data);
-                $cronograma[] = $cuota_data;
-            }
+            // ✅ Generar cronograma usando método centralizado
+            $PaymentScheduleModel = new \App\Models\PaymentScheduleModel();
+            $monthlyPayment = $monto_cuota_mensual;
+            $PaymentScheduleModel->generatePaymentSchedule(
+                $contract_id,
+                $lote['id'],
+                $payment_plan_id,
+                date('Y-m-d', strtotime('+1 month')),
+                intval($plan_cuotas),
+                $monthlyPayment,
+                $monto_financiado,
+                0,  // monthlyRate = 0 (no interest)
+                $cuota_inicial,  // downPayment already paid upfront
+                null,
+                $comprobante_url  // voucherUrl
+            );
+            // Obtener cronograma generado
+            $cronograma = $PaymentScheduleModel
+                ->where('contract_id', $contract_id)
+                ->where('installment_number', '>', 0)  // exclude cuota inicial (0)
+                ->orderBy('installment_number', 'ASC')
+                ->findAll();
             // NOTA: La comisión se creará DESPUÉS de que el admin apruebe el contrato
             // (después de validar que el voucher fue enviado correctamente)
             
@@ -809,40 +781,22 @@ class Cart extends BaseController
         ]);
 
         $PaymentScheduleModel = new \App\Models\PaymentScheduleModel();
-        $monthlyRate = 0;
-        $financedAmount = floatval($precio);
-        $balance = $financedAmount;
-        $start_date = date('Y-m-d');
-        $monto_cuota = floatval($precio) / intval($cuotas);
-        $cronograma = [];
-        for ($i = 1; $i <= intval($cuotas); $i++) {
-            $dueDate = date('Y-m-d', strtotime($start_date . ' +' . ($i - 1) . ' months'));
-            $interestPayment = $balance * $monthlyRate;
-            $principalPayment = $monto_cuota - $interestPayment;
-            $balance -= $principalPayment;
-            $cuota_data = [
-                'contract_id' => $contract_id,
-                'lot_id' => $lote['id'],
-                'payment_plan_id' => $payment_plan_id,
-                'installment_number' => $i,
-                'due_date' => $dueDate,
-                'amount' => round($monto_cuota, 2),
-                'capital' => round($principalPayment, 2),
-                'interest' => round($interestPayment, 2),
-                'interest_accrued' => null,
-                'interest_accrued_date' => null,
-                'balance' => round(max(0, $balance), 2),
-                'status' => 'pending',
-                'paid_date' => null,
-                'paid_amount' => null,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
-                'pdf_url' => null,
-                'xml_url' => null
-            ];
-            $PaymentScheduleModel->insert($cuota_data);
-            $cronograma[] = $cuota_data;
-        }
+        $monthlyPayment = floatval($precio) / intval($cuotas);
+        $PaymentScheduleModel->generatePaymentSchedule(
+            $contract_id,
+            $lote['id'],
+            $payment_plan_id,
+            date('Y-m-d'),
+            intval($cuotas),
+            $monthlyPayment,
+            floatval($precio),
+            0  // monthlyRate = 0 (no interest)
+        );
+        // Obtener cronograma generado
+        $cronograma = $PaymentScheduleModel
+            ->where('contract_id', $contract_id)
+            ->orderBy('installment_number', 'ASC')
+            ->findAll();
 
         // Si hay patrocinador, crear comisión inmobiliaria
         if ($sponsor_id) {
