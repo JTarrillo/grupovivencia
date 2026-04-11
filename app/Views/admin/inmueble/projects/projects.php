@@ -613,34 +613,102 @@
                                             </script>
                                         </div>
                                         <div class="card-block">
-                                            <div class="table-responsive">
-                                                <table id="zero-configuration"
-                                                    class="display table nowrap table-striped table-hover dataTable"
-                                                    style="width: 100%;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>ID</th>
-                                                            <th>Imagen</th>
-                                                            <th>Código</th>
-                                                            <th>Nombre</th>
-                                                            <th>Ubicación</th>
-                                                            <th>Total Lotes</th>
-                                                            <th>Disponibles</th>
-                                                            <th>Precio m²</th>
-                                                            <th>Estado</th>
-                                                            <th>Fecha</th>
-                                                            <th>Acción</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <?php
+                                            <!-- Filtros Avanzados Mejorados para Proyectos -->
+                                            <div class="row mb-4 p-3 bg-light rounded"
+                                                style="border: 1px solid #e3e6f0;">
+                                                <!-- Búsqueda Principal -->
+                                                <div class="col-md-3 col-sm-6 mb-2">
+                                                    <label class="small mb-2"><strong><i class="fa fa-search"></i>
+                                                            Buscar</strong></label>
+                                                    <input type="text" class="form-control form-control-sm"
+                                                        id="search-projects" placeholder="Nombre, Código..."
+                                                        onkeyup="filterProjectTable()">
+                                                </div>
+
+                                                <!-- Estado -->
+                                                <div class="col-md-2 col-sm-6 mb-2">
+                                                    <label class="small mb-2"><strong><i class="fa fa-tag"></i>
+                                                            Estado</strong></label>
+                                                    <select class="form-control form-control-sm" id="status-filter-proj"
+                                                        onchange="filterProjectTable()">
+                                                        <option value="">Todos</option>
+                                                        <option value="active">Activo</option>
+                                                        <option value="planning">En Planificación</option>
+                                                        <option value="sold_out">Agotado</option>
+                                                        <option value="suspended">Suspendido</option>
+                                                    </select>
+                                                </div>
+
+                                                <!-- Disponibilidad -->
+                                                <div class="col-md-2 col-sm-6 mb-2">
+                                                    <label class="small mb-2"><strong><i class="fa fa-cubes"></i>
+                                                            Disponibles</strong></label>
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" class="form-control" id="available-min"
+                                                            placeholder="Mín" onkeyup="filterProjectTable()" min="0">
+                                                        <span class="input-group-text">-</span>
+                                                        <input type="number" class="form-control" id="available-max"
+                                                            placeholder="Máx" onkeyup="filterProjectTable()" min="0">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Precio m² -->
+                                                <div class="col-md-2 col-sm-6 mb-2">
+                                                    <label class="small mb-2"><strong><i class="fa fa-dollar"></i>
+                                                            Precio m²</strong></label>
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" class="form-control" id="price-min-proj"
+                                                            placeholder="Mín" onkeyup="filterProjectTable()" min="0">
+                                                        <span class="input-group-text">-</span>
+                                                        <input type="number" class="form-control" id="price-max-proj"
+                                                            placeholder="Máx" onkeyup="filterProjectTable()" min="0">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Botón Limpiar -->
+                                                <div class="col-md-2 col-sm-6 d-flex align-items-end mb-2">
+                                                    <button type="button" class="btn btn-secondary btn-sm btn-block"
+                                                        onclick="clearProjectFilters()">
+                                                        <i class="fa fa-times"></i> Limpiar
+                                                    </button>
+                                                </div>
+
+                                                <!-- Contador de Resultados -->
+                                                <div class="col-12 mt-2">
+                                                    <small class="text-muted">
+                                                        <i class="fa fa-info-circle"></i>
+                                                        Mostrando <strong id="result-count-proj">0</strong> proyecto(s)
+                                                        de <strong id="total-count-proj">0</strong>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <table id="zero-configuration"
+                                                class="display table nowrap table-striped table-hover dataTable"
+                                                style="width: 100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Imagen</th>
+                                                        <th>Código</th>
+                                                        <th>Nombre</th>
+                                                        <th>Ubicación</th>
+                                                        <th>Total Lotes</th>
+                                                        <th>Disponibles</th>
+                                                        <th>Precio m²</th>
+                                                        <th>Estado</th>
+                                                        <th>Fecha</th>
+                                                        <th>Acción</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php
                                                         if ($projects) {
                                                             foreach ($projects as $project) {
                                                         ?>
-                                                        <tr>
-                                                            <td><?= $project['id'] ?></td>
-                                                            <td>
-                                                                <?php
+                                                    <tr>
+                                                        <td><?= $project['id'] ?></td>
+                                                        <td>
+                                                            <?php
                                                                 $imgPath = !empty($project['image']) ? $project['image'] : '';
                                                                 $imgFullPath = FCPATH . $imgPath;
                                                                 if (!empty($imgPath) && file_exists($imgFullPath)) {
@@ -649,32 +717,32 @@
                                                                     echo '<img src="/assets/project_images/no-image.png" alt="Sin imagen" style="max-width:60px;max-height:60px;border-radius:6px;object-fit:cover;">';
                                                                 }
                                                                 ?>
-                                                            </td>
-                                                            <td><strong><?= $project['code'] ?></strong></td>
-                                                            <td>
-                                                                <?= $project['name'] ?><br>
-                                                                <small
-                                                                    class="text-muted"><?= substr($project['description'], 0, 50) ?>...</small>
-                                                            </td>
-                                                            <td>
-                                                                <?php
+                                                        </td>
+                                                        <td><strong><?= $project['code'] ?></strong></td>
+                                                        <td>
+                                                            <?= $project['name'] ?><br>
+                                                            <small
+                                                                class="text-muted"><?= substr($project['description'], 0, 50) ?>...</small>
+                                                        </td>
+                                                        <td>
+                                                            <?php
                                                                 $dep = isset($project['department_id']) && isset($departamentos[$project['department_id']]) ? $departamentos[$project['department_id']] : '<span style="color:#bbb">(Sin departamento)</span>';
                                                                 $prov = isset($project['province_id']) && isset($provincias[$project['province_id']]) ? $provincias[$project['province_id']] : '<span style="color:#bbb">(Sin provincia)</span>';
                                                                 $dist = isset($project['district_id']) && isset($distritos[$project['district_id']]) ? $distritos[$project['district_id']] : '<span style="color:#bbb">(Sin distrito)</span>';
                                                                 ?>
-                                                                <?= $dep ?> / <?= $prov ?> / <?= $dist ?>
-                                                            </td>
-                                                            <td><span
-                                                                    class="badge badge-info"><?= $project['total_lots'] ?></span>
-                                                            </td>
-                                                            <td><span
-                                                                    class="badge badge-success"><?= $project['available_lots'] ?></span>
-                                                            </td>
-                                                            <td>S/
-                                                                <?= number_format($project['base_price_per_sqm'], 2) ?>
-                                                            </td>
-                                                            <td>
-                                                                <?php
+                                                            <?= $dep ?> / <?= $prov ?> / <?= $dist ?>
+                                                        </td>
+                                                        <td><span
+                                                                class="badge badge-info"><?= $project['total_lots'] ?></span>
+                                                        </td>
+                                                        <td><span
+                                                                class="badge badge-success"><?= $project['available_lots'] ?></span>
+                                                        </td>
+                                                        <td>S/
+                                                            <?= number_format($project['base_price_per_sqm'], 2) ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php
                                                                 $status_class = '';
                                                                 $status_text = '';
                                                                 switch($project['status']) {
@@ -696,38 +764,36 @@
                                                                         break;
                                                                 }
                                                                 ?>
-                                                                <span
-                                                                    class="badge <?= $status_class ?>"><?= $status_text ?></span>
-                                                            </td>
-                                                            <td><?= date('d/m/Y', strtotime($project['created_at'])) ?>
-                                                            </td>
-                                                            <td>
-                                                                <div class="btn-group">
-                                                                    <button type="button"
-                                                                        class="btn btn-icon btn-info btn-sm"
-                                                                        title="Detalle"
-                                                                        onclick="showProjectDetail(<?= $project['id'] ?>)"><i
-                                                                            class="fa fa-search"></i></button>
-                                                                    <button type="button"
-                                                                        class="btn btn-icon btn-warning btn-sm"
-                                                                        title="Editar"
-                                                                        onclick="editProject(<?= $project['id'] ?>)"><i
-                                                                            class="fa fa-edit"></i></button>
-                                                                    <button type="button"
-                                                                        class="btn btn-icon btn-danger btn-sm"
-                                                                        title="Eliminar"
-                                                                        onclick="eliminar('<?= $project['id'] ?>');"><i
-                                                                            class="fa fa-trash"></i></button>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                        <?php
+                                                            <span
+                                                                class="badge <?= $status_class ?>"><?= $status_text ?></span>
+                                                        </td>
+                                                        <td><?= date('d/m/Y', strtotime($project['created_at'])) ?>
+                                                        </td>
+                                                        <td>
+                                                            <div class="btn-group">
+                                                                <button type="button"
+                                                                    class="btn btn-icon btn-info btn-sm" title="Detalle"
+                                                                    onclick="showProjectDetail(<?= $project['id'] ?>)"><i
+                                                                        class="fa fa-search"></i></button>
+                                                                <button type="button"
+                                                                    class="btn btn-icon btn-warning btn-sm"
+                                                                    title="Editar"
+                                                                    onclick="editProject(<?= $project['id'] ?>)"><i
+                                                                        class="fa fa-edit"></i></button>
+                                                                <button type="button"
+                                                                    class="btn btn-icon btn-danger btn-sm"
+                                                                    title="Eliminar"
+                                                                    onclick="eliminar('<?= $project['id'] ?>');"><i
+                                                                        class="fa fa-trash"></i></button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <?php
                                                             }
                                                         }
                                                         ?>
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
@@ -736,6 +802,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </section>
 
@@ -928,12 +995,13 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                            onclick="closeEditProjectModal()">
                             <i class="feather icon-x"></i> Cancelar
                         </button>
-                        <a id="viewLotsBtn" href="#" class="btn btn-info">
+                        <button type="button" class="btn btn-info" onclick="goToProjectLots()">
                             <i class="feather icon-map"></i> Ver Lotes
-                        </a>
+                        </button>
                         <button type="submit" class="btn btn-primary">
                             <i class="feather icon-save"></i> Actualizar Proyecto
                         </button>
@@ -1242,6 +1310,122 @@
     }
     // Al abrir el modal de edición, debes asignar el proyecto actual a window.currentProject
     // Ejemplo: window.currentProject = { department_id: ..., province_id: ..., district_id: ... }
+
+    // ===== FUNCIONES DE FILTRADO AVANZADO PARA PROYECTOS =====
+
+    // Cerrar modal de editar proyecto
+    function closeEditProjectModal() {
+        $('#editProjectModal').modal('hide');
+    }
+
+    // Ir al módulo de lotes del proyecto
+    function goToProjectLots() {
+        if (window.currentProject && window.currentProject.id) {
+            // Redirigir al módulo de lotes filtrando por este proyecto
+            window.location.href = '/dashboard/inmueble/lots?project_id=' + window.currentProject.id;
+        } else {
+            Swal.fire('Error', 'No se pudo obtener el ID del proyecto', 'error');
+        }
+    }
+
+    // ===== FUNCIONES DE FILTRADO AVANZADO PARA PROYECTOS =====
+    function filterProjectTable() {
+        const table = document.getElementById('zero-configuration');
+        const tbody = table.getElementsByTagName('tbody')[0];
+        const rows = tbody.getElementsByTagName('tr');
+
+        // Obtener valores de filtros
+        const searchVal = document.getElementById('search-projects').value.toLowerCase();
+        const statusVal = document.getElementById('status-filter-proj').value;
+        const availableMin = parseInt(document.getElementById('available-min').value) || 0;
+        const availableMax = parseInt(document.getElementById('available-max').value) || Infinity;
+        const priceMin = parseFloat(document.getElementById('price-min-proj').value) || 0;
+        const priceMax = parseFloat(document.getElementById('price-max-proj').value) || Infinity;
+
+        let visibleCount = 0;
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const cells = row.getElementsByTagName('td');
+
+            // Extraer datos de la fila
+            const nombre = cells[3]?.textContent.toLowerCase() || '';
+            const codigo = cells[2]?.textContent.toLowerCase() || '';
+            const disponibles = parseInt(cells[6]?.textContent || 0);
+            const precioText = cells[7]?.textContent.replace(/[^\d.]/g, '') || '0';
+            const statusBadge = cells[8]?.querySelector('.badge');
+            const statusText = statusBadge?.textContent.trim().toLowerCase() || '';
+
+            let precio = parseFloat(precioText) || 0;
+
+            // Aplicar filtros
+            let show = true;
+
+            // Filtro de búsqueda
+            if (searchVal && !(nombre.includes(searchVal) || codigo.includes(searchVal))) {
+                show = false;
+            }
+
+            // Filtro de estado
+            if (statusVal) {
+                const estadoMap = {
+                    'active': 'activo',
+                    'planning': 'planificación',
+                    'sold_out': 'agotado',
+                    'suspended': 'suspendido'
+                };
+                if (!statusText.includes(estadoMap[statusVal] || statusVal)) {
+                    show = false;
+                }
+            }
+
+            // Filtro de disponibles
+            if (disponibles < availableMin || disponibles > availableMax) {
+                show = false;
+            }
+
+            // Filtro de precio
+            if (precio < priceMin || precio > priceMax) {
+                show = false;
+            }
+
+            row.style.display = show ? '' : 'none';
+            if (show) visibleCount++;
+        }
+
+        // Actualizar contador
+        document.getElementById('result-count-proj').textContent = visibleCount;
+        document.getElementById('total-count-proj').textContent = rows.length;
+    }
+
+    function clearProjectFilters() {
+        document.getElementById('search-projects').value = '';
+        document.getElementById('status-filter-proj').value = '';
+        document.getElementById('available-min').value = '';
+        document.getElementById('available-max').value = '';
+        document.getElementById('price-min-proj').value = '';
+        document.getElementById('price-max-proj').value = '';
+        filterProjectTable();
+    }
+
+    // Inicializar contador e desactivar DataTable search al cargar
+    document.addEventListener('DOMContentLoaded', function() {
+        const table = document.getElementById('zero-configuration');
+        const tbody = table.getElementsByTagName('tbody')[0];
+        const totalRows = tbody.getElementsByTagName('tr').length;
+        document.getElementById('result-count-proj').textContent = totalRows;
+        document.getElementById('total-count-proj').textContent = totalRows;
+
+        // Desactivar el buscador por defecto de DataTable si está inicializado
+        setTimeout(function() {
+            if ($.fn.DataTable.isDataTable('#zero-configuration')) {
+                const dtTable = $('#zero-configuration').DataTable();
+                dtTable.search('').draw();
+                // Ocultar la búsqueda por defecto de DataTable
+                $('.dataTables_filter').hide();
+            }
+        }, 500);
+    });
     </script>
 
     <?php echo view("admin/footer"); ?>
