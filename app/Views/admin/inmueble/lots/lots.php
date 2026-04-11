@@ -32,25 +32,82 @@
                                         <div class="card-header">
                                             <h5>Gestión de Lotes</h5>
                                             <div class="card-header-right">
-                                                <a href="/dashboard/inmueble/create_lot" class="btn btn-primary btn-sm">
+                                                <button type="button" class="btn btn-primary btn-sm" onclick="showCreateLotModal()">
                                                     <i class="feather icon-plus"></i> Nuevo Lote
-                                                </a>
+                                                </button>
                                             </div>
                                         </div>
                                         <div class="card-block">
-                                            <!-- Filter by Project -->
-                                            <div class="row mb-3">
-                                                <div class="col-md-4">
-                                                    <select class="form-control" id="project-filter"
-                                                        onchange="filterByProject()">
-                                                        <option value="">Todos los Proyectos</option>
+                                            <!-- Filtros Avanzados Mejorados -->
+                                            <div class="row mb-4 p-3 bg-light rounded" style="border: 1px solid #e3e6f0;">
+                                                <!-- Búsqueda Principal -->
+                                                <div class="col-md-3 col-sm-6 mb-2">
+                                                    <label class="small mb-2"><strong><i class="fa fa-search"></i> Buscar</strong></label>
+                                                    <input type="text" class="form-control form-control-sm" id="search-lotes" 
+                                                        placeholder="Lote, Manzana..." onkeyup="filterTable()">
+                                                </div>
+
+                                                <!-- Proyecto -->
+                                                <div class="col-md-3 col-sm-6 mb-2">
+                                                    <label class="small mb-2"><strong><i class="fa fa-building"></i> Proyecto</strong></label>
+                                                    <select class="form-control form-control-sm" id="project-filter" onchange="filterTable()">
+                                                        <option value="">Todos</option>
                                                         <?php foreach ($projects as $project): ?>
                                                         <option value="<?= $project['id'] ?>"
                                                             <?= $selected_project == $project['id'] ? 'selected' : '' ?>>
-                                                            <?= $project['name'] ?> (<?= $project['code'] ?>)
+                                                            <?= $project['name'] ?>
                                                         </option>
                                                         <?php endforeach; ?>
                                                     </select>
+                                                </div>
+
+                                                <!-- Estado -->
+                                                <div class="col-md-3 col-sm-6 mb-2">
+                                                    <label class="small mb-2"><strong><i class="fa fa-tag"></i> Estado</strong></label>
+                                                    <select class="form-control form-control-sm" id="status-filter" onchange="filterTable()">
+                                                        <option value="">Todos</option>
+                                                        <option value="available">Disponible</option>
+                                                        <option value="reserved">Reservado</option>
+                                                        <option value="sold">Vendido</option>
+                                                        <option value="blocked">Bloqueado</option>
+                                                    </select>
+                                                </div>
+
+                                                <!-- Rango de Precio -->
+                                                <div class="col-md-3 col-sm-6 mb-2">
+                                                    <label class="small mb-2"><strong><i class="fa fa-dollar"></i> Precio</strong></label>
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" class="form-control" id="price-min" 
+                                                            placeholder="Mín" onkeyup="filterTable()" min="0">
+                                                        <input type="number" class="form-control" id="price-max" 
+                                                            placeholder="Máx" onkeyup="filterTable()" min="0">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Rango de Área -->
+                                                <div class="col-md-3 col-sm-6 mb-2">
+                                                    <label class="small mb-2"><strong><i class="fa fa-expand"></i> Área (m²)</strong></label>
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" class="form-control" id="area-min" 
+                                                            placeholder="Mín" onkeyup="filterTable()" min="0">
+                                                        <input type="number" class="form-control" id="area-max" 
+                                                            placeholder="Máx" onkeyup="filterTable()" min="0">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Botón Limpiar -->
+                                                <div class="col-md-3 col-sm-6 d-flex align-items-end mb-2">
+                                                    <button type="button" class="btn btn-secondary btn-sm btn-block" onclick="clearFilters()">
+                                                        <i class="fa fa-times"></i> Limpiar Filtros
+                                                    </button>
+                                                </div>
+
+                                                <!-- Contador de Resultados -->
+                                                <div class="col-12 mt-2">
+                                                    <small class="text-muted">
+                                                        <i class="fa fa-info-circle"></i> 
+                                                        Mostrando <strong id="result-count">0</strong> lote(s) de <strong id="total-count">0</strong>
+                                                    </small>
                                                 </div>
                                             </div>
 
@@ -199,8 +256,174 @@
     // ?>
 
     <!-- Modal para Editar Lote -->
-    <div class="modal fade" id="editLotModal" tabindex="-1" role="dialog" aria-labelledby="editLotModalLabel"
+    <!-- Modal para Crear Lote -->
+    <div class="modal fade" id="createLotModal" tabindex="-1" role="dialog" aria-labelledby="createLotModalLabel"
         aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <form id="create-lot-form" method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createLotModalLabel">Crear Nuevo Lote</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- Columna izquierda: Formulario -->
+                            <div class="col-md-8">
+                                <!-- Primera fila: Proyecto, Número de Lote, Manzana -->
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="create_project_id">Proyecto <span class="text-danger">*</span></label>
+                                        <select class="form-control" id="create_project_id" name="project_id" required>
+                                            <option value="">Seleccionar proyecto</option>
+                                            <?php foreach ($projects as $project): ?>
+                                            <option value="<?= $project['id'] ?>"
+                                                data-price="<?= $project['base_price_per_sqm'] ?>"
+                                                data-location="<?= $project['location'] ?>"
+                                                data-min-down-payment-percentage="<?= $project['min_down_payment_percentage'] ?>"
+                                                data-min-down-payment-fixed="<?= $project['min_down_payment_fixed'] ?>">
+                                                <?= $project['name'] ?> (<?= $project['code'] ?>)
+                                            </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="create_lot_number">Número de Lote <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="create_lot_number" name="lot_number" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="create_block">Manzana</label>
+                                        <input type="text" class="form-control" id="create_block" name="block" placeholder="Ej: A, B, C">
+                                    </div>
+                                </div>
+
+                                <!-- Segunda fila: Unidad Catastral, Partida Electrónica -->
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="create_cadastral_unit">Unidad Catastral</label>
+                                        <input type="text" class="form-control" id="create_cadastral_unit" name="cadastral_unit"
+                                            placeholder="Ej: UC-12345">
+                                        <small class="form-text text-muted">Dato oficial del catastro, si aplica.</small>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="create_registry_number">Partida Electrónica (Electronic Property Record)</label>
+                                        <input type="text" class="form-control" id="create_registry_number" name="registry_number"
+                                            placeholder="Ej: 12345678">
+                                        <small class="form-text text-muted">Número de la Partida Electrónica SUNARP.</small>
+                                    </div>
+                                </div>
+
+                                <!-- Tercera fila: Área, Precio por m2, Precio Total del Lote -->
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="create_area_sqm">Área (m²) <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="create_area_sqm" name="area_sqm" step="0.01"
+                                            min="50" required>
+                                        <small class="form-text text-muted">Área mínima: 50 m²</small>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="create_price_per_sqm">Precio por m²</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">S/</span>
+                                            </div>
+                                            <input type="number" class="form-control" id="create_price_per_sqm" step="0.01"
+                                                readonly>
+                                        </div>
+                                        <small class="form-text text-muted">Se toma del proyecto seleccionado</small>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="create_base_price">Precio Total del Lote <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">S/</span>
+                                            </div>
+                                            <input type="number" class="form-control" id="create_base_price" name="base_price"
+                                                step="0.01" min="0" required>
+                                        </div>
+                                        <small class="form-text text-muted">Se calcula automáticamente</small>
+                                    </div>
+                                </div>
+
+                                <!-- Cuarta fila: Estado Inicial -->
+                                <div class="form-row">
+                                    <div class="form-group col-md-12">
+                                        <label for="create_status">Estado Inicial</label>
+                                        <select class="form-control" id="create_status" name="status">
+                                            <option value="available">Disponible</option>
+                                            <option value="reserved">Reservado</option>
+                                            <option value="sold">Vendido</option>
+                                            <option value="blocked">Bloqueado</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div id="createLotErrorMsg" class="alert alert-danger d-none"></div>
+                            </div>
+
+                            <!-- Columna derecha: Información del Proyecto y Resumen -->
+                            <div class="col-md-4">
+                                <!-- Información del Proyecto -->
+                                <div class="card bg-light mb-3">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">Información del Proyecto</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-2">
+                                            <small class="text-muted">Ubicación:</small><br>
+                                            <strong id="create_project_location">-</strong>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted">Precio base m²:</small><br>
+                                            <strong id="create_project_price">S/ -</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Resumen del Lote -->
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">Resumen del Lote</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-2">
+                                            <small class="text-muted">Área: </small>
+                                            <strong id="create_calc_area">0 m²</strong>
+                                        </div>
+                                        <div class="mb-2">
+                                            <small class="text-muted">Precio m²: </small>
+                                            <strong id="create_calc_price_per_m2">S/ 0</strong>
+                                        </div>
+                                        <div class="mb-2">
+                                            <small class="text-muted">Precio Total: </small>
+                                            <strong id="create_calc_price" class="text-success">S/ 0</strong>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted" id="create_down_payment_label">Cuota Inicial: </small>
+                                            <strong id="create_calc_initial" class="text-warning">S/ 0</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="feather icon-x"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="feather icon-save"></i> Crear Lote
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Lote -->
+    <div class="modal fade" id="editLotModal" tabindex="-1" role="dialog" aria-labelledby="editLotModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <form id="edit-lot-form" method="POST">
@@ -374,6 +597,7 @@
                 </form>
             </div>
         </div>
+    </div>
     </div>
 
     <!-- Modal para Ver Detalles del Lote -->
@@ -781,6 +1005,43 @@
 
     let currentLotData = {};
 
+    function editLot(lotId) {
+        // Obtener datos del lote vía AJAX
+        fetch('/dashboard/inmueble/get_lot/' + lotId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.lot) {
+                    // Cargar datos en el modal
+                    loadLotDataToModal(data.lot);
+                    
+                    // Actualizar el título
+                    document.getElementById('editLotModalLabel').textContent = 'Editar Lote: ' + data.lot.lot_number;
+                    
+                    // Guardar el ID del lote que se está editando
+                    document.getElementById('edit-lot-form').dataset.lotId = lotId;
+                    
+                    // Actualizar la acción del formulario
+                    document.getElementById('edit-lot-form').action = '/dashboard/inmueble/edit_lot/' + lotId;
+                    
+                    // Mostrar el modal
+                    $('#editLotModal').modal('show');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se pudo cargar el lote'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al obtener el lote'
+                });
+            });
+    }
 
     function loadLotDataToModal(lot) {
         document.getElementById('edit_project_id').value = lot.project_id || '';
@@ -972,6 +1233,249 @@
         }
         window.location.href = '/dashboard/inmueble/create_contract?lot_id=' + currentLotData.id;
     }
+
+    // Funciones de Filtrado Avanzado
+    function filterTable() {
+        const table = document.getElementById('zero-configuration');
+        const tbody = table.getElementsByTagName('tbody')[0];
+        const rows = tbody.getElementsByTagName('tr');
+        
+        // Obtener valores de filtros
+        const searchVal = document.getElementById('search-lotes').value.toLowerCase();
+        const projectVal = document.getElementById('project-filter').value;
+        const statusVal = document.getElementById('status-filter').value;
+        const priceMin = parseFloat(document.getElementById('price-min').value) || 0;
+        const priceMax = parseFloat(document.getElementById('price-max').value) || Infinity;
+        const areaMin = parseFloat(document.getElementById('area-min').value) || 0;
+        const areaMax = parseFloat(document.getElementById('area-max').value) || Infinity;
+        
+        let visibleCount = 0;
+        
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const cells = row.getElementsByTagName('td');
+            
+            // Extraer datos de la fila
+            const projectId = cells[1]?.textContent.trim() || '';
+            const lotNumber = cells[2]?.textContent.toLowerCase() || '';
+            const block = cells[3]?.textContent.toLowerCase() || '';
+            const areaText = cells[6]?.textContent.trim() || '0';
+            const priceText = cells[8]?.textContent.replace(/[^\d.]/g, '') || '0';
+            const statusBadge = cells[9]?.querySelector('.badge');
+            const statusText = statusBadge?.textContent.trim().toLowerCase() || '';
+            
+            let area = parseFloat(areaText) || 0;
+            let price = parseFloat(priceText) || 0;
+            
+            // Aplicar filtros
+            let show = true;
+            
+            // Filtro de búsqueda
+            if (searchVal && !(lotNumber.includes(searchVal) || block.includes(searchVal))) {
+                show = false;
+            }
+            
+            // Filtro de proyecto (comparar por ID)
+            if (projectVal && !projectId.includes(projectVal)) {
+                show = false;
+            }
+            
+            // Filtro de estado
+            if (statusVal) {
+                const estadoMap = {
+                    'available': 'disponible',
+                    'reserved': 'reservado',
+                    'sold': 'vendido',
+                    'blocked': 'bloqueado'
+                };
+                if (!statusText.includes(estadoMap[statusVal] || statusVal)) {
+                    show = false;
+                }
+            }
+            
+            // Filtro de precio
+            if (price < priceMin || price > priceMax) {
+                show = false;
+            }
+            
+            // Filtro de área
+            if (area < areaMin || area > areaMax) {
+                show = false;
+            }
+            
+            row.style.display = show ? '' : 'none';
+            if (show) visibleCount++;
+        }
+        
+        // Actualizar contador
+        document.getElementById('result-count').textContent = visibleCount;
+        document.getElementById('total-count').textContent = rows.length;
+    }
+
+    function clearFilters() {
+        document.getElementById('search-lotes').value = '';
+        document.getElementById('project-filter').value = '';
+        document.getElementById('status-filter').value = '';
+        document.getElementById('price-min').value = '';
+        document.getElementById('price-max').value = '';
+        document.getElementById('area-min').value = '';
+        document.getElementById('area-max').value = '';
+        filterTable();
+    }
+
+    // Inicializar contador e desactivar DataTable search al cargar
+    // Mostrar modal para crear lote
+    function showCreateLotModal() {
+        // Limpiar el formulario
+        document.getElementById('create-lot-form').reset();
+        document.getElementById('createLotErrorMsg').classList.add('d-none');
+        document.getElementById('create_project_id').value = '';
+        document.getElementById('create_price_per_sqm').value = '';
+        $('#createLotModal').modal('show');
+    }
+
+    // Manejar envío del formulario de crear lote
+    document.addEventListener('DOMContentLoaded', function() {
+        const createLotForm = document.getElementById('create-lot-form');
+        
+        if (createLotForm) {
+            // Función para calcular precio automático en crear lote
+            function calculateCreateLotSummary() {
+                const area = parseFloat(document.getElementById('create_area_sqm').value) || 0;
+                const pricePerSqm = parseFloat(document.getElementById('create_price_per_sqm').value) || 0;
+                
+                const calculatedPrice = area * pricePerSqm;
+                
+                // Actualizar automáticamente el campo "Precio del Lote" con el precio calculado
+                document.getElementById('create_base_price').value = calculatedPrice.toFixed(2);
+                
+                // Obtener el porcentaje de cuota inicial del proyecto seleccionado
+                const projectSelect = document.getElementById('create_project_id');
+                const selectedOption = projectSelect.options[projectSelect.selectedIndex];
+                const minDownPaymentPercentage = parseFloat(selectedOption?.getAttribute('data-min-down-payment-percentage')) || 0;
+                const minDownPaymentFixed = parseFloat(selectedOption?.getAttribute('data-min-down-payment-fixed')) || 0;
+                
+                let initialPayment = 0;
+                if (minDownPaymentPercentage > 0) {
+                    initialPayment = (calculatedPrice * minDownPaymentPercentage) / 100;
+                } else if (minDownPaymentFixed > 0) {
+                    initialPayment = minDownPaymentFixed;
+                }
+                
+                // Actualizar los elementos del resumen
+                document.getElementById('create_calc_area').textContent = area.toFixed(2) + ' m²';
+                document.getElementById('create_calc_price_per_m2').textContent = 'S/ ' + pricePerSqm.toFixed(2);
+                document.getElementById('create_calc_price').textContent = 'S/ ' + calculatedPrice.toFixed(2);
+                document.getElementById('create_calc_initial').textContent = 'S/ ' + initialPayment.toFixed(2);
+                
+                // Actualizar label si es porcentaje
+                const downPaymentLabel = document.getElementById('create_down_payment_label');
+                if (downPaymentLabel && minDownPaymentPercentage > 0) {
+                    downPaymentLabel.textContent = `Cuota Inicial (${minDownPaymentPercentage}%): `;
+                } else if (downPaymentLabel) {
+                    downPaymentLabel.textContent = 'Cuota Inicial: ';
+                }
+            }
+            
+            // Actualizar precio por m² cuando cambia el proyecto
+            document.getElementById('create_project_id').addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.value) {
+                    const price = selectedOption.getAttribute('data-price');
+                    const location = selectedOption.getAttribute('data-location');
+                    document.getElementById('create_price_per_sqm').value = price;
+                    document.getElementById('create_project_location').textContent = location || '-';
+                    document.getElementById('create_project_price').textContent = 'S/ ' + price;
+                } else {
+                    document.getElementById('create_price_per_sqm').value = '';
+                    document.getElementById('create_project_location').textContent = '-';
+                    document.getElementById('create_project_price').textContent = 'S/ -';
+                }
+                calculateCreateLotSummary();
+            });
+
+            // Calcular cuando cambia el área
+            document.getElementById('create_area_sqm').addEventListener('change', calculateCreateLotSummary);
+            document.getElementById('create_area_sqm').addEventListener('input', calculateCreateLotSummary);
+
+            // Calcular cuando cambia el precio por m²
+            document.getElementById('create_price_per_sqm').addEventListener('change', calculateCreateLotSummary);
+
+            // Calcular cuando cambia el precio base
+            document.getElementById('create_base_price').addEventListener('change', calculateCreateLotSummary);
+            document.getElementById('create_base_price').addEventListener('input', calculateCreateLotSummary);
+
+            // Disparar cálculo cuando se abre el modal
+            $('#createLotModal').on('shown.bs.modal', function() {
+                calculateCreateLotSummary();
+            });
+
+            // Enviar formulario
+            createLotForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const submitBtn = this.querySelector('button[type="submit"]');
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span>Guardando...';
+                
+                fetch('/dashboard/inmueble/create_lot', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        $('#createLotModal').modal('hide');
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Éxito!',
+                            text: 'Lote creado exitosamente',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        // Recargar la página para ver el nuevo lote
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        const errorDiv = document.getElementById('createLotErrorMsg');
+                        errorDiv.textContent = data.message || 'Error desconocido';
+                        errorDiv.classList.remove('d-none');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const errorDiv = document.getElementById('createLotErrorMsg');
+                    errorDiv.textContent = 'Error al procesar la solicitud';
+                    errorDiv.classList.remove('d-none');
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="feather icon-save"></i> Crear Lote';
+                });
+            });
+        }
+
+        // Inicializar contador de tabla y desactivar buscador por defecto
+        const table = document.getElementById('zero-configuration');
+        const tbody = table.getElementsByTagName('tbody')[0];
+        const totalRows = tbody.getElementsByTagName('tr').length;
+        document.getElementById('result-count').textContent = totalRows;
+        document.getElementById('total-count').textContent = totalRows;
+        
+        // Desactivar el buscador por defecto de DataTable si está inicializado
+        setTimeout(function() {
+            if ($.fn.DataTable.isDataTable('#zero-configuration')) {
+                const dtTable = $('#zero-configuration').DataTable();
+                dtTable.search('').draw();
+                // Ocultar la búsqueda por defecto de DataTable
+                $('.dataTables_filter').hide();
+            }
+        }, 500);
+    });
     </script>
 
     <?php echo view("admin/footer"); ?>
