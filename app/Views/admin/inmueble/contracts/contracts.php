@@ -429,7 +429,8 @@
                                                                                 href="<?= base_url('dashboard/inmueble/edit_contract/' . $contract['id']) ?>">
                                                                                 <i class="fa fa-edit"></i> Editar
                                                                             </a>
-                                                                            <a class="dropdown-item" href="/dashboard/inmueble/cronograma/<?= $contract['id'] ?>">
+                                                                            <a class="dropdown-item"
+                                                                                href="/dashboard/inmueble/cronograma/<?= $contract['id'] ?>">
                                                                                 <i class="fa fa-calendar"></i>
                                                                                 Cronograma
                                                                             </a>
@@ -1122,15 +1123,18 @@
                                                 <div class="form-group">
                                                     <label for="comprobante">
                                                         <strong>Adjuntar Comprobante de Pago</strong>
-                                                        <small class="text-muted">(Opcional - Foto del recibo/voucher de la cuota inicial)</small>
+                                                        <small class="text-muted">(Opcional - Foto del recibo/voucher de
+                                                            la cuota inicial)</small>
                                                     </label>
                                                     <div class="custom-file">
-                                                        <input type="file" class="custom-file-input" id="comprobante" 
-                                                            name="comprobante" accept="image/*,.pdf" 
+                                                        <input type="file" class="custom-file-input" id="comprobante"
+                                                            name="comprobante" accept="image/*,.pdf"
                                                             onchange="updateFileName(this)">
-                                                        <label class="custom-file-label" for="comprobante">Seleccionar archivo...</label>
+                                                        <label class="custom-file-label" for="comprobante">Seleccionar
+                                                            archivo...</label>
                                                     </div>
-                                                    <small class="form-text text-muted">Formatos aceptados: JPG, PNG, PDF</small>
+                                                    <small class="form-text text-muted">Formatos aceptados: JPG, PNG,
+                                                        PDF</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -1148,7 +1152,7 @@
                     </script>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <button type="button" class="btn btn-secondary btn-cancel" data-dismiss="modal">
                             <i class="feather icon-x"></i> Cancelar
                         </button>
 
@@ -1256,7 +1260,7 @@
         // Set minimum down payment
         const lotPrice = parseFloat(lot.current_price || 0);
         let minDownPayment;
-        
+
         // Verificar si el proyecto usa monto fijo o porcentaje
         const downPaymentType = lot.down_payment_type;
         if (downPaymentType === 'fixed') {
@@ -1267,7 +1271,7 @@
             const minPercentage = parseFloat(lot.min_down_payment_percentage || 15) / 100;
             minDownPayment = Math.max(lotPrice * minPercentage, 5000);
         }
-        
+
         document.getElementById('min_down_payment').textContent = minDownPayment.toLocaleString('es-PE');
         document.getElementById('down_payment').setAttribute('min', minDownPayment);
         document.getElementById('down_payment').value = minDownPayment;
@@ -1382,12 +1386,16 @@
     // Función global para abrir el modal de edición de contrato
     // editContract ahora está in contracts-edit.js
     // Asegura que el botón 'Crear Contrato' dispare el submit del formulario
-    document.getElementById('create_contract_btn').addEventListener('click', function() {
-        // Solo dispara el submit si el botón no está deshabilitado
-        if (!this.disabled) {
-            document.getElementById('new-contract-form').requestSubmit();
-        }
-    });
+    // Usar delegación para evitar múltiples listeners
+    if (!window.contractBtnListenerAdded) {
+        $(document).on('click', '#create_contract_btn', function() {
+            // Solo dispara el submit si el botón no está deshabilitado
+            if (!this.disabled) {
+                document.getElementById('new-contract-form').requestSubmit();
+            }
+        });
+        window.contractBtnListenerAdded = true;
+    }
     let selectedCustomer = null;
     let selectedLot = null;
     let paymentPlans = [];
@@ -1411,13 +1419,28 @@
     const tabs = ['customer-section', 'lot-section', 'payment-section', 'summary-section'];
 
     function openNewContractModal() {
+        // Limpiar cualquier listener residual
+        $('#newContractModal').off('hidden.bs.modal');
+
         resetModalForm();
         loadAvailableLots();
         loadPaymentPlans();
         loadProjects();
         currentTab = 0;
         showTab(currentTab);
+
+        // Mostrar y limpiar correctamente al cerrar
         $('#newContractModal').modal('show');
+
+        // Escuchar cierre del modal para limpiar el backdrop
+        $('#newContractModal').on('hidden.bs.modal', function() {
+            if ($('.modal.show').length === 0) {
+                $('body').removeClass('modal-open').css('overflow', '');
+                $('.modal-backdrop').fadeOut(200, function() {
+                    $(this).remove();
+                });
+            }
+        });
     }
 
     function resetModalForm() {
@@ -2364,29 +2387,38 @@
     </script>
     <script>
     $(document).ready(function() {
-        // Al cerrar cualquier modal, limpia el backdrop y la clase modal-open si no hay más modals abiertos
-        $(document).on('hidden.bs.modal', '.modal', function() {
-            if ($('.modal.show').length === 0) {
-                $('body').removeClass('modal-open');
-                $('.modal-backdrop').remove();
-            }
+        // Delegación de eventos para lotes - usar data attributes en lugar de addEventListener
+        $(document).on('click', '.lot-card', function(e) {
+            e.stopPropagation();
+            const lotData = JSON.parse(this.closest('[data-lot-data]').dataset.lotData);
+            selectLot(lotData);
+            $('.lot-card').removeClass('border-success').css('backgroundColor', '');
+            $(this).addClass('border-success').css('backgroundColor', '#f8f9fa');
         });
-    });
-    </script>
-    <script>
-    // Forzar cierre del modal al hacer click en Cancelar
-    $(document).ready(function() {
-        $(document).on('click', '#newContractModal .btn-cancelar, #newContractModal .btn-cancel', function(e) {
-            $('#newContractModal').modal('hide');
-        });
-        $(document).on('hidden.bs.modal', '.modal', function() {
+
+        // Limpiar estado cuando se cierra el modal
+        $(document).on('hidden.bs.modal', '#newContractModal', function() {
             setTimeout(function() {
+                // Solo si no hay otros modales abiertos
                 if ($('.modal.show').length === 0) {
-                    $('body').removeClass('modal-open');
-                    $('.modal-backdrop').remove();
+                    $('body').removeClass('modal-open').css('overflow', '');
+                    $('.modal-backdrop').fadeOut(200, function() {
+                        $(this).remove();
+                    });
                 }
-            }, 200);
+            }, 100);
         });
+
+        // Forzar cierre del modal al hacer click en Cancelar o en el botón X
+        $(document).on('click',
+            '#newContractModal [data-dismiss="modal"], #newContractModal .btn-cancel, #newContractModal .btn-cancelar',
+            function(e) {
+                // No prevenir si es un data-dismiss
+                if (!(e.target.hasAttribute('data-dismiss') || e.target.closest('[data-dismiss]'))) {
+                    e.preventDefault();
+                }
+                $('#newContractModal').modal('hide');
+            });
     });
     </script>
 </body>

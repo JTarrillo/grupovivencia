@@ -2354,7 +2354,7 @@ class Inmueble extends BaseController {
                     'tipo_comision' => $tipo_comision,
                     'monto' => $monto_comision,
                     'porcentaje' => $porcentaje_comision,
-                    'estado' => 'aprobada',
+                    'estado' => 'pendiente',
                     'fecha_generada' => $fecha,
                     'created_at' => $fecha,
                     'updated_at' => $fecha
