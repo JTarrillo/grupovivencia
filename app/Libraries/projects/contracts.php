@@ -744,14 +744,23 @@
     </div>
 
     <script>
-    // Clase modular para mostrar la vista previa del contrato
+    // ==================== VARIABLES GLOBALES ====================
+    let selectedCustomer = null;
+    let selectedLot = null;
+    let paymentPlans = [];
+    let availableLots = [];
+    let projects = [];
+    let currentTab = 0;
+    const tabs = ['customer-section', 'lot-section', 'payment-section', 'summary-section'];
+
+    // ==================== CLASE PARA VISTA PREVIA ====================
     class ContractPreviewModal {
         constructor(contractData) {
             this.contractData = contractData;
         }
 
         show() {
-            style.textContent = `
+            const html = `
                 <div style="text-align:left;">
                     <strong>Cliente:</strong> ${this.contractData.customer.name} ${this.contractData.customer.lastname || ''}<br>
                     <strong>DNI:</strong> ${this.contractData.customer.dni || 'N/A'}<br>
@@ -769,24 +778,16 @@
                 </div>
             `;
             document.getElementById('contractPreviewContent').innerHTML = html;
+            const modal = document.getElementById('contractPreviewModal');
+            modal.classList.add('modal-preview-contrato-zindex');
             $('#contractPreviewModal').modal('show');
+            $('#contractPreviewModal').on('hidden.bs.modal', function () {
+                modal.classList.remove('modal-preview-contrato-zindex');
+            });
         }
     }
-    // Asegura que el botón 'Crear Contrato' dispare el submit del formulario
-    document.getElementById('create_contract_btn').addEventListener('click', function() {
-        // Solo dispara el submit si el botón no está deshabilitado
-        if (!this.disabled) {
-            document.getElementById('new-contract-form').requestSubmit();
-        }
-    });
-    let selectedCustomer = null;
-    let selectedLot = null;
-    let paymentPlans = [];
-    let availableLots = [];
-    let projects = [];
-    let currentTab = 0;
-    const tabs = ['customer-section', 'lot-section', 'payment-section', 'summary-section'];
 
+    // ==================== FUNCIONES PARA CARGAR DATOS ====================
     function openNewContractModal() {
         resetModalForm();
         loadAvailableLots();
@@ -798,13 +799,6 @@
     }
 
     function resetModalForm() {
-        /* Z-index solo cuando se muestra la vista previa */
-        .modal - preview - contrato - zindex {
-                z - index: 1080!important;
-            }
-            .modal - preview - contrato - zindex + .modal - backdrop.show {
-                z - index: 1079!important;
-            }
         selectedCustomer = null;
         selectedLot = null;
         document.getElementById('customer_search').value = '';
@@ -820,34 +814,582 @@
         fetch('/dashboard/inmueble/api/projects')
             .then(response => response.json())
             .then(data => {
-                    projects = data.projects || [];
-                    const select = document.getElementById('project_filter');
-                    select.innerHTML = '<option value="">Todos los proyectos</option>';
+                projects = data.projects || [];
+                const select = document.getElementById('project_filter');
+                select.innerHTML = '<option value="">Todos los proyectos</option>';
+                projects.forEach(project => {
+                    const option = document.createElement('option');
+                    option.value = project.id;
+                    option.textContent = `${project.name} (${project.location})`;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error loading projects:', error));
+    }
 
-                    projects.forEach(project => {
-                                const option = document.createElement('option');
-                                option.value = project.id;
-                                option.textContent = `${project.name} (${project.location})`;
-                                select.appendChild(option);
-                                show() {
-                                    const html = `
-                        <div style="text-align:left;">
-                            <strong>Cliente:</strong> ${this.contractData.customer.name} ${this.contractData.customer.lastname || ''}<br>
-                            <strong>DNI:</strong> ${this.contractData.customer.dni || 'N/A'}<br>
-                            <strong>Email:</strong> ${this.contractData.customer.email || 'N/A'}<br>
-                            <hr>
-                            <strong>Lote:</strong> ${this.contractData.lot.lot_number}<br>
-                            <strong>Proyecto:</strong> ${this.contractData.lot.project_name || 'N/A'}<br>
-                            <strong>Área:</strong> ${this.contractData.lot.area_sqm} m²<br>
-                            <strong>Precio:</strong> S/ ${parseFloat(this.contractData.lot.current_price || 0).toLocaleString('es-PE')}<br>
-                            <hr>
-                            <strong>Cuota Inicial:</strong> S/ ${this.contractData.downPayment}<br>
-                            <strong>Cuota Mensual:</strong> S/ ${this.contractData.monthlyPayment}<br>
-                            <strong>Total:</strong> S/ ${this.contractData.totalAmount}<br>
-                            <strong>Duración:</strong> ${this.contractData.duration} meses
-                        </div>
-                    `;
-                                    document.getElementById('contractPreviewContent').innerHTML = html;
+    function loadPaymentPlans() {
+        fetch('/dashboard/inmueble/api/payment_plans')
+            .then(response => response.json())
+            .then(data => {
+                paymentPlans = data.plans || [];
+                const select = document.getElementById('payment_plan_id');
+                select.innerHTML = '<option value="">Seleccionar plan</option>';
+                paymentPlans.forEach(plan => {
+                    const option = document.createElement('option');
+                    option.value = plan.id;
+                    option.textContent = `${plan.name} (${plan.duration_months} meses - ${plan.base_interest_rate}%)`;
+                    option.dataset.rate = plan.base_interest_rate;
+                    option.dataset.duration = plan.duration_months;
+                    option.dataset.minPercent = plan.min_down_payment_percentage;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error loading payment plans:', error));
+    }
+
+    function loadAvailableLots() {
+        fetch('/dashboard/inmueble/api/available_lots')
+            .then(response => response.json())
+            .then(data => {
+                availableLots = data.lots || [];
+                displayAvailableLots(availableLots);
+                updateLotsCount(availableLots.length);
+            })
+            .catch(error => console.error('Error loading lots:', error));
+    }
+
+    // ==================== FUNCIONES PARA BUSCAR CLIENTES ====================
+    function searchCustomers() {
+        const searchTerm = document.getElementById('customer_search').value;
+        if (searchTerm.length < 3) {
+            document.getElementById('customer_results').innerHTML = '';
+            return;
+        }
+
+        fetch('/dashboard/inmueble/api/search_customers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ search: searchTerm })
+        })
+            .then(response => response.json())
+            .then(data => displayCustomerResults(data.customers || []))
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al buscar clientes');
+            });
+    }
+
+    function displayCustomerResults(customers) {
+        const resultsContainer = document.getElementById('customer_results');
+        resultsContainer.innerHTML = '';
+
+        if (customers.length === 0) {
+            resultsContainer.innerHTML = '<div class="list-group-item text-muted">No se encontraron clientes</div>';
+            return;
+        }
+
+        customers.forEach(customer => {
+            const customerItem = document.createElement('a');
+            customerItem.href = '#';
+            customerItem.className = 'list-group-item list-group-item-action';
+            customerItem.onclick = (e) => {
+                e.preventDefault();
+                selectCustomer(customer);
+            };
+            customerItem.innerHTML = `
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">${customer.name} ${customer.lastname || ''}</h6>
+                    <small>ID: ${customer.id}</small>
+                </div>
+                <p class="mb-1">DNI: ${customer.dni || 'N/A'} | Email: ${customer.email || 'N/A'}</p>
+                <small>Teléfono: ${customer.phone || 'N/A'}</small>
+            `;
+            resultsContainer.appendChild(customerItem);
+        });
+    }
+
+    function selectCustomer(customer) {
+        selectedCustomer = customer;
+        document.getElementById('customer_id').value = customer.id;
+        document.getElementById('customer_name_display').textContent = `${customer.name} ${customer.lastname || ''}`;
+        document.getElementById('customer_dni_display').textContent = customer.dni || 'N/A';
+        document.getElementById('customer_email_display').textContent = customer.email || 'N/A';
+        document.getElementById('customer_phone_display').textContent = customer.phone || 'N/A';
+        document.getElementById('selected_customer').style.display = 'block';
+        document.getElementById('no_customer_selected').style.display = 'none';
+        document.getElementById('customer_results').innerHTML = '';
+        updateNavigationButtons();
+    }
+
+    // ==================== FUNCIONES PARA LOTES ====================
+    function displayAvailableLots(lots) {
+        const container = document.getElementById('available_lots');
+        container.innerHTML = '';
+
+        if (lots.length === 0) {
+            container.innerHTML = '<div class="col-12 text-center text-muted py-4">No hay lotes disponibles</div>';
+            return;
+        }
+
+        lots.forEach(lot => {
+            const lotCard = document.createElement('div');
+            lotCard.className = 'col-md-4 mb-3';
+            lotCard.innerHTML = `
+                <div class="card lot-card h-100" onclick="selectLot(${JSON.stringify(lot).replace(/"/g, '&quot;')})">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">${lot.project_name || 'Proyecto'}</h6>
+                        <h4 class="text-primary">Lote ${lot.lot_number}</h4>
+                        <p class="mb-1">Manzana: ${lot.block || 'N/A'}</p>
+                        <p class="mb-2">${lot.area_sqm} m²</p>
+                        <h5 class="text-success mb-0">S/ ${parseFloat(lot.current_price || 0).toLocaleString('es-PE')}</h5>
+                    </div>
+                </div>
+            `;
+            container.appendChild(lotCard);
+        });
+    }
+
+    function selectLot(lot) {
+        selectedLot = lot;
+        document.getElementById('lot_id').value = lot.id;
+        document.getElementById('selected_project_name').textContent = lot.project_name || 'N/A';
+        document.getElementById('selected_lot_number').textContent = lot.lot_number || 'N/A';
+        document.getElementById('selected_lot_area').textContent = lot.area_sqm || '0';
+        document.getElementById('selected_lot_price').textContent = parseFloat(lot.current_price || 0).toLocaleString('es-PE');
+        document.getElementById('selected_lot_info').style.display = 'block';
+
+        document.querySelectorAll('.lot-card').forEach(card => {
+            card.classList.remove('border-success');
+            card.style.backgroundColor = '';
+        });
+        event.currentTarget.classList.add('border-success');
+        event.currentTarget.style.backgroundColor = '#f8f9fa';
+
+        const lotPrice = parseFloat(lot.current_price || 0);
+        const minDownPayment = Math.max(lotPrice * 0.15, 5000);
+        document.getElementById('min_down_payment').textContent = minDownPayment.toLocaleString('es-PE');
+        document.getElementById('down_payment').setAttribute('min', minDownPayment);
+        document.getElementById('down_payment').value = minDownPayment;
+
+        calculateContract();
+        updateNavigationButtons();
+    }
+
+    function filterAvailableLots() {
+        const projectId = document.getElementById('project_filter').value;
+
+        if (projectId) {
+            const filteredLots = availableLots.filter(lot => lot.project_id == projectId);
+            displayAvailableLots(filteredLots);
+            updateLotsCount(filteredLots.length);
+        } else {
+            displayAvailableLots(availableLots);
+            updateLotsCount(availableLots.length);
+        }
+    }
+
+    function updateLotsCount(count) {
+        document.getElementById('lots_count').textContent = `${count} lote${count !== 1 ? 's' : ''}`;
+    }
+
+    // ==================== FUNCIONES PARA PLAN DE PAGO ====================
+    function updatePaymentPlan() {
+        const select = document.getElementById('payment_plan_id');
+        const selectedOption = select.options[select.selectedIndex];
+
+        if (selectedOption.value) {
+            document.getElementById('interest_rate').value = selectedOption.dataset.rate;
+            document.getElementById('financing_months').value = selectedOption.dataset.duration;
+            calculateContract();
+            console.log('Tasa de interés seleccionada: ' + selectedOption.dataset.rate + '%');
+        }
+    }
+
+    // ==================== FUNCIÓN PARA CALCULAR CONTRATO ====================
+    function calculateContract() {
+        if (!selectedLot) return;
+
+        const lotPrice = parseFloat(selectedLot.current_price || 0);
+        const downPayment = parseFloat(document.getElementById('down_payment').value) || 0;
+        const months = parseInt(document.getElementById('financing_months').value) || 36;
+        const annualRate = parseFloat(document.getElementById('interest_rate').value) || 3.5;
+
+        const financedAmount = lotPrice - downPayment;
+        const monthlyRate = annualRate / 100 / 12;
+
+        let monthlyPayment = 0;
+        if (financedAmount > 0 && monthlyRate > 0) {
+            monthlyPayment = financedAmount * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+        }
+
+        const totalPayment = downPayment + (monthlyPayment * months);
+
+        document.getElementById('sim_lot_price').textContent = lotPrice.toLocaleString('es-PE');
+        document.getElementById('sim_down_payment').textContent = downPayment.toLocaleString('es-PE');
+        document.getElementById('sim_financed_amount').textContent = financedAmount.toLocaleString('es-PE');
+        document.getElementById('sim_monthly_payment').textContent = monthlyPayment.toLocaleString('es-PE', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        document.getElementById('sim_total_payment').textContent = totalPayment.toLocaleString('es-PE');
+        document.getElementById('sim_total_installments').textContent = months;
+        document.getElementById('sim_contract_duration').textContent = (months / 12).toFixed(1);
+
+        updateNavigationButtons();
+    }
+
+    // ==================== FUNCIONES PARA NAVEGACIÓN ====================
+    function showTab(tabIndex) {
+        $('.tab-pane').removeClass('show active');
+        $('.nav-link').removeClass('active').addClass('disabled');
+        $(`#${tabs[tabIndex]}`).addClass('show active');
+        $(`[href="#${tabs[tabIndex]}"]`).removeClass('disabled').addClass('active');
+
+        for (let i = 0; i <= tabIndex; i++) {
+            $(`[href="#${tabs[i]}"]`).removeClass('disabled');
+        }
+
+        updateNavigationButtons();
+    }
+
+    function nextTab() {
+        if (validateCurrentTab()) {
+            if (currentTab < tabs.length - 1) {
+                currentTab++;
+                showTab(currentTab);
+                if (currentTab === tabs.length - 1) {
+                    updateSummary();
+                }
+            }
+        }
+    }
+
+    function previousTab() {
+        if (currentTab > 0) {
+            currentTab--;
+            showTab(currentTab);
+        }
+    }
+
+    function validateCurrentTab() {
+        switch (currentTab) {
+            case 0:
+                if (!selectedCustomer) {
+                    alert('Por favor seleccione un cliente');
+                    return false;
+                }
+                break;
+            case 1:
+                if (!selectedLot) {
+                    alert('Por favor seleccione un lote');
+                    return false;
+                }
+                break;
+            case 2:
+                if (!document.getElementById('payment_plan_id').value || !document.getElementById('down_payment').value) {
+                    alert('Por favor complete la información del plan de pago');
+                    return false;
+                }
+                break;
+        }
+        return true;
+    }
+
+    function updateNavigationButtons() {
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const previewBtn = document.getElementById('preview-btn');
+        const createBtn = document.getElementById('create_contract_btn');
+
+        prevBtn.style.display = currentTab > 0 ? 'inline-block' : 'none';
+        nextBtn.style.display = currentTab < tabs.length - 1 ? 'inline-block' : 'none';
+        previewBtn.style.display = currentTab === tabs.length - 1 ? 'inline-block' : 'none';
+        createBtn.style.display = currentTab === tabs.length - 1 ? 'inline-block' : 'none';
+
+        if (currentTab === tabs.length - 1) {
+            createBtn.disabled = !(selectedCustomer && selectedLot &&
+                document.getElementById('payment_plan_id').value &&
+                parseFloat(document.getElementById('down_payment').value) > 0);
+        }
+    }
+
+    function updateSummary() {
+        if (selectedCustomer) {
+            document.getElementById('summary_customer_name').textContent = `${selectedCustomer.name} ${selectedCustomer.lastname || ''}`;
+            document.getElementById('summary_customer_dni').textContent = selectedCustomer.dni || 'N/A';
+            document.getElementById('summary_customer_email').textContent = selectedCustomer.email || 'N/A';
+        }
+
+        if (selectedLot) {
+            document.getElementById('summary_lot_info').textContent = `Lote ${selectedLot.lot_number}`;
+            document.getElementById('summary_project_name').textContent = selectedLot.project_name || 'N/A';
+            document.getElementById('summary_lot_area_final').textContent = selectedLot.area_sqm || '0';
+            document.getElementById('summary_lot_price_final').textContent = parseFloat(selectedLot.current_price || 0).toLocaleString('es-PE');
+        }
+
+        const downPayment = parseFloat(document.getElementById('down_payment').value) || 0;
+        const monthlyPayment = document.getElementById('sim_monthly_payment').textContent;
+        const totalPayment = document.getElementById('sim_total_payment').textContent;
+        const months = document.getElementById('financing_months').value;
+        const interestRate = document.getElementById('interest_rate').value;
+
+        document.getElementById('summary_down_payment_final').textContent = downPayment.toLocaleString('es-PE');
+        document.getElementById('summary_monthly_payment_final').textContent = monthlyPayment;
+        document.getElementById('summary_total_final').textContent = totalPayment;
+        document.getElementById('summary_duration').textContent = months;
+        document.getElementById('summary_interest_rate').textContent = interestRate;
+
+        const contractDate = new Date(document.getElementById('contract_date').value);
+        const endDate = new Date(contractDate);
+        endDate.setMonth(endDate.getMonth() + parseInt(months));
+
+        document.getElementById('summary_start_date').textContent = contractDate.toLocaleDateString('es-PE');
+        document.getElementById('summary_end_date').textContent = endDate.toLocaleDateString('es-PE');
+
+        const lotPrice = parseFloat(selectedLot?.current_price || 0);
+        const totalInterest = (parseFloat(totalPayment.replace(/,/g, '')) || 0) - lotPrice;
+        document.getElementById('summary_total_interest').textContent = totalInterest.toLocaleString('es-PE');
+        document.getElementById('summary_savings').textContent = '0';
+    }
+
+    // ==================== FUNCIONES PARA VISTA PREVIA Y ENVÍO ====================
+    function previewContract() {
+        if (!selectedCustomer || !selectedLot) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Faltan datos',
+                text: 'Complete la información del cliente y lote',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        const contractData = {
+            customer: selectedCustomer,
+            lot: selectedLot,
+            downPayment: document.getElementById('down_payment').value,
+            monthlyPayment: document.getElementById('sim_monthly_payment').textContent,
+            totalAmount: document.getElementById('sim_lot_price').textContent,
+            duration: document.getElementById('financing_months').value
+        };
+
+        const previewModal = new ContractPreviewModal(contractData);
+        previewModal.show();
+    }
+
+    // ==================== MANEJADOR DE ENVÍO DE FORMULARIO ====================
+    document.getElementById('new-contract-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        if (!selectedCustomer || !selectedLot) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Faltan datos',
+                text: 'Complete toda la información requerida',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('customer_id', selectedCustomer.id);
+        formData.append('lot_id', selectedLot.id);
+        formData.append('payment_plan_id', document.getElementById('payment_plan_id').value);
+        formData.append('down_payment', document.getElementById('down_payment').value);
+        formData.append('financing_months', document.getElementById('financing_months').value);
+        formData.append('interest_rate', document.getElementById('interest_rate').value);
+        formData.append('contract_date', document.getElementById('contract_date').value);
+
+        let departmentId = selectedLot.department_id || null;
+        let provinceId = selectedLot.province_id || null;
+        let districtId = selectedLot.district_id || null;
+        if ((!departmentId || !provinceId || !districtId) && selectedLot.project_id) {
+            const proj = projects.find(p => p.id == selectedLot.project_id);
+            if (proj) {
+                departmentId = departmentId || proj.department_id || null;
+                provinceId = provinceId || proj.province_id || null;
+                districtId = districtId || proj.district_id || null;
+            }
+        }
+        if (departmentId) formData.append('department_id', departmentId);
+        if (provinceId) formData.append('province_id', provinceId);
+        if (districtId) formData.append('district_id', districtId);
+
+        const submitBtn = document.getElementById('create_contract_btn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="feather icon-loader"></i> Creando...';
+
+        fetch('/dashboard/inmueble/create_contract', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    $('#newContractModal').modal('hide');
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Contrato creado!',
+                        text: 'Contrato creado exitosamente: ' + data.contract_number,
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error al crear el contrato: ' + (data.message || 'Error desconocido'),
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al procesar la solicitud',
+                    confirmButtonText: 'OK'
+                });
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="feather icon-file-plus"></i> Crear Contrato';
+            });
+    });
+
+    // ==================== FUNCIONES PARA FILTRADO ====================
+    function filterContracts() {
+        const status = document.getElementById('status-filter').value;
+        const dateFrom = document.getElementById('date-from').value;
+        const dateTo = document.getElementById('date-to').value;
+        console.log('Filtering contracts:', { status, dateFrom, dateTo });
+    }
+
+    function clearFilters() {
+        document.getElementById('status-filter').value = '';
+        document.getElementById('date-from').value = '';
+        document.getElementById('date-to').value = '';
+    }
+
+    function viewContract(contractId) {
+        window.location.href = '/dashboard/inmueble/contracts/view/' + contractId;
+    }
+
+    function viewPayments(contractId) {
+        window.location.href = '/dashboard/inmueble/contracts/payments/' + contractId;
+    }
+
+    function printContract(contractId) {
+        window.open('/dashboard/inmueble/contracts/print/' + contractId, '_blank');
+    }
+
+    function editContract(contractId) {
+        window.location.href = '/dashboard/inmueble/contracts/edit/' + contractId;
+    }
+
+    function suspendContract(contractId) {
+        if (confirm('¿Está seguro de suspender este contrato?')) {
+            updateContractStatus(contractId, 'suspended');
+        }
+    }
+
+    function cancelContract(contractId) {
+        if (confirm('¿Está seguro de cancelar este contrato? Esta acción no se puede deshacer.')) {
+            updateContractStatus(contractId, 'cancelled');
+        }
+    }
+
+    function updateContractStatus(contractId, status) {
+        fetch('/dashboard/inmueble/api/update_contract_status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contract_id: contractId, status: status })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Estado actualizado correctamente');
+                    location.reload();
+                } else {
+                    alert('Error al actualizar el estado');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al procesar la solicitud');
+            });
+    }
+
+    // ==================== INICIALIZACIÓN Y ESTILOS ====================
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('create_contract_btn').addEventListener('click', function() {
+            if (!this.disabled) {
+                document.getElementById('new-contract-form').requestSubmit();
+            }
+        });
+    });
+
+    const style = document.createElement('style');
+    style.textContent = `
+        .lot-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .lot-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .border-success {
+            border: 2px solid #28a745 !important;
+        }
+        .nav-tabs .nav-link.disabled {
+            color: #6c757d;
+            pointer-events: none;
+        }
+        .modal-preview-contrato {
+            z-index: 1080 !important;
+        }
+        .modal-preview-contrato .modal-content {
+            background: #181a1b;
+            color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+            border: none;
+        }
+        .modal-preview-contrato .modal-header {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .modal-preview-contrato .modal-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #fff;
+        }
+        .modal-preview-contrato .modal-body {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        .modal-preview-contrato .modal-footer {
+            border-top: none;
+        }
+        .modal-preview-contrato strong {
+            color: #fff;
+        }
+        .modal-preview-contrato hr {
+            border-color: #444;
+        }
+        .modal-backdrop.show {
+            z-index: 1079 !important;
+        }
+    `;
+    document.head.appendChild(style);
+    </script>
+    <?php echo view("admin/footer"); ?>
+    </body>
+</html>
                                     const modal = document.getElementById('contractPreviewModal');
                                     modal.classList.add('modal-preview-contrato-zindex');
                                     $('#contractPreviewModal').modal('show');
@@ -1467,54 +2009,6 @@
     `;
                                 document.head.appendChild(style);
     </script>
-
     <?php echo view("admin/footer"); ?>
     </body>
-    <script>
-    // ...existing code...
-    // Clase modular para mostrar la vista previa del contrato
-    class ContractPreviewModal {
-        constructor(contractData) {
-            this.contractData = contractData;
-        }
-        show() {
-            const html = `
-                <div style="text-align:left;">
-                    <strong>Cliente:</strong> ${this.contractData.customer.name} ${this.contractData.customer.lastname || ''}<br>
-                    <strong>DNI:</strong> ${this.contractData.customer.dni || 'N/A'}<br>
-                    <strong>Email:</strong> ${this.contractData.customer.email || 'N/A'}<br>
-                    <hr>
-                    <strong>Lote:</strong> ${this.contractData.lot.lot_number}<br>
-                    <strong>Proyecto:</strong> ${this.contractData.lot.project_name || 'N/A'}<br>
-                    <strong>Área:</strong> ${this.contractData.lot.area_sqm} m²<br>
-                    <strong>Precio:</strong> S/ ${parseFloat(this.contractData.lot.current_price || 0).toLocaleString('es-PE')}<br>
-                    <hr>
-                    <strong>Cuota Inicial:</strong> S/ ${this.contractData.downPayment}<br>
-                    <strong>Cuota Mensual:</strong> S/ ${this.contractData.monthlyPayment}<br>
-                    <strong>Total:</strong> S/ ${this.contractData.totalAmount}<br>
-                    <strong>Duración:</strong> ${this.contractData.duration} meses
-                </div>
-            `;
-            document.getElementById('contractPreviewContent').innerHTML = html;
-            const modal = document.getElementById('contractPreviewModal');
-            modal.classList.add('modal-preview-contrato-zindex');
-            $('#contractPreviewModal').modal('show');
-            $('#contractPreviewModal').on('hidden.bs.modal', function () {
-                modal.classList.remove('modal-preview-contrato-zindex');
-            });
-        }
-    }
-
-    // ...existing code for contract creation, navigation, etc...
-    function openNewContractModal() {
-        resetModalForm();
-        loadAvailableLots();
-        loadPaymentPlans();
-        loadProjects();
-        currentTab = 0;
-        showTab(currentTab);
-        $('#newContractModal').modal('show');
-    }
-    // ...existing code...
-    </script>
-    </html>
+</html>

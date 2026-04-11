@@ -1596,9 +1596,10 @@
         const selectedOption = select.options[select.selectedIndex];
 
         if (selectedOption.value) {
-            // document.getElementById('interest_rate').value = selectedOption.dataset.rate; // Desactivado para que no cambie la tasa
+            document.getElementById('interest_rate').value = selectedOption.dataset.rate;
             document.getElementById('financing_months').value = selectedOption.dataset.duration;
             calculateContract();
+            console.log('Tasa de interés seleccionada: ' + selectedOption.dataset.rate + '%');
         }
     }
 
