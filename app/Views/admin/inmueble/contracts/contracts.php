@@ -438,39 +438,42 @@
                                                                                 onclick="printContract('<?= $contract['id'] ?>')">
                                                                                 <i class="fa fa-print"></i> Imprimir
                                                                             </a>
+                                                                            <div class="dropdown-divider"></div>
                                                                             <a class="dropdown-item" href="#"
-                                                                                onclick="generarFacturaContrato(<?= $contract['id'] ?>)">
-                                                                                <i class="fa fa-file-invoice"></i>
-                                                                                Generar Factura
+                                                                                onclick="toggleContractStatus('<?= $contract['id'] ?>', '<?= $contract['status'] ?>')">
+                                                                                <i
+                                                                                    class="fa <?= $contract['status'] == 'suspended' ? 'fa-play' : 'fa-pause' ?>"></i>
+                                                                                <?= $contract['status'] == 'suspended' ? 'Activar' : 'Suspender' ?>
                                                                             </a>
                                                                         </div>
                                                                     </div>
-                                                                    <button type="button"
-                                                                        class="btn btn-sm ml-1 <?= $contract['status'] == 'suspended' ? 'btn-success' : 'btn-warning' ?>"
-                                                                        title="<?= $contract['status'] == 'suspended' ? 'Activar' : 'Suspender' ?>"
-                                                                        onclick="toggleContractStatus('<?= $contract['id'] ?>', '<?= $contract['status'] ?>')">
-                                                                        <i
-                                                                            class="fa <?= $contract['status'] == 'suspended' ? 'fa-play' : 'fa-pause' ?>"></i>
-                                                                    </button>
-                                                                    <!-- Botón PDF aparte -->
-                                                                    <button type="button"
-                                                                        class="btn btn-outline-danger btn-sm ml-1"
-                                                                        title="Descargar PDF"
-                                                                        onclick="window.open('<?= site_url('admin/contrato_pdf/' . $contract['id']) ?>', '_blank')">
-                                                                        <i class="fa fa-file-pdf"></i>
-                                                                    </button>
-                                                                    <!-- Botón Word -->
-                                                                    <a href="<?= site_url('admin/contrato_word/' . $contract['id']) ?>"
-                                                                        class="btn btn-outline-primary btn-sm ml-1"
-                                                                        title="Descargar Word" target="_blank">
-                                                                        <i class="fa fa-file-word"></i>
-                                                                    </a>
-                                                                    <button type="button"
-                                                                        class="btn btn-success btn-sm ml-1"
-                                                                        title="Generar Factura"
-                                                                        onclick="generarFacturaContrato(<?= $contract['id'] ?>)">
-                                                                        <i class="fa fa-file-invoice"></i>
-                                                                    </button>
+                                                                    <!-- Botón Documentos (PDF/Word) -->
+                                                                    <div class="btn-group ml-1" role="group">
+                                                                        <button type="button"
+                                                                            class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                                                                            data-toggle="dropdown"
+                                                                            title="Descargar documento">
+                                                                            <i class="fa fa-file-pdf text-danger"></i>
+                                                                            <i class="fa fa-file-word text-primary"></i>
+                                                                        </button>
+                                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                                            <a class="dropdown-item"
+                                                                                href="<?= site_url('admin/contrato_pdf/' . $contract['id']) ?>"
+                                                                                target="_blank">
+                                                                                <i
+                                                                                    class="fa fa-file-pdf text-danger"></i>
+                                                                                PDF
+                                                                            </a>
+                                                                            <a class="dropdown-item"
+                                                                                href="<?= site_url('admin/contrato_word/' . $contract['id']) ?>"
+                                                                                target="_blank">
+                                                                                <i
+                                                                                    class="fa fa-file-word text-primary"></i>
+                                                                                Word
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+
                                                                     <button type="button" class="btn btn-sm ml-1 <?php 
                                                                         if (!empty($contract['is_approved']) && $contract['is_approved'] == 1) {
                                                                             echo 'btn-success';
@@ -496,21 +499,13 @@
                                                                         ?>>
                                                                         <i class="fa <?php 
                                                                         if (!empty($contract['is_approved']) && $contract['is_approved'] == 1) {
-                                                                            echo 'fa-check';
+                                                                            echo 'fa-check-circle';
                                                                         } elseif (!empty($contract['is_rejected']) && $contract['is_rejected'] == 1) {
-                                                                            echo 'fa-times';
+                                                                            echo 'fa-times-circle';
                                                                         } else {
                                                                             echo 'fa-check-circle';
                                                                         }
-                                                                        ?>"></i> <?php 
-                                                                        if (!empty($contract['is_approved']) && $contract['is_approved'] == 1) {
-                                                                            echo 'Comisión: EN ALTA';
-                                                                        } elseif (!empty($contract['is_rejected']) && $contract['is_rejected'] == 1) {
-                                                                            echo 'Comisión: RECHAZADA';
-                                                                        } else {
-                                                                            echo 'Validar';
-                                                                        }
-                                                                        ?>
+                                                                        ?>"></i>
                                                                     </button>
                                                                     <button type="button"
                                                                         class="btn btn-danger btn-sm ml-1"
