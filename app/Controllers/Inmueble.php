@@ -92,8 +92,20 @@ class Inmueble extends BaseController {
     {
         $path = WRITEPATH . 'uploads/comprobantes/' . $filename;
         if (is_file($path)) {
-            // Forzar header JPEG para .jpeg/.jpg
-            header('Content-Type: image/jpeg');
+            // Detectar el tipo de contenido basado en la extensión
+            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+            $contentTypes = [
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+                'webp' => 'image/webp',
+                'pdf' => 'application/pdf'
+            ];
+            
+            $contentType = $contentTypes[$ext] ?? 'application/octet-stream';
+            header('Content-Type: ' . $contentType);
+            header('Cache-Control: public, max-age=3600');
             readfile($path);
             exit;
         } else {

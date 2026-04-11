@@ -189,8 +189,8 @@ class ContractsController extends BaseController
         // Guardar comprobante si se subió
         if ($comprobante && $comprobante->isValid() && !$comprobante->hasMoved()) {
             $comprobante_name = $comprobante->getRandomName();
-            // Guardar en public/uploads/comprobantes para acceso web
-            $uploadPath = FCPATH . 'uploads/comprobantes';
+            // Guardar en writable/uploads/comprobantes (misma ubicación que cuota inicial)
+            $uploadPath = ROOTPATH . 'writable/uploads/comprobantes';
             if (!is_dir($uploadPath)) {
                 mkdir($uploadPath, 0755, true);
             }

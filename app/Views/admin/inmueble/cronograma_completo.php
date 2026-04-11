@@ -312,7 +312,7 @@
                                                                             ?>
                                                                             <?php if ($puedeValidar): ?>
                                                                                 <button class="btn btn-sm" style="background: linear-gradient(135deg, #2dce89 0%, #10b981 100%); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(45, 206, 137, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'"
-                                                                                    onclick="abrirModalValidacion(<?= $pago['id'] ?>, '<?= number_format($pago['amount'], 2) ?>', '<?= !empty($pago['voucher_url']) ? base_url($pago['voucher_url']) : '' ?>')">
+                                                                                    onclick="abrirModalValidacion(<?= $pago['id'] ?>, '<?= number_format($pago['amount'], 2) ?>', '<?= !empty($pago['voucher_url']) ? '/dashboard/mostrarComprobante/' . basename($pago['voucher_url']) : '' ?>')">
                                                                                     <i class="fa fa-check-circle"></i> Validar
                                                                                 </button>
                                                                             <?php elseif ($validado): ?>

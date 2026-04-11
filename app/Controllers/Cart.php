@@ -290,31 +290,7 @@ class Cart extends BaseController
             ];
             $contract_id = $ContractModel->insert($contrato_data);
             
-            // ✅ CUOTA INICIAL (cuota 0) - con el voucher del cliente
-            $cuota_inicial_data = [
-                'contract_id' => $contract_id,
-                'lot_id' => $lote['id'],
-                'payment_plan_id' => $payment_plan_id,
-                'installment_number' => 0,
-                'due_date' => date('Y-m-d'),
-                'amount' => round($cuota_inicial, 2),
-                'capital' => round($cuota_inicial, 2),
-                'interest' => 0,
-                'interest_accrued' => null,
-                'interest_accrued_date' => null,
-                'balance' => round($monto_financiado, 2),
-                'status' => 'registered',  // Registrado, esperando validación de HR
-                'paid_date' => date('Y-m-d H:i:s'),
-                'paid_amount' => round($cuota_inicial, 2),
-                'voucher_url' => $comprobante_url,  // ✅ Guardar el voucher del cliente
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
-                'pdf_url' => null,
-                'xml_url' => null
-            ];
-            $PaymentScheduleModel->insert($cuota_inicial_data);
-            
-            // ✅ Generar cronograma usando método centralizado
+            // ✅ Generar cronograma completo (incluyendo cuota inicial) usando método centralizado
             $PaymentScheduleModel = new \App\Models\PaymentScheduleModel();
             $monthlyPayment = $monto_cuota_mensual;
             $PaymentScheduleModel->generatePaymentSchedule(
@@ -326,14 +302,15 @@ class Cart extends BaseController
                 $monthlyPayment,
                 $monto_financiado,
                 0,  // monthlyRate = 0 (no interest)
-                $cuota_inicial,  // downPayment already paid upfront
-                null,
-                $comprobante_url  // voucherUrl
+                $cuota_inicial,  // downPayment - se insertará como installment_number = 0
+                date('Y-m-d'),  // contractDate
+                $comprobante_url  // voucherUrl - marcará como 'paid' si existe
             );
-            // Obtener cronograma generado
+            
+            // Obtener cronograma generado (sin contar la cuota inicial = 0)
             $cronograma = $PaymentScheduleModel
                 ->where('contract_id', $contract_id)
-                ->where('installment_number', '>', 0)  // exclude cuota inicial (0)
+                ->where('installment_number >', 0)  // exclude cuota inicial (0)
                 ->orderBy('installment_number', 'ASC')
                 ->findAll();
             // NOTA: La comisión se creará DESPUÉS de que el admin apruebe el contrato
@@ -858,15 +835,14 @@ class Cart extends BaseController
             }
             // Guardar el id del lote
             $lot_id = $contrato['lot_id'];
-            // Verificar si el contrato es de tipo contado
-            if (isset($contrato['contract_type']) && strtolower($contrato['contract_type']) === 'futura') {
-                // Actualizar el estado del lote a disponible
-                $LotModel->update($lot_id, [
-                    'status' => 'available',
-                    'customer_id' => null,
-                    'sale_date' => null
-                ]);
-            }
+            
+            // Actualizar el estado del lote a disponible (para cualquier tipo de contrato)
+            $LotModel->update($lot_id, [
+                'status' => 'available',
+                'customer_id' => null,
+                'sale_date' => null
+            ]);
+            
             // Eliminar el contrato
             $ContractModel->delete($contract_id);
             return $this->response->setJSON(['success' => true, 'message' => 'Contrato eliminado correctamente']);
