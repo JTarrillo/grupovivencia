@@ -1667,14 +1667,14 @@
 
     function showTab(tabIndex) {
         currentTab = tabIndex; // sincroniza el tab actual
-        $('.tab-pane').removeClass('show active');
-        $('.nav-link').removeClass('active').addClass('disabled');
+        $('#newContractModal .tab-pane').removeClass('show active');
+        $('#newContractModal .nav-link').removeClass('active').addClass('disabled');
 
         $(`#${tabs[tabIndex]}`).addClass('show active');
-        $(`[href="#${tabs[tabIndex]}"]`).removeClass('disabled').addClass('active');
+        $(`#newContractModal [href="#${tabs[tabIndex]}"]`).removeClass('disabled').addClass('active');
 
         for (let i = 0; i <= tabIndex; i++) {
-            $(`[href="#${tabs[i]}"]`).removeClass('disabled');
+            $(`#newContractModal [href="#${tabs[i]}"]`).removeClass('disabled');
         }
 
         updateNavigationButtons();
