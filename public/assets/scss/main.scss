@@ -1,0 +1,247 @@
+// ========================================
+// VIVELAND - MAIN STYLESHEET
+// ========================================
+
+// Import Bootstrap
+@import "../../node_modules/bootstrap/scss/bootstrap";
+
+// Import Variables & Mixins
+@import "variables";
+@import "mixins";
+
+// Import Components
+@import "components/header";
+@import "components/hero";
+@import "components/gallery";
+@import "components/cards";
+
+// ========================================
+// GLOBAL STYLES
+// ========================================
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-family-base;
+  background: $bg-light;
+  color: $text-dark;
+  line-height: $line-height-normal;
+  overflow-x: hidden;
+}
+
+// ========================================
+// TYPOGRAPHY
+// ========================================
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+}
+
+p {
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+a {
+  color: $primary;
+  text-decoration: none;
+  @include transition-base;
+
+  &:hover {
+    color: $primary-dark;
+    text-decoration: none;
+  }
+}
+
+// ========================================
+// BUTTON STYLES
+// ========================================
+
+.btn {
+  @include transition-base;
+  font-weight: $font-weight-semibold;
+  border-radius: $border-radius-sm;
+
+  &-primary {
+    @include gradient-primary;
+    @include elevation-primary;
+
+    &:hover {
+      transform: translateY(-2px);
+      @include elevation-primary-lg;
+    }
+  }
+
+  &-success {
+    @include gradient-success;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// ========================================
+// GRID UTILITIES
+// ========================================
+
+.grid-2 {
+  @include grid-responsive(250px);
+}
+
+.grid-3 {
+  @include grid-responsive(280px);
+}
+
+.grid-4 {
+  @include grid-responsive(300px);
+}
+
+// ========================================
+// CONTAINER
+// ========================================
+
+.container-xl {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+}
+
+// ========================================
+// UTILITIES
+// ========================================
+
+.text-center {
+  text-align: center;
+}
+
+.text-primary {
+  color: $primary;
+}
+
+.text-muted {
+  color: $text-muted;
+}
+
+.mt-xxxl {
+  margin-top: $spacing-xxl;
+}
+
+.mb-xxxl {
+  margin-bottom: $spacing-xxl;
+}
+
+.py-xxxl {
+  padding-top: $spacing-xxl;
+  padding-bottom: $spacing-xxl;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.flex-center {
+  @include flex-center;
+}
+
+.flex-between {
+  @include flex-between;
+}
+
+// ========================================
+// FOOTER
+// ========================================
+
+footer {
+  background: $text-dark;
+  color: $bg-white;
+  text-align: center;
+  padding: $spacing-lg;
+  font-size: $font-size-sm;
+
+  p {
+    margin: 0;
+  }
+}
+
+// ========================================
+// FLOATING WHATSAPP BUTTON
+// ========================================
+
+.whatsapp-btn-floating {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 75px;
+  height: 75px;
+  @include gradient-success;
+  backdrop-filter: blur(10px);
+  border-radius: $border-radius-full;
+  @include flex-center;
+  font-size: 42px;
+  color: $bg-white;
+  text-decoration: none;
+  @include elevation-primary-lg;
+  @include transition-base;
+  z-index: $z-fixed;
+  @include animate-bounce;
+  border: 3px solid rgba($bg-white, 0.4);
+
+  &:hover {
+    transform: scale(1.2);
+    @include elevation-primary-lg;
+    border-color: rgba($bg-white, 0.8);
+  }
+
+  &:focus {
+    color: $bg-white;
+    text-decoration: none;
+  }
+
+  @include media-md {
+    bottom: 20px;
+    right: 20px;
+    width: 65px;
+    height: 65px;
+    font-size: 36px;
+  }
+}
+
+// ========================================
+// RESPONSIVE UTILITY CLASSES
+// ========================================
+
+@include media-md {
+  .hide-mobile {
+    display: none;
+  }
+
+  body {
+    font-size: $font-size-base;
+  }
+
+  h1 {
+    font-size: $font-size-2xl;
+  }
+
+  h2 {
+    font-size: $font-size-xl;
+  }
+}

@@ -134,7 +134,7 @@ class B_admin extends BaseController
                     'lastname'     => $res->lastname,
                     'email'        => $res->email,
                     'dni'          => $res->dni,
-                    'privilegio'   => $res->privilegio ?? ($res->privilage ?? 'admin'),
+                    'privilage'    => $res->privilage ?? 'admin',
                     'active'       => $res->active,
                     'isLoggedIn'   => TRUE,
                     // Guardamos los tokens de la API en la sesión de CI4

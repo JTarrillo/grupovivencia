@@ -1,0 +1,215 @@
+// ========================================
+// VIVELAND - MIXINS & UTILITIES
+// ========================================
+
+@import "variables";
+
+// ========================================
+// Responsive Breakpoints
+// ========================================
+@mixin media-sm {
+  @media (max-width: $breakpoint-sm) {
+    @content;
+  }
+}
+
+@mixin media-md {
+  @media (max-width: $breakpoint-md) {
+    @content;
+  }
+}
+
+@mixin media-lg {
+  @media (max-width: $breakpoint-lg) {
+    @content;
+  }
+}
+
+// ========================================
+// Flexbox Utilities
+// ========================================
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+// ========================================
+// Text Utilities
+// ========================================
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin text-gradient($start, $end) {
+  background: linear-gradient(135deg, $start 0%, $end 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+// ========================================
+// Elevation & Shadows
+// ========================================
+@mixin elevation-1 {
+  box-shadow: $shadow-sm;
+}
+
+@mixin elevation-2 {
+  box-shadow: $shadow-md;
+}
+
+@mixin elevation-3 {
+  box-shadow: $shadow-lg;
+}
+
+@mixin elevation-4 {
+  box-shadow: $shadow-xl;
+}
+
+@mixin elevation-primary {
+  box-shadow: $shadow-primary;
+}
+
+@mixin elevation-primary-lg {
+  box-shadow: $shadow-primary-lg;
+}
+
+// ========================================
+// Transitions
+// ========================================
+@mixin transition-base {
+  transition: $transition-base;
+}
+
+@mixin transition-fast {
+  transition: $transition-fast;
+}
+
+@mixin transition-slow {
+  transition: $transition-slow;
+}
+
+// ========================================
+// Button Styles
+// ========================================
+@mixin btn-base(
+  $bg-color,
+  $text-color: $bg-white,
+  $hover-color: darken($bg-color, 10%)
+) {
+  background-color: $bg-color;
+  color: $text-color;
+  border: none;
+  padding: $spacing-sm $spacing-lg;
+  border-radius: $border-radius-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  @include transition-base;
+  @include elevation-primary;
+
+  &:hover {
+    background-color: $hover-color;
+    transform: translateY(-2px);
+    @include elevation-primary-lg;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// ========================================
+// Card Styles
+// ========================================
+@mixin card {
+  background: $bg-white;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg;
+  @include elevation-2;
+  border: 1px solid $border-color;
+  @include transition-base;
+
+  &:hover {
+    @include elevation-3;
+  }
+}
+
+// ========================================
+// Grid Utilities
+// ========================================
+@mixin grid-responsive($min: 250px) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax($min, 1fr));
+  gap: $spacing-lg;
+}
+
+// ========================================
+// Animations
+// ========================================
+@mixin animate-fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+@mixin animate-fade-in-up {
+  animation: fadeInUp 0.6s ease;
+}
+
+@mixin animate-bounce {
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@mixin animate-slide-in {
+  animation: slideIn 0.3s ease;
+}
+
+// ========================================
+// Pseudo Elements
+// ========================================
+@mixin before-element($content: "") {
+  &::before {
+    content: $content;
+    @content;
+  }
+}
+
+@mixin after-element($content: "") {
+  &::after {
+    content: $content;
+    @content;
+  }
+}
+
+// ========================================
+// Gradients
+// ========================================
+@mixin gradient-primary {
+  background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+}
+
+@mixin gradient-success {
+  background: linear-gradient(135deg, $secondary 0%, $secondary-dark 100%);
+}
+
+@mixin gradient-light {
+  background: linear-gradient(135deg, $bg-light 0%, $primary-light 100%);
+}

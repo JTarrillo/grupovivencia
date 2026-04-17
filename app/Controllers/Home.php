@@ -331,6 +331,16 @@ class Home extends BaseController
         return view('faq');
     }
 
+    public function viveland()
+    {
+        return view('landing/viveland_new');
+    }
+
+    public function about_evento()
+    {
+        return view('landing/about-evento');
+    }
+
     public function logout()
     {
         $session = session();

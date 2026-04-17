@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600" style="background: transparent;">
+  <!-- Pattern de casas -->
+  <g opacity="0.15" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2">
+    <!-- House 1 -->
+    <path d="M 100 200 L 150 150 L 200 200 L 200 300 L 100 300 Z"/>
+    <line x1="150" y1="200" x2="150" y2="300"/>
+    <circle cx="125" cy="250" r="8"/>
+    <circle cx="175" cy="250" r="8"/>
+    
+    <!-- House 2 -->
+    <path d="M 350 250 L 400 180 L 450 250 L 450 350 L 350 350 Z"/>
+    <line x1="400" y1="250" x2="400" y2="350"/>
+    <rect x="365" y="270" width="15" height="15"/>
+    <rect x="415" y="270" width="15" height="15"/>
+    
+    <!-- House 3 -->
+    <path d="M 600 200 L 650 120 L 700 200 L 700 320 L 600 320 Z"/>
+    <line x1="650" y1="200" x2="650" y2="320"/>
+    <circle cx="625" cy="260" r="10"/>
+    <circle cx="675" cy="260" r="10"/>
+  </g>
+  
+  <!-- Gráficos y líneas de crecimiento -->
+  <g opacity="0.12" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" fill="none">
+    <!-- Línea de crecimiento 1 -->
+    <polyline points="50,400 100,380 150,360 200,340 250,320"/>
+    
+    <!-- Línea de crecimiento 2 -->
+    <polyline points="300,450 350,420 400,390 450,360"/>
+    
+    <!-- Barras de gráfico -->
+    <rect x="550" y="350" width="30" height="80" opacity="0.15" fill="rgba(255,255,255,0.2)"/>
+    <rect x="600" y="320" width="30" height="110" opacity="0.15" fill="rgba(255,255,255,0.2)"/>
+    <rect x="650" y="300" width="30" height="130" opacity="0.15" fill="rgba(255,255,255,0.2)"/>
+    
+    <!-- Símbolos de dinero -->
+    <circle cx="800" cy="200" r="20" opacity="0.1" fill="rgba(255,255,255,0.1)"/>
+    <circle cx="900" cy="150" r="25" opacity="0.1" fill="rgba(255,255,255,0.1)"/>
+    <circle cx="1000" cy="220" r="18" opacity="0.1" fill="rgba(255,255,255,0.1)"/>
+  </g>
+  
+  <!-- Líneas decorativas -->
+  <g opacity="0.08" stroke="rgba(255,255,255,0.3)" stroke-width="1">
+    <line x1="0" y1="0" x2="1200" y2="600"/>
+    <line x1="1200" y1="0" x2="0" y2="600"/>
+    <line x1="0" y1="300" x2="1200" y2="300"/>
+  </g>
+</svg>

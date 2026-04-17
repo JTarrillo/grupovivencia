@@ -44,6 +44,8 @@ class Filters extends BaseConfig
 
 		'authGuard' => AuthGuard::class,
 
+        'vivelandRestrict' => \App\Filters\VivelandRestrictFilter::class,
+
     ];
 
 

@@ -113,6 +113,8 @@
         $periodo_color = null;
         $inmueble_style = null;
         $inmueble_color = null;
+        $viveland_registros_style = null;
+        $viveland_registros_color = null;
 
         switch ($nav) {
             case "ventas":
@@ -296,6 +298,10 @@
                 $inmueble_style = "pcoded-trigger";
                 $inmueble_color = "active_nav";
                 break;
+            case "viveland_registros":
+                $viveland_registros_style = "pcoded-trigger";
+                $viveland_registros_color = "active_nav";
+                break;
             case "pago_tienda":
                 $pago_tienda_style = "active pcoded-trigger";
                 $pago_tienda_color = "active_nav";
@@ -339,7 +345,7 @@
                 style="display:flex;flex-direction:column;align-items:center;padding:24px 0 8px 0;">
                 <?php
                 $session = session();
-                $session_privilege = $session->get('privilegio');
+                $session_privilege = $session->get('privilage') ?? $session->get('privilegio');
                 $session_name = $session->get('name');
                 $session_lastname = $session->get('lastname');
                 $session_dni = $session->get('dni');
@@ -348,7 +354,7 @@
                 $avatar = site_url('assets/metronic8/media/avatars/300-1.jpg');
                 $full_name = '';
                 $dni = '';
-                if ($session_privilege === 'admin' || $session_privilege === 'Administrador' || $session_privilege === 'superadmin') {
+                if (in_array($session_privilege, [1, 2, 3, 4]) || $session_privilege === 'admin' || $session_privilege === 'Administrador' || $session_privilege === 'superadmin') {
                     $full_name = trim($session_name . ' ' . $session_lastname);
                     $dni = $session_dni;
                     if (!empty($session_avatar)) {
@@ -402,10 +408,22 @@
                 }
             </style>
             <ul class="nav pcoded-inner-navbar">
-                <!-- <li class="nav-item pcoded-menu-caption">
-                    <label>Inicio</label>
-                </li> -->
-                <!-- <li class="nav-item <?php echo $panel_style; ?>">
+                <?php 
+                // Obtener privillage de sesión
+                $session_privilege = $session->get('privilage') ?? $session->get('privilege') ?? null;
+                
+                // Si es coordinador VIVELAND (privilage = 5), mostrar solo ese menú
+                if ($session_privilege == 5):
+                ?>
+                <li class="nav-item <?php echo $viveland_registros_style; ?>">
+                    <a href="<?php echo base_url('admin/viveland_registros'); ?>" class="nav-link <?php echo $viveland_registros_color; ?>">
+                        <span class="pcoded-micon"><i class="feather icon-users"></i></span>
+                        <span class="pcoded-mtext">Registros VIVELAND</span>
+                    </a>
+                </li>
+                <?php else: ?>
+                <!-- MENÚ NORMAL PARA OTROS USUARIOS -->
+                <!-- <li class="nav-item <?php echo $panel_style; ?>">">
                     <a href="/dashboard/panel" class="nav-link <?php echo $panel_color; ?>">
                         <span class="pcoded-micon"><i class="feather icon-home"></i></span><span
                             class="pcoded-mtext">Panel </span>
@@ -452,6 +470,12 @@
                     <a href="<?php echo base_url('dashboard/documentario'); ?>" class="nav-link">
                         <span class="pcoded-micon"><i class="feather icon-shopping-cart"></i></span>
                         <span class="pcoded-mtext">Documentario</span>
+                    </a>
+                </li>
+                <li class="nav-item <?php echo $viveland_registros_style; ?>">
+                    <a href="<?php echo base_url('admin/viveland_registros'); ?>" class="nav-link <?php echo $viveland_registros_color; ?>">
+                        <span class="pcoded-micon"><i class="feather icon-users"></i></span>
+                        <span class="pcoded-mtext">Registros VIVELAND</span>
                     </a>
                 </li>
                 <!-- <li class="nav-item <?php echo $sugerencias_style; ?>">
@@ -601,7 +625,7 @@
                         <span class="pcoded-mtext">Penalidades</span>
                     </a>
                 </li>
-
+                <?php endif; ?>
             </ul>
         </div>
     </div>

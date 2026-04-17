@@ -1343,6 +1343,14 @@ class Inmueble extends BaseController {
 
     public function index()
     {
+        // Redirigir usuarios VIVELAND a su módulo permitido
+        $session = \Config\Services::session();
+        $session_privilege = $session->get('privilage') ?? $session->get('privilegio');
+        
+        if ($session_privilege == 5) {
+            return redirect()->to(base_url('admin/viveland_registros'));
+        }
+        
         $data = [
             'title' => 'Gestión Inmobiliaria',
             'projects' => $this->projectModel->findAll(),

@@ -63,6 +63,13 @@ $routes->get('/', 'Login::index'); // Redirige la raíz a iniciar sesión
 $routes->get('/nosotros', 'Home::about');
 $routes->get('/productos', 'Home::products');
 $routes->get('/productos/(:any)', 'Home::product_detail/$1');
+$routes->get('/viveland', 'Home::viveland');
+$routes->get('/viveland/sobre-evento', 'Home::about_evento');
+
+// VIVELAND Registro
+$routes->post('/viveland/guardar_registro', 'VivelandController::guardar_registro');
+$routes->get('/viveland/registros', 'VivelandController::obtener_registros', ['filter' => 'authGuard']);
+
 $routes->get('backoffice_new/contracts/cronograma/(:num)', 'BackofficeNew\\ContractsController::cronograma/$1');
 $routes->get('/backoffice_new/contracts', 'B_contratos::index', ['filter' => 'authGuard']);
 $routes->get('/backoffice_new/contracts/edit/(:num)', 'B_contratos::edit/$1', ['filter' => 'authGuard']);
@@ -674,11 +681,19 @@ $routes->post('/dashboard/penalties/delete', 'Penalties::delete', ['filter' => '
 $routes->post('/dashboard/inmueble/enviar_recordatorios_vencimiento', 'Inmueble::enviar_recordatorios_vencimiento', ['filter' => 'authGuard']);
 
 $routes->get('/dashboard/usuarios', 'D_usuarios::index', ['filter' => 'authGuard']);
-$routes->get('/admin/comisiones/inmobiliaria', 'ComisionesController::inmobiliaria', ['filter' => 'authGuard']); 
-$routes->get('/admin/comisiones/multinivel_demo', function() {
-    echo view('admin/comisiones/multinivel_demo');
-}, ['filter' => 'authGuard']);
+$routes->get('/dashboard/usuarios/load', 'D_usuarios::load', ['filter' => 'authGuard']);
 $routes->get('/dashboard/usuarios/load/(:num)', 'D_usuarios::load/$1', ['filter' => 'authGuard']);
+$routes->post('/dashboard/usuarios/validate', 'D_usuarios::validacion', ['filter' => 'authGuard']);
+$routes->post('/dashboard/usuarios/eliminar', 'D_usuarios::eliminar', ['filter' => 'authGuard']);
+
+// Rutas para Registros VIVELAND
+$routes->get('/admin/viveland_registros', 'D_viveland_registros::index', ['filter' => 'authGuard']);
+$routes->get('/admin/viveland_registros/view/(:num)', 'D_viveland_registros::view/$1', ['filter' => 'authGuard']);
+$routes->post('/admin/viveland_registros/confirmar/(:num)', 'D_viveland_registros::confirmar/$1', ['filter' => 'authGuard']);
+$routes->post('/admin/viveland_registros/cambiar_estado/(:num)/(:alpha)', 'D_viveland_registros::cambiar_estado/$1/$2', ['filter' => 'authGuard']);
+$routes->get('/admin/viveland_registros/exportar', 'D_viveland_registros::exportar', ['filter' => 'authGuard']);
+
+$routes->get('/admin/comisiones/inmobiliaria', 'ComisionesController::inmobiliaria', ['filter' => 'authGuard']);
 $routes->get('/(:any)', 'Home::otras');
 $routes->get('/dashboard/inmueble/api/get_customer/(:num)', 'Inmueble::get_customer/$1', ['filter' => 'authGuard']);
 $routes->get('/dashboard/inmueble/api/get_lot_details/(:num)', 'Inmueble::get_lot_details/$1', ['filter' => 'authGuard']);
