@@ -22,13 +22,10 @@ class ComprasModel extends Model
         'total',
         'descripcion',
         'clasificacion',
+        'comprobante_archivo',
         'estado',
         'pdf_url',
-        'xml_url',
-        'proyecto_id',
-        'contrato_id',
-        'created_by',
-        'approved_by'
+        'xml_url'
     ];
 
     protected $useTimestamps = true;
@@ -92,16 +89,6 @@ class ComprasModel extends Model
             ->join('clasificaciones_compra', 'clasificaciones_compra.id = compras.clasificacion')
             ->where('compras.clasificacion', $clasificacion_id)
             ->orderBy('compras.fecha_compra', 'DESC')
-            ->findAll();
-    }
-
-    /**
-     * Obtener compras de un proyecto específico
-     */
-    public function getComprasPorProyecto($proyecto_id)
-    {
-        return $this->where('proyecto_id', $proyecto_id)
-            ->orderBy('fecha_compra', 'DESC')
             ->findAll();
     }
 

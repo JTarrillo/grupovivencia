@@ -197,11 +197,11 @@
                 $compras_color = "active_nav";
                 break;
             case "gastos":
-                $gastos_style = "active pcoded-trigger";
+                $compras_style = "active pcoded-trigger";
                 $gastos_color = "active_nav";
                 break;
             case "clasificacion":
-                $clasificacion_style = "active pcoded-trigger";
+                $compras_style = "active pcoded-trigger";
                 $clasificacion_color = "active_nav";
                 break;
             case "planes":
@@ -556,28 +556,14 @@
                     </a>
                 </li>
 
-                <!-- Compras: top-level -->
-                <li class="nav-item <?php echo $compras_style; ?>">
-                    <a href="/dashboard/compras" class="nav-link <?php echo $compras_color; ?>">
-                        <span class="pcoded-micon"><i class="fa fa-shopping-cart"></i></span>
-                        <span class="pcoded-mtext">Compras</span>
-                    </a>
-                </li>
-
-                <!-- Gastos: top-level -->
-                <li class="nav-item <?php echo $gastos_style; ?>">
-                    <a href="/dashboard/gastos" class="nav-link <?php echo $gastos_color; ?>">
-                        <span class="pcoded-micon"><i class="fa fa-money-bill-wave"></i></span>
-                        <span class="pcoded-mtext">Gastos</span>
-                    </a>
-                </li>
-
-                <!-- Clasificación de Gastos: top-level -->
-                <li class="nav-item <?php echo $clasificacion_style; ?>">
-                    <a href="/dashboard/clasificacion" class="nav-link <?php echo $clasificacion_color; ?>">
-                        <span class="pcoded-micon"><i class="fa fa-tags"></i></span>
-                        <span class="pcoded-mtext">Clasificación</span>
-                    </a>
+                <!-- Compras, Gastos y Clasificación: consolidado en UN item con submenú -->
+                <li class="nav-item pcoded-hasmenu">
+                    <a href="#!" class="nav-link"><span class="pcoded-micon"><i class="fa fa-shopping-cart"></i></span><span class="pcoded-mtext">Compras</span></a>
+                    <ul class="pcoded-submenu">
+                        <li class=""><a href="/dashboard/compras" class="nav-link <?php echo $compras_color; ?>" style="<?php echo ($compras_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-file-invoice"></i></span><span class="pcoded-mtext">Registrar Compra</span></a></li>
+                        <li class=""><a href="/dashboard/gastos" class="nav-link <?php echo $gastos_color; ?>" style="<?php echo ($gastos_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-money-bill-wave"></i></span><span class="pcoded-mtext">Gastos</span></a></li>
+                        <li class=""><a href="/dashboard/clasificacion" class="nav-link <?php echo $clasificacion_color; ?>" style="<?php echo ($clasificacion_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-tags"></i></span><span class="pcoded-mtext">Clasificación</span></a></li>
+                    </ul>
                 </li>
 
                 <li class="nav-item <?php echo $usuarios_style; ?>">

@@ -105,31 +105,7 @@
                                         </select>
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label class="form-label">Proyecto (Opcional)</label>
-                                        <select name="proyecto_id" class="form-control">
-                                            <option value="">-- Ninguno --</option>
-                                            <?php foreach ($proyectos as $proyecto): ?>
-                                                <option value="<?= $proyecto['id'] ?>"
-                                                    <?php if ($clasificacion && $clasificacion['proyecto_id'] == $proyecto['id']) echo 'selected'; ?>>
-                                                    <?= $proyecto['name'] ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
 
-                                    <div class="mb-3">
-                                        <label class="form-label">Contrato (Opcional)</label>
-                                        <select name="contrato_id" class="form-control">
-                                            <option value="">-- Ninguno --</option>
-                                            <?php foreach ($contratos as $contrato): ?>
-                                                <option value="<?= $contrato['id'] ?>"
-                                                    <?php if ($clasificacion && $clasificacion['contrato_id'] == $contrato['id']) echo 'selected'; ?>>
-                                                    <?= $contrato['contract_number'] ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
 
                                     <div class="mb-3">
                                         <label class="form-label">Observaciones</label>

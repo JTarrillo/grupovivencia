@@ -33,15 +33,112 @@ class D_compras extends BaseController
             return redirect()->to(base_url('login'));
         }
 
+        // Obtener parámetro de fecha
+        $periodo_fecha = service('request')->getGet('periodo_fecha');
+
+        // Obtener datos para formulario inline
+        $db = \Config\Database::connect();
+        
+        try {
+            $gastoTipos = $db->table('gasto_tipos')->orderBy('nombre', 'ASC')->get()->getResultArray();
+        } catch (\Exception $e) {
+            $gastoTipos = [];
+            log_message('error', 'Error al cargar gasto_tipos: ' . $e->getMessage());
+        }
+
+        try {
+            $gastoSubcategorias = $db->table('gasto_subcategorias')->get()->getResultArray();
+        } catch (\Exception $e) {
+            $gastoSubcategorias = [];
+            log_message('error', 'Error al cargar gasto_subcategorias: ' . $e->getMessage());
+        }
+
+        try {
+            // IGUAL AL INFORME: SELECT con JOIN a gasto_tipos
+            $queryStr = '
+                SELECT 
+                    c.id,
+                    c.numero_comprobante,
+                    c.fecha_compra,
+                    c.total,
+                    c.estado,
+                    c.comprobante_archivo,
+                    c.proveedor_id,
+                    s.name as proveedor_nombre,
+                    cg.id as gasto_id,
+                    gt.nombre as tipo_nombre,
+                    gt.color
+                FROM compras c
+                LEFT JOIN suppliers s ON s.id = c.proveedor_id
+                LEFT JOIN compra_gastos cg ON cg.compra_id = c.id
+                LEFT JOIN gasto_tipos gt ON gt.id = cg.gasto_tipo_id
+            ';
+            
+            if ($periodo_fecha) {
+                $queryStr .= ' WHERE DATE(c.fecha_compra) = ? ';
+                $comprasRaw = $db->query($queryStr, [$periodo_fecha])->getResultArray();
+            } else {
+                $comprasRaw = $db->query($queryStr . ' ORDER BY c.fecha_compra DESC LIMIT 100')->getResultArray();
+            }
+
+            // Agrupar resultados: una fila por compra con array de gastos
+            $compras = [];
+            foreach ($comprasRaw as $row) {
+                $compraId = $row['id'];
+                
+                if (!isset($compras[$compraId])) {
+                    $compras[$compraId] = [
+                        'id' => $row['id'],
+                        'numero_comprobante' => $row['numero_comprobante'],
+                        'fecha_compra' => $row['fecha_compra'],
+                        'total' => $row['total'],
+                        'estado' => $row['estado'],
+                        'comprobante_archivo' => $row['comprobante_archivo'],
+                        'proveedor_id' => $row['proveedor_id'],
+                        'proveedor_nombre' => $row['proveedor_nombre'],
+                        'gastos' => []
+                    ];
+                }
+                
+                // Agregar gasto si existe
+                if (!empty($row['gasto_id'])) {
+                    $compras[$compraId]['gastos'][] = [
+                        'id' => $row['gasto_id'],
+                        'tipo_nombre' => $row['tipo_nombre'],
+                        'color' => $row['color']
+                    ];
+                }
+            }
+            
+            // Reindexar array
+            $compras = array_values($compras);
+            
+        } catch (\Exception $e) {
+            $compras = [];
+            log_message('error', 'Error al cargar compras: ' . $e->getMessage());
+        }
+
+        try {
+            $proveedores = $db->table('suppliers')->orderBy('name', 'ASC')->get()->getResultArray();
+        } catch (\Exception $e) {
+            $proveedores = [];
+            log_message('error', 'Error al cargar proveedores: ' . $e->getMessage());
+        }
+
         $data = [
             'session_id' => $session->get('id'),
             'session_name' => $session->get('name') . " " . $session->get('lastname'),
             'title' => 'Módulo de Compras',
-            'compras' => $this->comprasModel->getComprasWithDetails(),
-            'estadisticas' => $this->comprasModel->getEstadisticas()
+            'compras' => $compras,
+            'proveedores' => $proveedores,
+            'proyectos' => [],
+            'contratos' => [],
+            'gastoTipos' => $gastoTipos,
+            'gastoSubcategorias' => $gastoSubcategorias,
+            'periodo_fecha' => $periodo_fecha ?? date('Y-m-d')
         ];
 
-        return view('admin/compras/list', $data);
+        return view('admin/compras/list_simple', $data);
     }
 
     /**
@@ -93,35 +190,112 @@ class D_compras extends BaseController
         $session = session();
 
         try {
-            // Obtener datos
+            // Obtener datos del formulario
             $proveedor_id = $this->request->getPost('proveedor_id');
             $numero_comprobante = $this->request->getPost('numero_comprobante');
             $tipo_comprobante = $this->request->getPost('tipo_comprobante');
             $fecha_compra = $this->request->getPost('fecha_compra');
-            $subtotal = (float) $this->request->getPost('subtotal');
-            $igv = (float) $this->request->getPost('igv');
+            $subtotal = (float) $this->request->getPost('subtotal') ?: 0;
+            $igv = (float) $this->request->getPost('igv') ?: 0;
             $total = (float) $this->request->getPost('total');
-            $descripcion = $this->request->getPost('descripcion');
-            $clasificacion = $this->request->getPost('clasificacion');
-            $proyecto_id = $this->request->getPost('proyecto_id') ?: null;
-            $contrato_id = $this->request->getPost('contrato_id') ?: null;
+            $descripcion = $this->request->getPost('descripcion') ?: '';
+            $gasto_tipo_id = $this->request->getPost('gasto_tipo_id');
+            $gasto_subcategoria_id = $this->request->getPost('gasto_subcategoria_id');
 
             // Validaciones
-            if (empty($proveedor_id) || empty($numero_comprobante) || empty($fecha_compra)) {
+            if (empty($proveedor_id) || empty($numero_comprobante) || empty($fecha_compra) || empty($total)) {
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'Faltan datos requeridos (Proveedor, Comprobante, Fecha)'
+                    'message' => 'Faltan datos requeridos: Proveedor, Comprobante, Fecha y Total son obligatorios'
                 ]);
             }
 
-            // Procesar PDF/archivo
-            $pdf_url = null;
-            $file = $this->request->getFile('pdf_comprobante');
+            if (empty($gasto_tipo_id) || empty($gasto_subcategoria_id)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Faltan datos requeridos: Tipo de Gasto y Subcategoría son obligatorios'
+                ]);
+            }
+
+            // Validar que proveedor existe
+            $proveedor = $this->suppliersModel->find($proveedor_id);
+            if (!$proveedor) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'El proveedor seleccionado no existe'
+                ]);
+            }
+
+            // PROCESAR ARCHIVO ADJUNTO
+            $comprobante_archivo = null;
+            $file = $this->request->getFile('comprobante_archivo');
+            
+            log_message('error', '=== PROCESANDO ARCHIVO ===');
+            log_message('error', 'File object existe: ' . ($file ? 'YES' : 'NO'));
+            
+            if ($file) {
+                log_message('error', 'Archivo: ' . $file->getName());
+                log_message('error', 'isValid: ' . ($file->isValid() ? 'YES' : 'NO'));
+                log_message('error', 'hasMoved: ' . ($file->hasMoved() ? 'YES' : 'NO'));
+                log_message('error', 'Size: ' . $file->getSize() . ' bytes');
+                log_message('error', 'MIME: ' . $file->getMimeType());
+                log_message('error', 'Extension: ' . $file->getClientExtension());
+            } else {
+                log_message('error', 'NO FILE RECEIVED');
+            }
             
             if ($file && $file->isValid() && !$file->hasMoved()) {
-                $newName = $file->getRandomName();
-                $file->move(WRITEPATH . 'uploads/comprobantes', $newName);
-                $pdf_url = 'uploads/comprobantes/' . $newName;
+                // Validaciones del archivo
+                $maxSize = 5 * 1024 * 1024; // 5MB
+                $allowedMimes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+                $allowedExts = ['pdf', 'jpg', 'jpeg', 'png'];
+                
+                if ($file->getSize() > $maxSize) {
+                    log_message('error', 'FILE TOO LARGE');
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'El archivo excede el tamaño máximo de 5MB'
+                    ]);
+                }
+                
+                if (!in_array($file->getMimeType(), $allowedMimes)) {
+                    log_message('error', 'MIME NOT ALLOWED: ' . $file->getMimeType());
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Tipo de archivo no permitido. Use: PDF, JPG, PNG. Recibido: ' . $file->getMimeType()
+                    ]);
+                }
+                
+                // Generar nombre único para el archivo
+                $extension = $file->getClientExtension();
+                $filename = 'comprobante_' . date('YmdHis') . '_' . uniqid() . '.' . $extension;
+                
+                // Crear directorio si no existe
+                $uploadPath = ROOTPATH . 'public' . DIRECTORY_SEPARATOR . 'comprobantes';
+                log_message('error', 'Upload path: ' . $uploadPath);
+                log_message('error', 'Directory exists: ' . (is_dir($uploadPath) ? 'YES' : 'NO'));
+                
+                if (!is_dir($uploadPath)) {
+                    log_message('error', 'Creating directory...');
+                    mkdir($uploadPath, 0755, true);
+                }
+                
+                // Mover archivo
+                try {
+                    log_message('error', 'Moving file: ' . $filename);
+                    $file->move($uploadPath, $filename);
+                    $comprobante_archivo = 'comprobantes/' . $filename;
+                    log_message('error', '✅ FILE UPLOADED: ' . $comprobante_archivo);
+                } catch (\Exception $e) {
+                    log_message('error', '❌ ERROR MOVING FILE: ' . $e->getMessage());
+                    log_message('error', 'Stack: ' . $e->getTraceAsString());
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Error al subir el archivo: ' . $e->getMessage()
+                    ]);
+                }
+            } else {
+                log_message('error', 'SKIPPED FILE PROCESSING - Conditions: file=' . ($file ? 'YES' : 'NO') . ', isValid=' . ($file && $file->isValid() ? 'YES' : 'NO') . ', hasMoved=' . ($file && $file->hasMoved() ? 'YES' : 'NO'));
             }
 
             // Insertar compra
@@ -134,26 +308,36 @@ class D_compras extends BaseController
                 'igv' => $igv,
                 'total' => $total,
                 'descripcion' => $descripcion,
-                'clasificacion' => $clasificacion,
-                'estado' => 'registrado',
-                'pdf_url' => $pdf_url,
-                'proyecto_id' => $proyecto_id,
-                'contrato_id' => $contrato_id,
-                'created_by' => $session->get('id')
+                'comprobante_archivo' => $comprobante_archivo,
+                'estado' => 'clasificado'  // Cambiar a clasificado porque ya tiene gasto tipo
             ];
 
             $compra_id = $this->comprasModel->insert($compraData);
 
             if ($compra_id) {
+                // Guardar automáticamente la clasificación de gasto
+                $db = \Config\Database::connect();
+                $clasificacionData = [
+                    'compra_id' => $compra_id,
+                    'gasto_tipo_id' => $gasto_tipo_id,
+                    'gasto_subcategoria_id' => $gasto_subcategoria_id,
+                    'observaciones' => $descripcion,
+                    'clasificado_por' => $session->get('id'),
+                    'fecha_clasificacion' => date('Y-m-d H:i:s')
+                ];
+                
+                $db->table('compra_gastos')->insert($clasificacionData);
+
                 return $this->response->setJSON([
                     'success' => true,
-                    'message' => 'Compra registrada exitosamente',
+                    'message' => 'Compra registrada y clasificada exitosamente',
                     'compra_id' => $compra_id
                 ]);
             } else {
+                $error = $this->comprasModel->errors();
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'Error al registrar la compra'
+                    'message' => 'Error al registrar la compra: ' . json_encode($error)
                 ]);
             }
         } catch (\Exception $e) {
@@ -253,8 +437,7 @@ class D_compras extends BaseController
             $compra_id = $this->request->getPost('compra_id');
 
             $updateData = [
-                'estado' => 'aprobado',
-                'approved_by' => $session->get('id')
+                'estado' => 'aprobado'
             ];
 
             if ($this->comprasModel->update($compra_id, $updateData)) {
@@ -333,5 +516,210 @@ class D_compras extends BaseController
         }
 
         return $this->response->download($filePath, null);
+    }
+
+    /**
+     * Obtener gastos clasificados por compra (AJAX)
+     */
+    public function getGastosByCompra($compra_id = null)
+    {
+        // LOG INMEDIATO - Debug en error_log
+        error_log('=== DEBUG getGastosByCompra START ===');
+        error_log('Compra ID: ' . $compra_id);
+        
+        $this->response->setContentType('application/json; charset=UTF-8');
+        error_log('Content-Type establecido');
+
+        try {
+            // Validación de sesión (como fallback del filtro)
+            $session_logged_in = session()->get('isLoggedIn');
+            error_log('Session isLoggedIn: ' . ($session_logged_in ? 'TRUE' : 'FALSE'));
+            
+            if (!$session_logged_in) {
+                error_log('No hay sesión, devolviendo 401');
+                return $this->response
+                    ->setStatusCode(401)
+                    ->setJSON([
+                        'error' => true,
+                        'message' => 'No autorizado. Por favor inicia sesión.'
+                    ]);
+            }
+
+            if (empty($compra_id)) {
+                error_log('Compra ID vacío, devolviendo array vacío');
+                return $this->response->setJSON([]);
+            }
+
+            $db = \Config\Database::connect();
+            
+            // Consulta para obtener gastos clasificados
+            error_log('Ejecutando query para compra_id: ' . $compra_id);
+            $gastos = $db->query('
+                SELECT 
+                    cg.id,
+                    cg.compra_id,
+                    cg.gasto_tipo_id,
+                    cg.gasto_subcategoria_id,
+                    cg.observaciones,
+                    gt.nombre as tipo_nombre,
+                    gt.color
+                FROM compra_gastos cg
+                LEFT JOIN gasto_tipos gt ON gt.id = cg.gasto_tipo_id
+                WHERE cg.compra_id = ?
+                ORDER BY cg.id DESC
+            ', [$compra_id])->getResultArray();
+            
+            error_log('Gastos encontrados: ' . count($gastos));
+            error_log('=== DEBUG getGastosByCompra END - OK ===');
+            
+            return $this->response->setJSON($gastos);
+            
+        } catch (\Exception $e) {
+            error_log('EXCEPTION en getGastosByCompra: ' . $e->getMessage());
+            error_log('Stack: ' . $e->getTraceAsString());
+            log_message('error', 'Error en getGastosByCompra: ' . $e->getMessage());
+            return $this->response
+                ->setStatusCode(500)
+                ->setJSON([
+                    'error' => true,
+                    'message' => $e->getMessage()
+                ]);
+        }
+    }
+
+    /**
+     * Guardar clasificación de gasto (AJAX)
+     */
+    public function guardarClasificacionGasto()
+    {
+        $this->response->setContentType('application/json');
+
+        if (strtoupper($this->request->getMethod()) !== 'POST') {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Sólo se aceptan peticiones POST'
+            ]);
+        }
+
+        $session = session();
+
+        try {
+            $db = \Config\Database::connect();
+            $compra_id = $this->request->getPost('compra_id');
+            $gasto_tipo_id = $this->request->getPost('gasto_tipo_id');
+            $gasto_subcategoria_id = $this->request->getPost('gasto_subcategoria_id');
+            $proyecto_id = $this->request->getPost('proyecto_id') ?: null;
+            $observaciones = $this->request->getPost('observaciones') ?: '';
+
+            // Validaciones
+            if (!$compra_id || !$gasto_tipo_id) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Compra ID y Tipo de Gasto son requeridos'
+                ]);
+            }
+
+            // Validar compra existe
+            $compra = $this->comprasModel->find($compra_id);
+            if (!$compra) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Compra no encontrada'
+                ]);
+            }
+
+            // Clasificación solo si no existe
+            $existe = $db->table('compra_gastos')
+                ->where('compra_id', $compra_id)
+                ->countAllResults();
+
+            if ($existe > 0) {
+                // Actualizar
+                $db->table('compra_gastos')
+                    ->where('compra_id', $compra_id)
+                    ->update([
+                        'gasto_tipo_id' => $gasto_tipo_id,
+                        'gasto_subcategoria_id' => $gasto_subcategoria_id,
+                        'proyecto_id' => $proyecto_id,
+                        'observaciones' => $observaciones,
+                        'clasificado_por' => $session->get('id'),
+                        'fecha_clasificacion' => date('Y-m-d H:i:s')
+                    ]);
+            } else {
+                // Insertar
+                $db->table('compra_gastos')->insert([
+                    'compra_id' => $compra_id,
+                    'gasto_tipo_id' => $gasto_tipo_id,
+                    'gasto_subcategoria_id' => $gasto_subcategoria_id,
+                    'proyecto_id' => $proyecto_id,
+                    'observaciones' => $observaciones,
+                    'clasificado_por' => $session->get('id'),
+                    'fecha_clasificacion' => date('Y-m-d H:i:s')
+                ]);
+            }
+
+            // Actualizar estado de compra a clasificado
+            $this->comprasModel->update($compra_id, ['estado' => 'clasificado']);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Clasificación guardada exitosamente'
+            ]);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error en guardarClasificacionGasto: ' . $e->getMessage());
+            return $this->response
+                ->setStatusCode(500)
+                ->setJSON([
+                    'success' => false,
+                    'message' => 'Error: ' . $e->getMessage()
+                ]);
+        }
+    }
+
+    /**
+     * Eliminar compra
+     */
+    public function delete($id)
+    {
+        // Asegurar JSON
+        $this->response->setContentType('application/json; charset=UTF-8');
+        
+        log_message('error', '=== DELETE INICIADO ===');
+        log_message('error', 'ID a eliminar: ' . $id);
+        log_message('error', 'Método: ' . $this->request->getMethod());
+        
+        if (strtoupper($this->request->getMethod()) !== 'POST') {
+            log_message('error', 'Método no es POST');
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Método no permitido'
+            ]);
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            
+            log_message('error', 'Eliminando gastos asociados...');
+            // Eliminar gastos asociados
+            $db->table('compra_gastos')->where('compra_id', $id)->delete();
+            
+            log_message('error', 'Eliminando compra...');
+            // Eliminar compra
+            $this->comprasModel->delete($id);
+
+            log_message('error', '✅ Compra eliminada correctamente');
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Compra eliminada exitosamente'
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', '❌ ERROR al eliminar: ' . $e->getMessage());
+            log_message('error', 'Stack: ' . $e->getTraceAsString());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
     }
 }

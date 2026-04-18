@@ -14,8 +14,7 @@ class GastosModel extends Model
     protected $allowedFields = [
         'proveedor_id', 'numero_comprobante', 'tipo_comprobante', 'fecha_compra',
         'subtotal', 'igv', 'total', 'descripcion', 'clasificacion', 'estado',
-        'proyecto_id', 'contrato_id', 'pdf_url', 'xml_url',
-        'created_by', 'approved_by'
+        'pdf_url', 'xml_url'
     ];
 
     protected $useTimestamps = true;

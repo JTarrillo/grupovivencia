@@ -9,8 +9,6 @@ use App\Models\GastoSubcategoriaModel;
 use App\Models\CompraGastoModel;
 use App\Models\CompraDocumentoModel;
 use App\Models\GastoReporteModel;
-use App\Models\ProjectModel;
-use App\Models\ContractModel;
 
 class D_clasificacion extends BaseController
 {
@@ -20,8 +18,6 @@ class D_clasificacion extends BaseController
     protected $compraGastoModel;
     protected $compraDocumentoModel;
     protected $gastoReporteModel;
-    protected $projectModel;
-    protected $contractModel;
 
     public function __construct()
     {
@@ -31,17 +27,26 @@ class D_clasificacion extends BaseController
         $this->compraGastoModel = new CompraGastoModel();
         $this->compraDocumentoModel = new CompraDocumentoModel();
         $this->gastoReporteModel = new GastoReporteModel();
-        $this->projectModel = new ProjectModel();
-        $this->contractModel = new ContractModel();
     }
 
-    /**
-     * Listar compras sin clasificar
-     */
     public function index()
     {
+        // Obtener parámetro de fecha (formato: YYYY-MM-DD)
+        $periodo_fecha = service('request')->getGet('periodo_fecha');
+        
         // Obtener compras sin clasificar
         $db = db_connect();
+        
+        // Construir condición WHERE dinámicamente
+        $where_conditions = "WHERE c.estado IN ('registrado', 'clasificado')";
+        $parameters = [];
+
+        // Filtrar por fecha específica
+        if ($periodo_fecha) {
+            $where_conditions .= " AND DATE(c.fecha_compra) = ?";
+            $parameters[] = $periodo_fecha;
+        }
+
         $query = $db->query("
             SELECT 
                 c.id, c.numero_comprobante, c.tipo_comprobante, c.fecha_compra,
@@ -51,10 +56,10 @@ class D_clasificacion extends BaseController
             FROM compras c
             LEFT JOIN suppliers s ON s.id = c.proveedor_id
             LEFT JOIN compra_gastos cg ON cg.compra_id = c.id
-            WHERE c.estado IN ('registrado', 'clasificado')
+            $where_conditions
             GROUP BY c.id
             ORDER BY c.fecha_compra DESC
-        ");
+        ", $parameters);
 
         // Validar si la query fue exitosa
         if (!$query) {
@@ -65,13 +70,41 @@ class D_clasificacion extends BaseController
             $compras = $query->getResultArray();
         }
 
+        // Calcular totales
+        $total_sin_clasificar = count(array_filter($compras, fn($c) => $c['tiene_clasificacion'] == 0));
+        $total_clasificadas = count(array_filter($compras, fn($c) => $c['tiene_clasificacion'] > 0));
+        $total_mes = array_sum(array_column($compras, 'total'));
+
         $data = [
             'compras' => $compras,
-            'total_sin_clasificar' => count(array_filter($compras, fn($c) => $c['tiene_clasificacion'] == 0)),
-            'total_clasificadas' => count(array_filter($compras, fn($c) => $c['tiene_clasificacion'] > 0)),
+            'total_sin_clasificar' => $total_sin_clasificar,
+            'total_clasificadas' => $total_clasificadas,
+            'total_mes' => $total_mes,
+            'periodo_fecha' => $periodo_fecha ?? date('Y-m-d'),
+            'gastoTipos' => $this->gastoTipoModel->getTiposActivos(),
+            'gastoSubcategorias' => $this->gastoSubcategoriaModel->findAll(),
         ];
 
         return view('admin/clasificacion/index', $data);
+    }
+
+    /**
+     * Obtener detalles de compra por AJAX
+     */
+    public function detalles($compraId)
+    {
+        $this->response->setContentType('application/json');
+        
+        $compra = $this->comprasModel->find($compraId);
+        
+        if (!$compra) {
+            return $this->response->setJSON([
+                'error' => true,
+                'message' => 'Compra no encontrada'
+            ]);
+        }
+
+        return $this->response->setJSON($compra);
     }
 
     /**
@@ -93,17 +126,11 @@ class D_clasificacion extends BaseController
         // Obtener documentos adjuntos
         $documentos = $this->compraDocumentoModel->porCompra($compraId);
 
-        // Obtener proyectos y contratos para asociar
-        $proyectos = $this->projectModel->where('status', 'active')->findAll();
-        $contratos = $this->contractModel->where('status', 'active')->findAll();
-
         $data = [
             'compra' => $compra,
             'clasificacion' => $clasificacionActual,
             'tipos' => $tipos,
             'documentos' => $documentos,
-            'proyectos' => $proyectos,
-            'contratos' => $contratos,
         ];
 
         return view('admin/clasificacion/clasificar', $data);
@@ -121,8 +148,6 @@ class D_clasificacion extends BaseController
         $compraId = $this->request->getPost('compra_id');
         $tipoId = $this->request->getPost('gasto_tipo_id');
         $subcategoriaId = $this->request->getPost('gasto_subcategoria_id');
-        $proyectoId = $this->request->getPost('proyecto_id');
-        $contratoId = $this->request->getPost('contrato_id');
         $observaciones = $this->request->getPost('observaciones');
 
         if (!$compraId || !$tipoId || !$subcategoriaId) {
@@ -149,8 +174,6 @@ class D_clasificacion extends BaseController
             'compra_id' => $compraId,
             'gasto_tipo_id' => $tipoId,
             'gasto_subcategoria_id' => $subcategoriaId,
-            'proyecto_id' => $proyectoId ?: null,
-            'contrato_id' => $contratoId ?: null,
             'observaciones' => $observaciones,
             'clasificado_por' => session()->get('id'),
             'fecha_clasificacion' => date('Y-m-d H:i:s'),
@@ -274,6 +297,170 @@ class D_clasificacion extends BaseController
             'success' => false,
             'message' => 'Error al eliminar documento'
         ]);
+    }
+
+    /**
+     * Informe detallado por período (rango de fechas)
+     */
+    public function informe()
+    {
+        $session = session();
+
+        if (!$session->get('isLoggedIn')) {
+            return redirect()->to(base_url('login'));
+        }
+
+        // Obtener parámetros
+        $fecha_inicio = service('request')->getGet('fecha_inicio') ?? date('Y-m-01');
+        $fecha_fin = service('request')->getGet('fecha_fin') ?? date('Y-m-d');
+
+        $db = \Config\Database::connect();
+
+        // Obtener gastos clasificados en el período
+        $gastos = $db->query('
+            SELECT 
+                c.id as compra_id,
+                c.numero_comprobante,
+                c.fecha_compra,
+                c.total as monto_compra,
+                cg.id as clasificacion_id,
+                cg.fecha_clasificacion,
+                cg.observaciones,
+                gt.id as gasto_tipo_id,
+                gt.nombre as tipo_nombre,
+                gt.color,
+                gs.nombre as subcategoria_nombre
+            FROM compra_gastos cg
+            JOIN compras c ON c.id = cg.compra_id
+            LEFT JOIN gasto_tipos gt ON gt.id = cg.gasto_tipo_id
+            LEFT JOIN gasto_subcategorias gs ON gs.id = cg.gasto_subcategoria_id
+            WHERE DATE(cg.fecha_clasificacion) BETWEEN ? AND ?
+            ORDER BY c.fecha_compra ASC
+        ', [$fecha_inicio, $fecha_fin])->getResultArray();
+
+        // Calcular totales por tipo de gasto
+        $totalesPorTipo = [];
+        $totalGeneral = 0;
+        foreach ($gastos as $gasto) {
+            $tipo = $gasto['tipo_nombre'] ?? 'Sin clasificar';
+            if (!isset($totalesPorTipo[$tipo])) {
+                $totalesPorTipo[$tipo] = [
+                    'total' => 0,
+                    'cantidad' => 0,
+                    'color' => $gasto['color'],
+                    'gastos' => []
+                ];
+            }
+            $totalesPorTipo[$tipo]['total'] += $gasto['monto_compra'];
+            $totalesPorTipo[$tipo]['cantidad']++;
+            $totalesPorTipo[$tipo]['gastos'][] = $gasto;
+            $totalGeneral += $gasto['monto_compra'];
+        }
+
+        $data = [
+            'session_id' => $session->get('id'),
+            'session_name' => $session->get('name') . " " . $session->get('lastname'),
+            'title' => 'Informe de Gastos por Período',
+            'fecha_inicio' => $fecha_inicio,
+            'fecha_fin' => $fecha_fin,
+            'gastos' => $gastos,
+            'totalesPorTipo' => $totalesPorTipo,
+            'totalGeneral' => $totalGeneral,
+            'cantidadRegistros' => count($gastos)
+        ];
+
+        return view('admin/clasificacion/informe', $data);
+    }
+
+    /**
+     * Descargar informe en PDF
+     */
+    public function descargarInformePDF()
+    {
+        $session = session();
+
+        if (!$session->get('isLoggedIn')) {
+            return redirect()->to(base_url('login'));
+        }
+
+        // Obtener parámetros
+        $fecha_inicio = service('request')->getGet('fecha_inicio') ?? date('Y-m-01');
+        $fecha_fin = service('request')->getGet('fecha_fin') ?? date('Y-m-d');
+
+        $db = \Config\Database::connect();
+
+        // Obtener gastos clasificados en el período
+        $gastos = $db->query('
+            SELECT 
+                c.id as compra_id,
+                c.numero_comprobante,
+                c.fecha_compra,
+                c.total as monto_compra,
+                cg.id as clasificacion_id,
+                cg.fecha_clasificacion,
+                cg.observaciones,
+                gt.id as gasto_tipo_id,
+                gt.nombre as tipo_nombre,
+                gt.color,
+                gs.nombre as subcategoria_nombre
+            FROM compra_gastos cg
+            JOIN compras c ON c.id = cg.compra_id
+            LEFT JOIN gasto_tipos gt ON gt.id = cg.gasto_tipo_id
+            LEFT JOIN gasto_subcategorias gs ON gs.id = cg.gasto_subcategoria_id
+            WHERE DATE(cg.fecha_clasificacion) BETWEEN ? AND ?
+            ORDER BY c.fecha_compra ASC
+        ', [$fecha_inicio, $fecha_fin])->getResultArray();
+
+        // Calcular totales por tipo de gasto
+        $totalesPorTipo = [];
+        $totalGeneral = 0;
+        foreach ($gastos as $gasto) {
+            $tipo = $gasto['tipo_nombre'] ?? 'Sin clasificar';
+            if (!isset($totalesPorTipo[$tipo])) {
+                $totalesPorTipo[$tipo] = [
+                    'total' => 0,
+                    'cantidad' => 0,
+                    'color' => $gasto['color'],
+                    'gastos' => []
+                ];
+            }
+            $totalesPorTipo[$tipo]['total'] += $gasto['monto_compra'];
+            $totalesPorTipo[$tipo]['cantidad']++;
+            $totalesPorTipo[$tipo]['gastos'][] = $gasto;
+            $totalGeneral += $gasto['monto_compra'];
+        }
+
+        $data = [
+            'fecha_inicio' => $fecha_inicio,
+            'fecha_fin' => $fecha_fin,
+            'gastos' => $gastos,
+            'totalesPorTipo' => $totalesPorTipo,
+            'totalGeneral' => $totalGeneral,
+            'cantidadRegistros' => count($gastos)
+        ];
+
+        // Generar HTML
+        $html = view('admin/clasificacion/informe_pdf', $data);
+
+        // Usar DomPDF con optimizaciones
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', false);
+        $options->set('enable_php', false);
+        $options->set('enable_javascript', false);
+        $dompdf = new \Dompdf\Dompdf($options);
+        
+        // Limpiar memoria antes de cargar
+        if (function_exists('gc_collect_cycles')) {
+            gc_collect_cycles();
+        }
+        
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        // Descargar como PDF
+        $nombreArchivo = 'Informe_Gastos_' . date('Y-m-d_His') . '.pdf';
+        return $dompdf->stream($nombreArchivo, array("Attachment" => 1));
     }
 
     /**

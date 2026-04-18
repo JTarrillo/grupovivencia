@@ -15,8 +15,6 @@ class CompraGastoModel extends Model
         'compra_id',
         'gasto_tipo_id',
         'gasto_subcategoria_id',
-        'proyecto_id',
-        'contrato_id',
         'observaciones',
         'clasificado_por',
         'fecha_clasificacion'
@@ -40,16 +38,12 @@ class CompraGastoModel extends Model
             gasto_tipos.nombre as tipo_nombre,
             gasto_tipos.icono,
             gasto_tipos.color,
-            gasto_subcategorias.nombre as subcategoria_nombre,
-            projects.name as proyecto_nombre,
-            contracts.contract_number
+            gasto_subcategorias.nombre as subcategoria_nombre
         ')
             ->join('compras', 'compras.id = compra_gastos.compra_id', 'left')
             ->join('suppliers', 'suppliers.id = compras.proveedor_id', 'left')
             ->join('gasto_tipos', 'gasto_tipos.id = compra_gastos.gasto_tipo_id', 'left')
             ->join('gasto_subcategorias', 'gasto_subcategorias.id = compra_gastos.gasto_subcategoria_id', 'left')
-            ->join('projects', 'projects.id = compra_gastos.proyecto_id', 'left')
-            ->join('contracts', 'contracts.id = compra_gastos.contrato_id', 'left')
             ->where('compra_gastos.id', $id)
             ->first();
     }
@@ -57,7 +51,7 @@ class CompraGastoModel extends Model
     /**
      * Obtener gastos por período
      */
-    public function gatosPorPeriodo($fechaInicio, $fechaFin, $gastoTipoId = null, $proyectoId = null)
+    public function gatosPorPeriodo($fechaInicio, $fechaFin, $gastoTipoId = null)
     {
         $query = $this->select('
             gasto_tipos.nombre as tipo,
@@ -73,10 +67,6 @@ class CompraGastoModel extends Model
 
         if ($gastoTipoId) {
             $query->where('compra_gastos.gasto_tipo_id', $gastoTipoId);
-        }
-
-        if ($proyectoId) {
-            $query->where('compra_gastos.proyecto_id', $proyectoId);
         }
 
         return $query->groupBy('compra_gastos.gasto_tipo_id, compra_gastos.gasto_subcategoria_id')

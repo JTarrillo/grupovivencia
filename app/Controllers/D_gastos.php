@@ -27,7 +27,26 @@ class D_gastos extends BaseController
             return redirect()->to(base_url('login'));
         }
 
-        $gastos = $this->gastosModel->getGastosWithDetails();
+        // Obtener parámetro de fecha
+        $periodo_fecha = service('request')->getGet('periodo_fecha');
+        
+        // Obtener gastos
+        if ($periodo_fecha) {
+            // Filtrar gastos por fecha específica
+            $db = db_connect();
+            $query = $db->query("
+                SELECT * FROM compra_gastos cg
+                LEFT JOIN compras c ON cg.compra_id = c.id
+                LEFT JOIN suppliers s ON c.proveedor_id = s.id
+                LEFT JOIN gasto_tipos gt ON cg.gasto_tipo_id = gt.id
+                WHERE DATE(c.fecha_compra) = ?
+                ORDER BY c.fecha_compra DESC
+            ", [$periodo_fecha]);
+            $gastos = $query ? $query->getResultArray() : [];
+        } else {
+            $gastos = $this->gastosModel->getGastosWithDetails();
+        }
+        
         $estadisticas = $this->gastosModel->getEstadisticasGastos();
         $resumen = $this->gastosModel->getResumenGastos();
         $gastosPorMes = $this->gastosModel->getGastosPorMes(date('Y'));
@@ -39,7 +58,8 @@ class D_gastos extends BaseController
             'gastos' => $gastos,
             'estadisticas' => $estadisticas,
             'resumen' => $resumen,
-            'gastosPorMes' => $gastosPorMes
+            'gastosPorMes' => $gastosPorMes,
+            'periodo_fecha' => $periodo_fecha ?? date('Y-m-d')
         ];
 
         return view('admin/gastos/index', $data);

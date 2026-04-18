@@ -25,13 +25,44 @@ $routes->setDefaultMethod('index');
 $routes->setTranslateURIDashes(false);
 $routes->set404Override();
 
+// MANTENER AUTOROUTE ACTIVADO para otras rutas
 $routes->setAutoRoute(true);
 
 /*
- * --------------------------------------------------------------------
+ * ============================================================================
  * Route Definitions
- * --------------------------------------------------------------------
+ * ============================================================================
  */
+// RUTAS DEL MÓDULO DE COMPRAS - PRIORITARIAS (Antes de cualquier otra ruta)
+// ============================================================================
+
+// Rutas para Dashboard::compras (para autoroute y acceso directo)
+$routes->get('dashboard/compras', 'Dashboard::compras', ['filter' => 'authGuard']);
+$routes->post('dashboard/compras', 'Dashboard::guardarCompra', ['filter' => 'authGuard']);
+
+$routes->group('dashboard/compras', static function($routes){
+    // Page views
+    $routes->get('', 'D_compras::index', ['filter' => 'authGuard']);
+    $routes->get('create', 'D_compras::create', ['filter' => 'authGuard']);
+    
+    // POST routes - tanto '' como 'store' van a store()
+    $routes->post('', 'D_compras::store', ['filter' => 'authGuard']);
+    $routes->post('store', 'D_compras::store', ['filter' => 'authGuard']);
+    
+    $routes->get('view/(:num)', 'D_compras::view/$1', ['filter' => 'authGuard']);
+    
+    // Actions
+    $routes->post('clasificar', 'D_compras::clasificar', ['filter' => 'authGuard']);
+    $routes->post('aprobar', 'D_compras::aprobar', ['filter' => 'authGuard']);
+    $routes->post('delete/(:num)', 'D_compras::delete/$1', ['filter' => 'authGuard']);
+    
+    // Reports
+    $routes->get('reporte', 'D_compras::reporte', ['filter' => 'authGuard']);
+    
+    // Downloads
+    $routes->get('descargarComprobante/(:num)', 'D_compras::descargarComprobante/$1', ['filter' => 'authGuard']);
+});
+// ============================================================================
 
 $routes->get('/dashboard/facturas/detalle/(:num)', 'D_facturas::detalle/$1', ['filter' => 'authGuard']);
 
@@ -273,6 +304,11 @@ $routes->get('/dashboard/panel', 'D_panel::index', ['filter' => 'authGuard']);
 // Ruta para generar PDF del contrato
 $routes->get('admin/contrato_pdf/(:num)', 'B_admin::contrato_pdf/$1');
 $routes->get('/admin/contrato_word/(:num)', 'B_admin::contrato_word/$1');
+
+// RUTAS PARA MODULO DE COMPRAS
+// NOTE: Routes now configured in group below at line 509+
+
+
 //estrucuta
 $routes->get('dashboard/inmueble/edit_contract/(:num)', 'Inmueble::edit_contract/$1', ['filter' => 'authGuard']);
 $routes->post('dashboard/inmueble/edit_contract/(:num)', 'Inmueble::edit_contract/$1', ['filter' => 'authGuard']);
@@ -491,26 +527,7 @@ $routes->group('dashboard/inmueble', static function($routes){
     // ...existing code...
 });
 
-// Compras (Purchases) routes
-$routes->group('dashboard/compras', static function($routes){
-    // Page views
-    $routes->get('', 'D_compras::index', ['filter' => 'authGuard']);
-    $routes->get('create', 'D_compras::create', ['filter' => 'authGuard']);
-    $routes->post('', 'D_compras::store', ['filter' => 'authGuard']);
-    $routes->get('view/(:num)', 'D_compras::view/$1', ['filter' => 'authGuard']);
-    
-    // Actions
-    $routes->post('clasificar', 'D_compras::clasificar', ['filter' => 'authGuard']);
-    $routes->post('aprobar', 'D_compras::aprobar', ['filter' => 'authGuard']);
-    
-    // Reports
-    $routes->get('reporte', 'D_compras::reporte', ['filter' => 'authGuard']);
-    
-    // Downloads
-    $routes->get('descargarComprobante/(:num)', 'D_compras::descargarComprobante/$1', ['filter' => 'authGuard']);
-});
-
-// Gastos (Expenses) routes
+// Gastos (Expenses) routes - NOTA: Rutas de Compras están al inicio del archivo
 $routes->group('dashboard/gastos', static function($routes){
     // Main views
     $routes->get('', 'D_gastos::index', ['filter' => 'authGuard']);
@@ -533,10 +550,13 @@ $routes->group('dashboard/clasificacion', static function($routes){
     $routes->get('', 'D_clasificacion::index', ['filter' => 'authGuard']);
     $routes->get('clasificar/(:num)', 'D_clasificacion::clasificar/$1', ['filter' => 'authGuard']);
     $routes->get('reportes', 'D_clasificacion::reportes', ['filter' => 'authGuard']);
+    $routes->get('informe', 'D_clasificacion::informe', ['filter' => 'authGuard']);
+    $routes->get('descargar-informe-pdf', 'D_clasificacion::descargarInformePDF', ['filter' => 'authGuard']);
     $routes->get('crear-reporte', 'D_clasificacion::crearReporte', ['filter' => 'authGuard']);
     $routes->get('ver-reporte/(:num)', 'D_clasificacion::verReporte/$1', ['filter' => 'authGuard']);
     
     // AJAX Actions
+    $routes->get('detalles/(:num)', 'D_clasificacion::detalles/$1', ['filter' => 'authGuard']);
     $routes->post('guardarClasificacion', 'D_clasificacion::guardarClasificacion', ['filter' => 'authGuard']);
     $routes->get('subcategoriasPorTipo/(:num)', 'D_clasificacion::subcategoriasPorTipo/$1', ['filter' => 'authGuard']);
     $routes->post('subirDocumento/(:num)', 'D_clasificacion::subirDocumento/$1', ['filter' => 'authGuard']);
@@ -679,10 +699,12 @@ $routes->get('/admin/comisiones/multinivel_demo', function() {
     echo view('admin/comisiones/multinivel_demo');
 }, ['filter' => 'authGuard']);
 $routes->get('/dashboard/usuarios/load/(:num)', 'D_usuarios::load/$1', ['filter' => 'authGuard']);
-$routes->get('/(:any)', 'Home::otras');
 $routes->get('/dashboard/inmueble/api/get_customer/(:num)', 'Inmueble::get_customer/$1', ['filter' => 'authGuard']);
 $routes->get('/dashboard/inmueble/api/get_lot_details/(:num)', 'Inmueble::get_lot_details/$1', ['filter' => 'authGuard']);
 $routes->get('/dashboard/inmueble/api/get_contract_details/(:num)', 'Inmueble::get_contract_details/$1', ['filter' => 'authGuard']);
+
+// RUTA CATCH-ALL - DEBE IR AL FINAL para no capturar rutas explícitas
+$routes->get('/(:any)', 'Home::otras');
 
 
 //rutas para generar documentos
