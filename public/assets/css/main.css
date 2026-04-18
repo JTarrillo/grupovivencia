@@ -218,7 +218,11 @@ header .nav-items a.nav-registro:hover {
     width: 80%;
     max-width: 250px;
     margin: 1rem auto 0 auto;
-    background: linear-gradient(90deg, var(--primary) 0%, #48c6ef 100%) !important;
+    background: linear-gradient(
+      90deg,
+      var(--primary) 0%,
+      #48c6ef 100%
+    ) !important;
     color: white !important;
     padding: 0.875rem 1.5rem !important;
     font-weight: 700;
@@ -504,16 +508,14 @@ header .nav-items a.nav-registro:hover {
 
 .experts-carousel {
   position: relative;
-  max-width: 600px;
+  max-width: 500px;
   width: 100%;
-  height: 550px;
+  height: 850px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transform-style: preserve-3d;
   z-index: 10;
-  perspective: 1500px;
-  animation: carousel-rotate 20s linear infinite;
+  overflow: hidden;
 }
 
 .experts-info-wrapper {
@@ -521,6 +523,7 @@ header .nav-items a.nav-registro:hover {
   flex-direction: column;
   gap: 2rem;
   animation: fadeInUp 0.6s ease 0.1s both;
+  margin-top: 120px;
 }
 
 .experts-intro {
@@ -611,54 +614,52 @@ header .nav-items a.nav-registro:hover {
 }
 
 .expert-card-carousel {
-  max-width: 420px;
+  max-width: 450px;
   width: 85%;
-  height: 500px;
+  height: 760px;
   display: flex;
   flex-direction: column;
   position: absolute;
-  opacity: 0.4;
-  background: white;
+  opacity: 1;
+  background: #ffffff;
   border-radius: 20px;
   overflow: hidden;
-  padding: 0;
-  transition: all 0.6s ease;
-  backface-visibility: hidden;
+  padding: 16px;
+  transition:
+    transform 0.8s ease,
+    opacity 0.8s ease;
   filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.1));
+  animation: carousel-horizontal 21s ease-in-out infinite;
 }
 
 .expert-card-carousel:nth-child(1) {
-  transform: rotateY(0deg) translateZ(180px);
-  opacity: 1;
-  z-index: 10;
+  animation-delay: -14s;
   filter: drop-shadow(0 15px 45px rgba(0, 0, 0, 0.2));
   box-shadow: 0 10px 40px rgba(74, 144, 226, 0.15);
 }
 
 .expert-card-carousel:nth-child(2) {
-  transform: rotateY(120deg) translateZ(180px);
-  opacity: 0.5;
-  z-index: 5;
+  animation-delay: -7s;
 }
 
 .expert-card-carousel:nth-child(3) {
-  transform: rotateY(240deg) translateZ(180px);
-  opacity: 0.5;
-  z-index: 5;
+  animation-delay: 0s;
 }
 
 .expert-card-carousel .expert-image {
   width: 100%;
-  height: 300px;
+  height: 500px;
   overflow: hidden;
-  border-radius: 0;
-  margin-bottom: 0;
+  border-radius: 12px;
+  margin-bottom: 12px;
 }
 
 .expert-card-carousel .expert-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
+  display: block;
 }
 
 .expert-card-carousel .expert-info {
@@ -744,17 +745,45 @@ header .nav-items a.nav-registro:hover {
   }
 }
 
+@keyframes carousel-horizontal {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+    z-index: 1;
+  }
+  33.33%,
+  66.66% {
+    transform: translateX(0);
+    opacity: 1;
+    z-index: 10;
+  }
+  66.67% {
+    transform: translateX(-100%);
+    opacity: 0;
+    z-index: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+    z-index: 1;
+  }
+}
+
 /* ========================================
    RESPONSIVE - EXPERTOS SECTION
    ======================================== */
 
 @media (max-width: 480px) {
+  .expertos-section {
+    padding: 2rem 1.5rem 2rem 1.5rem;
+  }
+
   .expertos-section .section-title {
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
   }
 
   .experts-carousel-wrapper {
-    gap: 3rem;
+    gap: 0.5rem;
   }
 
   .experts-container {
@@ -763,34 +792,21 @@ header .nav-items a.nav-registro:hover {
   }
 
   .experts-carousel {
-    height: 280px;
+    height: 700px;
     max-width: 100%;
     width: 100%;
-    perspective: 800px;
     position: relative;
-    top: 80px;
+    top: 0px;
   }
 
   .expert-card-carousel {
-    height: 360px;
+    height: 630px;
     max-width: 100%;
     width: 90%;
   }
 
-  .expert-card-carousel.active {
-    transform: rotateY(0deg) translateZ(100px);
-  }
-
-  .expert-card-carousel.prev {
-    transform: rotateY(-120deg) translateZ(100px);
-  }
-
-  .expert-card-carousel.next {
-    transform: rotateY(120deg) translateZ(100px);
-  }
-
   .expert-card-carousel .expert-image {
-    height: 190px;
+    height: 350px;
   }
 
   .expert-card-carousel .expert-info {
@@ -818,7 +834,12 @@ header .nav-items a.nav-registro:hover {
     width: 40px;
     height: 40px;
     position: relative;
-    top: 50px;
+    top: 10px;
+  }
+
+  .experts-info-wrapper {
+    margin-top: 0;
+    gap: 0.75rem;
   }
 
   .experts-intro {
@@ -827,7 +848,7 @@ header .nav-items a.nav-registro:hover {
 
   .expert-insight {
     padding: 2rem 1.5rem;
-    margin: 2rem 0;
+    margin: 0.75rem 0;
     border-radius: 12px;
     background: linear-gradient(
       135deg,
@@ -877,18 +898,18 @@ header .nav-items a.nav-registro:hover {
   }
 
   .experts-carousel {
-    height: 330px;
+    height: 800px;
     max-width: 100%;
   }
 
   .expert-card-carousel {
-    height: 400px;
+    height: 700px;
     max-width: 100%;
     width: 85%;
   }
 
   .expert-card-carousel .expert-image {
-    height: 210px;
+    height: 400px;
   }
 
   .expert-card-carousel .expert-info {
@@ -1026,7 +1047,7 @@ header .nav-items a.nav-registro:hover {
 }
 
 .expertos-section .section-title {
-  margin-bottom: 8rem;
+  margin-bottom: 2rem;
 }
 
 .expertos-section::before {
@@ -4194,28 +4215,27 @@ textarea.form-control {
   }
 }
 
-  .form-checkbox {
-    padding: 1rem;
-    gap: 0.75rem;
-  }
+.form-checkbox {
+  padding: 1rem;
+  gap: 0.75rem;
+}
 
-  .form-checkbox input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-  }
+.form-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+}
 
-  .form-checkbox label {
-    font-size: 0.95rem;
-  }
+.form-checkbox label {
+  font-size: 0.95rem;
+}
 
-  .registro-title {
-    font-size: 1.5rem;
-  }
+.registro-title {
+  font-size: 1.5rem;
+}
 
-  .registro-subtitle {
-    font-size: 1rem;
-  }
-
+.registro-subtitle {
+  font-size: 1rem;
+}
 
 /* ========================================
    FOOTER

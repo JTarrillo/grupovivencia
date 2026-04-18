@@ -165,6 +165,57 @@ document.addEventListener('DOMContentLoaded', () => {
   
   console.log('✓ Hero Banner overlay initialized');
 
+  // Close Quick Register Modal
+  const closeQuickRegisterBtn = document.getElementById('closeQuickRegister');
+  const quickRegisterModal = document.getElementById('quickRegisterModal');
+  const quickRegisterOverlay = document.querySelector('.quick-register-overlay');
+  const btnQuieroParticipar = document.getElementById('btnQuieroParticipar');
+
+  if (closeQuickRegisterBtn && quickRegisterModal) {
+    closeQuickRegisterBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      quickRegisterModal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+      console.log('🔒 Quick Register Modal closed');
+    });
+  }
+
+  // Open Quick Register Modal
+  if (btnQuieroParticipar && quickRegisterModal) {
+    btnQuieroParticipar.addEventListener('click', () => {
+      quickRegisterModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      console.log('🎯 Quick Register Modal opened');
+    });
+  }
+
+  // Close modal when clicking on overlay (pero NO en el contenido)
+  if (quickRegisterOverlay && quickRegisterModal) {
+    quickRegisterOverlay.addEventListener('click', (e) => {
+      // Solo cerrar si se hace click directamente en el overlay, no en elementos dentro
+      if (e.target === quickRegisterOverlay) {
+        e.preventDefault();
+        e.stopPropagation();
+        quickRegisterModal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+        console.log('🔒 Quick Register Modal closed via overlay');
+      }
+    });
+  }
+
+  // Close modal on ESC key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && quickRegisterModal?.classList.contains('active')) {
+      e.preventDefault();
+      quickRegisterModal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+      console.log('🔒 Quick Register Modal closed via ESC key');
+    }
+  });
+
+  console.log('✓ Quick Register Modal close handlers initialized');
+
   // Initialize Animations
   const animations = new AnimationHandler();
   console.log('✓ Animation handlers initialized');

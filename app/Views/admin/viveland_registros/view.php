@@ -28,10 +28,10 @@
                         <div class="page-wrapper">
                             <div class="row">
                                 <div class="col-md-8">
-                                    <div class="card">
-                                        <div class="card-header">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header" style="background: linear-gradient(135deg, #5a7ca8 0%, #6b8dbf 100%); color: white; border: none;">
                                             <div class="col-12">
-                                                <h5>Información del Registro</h5>
+                                                <h5 class="m-0"><i class="fa fa-user"></i> Información del Registro</h5>
                                             </div>
                                         </div>
                                         <div class="card-block">
@@ -52,17 +52,23 @@
                                                 <p class="form-control-static"><?= htmlspecialchars($registro['telefono'] ?? 'No proporcionado') ?></p>
                                             </div>
                                             <div class="form-group">
-                                                <label class="control-label">Ciudad</label>
-                                                <p class="form-control-static"><?= htmlspecialchars($registro['ciudad'] ?? 'No proporcionado') ?></p>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="control-label">Interés</label>
-                                                <p class="form-control-static"><?= htmlspecialchars($registro['interes'] ?? 'No especificado') ?></p>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="control-label">Mensaje</label>
+                                                <label class="control-label">Zona Seleccionada</label>
                                                 <p class="form-control-static">
-                                                    <?= nl2br(htmlspecialchars($registro['mensaje'] ?? 'Sin mensaje')) ?>
+                                                    <span class="badge" style="font-size: 1rem; padding: 8px 12px; background-color: <?= match($registro['zona']) {
+                                                        'Zona Viveland' => '#8B4513',
+                                                        'Zona VIP' => '#FFD700',
+                                                        'Zona Platinum' => '#C0C0C0',
+                                                        'Zona General' => '#87CEEB',
+                                                        default => '#6c757d'
+                                                    } ?>; color: <?= in_array($registro['zona'], ['Zona VIP', 'Zona Platinum']) ? '#000' : '#fff' ?>">
+                                                        <?= htmlspecialchars($registro['zona'] ?? 'No especificada') ?>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Interés Principal</label>
+                                                <p class="form-control-static">
+                                                    <i class="fa fa-star" style="color: #FFD700;"></i> <?= htmlspecialchars($registro['interes'] ?? 'No especificado') ?>
                                                 </p>
                                             </div>
                                         </div>
@@ -71,40 +77,43 @@
 
                                 <div class="col-md-4">
                                     <!-- ESTADO -->
-                                    <div class="card">
-                                        <div class="card-header">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header" style="background: linear-gradient(135deg, #c994ca 0%, #d9a5d9 100%); color: white; border: none;">
                                             <div class="col-12">
-                                                <h5>Estado</h5>
+                                                <h5 class="m-0"><i class="fa fa-info-circle"></i> Estado Actual</h5>
                                             </div>
                                         </div>
-                                        <div class="card-block">
-                                            <p class="text-center">
-                                                <span class="badge bg-<?= $registro['estado'] == 'confirmado' ? 'success' : ($registro['estado'] == 'pendiente' ? 'warning' : 'danger') ?>" style="font-size: 16px; padding: 10px;">
-                                                    <?= ucfirst($registro['estado']) ?>
-                                                </span>
-                                            </p>
+                                        <div class="card-block text-center py-4">
+                                            <span class="badge bg-<?= $registro['estado'] == 'confirmado' ? 'success' : ($registro['estado'] == 'pendiente' ? 'warning' : 'danger') ?>" style="font-size: 18px; padding: 12px 20px;">
+                                                <i class="fa fa-<?= match($registro['estado']) {
+                                                    'confirmado' => 'check-circle',
+                                                    'pendiente' => 'hourglass',
+                                                    'cancelado' => 'times-circle',
+                                                    default => 'question-circle'
+                                                } ?>"></i> <?= ucfirst($registro['estado']) ?>
+                                            </span>
                                         </div>
                                     </div>
 
                                     <!-- INFORMACIÓN DE FECHAS -->
-                                    <div class="card">
-                                        <div class="card-header">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header" style="background: linear-gradient(135deg, #7db3d1 0%, #9ac9e0 100%); color: white; border: none;">
                                             <div class="col-12">
-                                                <h5>Información de Registro</h5>
+                                                <h5 class="m-0"><i class="fa fa-calendar"></i> Información de Fechas</h5>
                                             </div>
                                         </div>
                                         <div class="card-block">
                                             <div class="form-group">
-                                                <label class="control-label">Fecha de Registro</label>
-                                                <p class="form-control-static">
-                                                    <?= date('d/m/Y H:i:s', strtotime($registro['fecha_registro'])) ?>
+                                                <label class="control-label"><i class="fa fa-plus-circle"></i> Fecha de Registro</label>
+                                                <p class="form-control-static fw-bold">
+                                                    <?= date('d/m/Y \a \l\a\s H:i:s', strtotime($registro['fecha_registro'])) ?>
                                                 </p>
                                             </div>
                                             <?php if ($registro['fecha_confirmacion']): ?>
                                                 <div class="form-group">
-                                                    <label class="control-label">Fecha de Confirmación</label>
-                                                    <p class="form-control-static">
-                                                        <?= date('d/m/Y H:i:s', strtotime($registro['fecha_confirmacion'])) ?>
+                                                    <label class="control-label"><i class="fa fa-check-circle"></i> Fecha de Confirmación</label>
+                                                    <p class="form-control-static fw-bold text-success">
+                                                        <?= date('d/m/Y \a \l\a\s H:i:s', strtotime($registro['fecha_confirmacion'])) ?>
                                                     </p>
                                                 </div>
                                             <?php endif; ?>
@@ -112,32 +121,36 @@
                                     </div>
 
                                     <!-- ACCIONES -->
-                                    <div class="card">
-                                        <div class="card-header">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header" style="background: linear-gradient(135deg, #d8a89a 0%, #e8bfb0 100%); color: white; border: none;">
                                             <div class="col-12">
-                                                <h5>Acciones</h5>
+                                                <h5 class="m-0"><i class="fa fa-cogs"></i> Acciones</h5>
                                             </div>
                                         </div>
                                         <div class="card-block">
-                                            <div class="btn-group-vertical w-100">
+                                            <div class="btn-group-vertical w-100 gap-2">
                                                 <?php if ($registro['estado'] != 'confirmado'): ?>
-                                                    <button class="btn btn-success btn-block mb-2" onclick="confirmar_registro(<?= $registro['id'] ?>)">
-                                                        <i class="fa fa-check"></i> Confirmar Registro
+                                                    <button class="btn btn-success" onclick="confirmar_registro(<?= $registro['id'] ?>)" style="border-radius: 8px;">
+                                                        <i class="fa fa-check-circle"></i> Confirmar Registro
                                                     </button>
                                                 <?php endif; ?>
 
                                                 <?php if ($registro['estado'] != 'cancelado'): ?>
-                                                    <button class="btn btn-danger btn-block mb-2" onclick="cambiar_estado(<?= $registro['id'] ?>, 'cancelado')">
-                                                        <i class="fa fa-times"></i> Cancelar Registro
+                                                    <button class="btn btn-danger" onclick="cambiar_estado(<?= $registro['id'] ?>, 'cancelado')" style="border-radius: 8px;">
+                                                        <i class="fa fa-times-circle"></i> Cancelar Registro
                                                     </button>
                                                 <?php endif; ?>
 
-                                                <a href="mailto:<?= htmlspecialchars($registro['email']) ?>" class="btn btn-info btn-block mb-2">
+                                                <a href="mailto:<?= htmlspecialchars($registro['email']) ?>" class="btn btn-info" style="border-radius: 8px;">
                                                     <i class="fa fa-envelope"></i> Enviar Email
                                                 </a>
 
-                                                <a href="<?= site_url('admin/viveland_registros') ?>" class="btn btn-secondary btn-block">
-                                                    <i class="fa fa-arrow-left"></i> Volver
+                                                <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $registro['telefono']) ?>" target="_blank" class="btn btn-success" style="border-radius: 8px; background-color: #25D366;">
+                                                    <i class="fab fa-whatsapp"></i> Contactar WhatsApp
+                                                </a>
+
+                                                <a href="<?= site_url('admin/viveland_registros') ?>" class="btn btn-outline-secondary" style="border-radius: 8px;">
+                                                    <i class="fa fa-arrow-left"></i> Volver a la Lista
                                                 </a>
                                             </div>
                                         </div>

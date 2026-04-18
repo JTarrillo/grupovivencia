@@ -7,7 +7,7 @@
     <meta name="description" content="VIVELAND - Entrenamiento Inmobiliario en Cusco 13 de Junio">
     <meta name="theme-color" content="#4A90E2">
     <title>VIVELAND - Entrenamiento Inmobiliario</title>
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?php echo site_url('assets/front/img/ico/vivencia.png'); ?>">
 
@@ -36,6 +36,7 @@
             </button>
             <nav class="nav-menu" id="navMenu">
                 <ul class="nav-items">
+                    <li><a href="#hero">Inicio</a></li>
                     <li><a href="#expertos">Expertos</a></li>
                     <li><a href="<?php echo site_url('viveland/sobre-evento'); ?>">Sobre el evento</a></li>
                     <li><a href="#tickets">Tickets</a></li>
@@ -48,7 +49,7 @@
     <!-- ========================================
          HERO SECTION
          ======================================== -->
-    <section class="hero">
+    <section class="hero" id="hero">
         <video class="hero-video" playsinline autoplay muted id="heroVideo">
             <source src="<?php echo site_url('assets/front/img/logo/timvillafuertevideo.mp4'); ?>" type="video/mp4">
             Tu navegador no soporta videos HTML5
@@ -80,25 +81,25 @@
                 <!-- CARRUSEL IZQUIERDA -->
                 <div class="experts-carousel-wrapper">
                     <div class="experts-carousel">
-                        <!-- Expert 1 -->
+                        <!-- Expert 1 - Javier Cubas -->
                         <div class="expert-card-carousel">
                             <div class="expert-image">
-                                <img src="<?php echo site_url('assets/front/img/logo/timvillafuerte.jpeg'); ?>"
-                                    alt="Tim Villafuerte">
+                                <img src="<?php echo site_url('assets/front/img/logo/javiercubas.png'); ?>"
+                                    alt="Javier Cubas">
                             </div>
                             <div class="expert-info">
-                                <h3 class="expert-name">Tim Villafuerte</h3>
-                                <span class="expert-specialty">Ventas Masivas</span>
+                                <h3 class="expert-name">Javier Cubas</h3>
+                                <span class="expert-specialty">Ventas e Inversiones</span>
                                 <p class="expert-description">
-                                    Domina la estrategia de cierres de alto nivel. Aprende cómo cerrar más y mejor.
+                                    Proceso de ventas, metas y plan de negocio. Piensa en grande y escala sin límites.
                                 </p>
                             </div>
                         </div>
 
-                        <!-- Expert 2 -->
+                        <!-- Expert 2 - Luis Enrique -->
                         <div class="expert-card-carousel">
                             <div class="expert-image">
-                                <img src="<?php echo site_url('assets/front/img/logo/luis enrique.jpeg'); ?>"
+                                <img src="<?php echo site_url('assets/front/img/logo/luis enrique.png'); ?>"
                                     alt="Luis Enrique">
                             </div>
                             <div class="expert-info">
@@ -110,17 +111,17 @@
                             </div>
                         </div>
 
-                        <!-- Expert 3 -->
+                        <!-- Expert 3 - Tim Villafuerte -->
                         <div class="expert-card-carousel">
                             <div class="expert-image">
-                                <img src="<?php echo site_url('assets/front/img/logo/javiercubas.jpeg'); ?>"
-                                    alt="Javier Cubas">
+                                <img src="<?php echo site_url('assets/front/img/logo/timvillafuerte.png'); ?>"
+                                    alt="Tim Villafuerte">
                             </div>
                             <div class="expert-info">
-                                <h3 class="expert-name">Javier Cubas</h3>
-                                <span class="expert-specialty">Ventas e Inversiones</span>
+                                <h3 class="expert-name">Tim Villafuerte</h3>
+                                <span class="expert-specialty">Ventas Masivas</span>
                                 <p class="expert-description">
-                                    Proceso de ventas, metas y plan de negocio. Piensa en grande y escala sin límites.
+                                    Domina la estrategia de cierres de alto nivel. Aprende cómo cerrar más y mejor.
                                 </p>
                             </div>
                         </div>
@@ -583,15 +584,22 @@
                                     <i class="fas fa-phone"></i> Teléfono
                                 </label>
                                 <input type="tel" class="form-control" id="telefono" name="telefono"
-                                    placeholder="+51 999 999 999">
+                                    placeholder="+51 999 999 999" required>
+                                <small class="form-text" style="display:none;"></small>
                             </div>
 
                             <div class="form-group">
-                                <label for="ciudad" class="form-label">
-                                    <i class="fas fa-map-marker-alt"></i> Ciudad
+                                <label for="zona" class="form-label">
+                                    <i class="fas fa-ticket-alt"></i> Elige tu Entrada
                                 </label>
-                                <input type="text" class="form-control" id="ciudad" name="ciudad"
-                                    placeholder="Tu ciudad">
+                                <select class="form-control" id="zona" name="zona" required>
+                                    <option value="">-- Selecciona tu zona --</option>
+                                    <option value="Zona Viveland">Zona Viveland - S/. 450.00</option>
+                                    <option value="Zona VIP">Zona VIP - S/. 289.00</option>
+                                    <option value="Zona Platinum">Zona Platinum - S/. 189.00</option>
+                                    <option value="Zona General">Zona General - S/. 89.00</option>
+                                </select>
+                                <small class="form-text" style="display:none;"></small>
                             </div>
                         </div>
 
@@ -599,7 +607,7 @@
                             <label for="interes" class="form-label">
                                 <i class="fas fa-star"></i> ¿Cuál es tu mayor interés?
                             </label>
-                            <select class="form-control" id="interes" name="interes">
+                            <select class="form-control" id="interes" name="interes" required>
                                 <option value="">-- Selecciona una opción --</option>
                                 <option value="Ventas Inmobiliarias">Aprender Ventas Inmobiliarias</option>
                                 <option value="Tributación">Entender Tributación</option>
@@ -607,15 +615,7 @@
                                 <option value="Networking">Hacer Networking</option>
                                 <option value="Otro">Otro</option>
                             </select>
-                        </div>
-
-
-                        <div class="form-group">
-                            <label for="mensaje" class="form-label">
-                                <i class="fas fa-comment"></i> Mensaje (opcional)
-                            </label>
-                            <textarea class="form-control" id="mensaje" name="mensaje"
-                                placeholder="Cuéntanos sobre ti..." rows="3"></textarea>
+                            <small class="form-text" style="display:none;"></small>
                         </div>
 
                         <div class="form-checkbox">
@@ -774,10 +774,10 @@
                         </label>
                         <select class="form-control" id="qr-zona" name="zona" required>
                             <option value="">-- Selecciona tu entrada --</option>
-                            <option value="Zona Viveland - S/. 450.00">Zona Viveland - S/. 450.00</option>
-                            <option value="Zona VIP - S/. 280.00">Zona VIP - S/. 280.00</option>
-                            <option value="Zona Platinum - S/. 180.00">Zona Platinum - S/. 180.00</option>
-                            <option value="Zona General - S/. 89.00">Zona General - S/. 89.00</option>
+                            <option value="Zona Viveland">Zona Viveland - S/. 450.00</option>
+                            <option value="Zona VIP">Zona VIP - S/. 289.00</option>
+                            <option value="Zona Platinum">Zona Platinum - S/. 189.00</option>
+                            <option value="Zona General">Zona General - S/. 89.00</option>
                         </select>
                     </div>
 
@@ -878,6 +878,63 @@
     <!-- Debug Logger para diagnóstico en producción -->
     <script src="<?php echo site_url('assets/js/debug.js'); ?>"></script>
 
+    <!-- CAROUSEL DEBUG SCRIPT -->
+    <script>
+    console.log('\n🔍 === CAROUSEL ADVANCED DEBUG ===\n');
+    
+    // Esperar a que el DOM esté completamente listo
+    setTimeout(() => {
+      const carouselContainer = document.querySelector('.experts-carousel');
+      const cards = document.querySelectorAll('.expert-card-carousel');
+      
+      if (!carouselContainer || cards.length === 0) {
+        console.error('❌ Carrusel no encontrado en el DOM');
+        return;
+      }
+      
+      console.log('✅ Carrusel DEBUG ACTIVO\n');
+      
+      // Información de cada tarjeta
+      cards.forEach((card, idx) => {
+        const name = card.querySelector('.expert-name')?.textContent || 'Sin nombre';
+        const img = card.querySelector('img');
+        const imgSrc = img?.src || 'Sin imagen';
+        
+        console.log(`\n📌 TARJETA ${idx + 1}: ${name}`);
+        console.log(`   Imagen: ${imgSrc}`);
+        console.log(`   Elemento: ${card.tagName}.${card.className}`);
+        
+        // Observar cambios en estilos calculados
+        const observer = new MutationObserver(() => {
+          const computed = window.getComputedStyle(card);
+          if (computed.display !== 'none') {
+            console.log(`   [ACTUALIZACIÓN] ${name} - zIndex: ${computed.zIndex}, opacity: ${computed.opacity}, animationPlayState: ${computed.animationPlayState}`);
+          }
+        });
+        
+        observer.observe(card, {
+          attributes: true,
+          attributeFilter: ['style'],
+          subtree: false
+        });
+      });
+      
+      // Monitorear cada 2 segundos
+      console.log('\n⏱️  Monitoreo activo cada 2 segundos...\n');
+      setInterval(() => {
+        cards.forEach((card, idx) => {
+          const name = card.querySelector('.expert-name')?.textContent || 'Sin nombre';
+          const computed = window.getComputedStyle(card);
+          const rect = card.getBoundingClientRect();
+          const isVisible = rect.width > 0 && rect.height > 0 && computed.visibility !== 'hidden';
+          
+          console.log(`${idx + 1}. ${name.padEnd(15)} | zIdx: ${computed.zIndex.padEnd(3)} | opacity: ${computed.opacity.padEnd(3)} | visible: ${isVisible ? '✓' : '✗'}`);
+        });
+      }, 2000);
+      
+    }, 1000);
+    </script>
+
     <!-- Hero Image Carousel Script -->
     <script>
     // Hamburger Menu Functionality
@@ -903,7 +960,8 @@
 
             // Cerrar menú cuando se hace click fuera
             document.addEventListener('click', function(event) {
-                const isClickInside = hamburgerMenu.contains(event.target) || navMenu.contains(event.target);
+                const isClickInside = hamburgerMenu.contains(event.target) || navMenu.contains(event
+                    .target);
                 if (!isClickInside && hamburgerMenu.classList.contains('active')) {
                     hamburgerMenu.classList.remove('active');
                     navMenu.classList.remove('active');

@@ -15,9 +15,8 @@ class VivelandRegistroModel extends Model
         'nombre',
         'email',
         'telefono',
-        'ciudad',
+        'zona',
         'interes',
-        'mensaje',
         'estado',
         'fecha_confirmacion'
     ];
@@ -26,15 +25,17 @@ class VivelandRegistroModel extends Model
     protected $createdField = 'fecha_registro';
     protected $updatedField = null;
     protected $deletedField = null;
+    protected $skipValidation = false;
+    protected $validateBeforeInsert = false;
+    protected $validateBeforeUpdate = false;
 
     // Validaciones
     protected $validationRules = [
         'nombre' => 'required|min_length[3]|max_length[100]',
         'email' => 'required|valid_email|max_length[120]',
-        'telefono' => 'permit_empty|max_length[20]',
-        'ciudad' => 'permit_empty|max_length[80]',
-        'interes' => 'permit_empty|max_length[100]',
-        'mensaje' => 'permit_empty|max_length[1000]'
+        'telefono' => 'required|max_length[20]',
+        'zona' => 'required|in_list[Zona Viveland,Zona VIP,Zona Platinum,Zona General]',
+        'interes' => 'required|max_length[100]'
     ];
 
     protected $validationMessages = [
@@ -57,11 +58,11 @@ class VivelandRegistroModel extends Model
     }
 
     /**
-     * Obtener registros por ciudad
+     * Obtener registros por zona
      */
-    public function getByCiudad($ciudad)
+    public function getByZona($zona)
     {
-        return $this->where('ciudad', $ciudad)->findAll();
+        return $this->where('zona', $zona)->findAll();
     }
 
     /**
@@ -100,7 +101,7 @@ class VivelandRegistroModel extends Model
             $builder->groupStart()
                     ->like('nombre', $filters['search'])
                     ->orLike('email', $filters['search'])
-                    ->orLike('ciudad', $filters['search'])
+                    ->orLike('zona', $filters['search'])
                     ->groupEnd();
         }
 
