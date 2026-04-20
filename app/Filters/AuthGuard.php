@@ -32,7 +32,7 @@ class AuthGuard implements FilterInterface
             
             // Si es una petición AJAX, devolver JSON
             if ($isAjax) {
-                return response()
+                return service('response')
                     ->setContentType('application/json; charset=UTF-8')
                     ->setStatusCode(401)
                     ->setJSON([

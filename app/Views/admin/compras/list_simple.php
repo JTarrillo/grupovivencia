@@ -2,6 +2,7 @@
 <?php echo view("admin/head"); ?>
 
 <body>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <?php echo view("admin/header"); ?>
     <section class="pcoded-main-container">
         <div class="pcoded-wrapper">
@@ -196,6 +197,24 @@
                                             </form>
                                         </div>
                                         <div class="card-block">
+                                            <?php if (session()->getFlashdata('success')): ?>
+                                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                <?php echo session()->getFlashdata('success'); ?>
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <?php endif; ?>
+
+                                            <?php if (session()->getFlashdata('error')): ?>
+                                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                <?php echo session()->getFlashdata('error'); ?>
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <?php endif; ?>
+
                                             <div class="table-responsive">
                                                 <table class="table table-hover table-sm" id="tablasCompras">
                                                     <thead>
@@ -268,15 +287,21 @@
                                                                     <i class="fa fa-eye"></i>
                                                                 </button>
                                                                 <button type="button" class="btn btn-sm btn-warning"
-                                                                    onclick="clasificarGastos(<?php echo $compra['id']; ?>, '<?php echo $compra['numero_comprobante']; ?>')"
+                                                                    data-compra-id="<?php echo $compra['id']; ?>"
+                                                                    data-compra-numero="<?php echo esc($compra['numero_comprobante'], 'attr'); ?>"
+                                                                    data-gasto-tipo-id="<?php echo esc((string)($compra['gasto_tipo_id'] ?? ''), 'attr'); ?>"
+                                                                    data-gasto-subcategoria-id="<?php echo esc((string)($compra['gasto_subcategoria_id'] ?? ''), 'attr'); ?>"
+                                                                    data-observaciones="<?php echo esc($compra['observaciones'] ?? '', 'attr'); ?>"
+                                                                    onclick="clasificarGastos(this)"
                                                                     title="Clasificar gastos">
                                                                     <i class="fa fa-tags"></i>
                                                                 </button>
-                                                                <button type="button" class="btn btn-sm btn-danger"
-                                                                    onclick="confirmarEliminar(<?php echo $compra['id']; ?>)"
-                                                                    title="Eliminar">
-                                                                    <i class="fa fa-trash"></i>
-                                                                </button>
+                                                                <form method="POST" action="<?php echo base_url('dashboard/compras/delete/' . $compra['id']); ?>" class="d-inline delete-compra-form">
+                                                                    <button type="button" class="btn btn-sm btn-danger delete-compra-btn"
+                                                                        title="Eliminar">
+                                                                        <i class="fa fa-trash"></i>
+                                                                    </button>
+                                                                </form>
                                                             </td>
                                                         </tr>
                                                         <?php endforeach; ?>
@@ -312,8 +337,11 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="formClasificacionGastos">
+                    <form id="formClasificacionGastos" method="post"
+                        action="<?php echo base_url('dashboard/compras/guardarClasificacionGasto'); ?>">
                         <input type="hidden" name="compra_id" id="compraIdGastos">
+                        <input type="hidden" name="redirect_to"
+                            value="<?php echo current_url() . (!empty($periodo_fecha) ? '?periodo_fecha=' . urlencode($periodo_fecha) : ''); ?>">
 
                         <div class="form-group">
                             <label>Tipo de Gasto *</label>
@@ -351,12 +379,49 @@
         </div>
     </div>
 
+    <form id="formEliminarCompra" method="post" style="display:none;">
+        <input type="hidden" name="redirect_to"
+            value="<?php echo current_url() . (!empty($periodo_fecha) ? '?periodo_fecha=' . urlencode($periodo_fecha) : ''); ?>">
+    </form>
+
+    <form id="formEliminarGastos" method="post" style="display:none;">
+        <input type="hidden" name="redirect_to"
+            value="<?php echo current_url() . (!empty($periodo_fecha) ? '?periodo_fecha=' . urlencode($periodo_fecha) : ''); ?>">
+    </form>
+
     <?php echo view("admin/footer"); ?>
 
     <script>
     // Variables globales
     const gastoTipos = <?php echo json_encode($gastoTipos); ?>;
     const gastoSubcategorias = <?php echo json_encode($gastoSubcategorias); ?>;
+
+    function llenarSubcategorias(selectId, tipoId, subcategoriaSeleccionada = '') {
+        const select = document.getElementById(selectId);
+        const subcategorias = gastoSubcategorias.filter(s => String(s.gasto_tipo_id) === String(tipoId));
+
+        if (!tipoId) {
+            select.innerHTML = '<option value="">-- Seleccionar tipo de gasto primero --</option>';
+            return;
+        }
+
+        if (subcategorias.length === 0) {
+            select.innerHTML = '<option value="">No hay subcategorías para este tipo</option>';
+            return;
+        }
+
+        select.innerHTML = '<option value="">-- Seleccionar --</option>' +
+            subcategorias.map(s => {
+                const selected = String(subcategoriaSeleccionada) === String(s.id) ? 'selected' : '';
+                return `<option value="${s.id}" ${selected}>${s.nombre}</option>`;
+            }).join('');
+    }
+
+    function resetFormularioClasificacion() {
+        document.getElementById('formClasificacionGastos').reset();
+        document.getElementById('gastoTipoSelect').value = '';
+        llenarSubcategorias('gastoSubcategoriaSelect', '');
+    }
 
     // FORMULARIO NUEVA COMPRA
     document.getElementById('formNuevaCompra').addEventListener('submit', async (e) => {
@@ -407,16 +472,7 @@
 
     // FILTRAR SUBCATEGORIAS EN FORMULARIO
     document.getElementById('formGastoTipo').addEventListener('change', (e) => {
-        const tipoId = e.target.value;
-        const subcategorias = gastoSubcategorias.filter(s => s.gasto_tipo_id == tipoId);
-        const select = document.getElementById('formGastoSubcategoria');
-
-        if (subcategorias.length === 0) {
-            select.innerHTML = '<option value="">No hay subcategorías para este tipo</option>';
-        } else {
-            select.innerHTML = '<option value="">-- Seleccionar --</option>' +
-                subcategorias.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('');
-        }
+        llenarSubcategorias('formGastoSubcategoria', e.target.value);
     });
 
     // CARGAR GASTOS POR COMPRA - YA NO NECESARIO
@@ -499,132 +555,52 @@
     }
 
     // CLASIFICAR GASTOS - MODAL
-    function clasificarGastos(compraId, numeroComprobante) {
+    function clasificarGastos(button) {
+        const compraId = button.dataset.compraId || '';
+        const numeroComprobante = button.dataset.compraNumero || '';
+        const gastoTipoId = button.dataset.gastoTipoId || '';
+        const gastoSubcategoriaId = button.dataset.gastoSubcategoriaId || '';
+        const observaciones = button.dataset.observaciones || '';
+
         document.getElementById('compraIdGastos').value = compraId;
         document.getElementById('compraNumero').textContent = numeroComprobante;
-        document.getElementById('gastoTipoSelect').value = '';
-        document.getElementById('gastoSubcategoriaSelect').innerHTML =
-            '<option value="">-- Seleccionar tipo de gasto primero --</option>';
+        resetFormularioClasificacion();
+        document.getElementById('gastoTipoSelect').value = gastoTipoId;
+        llenarSubcategorias('gastoSubcategoriaSelect', gastoTipoId, gastoSubcategoriaId);
+        document.querySelector('#formClasificacionGastos textarea[name="observaciones"]').value = observaciones;
         $('#modalClasificarGastos').modal('show');
     }
 
     // CAMBIAR SUBCATEGORIAS AL SELECCIONAR TIPO
     document.getElementById('gastoTipoSelect').addEventListener('change', (e) => {
-        const tipoId = e.target.value;
-        const subcategorias = gastoSubcategorias.filter(s => s.gasto_tipo_id == tipoId);
-        const select = document.getElementById('gastoSubcategoriaSelect');
-
-        if (subcategorias.length === 0) {
-            select.innerHTML = '<option value="">No hay subcategorías para este tipo</option>';
-        } else {
-            select.innerHTML = '<option value="">-- Seleccionar --</option>' +
-                subcategorias.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('');
-        }
+        llenarSubcategorias('gastoSubcategoriaSelect', e.target.value);
     });
 
-    // GUARDAR CLASIFICACION DE GASTOS
-    document.getElementById('formClasificacionGastos').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const compra_id = formData.get('compra_id');
+    $('#modalClasificarGastos').on('hidden.bs.modal', function() {
+        resetFormularioClasificacion();
+    });
 
-        try {
-            const response = await fetch(
-                '<?php echo base_url('api/compras/guardarClasificacionGasto'); ?>', {
-                    method: 'POST',
-                    body: formData
-                });
-
-            const data = await response.json();
-            
-            // LOG PARA DEBUG
-            console.log('=== RESPUESTA CLASIFICACIÓN ===');
-            console.log('Status:', response.status);
-            console.log('JSON completo:', data);
-            console.log('================================');
-
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Éxito!',
-                    text: data.message,
-                    confirmButtonColor: '#28a745'
-                }).then(() => {
-                    $('#modalClasificarGastos').modal('hide');
-                    // Recargar gastos de esta compra específicamente
-                    cargarGastosPorCompra(compra_id);
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: data.message,
-                    confirmButtonColor: '#dc3545'
-                });
-            }
-        } catch (error) {
-            console.error('❌ ERROR AL GUARDAR CLASIFICACIÓN:', error);
-            console.error('Mensaje:', error.message);
+    // ELIMINAR COMPRA - Form submit con SweetAlert
+    document.querySelectorAll('.delete-compra-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const form = btn.closest('form');
             Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Error al guardar clasificación: ' + error.message,
-                confirmButtonColor: '#dc3545'
+                title: '¿Eliminar esta compra?',
+                text: 'Esta acción eliminará la compra de forma permanente.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
             });
-        }
-    });
-
-    // ELIMINAR COMPRA
-    function confirmarEliminar(compraId) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Confirmar eliminación',
-            text: '¿Desea eliminar esta compra?',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`<?php echo base_url('dashboard/compras/delete/'); ?>${compraId}`, {
-                        method: 'POST'
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        console.log('=== RESPUESTA ELIMINACIÓN ===');
-                        console.log('JSON:', data);
-                        console.log('================================');
-                        
-                        if (data.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: '¡Éxito!',
-                                text: 'Compra eliminada',
-                                confirmButtonColor: '#28a745'
-                            }).then(() => location.reload());
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: data.message,
-                                confirmButtonColor: '#dc3545'
-                            });
-                        }
-                    })
-                    .catch(err => {
-                        console.error('❌ ERROR AL ELIMINAR:', err);
-                        console.error('Mensaje:', err.message);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Error al eliminar la compra: ' + err.message,
-                            confirmButtonColor: '#dc3545'
-                        });
-                    });
-            }
         });
-    }
+    });
 
     // Cargar gastos al cargar la página - YA NO NECESARIO 
     // Los gastos se cargan directamente desde el controlador en la vista
@@ -638,6 +614,16 @@
     });
     */
     </script>
+    <?php if (session('success')): ?>
+    <script>
+    Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: '<?= session('success') ?>',
+        confirmButtonColor: '#28a745',
+    });
+    </script>
+    <?php endif; ?>
 </body>
 
 </html>

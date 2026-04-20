@@ -36,32 +36,29 @@ $routes->setAutoRoute(true);
 // RUTAS DEL MÓDULO DE COMPRAS - PRIORITARIAS (Antes de cualquier otra ruta)
 // ============================================================================
 
-// Rutas para Dashboard::compras (para autoroute y acceso directo)
-$routes->get('dashboard/compras', 'Dashboard::compras', ['filter' => 'authGuard']);
-$routes->post('dashboard/compras', 'Dashboard::guardarCompra', ['filter' => 'authGuard']);
+// Page views
+$routes->get('/dashboard/compras', 'D_compras::index', ['filter' => 'authGuard']);
+$routes->get('/dashboard/compras/create', 'D_compras::create', ['filter' => 'authGuard']);
 
-$routes->group('dashboard/compras', static function($routes){
-    // Page views
-    $routes->get('', 'D_compras::index', ['filter' => 'authGuard']);
-    $routes->get('create', 'D_compras::create', ['filter' => 'authGuard']);
-    
-    // POST routes - tanto '' como 'store' van a store()
-    $routes->post('', 'D_compras::store', ['filter' => 'authGuard']);
-    $routes->post('store', 'D_compras::store', ['filter' => 'authGuard']);
-    
-    $routes->get('view/(:num)', 'D_compras::view/$1', ['filter' => 'authGuard']);
-    
-    // Actions
-    $routes->post('clasificar', 'D_compras::clasificar', ['filter' => 'authGuard']);
-    $routes->post('aprobar', 'D_compras::aprobar', ['filter' => 'authGuard']);
-    $routes->post('delete/(:num)', 'D_compras::delete/$1', ['filter' => 'authGuard']);
-    
-    // Reports
-    $routes->get('reporte', 'D_compras::reporte', ['filter' => 'authGuard']);
-    
-    // Downloads
-    $routes->get('descargarComprobante/(:num)', 'D_compras::descargarComprobante/$1', ['filter' => 'authGuard']);
-});
+// POST routes
+$routes->post('/dashboard/compras', 'D_compras::store', ['filter' => 'authGuard']);
+$routes->post('/dashboard/compras/store', 'D_compras::store', ['filter' => 'authGuard']);
+
+$routes->get('/dashboard/compras/view/(:num)', 'D_compras::view/$1', ['filter' => 'authGuard']);
+
+// Actions
+$routes->post('/dashboard/compras/clasificar', 'D_compras::clasificar', ['filter' => 'authGuard']);
+$routes->post('/dashboard/compras/aprobar', 'D_compras::aprobar', ['filter' => 'authGuard']);
+$routes->post('/dashboard/compras/delete/(:num)', 'D_compras::delete/$1', ['filter' => 'authGuard']);
+$routes->post('/dashboard/compras/delete-gastos/(:num)', 'D_compras::deleteGastos/$1', ['filter' => 'authGuard']);
+$routes->get('/dashboard/compras/getGastosByCompra/(:num)', 'D_compras::getGastosByCompra/$1', ['filter' => 'authGuard']);
+$routes->post('/dashboard/compras/guardarClasificacionGasto', 'D_compras::guardarClasificacionGasto', ['filter' => 'authGuard']);
+
+// Reports
+$routes->get('/dashboard/compras/reporte', 'D_compras::reporte', ['filter' => 'authGuard']);
+
+// Downloads
+$routes->get('/dashboard/compras/descargarComprobante/(:num)', 'D_compras::descargarComprobante/$1', ['filter' => 'authGuard']);
 // ============================================================================
 
 $routes->get('/dashboard/facturas/detalle/(:num)', 'D_facturas::detalle/$1', ['filter' => 'authGuard']);
@@ -548,6 +545,7 @@ $routes->group('dashboard/gastos', static function($routes){
 $routes->group('dashboard/clasificacion', static function($routes){
     // Main views
     $routes->get('', 'D_clasificacion::index', ['filter' => 'authGuard']);
+    $routes->get('catalogo', 'D_clasificacion::catalogo', ['filter' => 'authGuard']);
     $routes->get('clasificar/(:num)', 'D_clasificacion::clasificar/$1', ['filter' => 'authGuard']);
     $routes->get('reportes', 'D_clasificacion::reportes', ['filter' => 'authGuard']);
     $routes->get('informe', 'D_clasificacion::informe', ['filter' => 'authGuard']);
@@ -562,6 +560,12 @@ $routes->group('dashboard/clasificacion', static function($routes){
     $routes->post('subirDocumento/(:num)', 'D_clasificacion::subirDocumento/$1', ['filter' => 'authGuard']);
     $routes->post('eliminarDocumento/(:num)', 'D_clasificacion::eliminarDocumento/$1', ['filter' => 'authGuard']);
     $routes->post('guardarReporte', 'D_clasificacion::guardarReporte', ['filter' => 'authGuard']);
+
+    // Catalogo de tipos y subcategorias
+    $routes->post('tipo/crear', 'D_clasificacion::crearTipo', ['filter' => 'authGuard']);
+    $routes->post('tipo/eliminar/(:num)', 'D_clasificacion::eliminarTipo/$1', ['filter' => 'authGuard']);
+    $routes->post('subcategoria/crear', 'D_clasificacion::crearSubcategoria', ['filter' => 'authGuard']);
+    $routes->post('subcategoria/eliminar/(:num)', 'D_clasificacion::eliminarSubcategoria/$1', ['filter' => 'authGuard']);
 });
 
 

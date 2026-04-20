@@ -89,6 +89,321 @@ class D_clasificacion extends BaseController
     }
 
     /**
+     * Catalogo de tipos y subcategorias de gastos
+     */
+    public function catalogo()
+    {
+        $session = session();
+        if (!$session->get('isLoggedIn')) {
+            return redirect()->to(base_url('login'));
+        }
+
+        $data = [
+            'tipos' => $this->gastoTipoModel->orderBy('nombre', 'ASC')->findAll(),
+            'subcategorias' => $this->gastoSubcategoriaModel
+                ->select('gasto_subcategorias.*, gasto_tipos.nombre AS tipo_nombre')
+                ->join('gasto_tipos', 'gasto_tipos.id = gasto_subcategorias.gasto_tipo_id', 'left')
+                ->orderBy('gasto_tipos.nombre', 'ASC')
+                ->orderBy('gasto_subcategorias.nombre', 'ASC')
+                ->findAll(),
+        ];
+
+        return view('admin/clasificacion/catalogo', $data);
+    }
+
+    /**
+     * Detectar si la peticion espera JSON (AJAX/fetch)
+     */
+    private function isAjaxRequest(): bool
+    {
+        return $this->request->isAJAX()
+            || $this->request->getHeaderLine('X-Requested-With') === 'XMLHttpRequest'
+            || str_contains($this->request->getHeaderLine('Accept'), 'application/json');
+    }
+
+    /**
+     * Respuesta JSON consistente para operaciones de catalogo
+     */
+    private function jsonCatalogResponse(bool $success, string $message, array $extra = [], int $status = 200)
+    {
+        return $this->response->setStatusCode($status)->setJSON(array_merge([
+            'success' => $success,
+            'message' => $message,
+            'csrfName' => csrf_token(),
+            'csrfHash' => csrf_hash(),
+        ], $extra));
+    }
+
+    /**
+     * Crear tipo de gasto
+     */
+    public function crearTipo()
+    {
+        $session = session();
+        $isAjax = $this->isAjaxRequest();
+
+        if (!$session->get('isLoggedIn')) {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'No autorizado. Inicia sesion nuevamente.', [], 401);
+            }
+            return redirect()->to(base_url('login'));
+        }
+
+        if (strtoupper($this->request->getMethod()) !== 'POST') {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'Metodo no permitido', [], 405);
+            }
+            return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+                ->with('error', 'Metodo no permitido');
+        }
+
+        $nombre = trim((string) $this->request->getPost('nombre'));
+        $icono = trim((string) $this->request->getPost('icono'));
+        $descripcion = trim((string) $this->request->getPost('descripcion'));
+        $color = trim((string) $this->request->getPost('color'));
+
+        if ($nombre === '') {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'El nombre del tipo es obligatorio', [], 422);
+            }
+            return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+                ->with('error', 'El nombre del tipo es obligatorio');
+        }
+
+        $exists = $this->gastoTipoModel
+            ->where('LOWER(nombre)', strtolower($nombre))
+            ->countAllResults();
+
+        if ($exists > 0) {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'Ya existe un tipo de gasto con ese nombre', [], 409);
+            }
+            return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+                ->with('error', 'Ya existe un tipo de gasto con ese nombre');
+        }
+
+        $data = [
+            'nombre' => $nombre,
+            'icono' => $icono ?: 'fa fa-tag',
+            'descripcion' => $descripcion,
+            'color' => $color ?: '#6c757d',
+            'activo' => 1,
+        ];
+
+        if (!$this->gastoTipoModel->insert($data)) {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'No se pudo crear el tipo de gasto', [], 500);
+            }
+            return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+                ->with('error', 'No se pudo crear el tipo de gasto');
+        }
+
+        $nuevoId = $this->gastoTipoModel->getInsertID();
+        if ($isAjax) {
+            return $this->jsonCatalogResponse(true, 'Tipo de gasto creado correctamente', [
+                'tipo' => [
+                    'id' => $nuevoId,
+                    'nombre' => $nombre,
+                    'color' => $color ?: '#6c757d',
+                ],
+            ]);
+        }
+
+        return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+            ->with('success', 'Tipo de gasto creado correctamente');
+    }
+
+    /**
+     * Eliminar tipo de gasto
+     */
+    public function eliminarTipo($id)
+    {
+        $session = session();
+        $isAjax = $this->isAjaxRequest();
+
+        if (!$session->get('isLoggedIn')) {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'No autorizado. Inicia sesion nuevamente.', [], 401);
+            }
+            return redirect()->to(base_url('login'));
+        }
+
+        if (strtoupper($this->request->getMethod()) !== 'POST') {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'Metodo no permitido', [], 405);
+            }
+            return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+                ->with('error', 'Metodo no permitido');
+        }
+
+        $db = db_connect();
+
+        $usoEnCompraGastos = $db->table('compra_gastos')->where('gasto_tipo_id', $id)->countAllResults();
+        if ($usoEnCompraGastos > 0) {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'No se puede eliminar: el tipo ya esta usado en compras clasificadas', [], 409);
+            }
+            return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+                ->with('error', 'No se puede eliminar: el tipo ya esta usado en compras clasificadas');
+        }
+
+        if (!$this->gastoTipoModel->delete($id)) {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'No se pudo eliminar el tipo de gasto', [], 500);
+            }
+            return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+                ->with('error', 'No se pudo eliminar el tipo de gasto');
+        }
+
+        if ($isAjax) {
+            return $this->jsonCatalogResponse(true, 'Tipo de gasto eliminado correctamente', [
+                'deletedId' => (int) $id,
+            ]);
+        }
+
+        return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+            ->with('success', 'Tipo de gasto eliminado correctamente');
+    }
+
+    /**
+     * Crear subcategoria de gasto
+     */
+    public function crearSubcategoria()
+    {
+        $session = session();
+        $isAjax = $this->isAjaxRequest();
+
+        if (!$session->get('isLoggedIn')) {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'No autorizado. Inicia sesion nuevamente.', [], 401);
+            }
+            return redirect()->to(base_url('login'));
+        }
+
+        if (strtoupper($this->request->getMethod()) !== 'POST') {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'Metodo no permitido', [], 405);
+            }
+            return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+                ->with('error', 'Metodo no permitido');
+        }
+
+        $gastoTipoId = (int) $this->request->getPost('gasto_tipo_id');
+        $nombre = trim((string) $this->request->getPost('nombre'));
+        $descripcion = trim((string) $this->request->getPost('descripcion'));
+
+        if ($gastoTipoId <= 0 || $nombre === '') {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'Tipo de gasto y nombre son obligatorios', [], 422);
+            }
+            return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+                ->with('error', 'Tipo de gasto y nombre son obligatorios');
+        }
+
+        $tipoExiste = $this->gastoTipoModel->find($gastoTipoId);
+        if (!$tipoExiste) {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'El tipo de gasto seleccionado no existe', [], 422);
+            }
+            return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+                ->with('error', 'El tipo de gasto seleccionado no existe');
+        }
+
+        $exists = $this->gastoSubcategoriaModel
+            ->where('gasto_tipo_id', $gastoTipoId)
+            ->where('LOWER(nombre)', strtolower($nombre))
+            ->countAllResults();
+
+        if ($exists > 0) {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'Esa subcategoria ya existe para el tipo seleccionado', [], 409);
+            }
+            return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+                ->with('error', 'Esa subcategoria ya existe para el tipo seleccionado');
+        }
+
+        $data = [
+            'gasto_tipo_id' => $gastoTipoId,
+            'nombre' => $nombre,
+            'descripcion' => $descripcion,
+            'activo' => 1,
+        ];
+
+        if (!$this->gastoSubcategoriaModel->insert($data)) {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'No se pudo crear la subcategoria', [], 500);
+            }
+            return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+                ->with('error', 'No se pudo crear la subcategoria');
+        }
+
+        $nuevoId = $this->gastoSubcategoriaModel->getInsertID();
+        if ($isAjax) {
+            return $this->jsonCatalogResponse(true, 'Subcategoria creada correctamente', [
+                'subcategoria' => [
+                    'id' => $nuevoId,
+                    'nombre' => $nombre,
+                    'tipo_nombre' => $tipoExiste['nombre'] ?? '',
+                ],
+            ]);
+        }
+
+        return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+            ->with('success', 'Subcategoria creada correctamente');
+    }
+
+    /**
+     * Eliminar subcategoria de gasto
+     */
+    public function eliminarSubcategoria($id)
+    {
+        $session = session();
+        $isAjax = $this->isAjaxRequest();
+
+        if (!$session->get('isLoggedIn')) {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'No autorizado. Inicia sesion nuevamente.', [], 401);
+            }
+            return redirect()->to(base_url('login'));
+        }
+
+        if (strtoupper($this->request->getMethod()) !== 'POST') {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'Metodo no permitido', [], 405);
+            }
+            return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+                ->with('error', 'Metodo no permitido');
+        }
+
+        $db = db_connect();
+        $usoEnCompraGastos = $db->table('compra_gastos')->where('gasto_subcategoria_id', $id)->countAllResults();
+        if ($usoEnCompraGastos > 0) {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'No se puede eliminar: la subcategoria ya esta usada en compras clasificadas', [], 409);
+            }
+            return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+                ->with('error', 'No se puede eliminar: la subcategoria ya esta usada en compras clasificadas');
+        }
+
+        if (!$this->gastoSubcategoriaModel->delete($id)) {
+            if ($isAjax) {
+                return $this->jsonCatalogResponse(false, 'No se pudo eliminar la subcategoria', [], 500);
+            }
+            return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+                ->with('error', 'No se pudo eliminar la subcategoria');
+        }
+
+        if ($isAjax) {
+            return $this->jsonCatalogResponse(true, 'Subcategoria eliminada correctamente', [
+                'deletedId' => (int) $id,
+            ]);
+        }
+
+        return redirect()->to(site_url('dashboard/clasificacion/catalogo'))
+            ->with('success', 'Subcategoria eliminada correctamente');
+    }
+
+    /**
      * Obtener detalles de compra por AJAX
      */
     public function detalles($compraId)

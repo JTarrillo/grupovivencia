@@ -84,6 +84,7 @@
         $gastos_color = null;
         $clasificacion_style = null;
         $clasificacion_color = null;
+        $proveedores_color = null;
         $facturascontratos_style = null;
         $facturascontratos_color = null;
         $kit_afiliacion_style = null;
@@ -306,6 +307,7 @@
                 break;
             case "proveedores":
                 $proveedores_style = "active pcoded-trigger";
+                $proveedores_color = "active_nav";
                 $proveedores_verificadas_color = "active_nav";
                 break;
             case "entradas":
@@ -564,6 +566,13 @@
                         <li class=""><a href="/dashboard/gastos" class="nav-link <?php echo $gastos_color; ?>" style="<?php echo ($gastos_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-money-bill-wave"></i></span><span class="pcoded-mtext">Gastos</span></a></li>
                         <li class=""><a href="/dashboard/clasificacion" class="nav-link <?php echo $clasificacion_color; ?>" style="<?php echo ($clasificacion_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-tags"></i></span><span class="pcoded-mtext">Clasificación</span></a></li>
                     </ul>
+                </li>
+
+                <li class="nav-item <?php echo $proveedores_style; ?>">
+                    <a href="/dashboard/proveedores" class="nav-link <?php echo $proveedores_color; ?>">
+                        <span class="pcoded-micon"><i class="fa fa-truck"></i></span>
+                        <span class="pcoded-mtext">Proveedores</span>
+                    </a>
                 </li>
 
                 <li class="nav-item <?php echo $usuarios_style; ?>">

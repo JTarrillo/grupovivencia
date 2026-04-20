@@ -92,10 +92,14 @@
                                         <div class="card-header">
                                             <div class="d-flex justify-content-between align-items-center mb-3">
                                                 <h5><i class="fa fa-list"></i> Compras para Clasificar</h5>
-                                                <a href="<?php echo site_url('dashboard/clasificacion/informe'); ?>" 
-                                                   class="btn btn-sm btn-primary">
-                                                    <i class="fa fa-chart-bar"></i> Ver Informe por Período
-                                                </a>
+                                                <div>
+                                                    <a href="<?php echo site_url('dashboard/clasificacion/catalogo'); ?>" class="btn btn-sm btn-info mr-2">
+                                                        <i class="fa fa-cogs"></i> Gestionar Catálogo
+                                                    </a>
+                                                    <a href="<?php echo site_url('dashboard/clasificacion/informe'); ?>" class="btn btn-sm btn-primary">
+                                                        <i class="fa fa-chart-bar"></i> Ver Informe por Período
+                                                    </a>
+                                                </div>
                                             </div>
                                             <span class="text-muted d-block m-t-5">Gestione la clasificación de compras
                                                 y gastos</span>

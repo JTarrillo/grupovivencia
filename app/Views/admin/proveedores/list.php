@@ -86,7 +86,7 @@
                                                                      <div class="operation">
                                                                         <div class="btn-group">
                                                                            <button type="button" class="btn btn-icon btn-info" onclick="edit_supplier('<?php echo $value->id; ?>');"><i class="fa fa-edit"></i></button>
-                                                                           <button type="button" class="btn btn-icon btn-danger" onclick="eliminar('<?php echo $value->id; ?>');"><i class="fa fa-trash"></i></button>
+                                                                           <button type="button" class="btn btn-icon btn-danger" onclick="eliminar(this, '<?php echo $value->id; ?>');"><i class="fa fa-trash"></i></button>
                                                                         </div>
                                                                      </div>
                                                                   </td>
@@ -123,6 +123,52 @@
          </div>
       </div>
    </section>
+
+   <div class="modal fade" id="modalNuevoProveedor" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+         <div class="modal-content">
+            <div class="modal-header">
+               <h5 class="modal-title">Nuevo Proveedor</h5>
+               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+               </button>
+            </div>
+            <form id="formSupplierModal" name="formSupplierModal" method="post" action="javascript:void(0);" onsubmit="return validate_modal();">
+               <div class="modal-body">
+                  <input type="hidden" id="modal_supplier_id" name="supplier_id" value="">
+                  <div class="form-group">
+                     <label>Razón Social <span class="text-danger">*</span></label>
+                     <input class="form-control" type="text" id="modal_name" name="name" placeholder="Ingrese Nombre" required>
+                  </div>
+                  <div class="form-group">
+                     <label>RUC</label>
+                     <input class="form-control" type="text" id="modal_ruc" name="ruc" placeholder="Ingrese RUC">
+                  </div>
+                  <div class="form-group">
+                     <label>Teléfono</label>
+                     <input class="form-control" type="text" id="modal_phone" name="phone" placeholder="Ingrese Teléfono">
+                  </div>
+                  <div class="form-group">
+                     <label>Dirección</label>
+                     <input class="form-control" type="text" id="modal_address" name="address" placeholder="Ingrese Dirección">
+                  </div>
+                  <div class="form-group mb-0">
+                     <label>Estado</label>
+                     <select class="form-control" name="active" id="modal_active" required>
+                        <option value="1" selected>Activo</option>
+                        <option value="0">Inactivo</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i> Cancelar</button>
+                  <button id="submit_modal" type="submit" class="btn btn-primary"><i class="fa fa-cloud" aria-hidden="true"></i> Guardar</button>
+               </div>
+            </form>
+         </div>
+      </div>
+   </div>
+
    <script src="<?php echo base_url('assets/admin/js/script/supplier.js'); ?>"></script>
    <!-- [ Header ] end -->
    <!-- [ Main Content ] end -->

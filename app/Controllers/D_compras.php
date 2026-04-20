@@ -66,6 +66,9 @@ class D_compras extends BaseController
                     c.proveedor_id,
                     s.name as proveedor_nombre,
                     cg.id as gasto_id,
+                    cg.gasto_tipo_id,
+                    cg.gasto_subcategoria_id,
+                    cg.observaciones,
                     gt.nombre as tipo_nombre,
                     gt.color
                 FROM compras c
@@ -96,12 +99,21 @@ class D_compras extends BaseController
                         'comprobante_archivo' => $row['comprobante_archivo'],
                         'proveedor_id' => $row['proveedor_id'],
                         'proveedor_nombre' => $row['proveedor_nombre'],
+                        'gasto_tipo_id' => null,
+                        'gasto_subcategoria_id' => null,
+                        'observaciones' => '',
                         'gastos' => []
                     ];
                 }
                 
                 // Agregar gasto si existe
                 if (!empty($row['gasto_id'])) {
+                    if ($compras[$compraId]['gasto_tipo_id'] === null) {
+                        $compras[$compraId]['gasto_tipo_id'] = $row['gasto_tipo_id'];
+                        $compras[$compraId]['gasto_subcategoria_id'] = $row['gasto_subcategoria_id'];
+                        $compras[$compraId]['observaciones'] = $row['observaciones'] ?? '';
+                    }
+
                     $compras[$compraId]['gastos'][] = [
                         'id' => $row['gasto_id'],
                         'tipo_nombre' => $row['tipo_nombre'],
@@ -592,13 +604,26 @@ class D_compras extends BaseController
      */
     public function guardarClasificacionGasto()
     {
-        $this->response->setContentType('application/json');
+        $isAjax = $this->request->isAJAX()
+            || $this->request->getHeaderLine('X-Requested-With') === 'XMLHttpRequest'
+            || str_contains($this->request->getHeaderLine('Accept'), 'application/json');
+
+        if ($isAjax) {
+            $this->response->setContentType('application/json');
+        }
+
+        $redirectTo = $this->request->getPost('redirect_to') ?: base_url('dashboard/compras');
 
         if (strtoupper($this->request->getMethod()) !== 'POST') {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Sólo se aceptan peticiones POST'
-            ]);
+            if ($isAjax) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Sólo se aceptan peticiones POST'
+                ]);
+            }
+
+            return redirect()->to($redirectTo)
+                ->with('error', 'Sólo se aceptan peticiones POST');
         }
 
         $session = session();
@@ -613,19 +638,29 @@ class D_compras extends BaseController
 
             // Validaciones
             if (!$compra_id || !$gasto_tipo_id) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Compra ID y Tipo de Gasto son requeridos'
-                ]);
+                if ($isAjax) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Compra ID y Tipo de Gasto son requeridos'
+                    ]);
+                }
+
+                return redirect()->to($redirectTo)
+                    ->with('error', 'Compra ID y Tipo de Gasto son requeridos');
             }
 
             // Validar compra existe
             $compra = $this->comprasModel->find($compra_id);
             if (!$compra) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Compra no encontrada'
-                ]);
+                if ($isAjax) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Compra no encontrada'
+                    ]);
+                }
+
+                return redirect()->to($redirectTo)
+                    ->with('error', 'Compra no encontrada');
             }
 
             // Clasificación solo si no existe
@@ -661,19 +696,66 @@ class D_compras extends BaseController
             // Actualizar estado de compra a clasificado
             $this->comprasModel->update($compra_id, ['estado' => 'clasificado']);
 
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Clasificación guardada exitosamente'
-            ]);
+            if ($isAjax) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Clasificación guardada exitosamente'
+                ]);
+            }
+
+            return redirect()->to($redirectTo)
+                ->with('success', 'Clasificación guardada exitosamente');
 
         } catch (\Exception $e) {
             log_message('error', 'Error en guardarClasificacionGasto: ' . $e->getMessage());
-            return $this->response
-                ->setStatusCode(500)
-                ->setJSON([
-                    'success' => false,
-                    'message' => 'Error: ' . $e->getMessage()
-                ]);
+
+            if ($isAjax) {
+                return $this->response
+                    ->setStatusCode(500)
+                    ->setJSON([
+                        'success' => false,
+                        'message' => 'Error: ' . $e->getMessage()
+                    ]);
+            }
+
+            return redirect()->to($redirectTo)
+                ->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Eliminar clasificación de gastos de una compra
+     */
+    public function deleteGastos($id)
+    {
+        $session = session();
+        if (!$session->get('isLoggedIn')) {
+            return redirect()->to(base_url('login'));
+        }
+
+        $redirectTo = $this->request->getPost('redirect_to') ?: base_url('dashboard/compras');
+
+        if (strtoupper($this->request->getMethod()) !== 'POST') {
+            return redirect()->to($redirectTo)->with('error', 'Método no permitido');
+        }
+
+        try {
+            $db = \Config\Database::connect();
+
+            $compra = $this->comprasModel->find($id);
+            if (!$compra) {
+                return redirect()->to($redirectTo)->with('error', 'Compra no encontrada');
+            }
+
+            $db->table('compra_gastos')->where('compra_id', $id)->delete();
+            $this->comprasModel->update($id, ['estado' => 'registrado']);
+
+            return redirect()->to($redirectTo)
+                ->with('success', 'Clasificación de gastos eliminada exitosamente');
+        } catch (\Exception $e) {
+            log_message('error', 'Error en deleteGastos: ' . $e->getMessage());
+            return redirect()->to($redirectTo)
+                ->with('error', 'Error: ' . $e->getMessage());
         }
     }
 
@@ -682,44 +764,33 @@ class D_compras extends BaseController
      */
     public function delete($id)
     {
-        // Asegurar JSON
-        $this->response->setContentType('application/json; charset=UTF-8');
-        
-        log_message('error', '=== DELETE INICIADO ===');
-        log_message('error', 'ID a eliminar: ' . $id);
-        log_message('error', 'Método: ' . $this->request->getMethod());
+        $session = session();
+        if (!$session->get('isLoggedIn')) {
+            return redirect()->to(base_url('login'));
+        }
+
+        $redirectTo = base_url('dashboard/compras');
         
         if (strtoupper($this->request->getMethod()) !== 'POST') {
-            log_message('error', 'Método no es POST');
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Método no permitido'
-            ]);
+            return redirect()->to($redirectTo)->with('error', 'Método no permitido');
         }
 
         try {
             $db = \Config\Database::connect();
             
-            log_message('error', 'Eliminando gastos asociados...');
             // Eliminar gastos asociados
             $db->table('compra_gastos')->where('compra_id', $id)->delete();
             
-            log_message('error', 'Eliminando compra...');
             // Eliminar compra
             $this->comprasModel->delete($id);
 
-            log_message('error', '✅ Compra eliminada correctamente');
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Compra eliminada exitosamente'
-            ]);
+            return redirect()->to($redirectTo)
+                ->with('success', 'Compra eliminada exitosamente');
         } catch (\Exception $e) {
-            log_message('error', '❌ ERROR al eliminar: ' . $e->getMessage());
-            log_message('error', 'Stack: ' . $e->getTraceAsString());
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ]);
+            log_message('error', 'Error al eliminar compra: ' . $e->getMessage());
+
+            return redirect()->to($redirectTo)
+                ->with('error', 'Error: ' . $e->getMessage());
         }
     }
 }
