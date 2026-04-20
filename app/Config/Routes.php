@@ -45,6 +45,10 @@ $routes->post('/dashboard/compras', 'D_compras::store', ['filter' => 'authGuard'
 $routes->post('/dashboard/compras/store', 'D_compras::store', ['filter' => 'authGuard']);
 
 $routes->get('/dashboard/compras/view/(:num)', 'D_compras::view/$1', ['filter' => 'authGuard']);
+$routes->get('/dashboard/compras/view-modal/(:num)', 'D_compras::viewModal/$1', ['filter' => 'authGuard']);
+// Compatibilidad con enlaces antiguos/mal formados sin slash: view17, view-modal17
+$routes->get('/dashboard/compras/view(:num)', 'D_compras::view/$1', ['filter' => 'authGuard']);
+$routes->get('/dashboard/compras/view-modal(:num)', 'D_compras::viewModal/$1', ['filter' => 'authGuard']);
 
 // Actions
 $routes->post('/dashboard/compras/clasificar', 'D_compras::clasificar', ['filter' => 'authGuard']);

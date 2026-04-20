@@ -16,5 +16,27 @@
 <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+<script>
+// Compatibilidad global: asegura que la X/cerrar funcione en modales aunque falte data-dismiss
+$(document).on('click', '.modal .close, .modal [data-dismiss="modal"], .modal [data-bs-dismiss="modal"]', function (e) {
+	var $modal = $(this).closest('.modal');
+	if (!$modal.length) {
+		return;
+	}
+
+	e.preventDefault();
+
+	// Bootstrap 4 (jQuery plugin)
+	if (typeof $modal.modal === 'function') {
+		$modal.modal('hide');
+		return;
+	}
+
+	// Fallback seguro
+	$modal.removeClass('show').hide();
+	$('body').removeClass('modal-open').css('padding-right', '');
+	$('.modal-backdrop').remove();
+});
+</script>
 </body>
 </html>

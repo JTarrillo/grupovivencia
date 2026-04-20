@@ -379,6 +379,22 @@
         </div>
     </div>
 
+    <div class="modal fade" id="modalVerCompra" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalle de Compra</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modalDetalleCompraBody">
+                    <div class="text-center text-muted py-4">Cargando...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <form id="formEliminarCompra" method="post" style="display:none;">
         <input type="hidden" name="redirect_to"
             value="<?php echo current_url() . (!empty($periodo_fecha) ? '?periodo_fecha=' . urlencode($periodo_fecha) : ''); ?>">
@@ -551,7 +567,24 @@
 
     // VER DETALLES
     function verDetalles(compraId) {
-        window.location.href = `<?php echo base_url('dashboard/compras/view/'); ?>${compraId}`;
+        const modalBody = document.getElementById('modalDetalleCompraBody');
+        modalBody.innerHTML = '<div class="text-center text-muted py-4">Cargando detalle...</div>';
+        $('#modalVerCompra').modal('show');
+
+        fetch(`<?php echo base_url('dashboard/compras/view-modal/'); ?>${compraId}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.text())
+        .then(html => {
+            modalBody.innerHTML = html;
+        })
+        .catch(() => {
+            modalBody.innerHTML = '<div class="alert alert-danger mb-0">No se pudo cargar el detalle de la compra.</div>';
+        });
     }
 
     // CLASIFICAR GASTOS - MODAL

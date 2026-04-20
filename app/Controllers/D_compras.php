@@ -388,6 +388,28 @@ class D_compras extends BaseController
     }
 
     /**
+     * Ver detalles de compra para modal (HTML parcial)
+     */
+    public function viewModal($id)
+    {
+        $session = session();
+
+        if (!$session->get('isLoggedIn')) {
+            return $this->response->setStatusCode(401)->setBody('<div class="alert alert-danger mb-0">Sesión expirada. Inicia sesión nuevamente.</div>');
+        }
+
+        $compra = $this->comprasModel->getCompraById($id);
+
+        if (!$compra) {
+            return $this->response->setStatusCode(404)->setBody('<div class="alert alert-warning mb-0">Compra no encontrada.</div>');
+        }
+
+        return view('admin/compras/partials/detalle_modal', [
+            'compra' => $compra,
+        ]);
+    }
+
+    /**
      * Clasificar compra (cambiar estado y clasificación)
      */
     public function clasificar()
