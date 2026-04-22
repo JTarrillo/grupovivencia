@@ -285,9 +285,15 @@ $routes->get('/dashboard/nuevo_socio', 'D_panel::nuevo_socio', ['filter' => 'aut
 
 
 //modulo ventas
-/* $routes->get('/dashboard/ventas', 'D_ventas::index', ['filter' => 'authGuard']); */
-$routes->get('dashboard/ventas', 'D_ventas::index', ['filter' => 'authGuard']);
-$routes->get('dashboard/get_boletas_api', 'D_ventas::get_boletas_api', ['filter' => 'authGuard']);
+
+/* pelao gran puta */
+$routes->get('dashboard/ventas',                               'D_ventas::index',                ['filter' => 'authGuard']);
+$routes->get('dashboard/ventas/contratos',                     'D_ventas::contratos',            ['filter' => 'authGuard']);
+$routes->get('dashboard/ventas/contratos/comprobantes/(:num)', 'D_ventas::comprobantes_ajax/$1'); // sin filter
+$routes->post('dashboard/ventas/contratos/anular', 'D_ventas::anular_comprobante');
+/* pelao gran puta */
+
+
 
 
 //modulo documentario
@@ -685,3 +691,6 @@ $routes->get('/dashboard/inmueble/api/get_contract_details/(:num)', 'Inmueble::g
 
 //rutas para generar documentos
 $routes->post('dashboard/operacion-facturacion', 'D_ventas::operacion_facturacion');
+
+
+
