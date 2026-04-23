@@ -84,6 +84,8 @@
         $gastos_color = null;
         $clasificacion_style = null;
         $clasificacion_color = null;
+        $consolidacion_style = null;
+        $consolidacion_color = null;
         $proveedores_color = null;
         $facturascontratos_style = null;
         $facturascontratos_color = null;
@@ -204,6 +206,10 @@
             case "clasificacion":
                 $compras_style = "active pcoded-trigger";
                 $clasificacion_color = "active_nav";
+                break;
+            case "consolidacion":
+                $consolidacion_style = "active pcoded-trigger";
+                $consolidacion_color = "active_nav";
                 break;
             case "planes":
                 $proveedores_style = "active pcoded-trigger";
@@ -566,6 +572,13 @@
                         <li class=""><a href="/dashboard/gastos" class="nav-link <?php echo $gastos_color; ?>" style="<?php echo ($gastos_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-money-bill-wave"></i></span><span class="pcoded-mtext">Gastos</span></a></li>
                         <li class=""><a href="/dashboard/clasificacion" class="nav-link <?php echo $clasificacion_color; ?>" style="<?php echo ($clasificacion_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-tags"></i></span><span class="pcoded-mtext">Clasificación</span></a></li>
                     </ul>
+                </li>
+
+                <li class="nav-item <?php echo $consolidacion_style; ?>">
+                    <a href="/dashboard/consolidacion" class="nav-link <?php echo $consolidacion_color; ?>">
+                        <span class="pcoded-micon"><i class="fa fa-table"></i></span>
+                        <span class="pcoded-mtext">Consolidacion</span>
+                    </a>
                 </li>
 
                 <li class="nav-item <?php echo $proveedores_style; ?>">

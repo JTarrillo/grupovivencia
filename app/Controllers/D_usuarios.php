@@ -12,21 +12,37 @@ class D_usuarios extends BaseController
 
 {   
 
+    private function getSessionName(): string
+    {
+        $session = session();
+
+        $firstName = (string) ($session->get('first_name') ?? '');
+        $lastName = (string) ($session->get('last_name') ?? '');
+        $fullName = trim($firstName . ' ' . $lastName);
+
+        if ($fullName !== '') {
+            return $fullName;
+        }
+
+        $name = (string) ($session->get('name') ?? '');
+        return $name !== '' ? $name : 'Usuario';
+    }
+
     public function index()
 
     {
 
+        $session = session();
+
+        if (!$session->get('isLoggedIn')) {
+            return redirect()->to(base_url('login'));
+        }
+
         //get data session
 
-        $id = isset($_SESSION['id']) ? $_SESSION['id'] : null;
+        $id = $session->get('id');
 
-        if (isset($_SESSION['first_name']) && isset($_SESSION['last_name'])) {
-            $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
-        } elseif (isset($_SESSION['name'])) {
-            $session_name = $_SESSION['name'];
-        } else {
-            $session_name = 'Usuario';
-        }
+        $session_name = $this->getSessionName();
 
         //get data bonus
 
@@ -52,7 +68,13 @@ class D_usuarios extends BaseController
 
     public function load($id=false){
 
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session = session();
+
+        if (!$session->get('isLoggedIn')) {
+            return redirect()->to(base_url('login'));
+        }
+
+        $session_name = $this->getSessionName();
 
         $obj_users = null;
 
