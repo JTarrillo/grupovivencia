@@ -572,9 +572,16 @@ $routes->group('dashboard/clasificacion', static function($routes){
     $routes->post('subcategoria/eliminar/(:num)', 'D_clasificacion::eliminarSubcategoria/$1', ['filter' => 'authGuard']);
 });
 
-// Consolidacion (Excel) routes
+// Conciliacion (Excel) routes
+$routes->group('dashboard/conciliacion', static function($routes){
+    $routes->get('', 'D_consolidacion::index', ['filter' => 'authGuard']);
+    $routes->get('exportar', 'D_consolidacion::exportar', ['filter' => 'authGuard']);
+});
+
+// Legacy route compatibility
 $routes->group('dashboard/consolidacion', static function($routes){
     $routes->get('', 'D_consolidacion::index', ['filter' => 'authGuard']);
+    $routes->get('exportar', 'D_consolidacion::exportar', ['filter' => 'authGuard']);
 });
 
 

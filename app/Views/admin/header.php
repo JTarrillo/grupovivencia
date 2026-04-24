@@ -208,6 +208,7 @@
                 $clasificacion_color = "active_nav";
                 break;
             case "consolidacion":
+            case "conciliacion":
                 $consolidacion_style = "active pcoded-trigger";
                 $consolidacion_color = "active_nav";
                 break;
@@ -575,9 +576,9 @@
                 </li>
 
                 <li class="nav-item <?php echo $consolidacion_style; ?>">
-                    <a href="/dashboard/consolidacion" class="nav-link <?php echo $consolidacion_color; ?>">
+                    <a href="/dashboard/conciliacion" class="nav-link <?php echo $consolidacion_color; ?>">
                         <span class="pcoded-micon"><i class="fa fa-table"></i></span>
-                        <span class="pcoded-mtext">Consolidacion</span>
+                        <span class="pcoded-mtext">Conciliacion</span>
                     </a>
                 </li>
 
