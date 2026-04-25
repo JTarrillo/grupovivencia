@@ -228,6 +228,55 @@ class D_consolidacion extends BaseController
     private function getMovimientos(string $fechaInicio, string $fechaFin, string $descCuenta): array
     {
         $db = Database::connect();
+
+        $ventasComprobantesRows = [];
+        $ventasRows = [];
+        $comprasRows = [];
+        $apiRows = [];
+
+        if ($db->tableExists('comprobantes_emitidos')) {
+            $sqlVentasComprobantes = "
+                SELECT
+                    DATE(comprobantes_emitidos.fecha_emision) AS fecha_operacion,
+                    CASE
+                        WHEN UPPER(COALESCE(comprobantes_emitidos.sunat_mensaje, '')) LIKE '%ITF%' THEN 'ITF'
+                        ELSE 'VENTA'
+                    END AS tipo_operacion,
+                    comprobantes_emitidos.id AS nro_operacion,
+                    COALESCE(NULLIF(TRIM(comprobantes_emitidos.sunat_mensaje), ''), 'VENTA COMPROBANTE ELECTRONICO') AS desc_operacion,
+                    CASE
+                        WHEN comprobantes_emitidos.tipo_documento = '01' THEN 'FACTURA'
+                        WHEN comprobantes_emitidos.tipo_documento = '03' THEN 'BOLETA'
+                        ELSE UPPER(COALESCE(NULLIF(TRIM(comprobantes_emitidos.tipo_documento), ''), 'OTROS'))
+                    END AS tipo_documento,
+                    TRIM(COALESCE(
+                        NULLIF(TRIM(comprobantes_emitidos.numero_completo), ''),
+                        CONCAT(
+                            COALESCE(NULLIF(TRIM(comprobantes_emitidos.serie), ''), ''),
+                            CASE
+                                WHEN COALESCE(comprobantes_emitidos.correlativo, '') <> '' THEN CONCAT('-', COALESCE(comprobantes_emitidos.correlativo, ''))
+                                ELSE ''
+                            END
+                        )
+                    )) AS serie_numero,
+                    COALESCE(NULLIF(TRIM(comprobantes_emitidos.cliente_num_doc), ''), '') AS ruc_dni,
+                    UPPER(TRIM(COALESCE(NULLIF(TRIM(comprobantes_emitidos.cliente_nombre), ''), 'CLIENTE SISTEMA'))) AS razon_social,
+                    CAST(COALESCE(comprobantes_emitidos.monto_total, 0) AS DECIMAL(15,2)) AS ingreso,
+                    CAST(0 AS DECIMAL(15,2)) AS egreso
+                FROM comprobantes_emitidos
+                WHERE DATE(comprobantes_emitidos.fecha_emision) >= ?
+                  AND DATE(comprobantes_emitidos.fecha_emision) <= ?
+                  AND COALESCE(comprobantes_emitidos.monto_total, 0) > 0
+            ";
+
+            $queryVentasComprobantes = $db->query($sqlVentasComprobantes, [$fechaInicio, $fechaFin]);
+            if ($queryVentasComprobantes !== false) {
+                $ventasComprobantesRows = $queryVentasComprobantes->getResultArray();
+            } else {
+                log_message('error', 'Error en conciliacion SQL comprobantes_emitidos: ' . json_encode($db->error()));
+            }
+        }
+
         $sqlVentas = "
             SELECT
                 DATE(invoices.date) AS fecha_operacion,
@@ -282,35 +331,42 @@ class D_consolidacion extends BaseController
               AND COALESCE(compras.total, 0) > 0
         ";
 
-        $queryVentas = $db->query($sqlVentas, [$fechaInicio, $fechaFin]);
-        $queryCompras = $db->query($sqlCompras, [$fechaInicio, $fechaFin]);
-
-        if ($queryVentas === false || $queryCompras === false) {
-            $dbError = $db->error();
-            log_message('error', 'Error en conciliacion SQL: ' . json_encode($dbError));
-            $this->debugSources = [
-                'ventas_local' => 0,
-                'compras' => 0,
-                'ventas_api' => 0,
-                'total_fuentes' => 0,
-                'sql_error' => $dbError,
-            ];
-            return [];
+        if ($db->tableExists('invoices')) {
+            $queryVentas = $db->query($sqlVentas, [$fechaInicio, $fechaFin]);
+            if ($queryVentas !== false) {
+                $ventasRows = $queryVentas->getResultArray();
+            } else {
+                log_message('error', 'Error en conciliacion SQL invoices: ' . json_encode($db->error()));
+            }
         }
 
-        $ventasRows = $queryVentas->getResultArray();
-        $comprasRows = $queryCompras->getResultArray();
-        $apiRows = $this->getApiBoletasMovimientos($fechaInicio, $fechaFin);
+        if ($db->tableExists('compras')) {
+            $queryCompras = $db->query($sqlCompras, [$fechaInicio, $fechaFin]);
+            if ($queryCompras !== false) {
+                $comprasRows = $queryCompras->getResultArray();
+            } else {
+                log_message('error', 'Error en conciliacion SQL compras: ' . json_encode($db->error()));
+            }
+        }
+
+        // Fallback API: solo usar si no hay ventas locales en comprobantes_emitidos.
+        if (count($ventasComprobantesRows) === 0) {
+            $apiRows = $this->getApiBoletasMovimientos($fechaInicio, $fechaFin);
+        }
+
+        // Fuente prioritaria de ventas: comprobantes_emitidos.
+        $ventasFuente = count($ventasComprobantesRows) > 0 ? $ventasComprobantesRows : $ventasRows;
 
         $this->debugSources = [
+            'ventas_comprobantes' => count($ventasComprobantesRows),
             'ventas_local' => count($ventasRows),
             'compras' => count($comprasRows),
             'ventas_api' => count($apiRows),
-            'total_fuentes' => count($ventasRows) + count($comprasRows) + count($apiRows),
+            'total_fuentes' => count($ventasFuente) + count($comprasRows) + count($apiRows),
         ];
 
         $result = array_merge(
-            $ventasRows,
+            $ventasFuente,
             $comprasRows,
             $apiRows
         );

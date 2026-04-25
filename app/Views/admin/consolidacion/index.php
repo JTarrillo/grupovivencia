@@ -96,7 +96,14 @@
                                             <?php if (isset($debug_info['api_boletas']) && is_array($debug_info['api_boletas'])): ?>
                                                 <?php
                                                 $apiBoletas = $debug_info['api_boletas'];
-                                                $showApiWarning = ((int)($apiBoletas['rows_after_filter'] ?? 0) === 0);
+                                                $fuentes = $debug_info['fuentes'] ?? [];
+                                                $ventasComprobantes = (int)($fuentes['ventas_comprobantes'] ?? 0);
+                                                $ventasLocal = (int)($fuentes['ventas_local'] ?? 0);
+                                                $showApiWarning = (
+                                                    ((int)($apiBoletas['rows_after_filter'] ?? 0) === 0) &&
+                                                    ($ventasComprobantes === 0) &&
+                                                    ($ventasLocal === 0)
+                                                );
                                                 ?>
                                                 <?php if ($showApiWarning): ?>
                                                     <div class="alert alert-warning" role="alert">

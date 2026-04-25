@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxGraphModel compressed="false" dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- TITULO PRINCIPAL -->
+    <mxCell id="2" value="Problema: 1,735 payment_schedules Huérfanos + Plan de Corrección" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=20;fontStyle=1;fontColor=#23445D;" vertex="1" parent="1">
+      <mxGeometry x="200" y="20" width="1200" height="40" as="geometry" />
+    </mxCell>
+
+    <!-- ===================== BLOQUE: ESTADO ACTUAL ===================== -->
+    <mxCell id="100" value="ESTADO ACTUAL" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#AE4132;" vertex="1" parent="1">
+      <mxGeometry x="80" y="80" width="200" height="30" as="geometry" />
+    </mxCell>
+
+    <!-- Tabla contracts -->
+    <mxCell id="110" value="contracts" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="80" y="120" width="260" height="160" as="geometry" />
+    </mxCell>
+    <mxCell id="111" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=1;" vertex="1" parent="110">
+      <mxGeometry y="30" width="260" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="112" value="PK" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=1;overflow=hidden;" vertex="1" parent="111">
+      <mxGeometry width="40" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="113" value="id" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="111">
+      <mxGeometry x="40" width="220" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="114" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="110">
+      <mxGeometry y="60" width="260" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="115" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="114">
+      <mxGeometry width="40" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="116" value="customer_id" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="114">
+      <mxGeometry x="40" width="220" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="117" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="110">
+      <mxGeometry y="90" width="260" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="118" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="117">
+      <mxGeometry width="40" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="119" value="contract_number" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="117">
+      <mxGeometry x="40" width="220" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="120" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="110">
+      <mxGeometry y="120" width="260" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="121" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="120">
+      <mxGeometry width="40" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="122" value="status" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="120">
+      <mxGeometry x="40" width="220" height="30" as="geometry" />
+    </mxCell>
+
+    <!-- Badge contracts -->
+    <mxCell id="130" value="✅ 5 registros" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="130" y="295" width="120" height="35" as="geometry" />
+    </mxCell>
+
+    <!-- Tabla payment_schedules -->
+    <mxCell id="140" value="payment_schedules" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#ffe6cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="520" y="120" width="300" height="220" as="geometry" />
+    </mxCell>
+    <mxCell id="141" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=1;" vertex="1" parent="140">
+      <mxGeometry y="30" width="300" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="142" value="PK" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=1;overflow=hidden;" vertex="1" parent="141">
+      <mxGeometry width="40" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="143" value="id" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="141">
+      <mxGeometry x="40" width="260" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="144" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="140">
+      <mxGeometry y="60" width="300" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="145" value="FK ⚠️" style="shape=partialRectangle;connectable=0;fillColor=#f8cecc;top=0;left=0;bottom=0;right=0;fontStyle=1;overflow=hidden;fontColor=#AE4132;" vertex="1" parent="144">
+      <mxGeometry width="60" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="146" value="contract_id  ← SIN CONSTRAINT" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;fontColor=#AE4132;fontStyle=2;" vertex="1" parent="144">
+      <mxGeometry x="60" width="240" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="147" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="140">
+      <mxGeometry y="90" width="300" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="148" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="147">
+      <mxGeometry width="60" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="149" value="due_date" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="147">
+      <mxGeometry x="60" width="240" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="150" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="140">
+      <mxGeometry y="120" width="300" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="151" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="150">
+      <mxGeometry width="60" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="152" value="amount" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="150">
+      <mxGeometry x="60" width="240" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="153" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="140">
+      <mxGeometry y="150" width="300" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="154" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="153">
+      <mxGeometry width="60" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="155" value="status" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="153">
+      <mxGeometry x="60" width="240" height="30" as="geometry" />
+    </mxCell>
+
+    <!-- Badge payment_schedules -->
+    <mxCell id="160" value="🔴 1,735 registros huérfanos" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="560" y="355" width="210" height="35" as="geometry" />
+    </mxCell>
+
+    <!-- Relación válida arrow -->
+    <mxCell id="170" value="JOIN válido (5)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#27AE60;strokeWidth=2;fontColor=#27AE60;fontStyle=1;" edge="1" source="114" target="144" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Bloque huerfanos -->
+    <mxCell id="180" value="❌ contract_id inexistente" style="swimlane;startSize=35;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="960" y="120" width="310" height="270" as="geometry" />
+    </mxCell>
+    <mxCell id="181" value="contract_id → 999 (no existe)" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=10;" vertex="1" parent="180">
+      <mxGeometry y="35" width="310" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="182" value="contract_id → 1024 (no existe)" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=10;" vertex="1" parent="180">
+      <mxGeometry y="65" width="310" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="183" value="contract_id → 5803 (no existe)" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=10;" vertex="1" parent="180">
+      <mxGeometry y="95" width="310" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="184" value="... 1,732 más ..." style="text;html=1;align=center;verticalAlign=middle;fontStyle=2;fontColor=#666;" vertex="1" parent="180">
+      <mxGeometry y="125" width="310" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="185" value="Consecuencias:" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=10;fontStyle=1;" vertex="1" parent="180">
+      <mxGeometry y="165" width="310" height="25" as="geometry" />
+    </mxCell>
+    <mxCell id="186" value="• JOINs con contratos devuelven vacío&#xa;• Reportes de pagos incorrectos&#xa;• Módulo de contratos falla&#xa;• Inconsistencia contable" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=10;fontSize=11;" vertex="1" parent="180">
+      <mxGeometry y="190" width="310" height="75" as="geometry" />
+    </mxCell>
+
+    <!-- Arrow huerfanos -->
+    <mxCell id="190" value="1,735 filas sin contrato" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#b85450;strokeWidth=2;dashed=1;fontColor=#b85450;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="150" target="180" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- ===================== SEPARADOR ===================== -->
+    <mxCell id="200" value="" style="line;strokeWidth=3;strokeColor=#23445D;fillColor=none;" vertex="1" parent="1">
+      <mxGeometry x="80" y="430" width="1200" height="10" as="geometry" />
+    </mxCell>
+
+    <!-- ===================== PLAN DE CORRECCIÓN ===================== -->
+    <mxCell id="201" value="PLAN DE CORRECCIÓN — 3 FASES" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#23445D;" vertex="1" parent="1">
+      <mxGeometry x="80" y="455" width="400" height="30" as="geometry" />
+    </mxCell>
+
+    <!-- FASE 1 -->
+    <mxCell id="210" value="FASE 1&#xa;Diagnóstico" style="swimlane;startSize=55;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+      <mxGeometry x="80" y="500" width="340" height="380" as="geometry" />
+    </mxCell>
+    <mxCell id="211" value="Sin modificar datos" style="text;html=1;align=center;verticalAlign=middle;fontStyle=2;fontColor=#555;" vertex="1" parent="210">
+      <mxGeometry y="55" width="340" height="25" as="geometry" />
+    </mxCell>
+    <mxCell id="212" value="1. Identificar todos los&#xa;   contract_id huérfanos distintos&#xa;&#xa;2. Calcular monto total afectado&#xa;&#xa;3. Verificar si los contratos&#xa;   existen como eliminados&#xa;   (deleted_at, otra tabla)&#xa;&#xa;4. Exportar listado para&#xa;   revisión del contador&#xa;&#xa;— SQL —&#xa;SELECT contract_id,&#xa;  COUNT(*) cuotas,&#xa;  SUM(amount) total&#xa;FROM payment_schedules ps&#xa;LEFT JOIN contracts c&#xa;  ON c.id = ps.contract_id&#xa;WHERE c.id IS NULL&#xa;GROUP BY ps.contract_id;" style="text;html=1;align=left;verticalAlign=top;spacingLeft=10;fontSize=11;" vertex="1" parent="210">
+      <mxGeometry y="80" width="340" height="290" as="geometry" />
+    </mxCell>
+
+    <!-- FASE 2 -->
+    <mxCell id="220" value="FASE 2&#xa;Decisión + Acción" style="swimlane;startSize=55;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+      <mxGeometry x="480" y="500" width="360" height="380" as="geometry" />
+    </mxCell>
+    <mxCell id="221" value="Con el equipo / contador" style="text;html=1;align=center;verticalAlign=middle;fontStyle=2;fontColor=#555;" vertex="1" parent="220">
+      <mxGeometry y="55" width="360" height="25" as="geometry" />
+    </mxCell>
+
+    <!-- Opcion A -->
+    <mxCell id="222" value="Opción A — ARCHIVAR ✅ Recomendada" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontStyle=1;fontColor=#27AE60;" vertex="1" parent="220">
+      <mxGeometry y="80" width="360" height="25" as="geometry" />
+    </mxCell>
+    <mxCell id="223" value="Mover huérfanos a tabla&#xa;payment_schedules_orphans.&#xa;Seguro y 100% reversible." style="text;html=1;align=left;verticalAlign=top;spacingLeft=15;fontSize=11;" vertex="1" parent="220">
+      <mxGeometry y="105" width="360" height="55" as="geometry" />
+    </mxCell>
+
+    <!-- Opcion B -->
+    <mxCell id="224" value="Opción B — RECONECTAR" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontStyle=1;fontColor=#d6b656;" vertex="1" parent="220">
+      <mxGeometry y="165" width="360" height="25" as="geometry" />
+    </mxCell>
+    <mxCell id="225" value="Si los contratos existen en sistema&#xa;anterior → reimportarlos y&#xa;reasignar contract_id." style="text;html=1;align=left;verticalAlign=top;spacingLeft=15;fontSize=11;" vertex="1" parent="220">
+      <mxGeometry y="190" width="360" height="55" as="geometry" />
+    </mxCell>
+
+    <!-- Opcion C -->
+    <mxCell id="226" value="Opción C — ELIMINAR ⚠️" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontStyle=1;fontColor=#b85450;" vertex="1" parent="220">
+      <mxGeometry y="250" width="360" height="25" as="geometry" />
+    </mxCell>
+    <mxCell id="227" value="Solo si son datos de prueba/migración.&#xa;Requiere validación contable.&#xa;Irreversible sin backup.&#xa;&#xa;✅ Backup existe:&#xa;backups/backup_20260425_114254/" style="text;html=1;align=left;verticalAlign=top;spacingLeft=15;fontSize=11;" vertex="1" parent="220">
+      <mxGeometry y="275" width="360" height="100" as="geometry" />
+    </mxCell>
+
+    <!-- FASE 3 -->
+    <mxCell id="230" value="FASE 3&#xa;Prevención Futura" style="swimlane;startSize=55;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+      <mxGeometry x="900" y="500" width="380" height="380" as="geometry" />
+    </mxCell>
+    <mxCell id="231" value="Cambios estructurales en BD" style="text;html=1;align=center;verticalAlign=middle;fontStyle=2;fontColor=#555;" vertex="1" parent="230">
+      <mxGeometry y="55" width="380" height="25" as="geometry" />
+    </mxCell>
+    <mxCell id="232" value="1. Agregar FK constraint:&#xa;&#xa;ALTER TABLE payment_schedules&#xa;ADD CONSTRAINT fk_ps_contract&#xa;FOREIGN KEY (contract_id)&#xa;REFERENCES contracts(id)&#xa;ON DELETE CASCADE&#xa;ON UPDATE CASCADE;&#xa;&#xa;2. Agregar deleted_at en contracts&#xa;   para soft-delete seguro&#xa;&#xa;3. Índice en contract_id para&#xa;   performance en JOINs&#xa;&#xa;4. Script de integridad mensual:&#xa;   verificar LEFT JOIN IS NULL&#xa;   y alertar si hay huérfanos" style="text;html=1;align=left;verticalAlign=top;spacingLeft=10;fontSize=11;" vertex="1" parent="230">
+      <mxGeometry y="80" width="380" height="295" as="geometry" />
+    </mxCell>
+
+    <!-- Flechas entre fases -->
+    <mxCell id="240" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#23445D;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="210" target="220" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="241" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#23445D;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="220" target="230" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- RESULTADO FINAL -->
+    <mxCell id="250" value="RESULTADO ESPERADO" style="swimlane;startSize=35;fillColor=#d5e8d4;strokeColor=#27AE60;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="480" y="920" width="420" height="160" as="geometry" />
+    </mxCell>
+    <mxCell id="251" value="✅ BD con integridad referencial&#xa;✅ FK constraint activo (sin huérfanos futuros)&#xa;✅ Módulo de pagos/contratos confiable&#xa;✅ Reportes de conciliación precisos&#xa;✅ Soft-delete seguro en contratos" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=15;fontSize=12;" vertex="1" parent="250">
+      <mxGeometry y="35" width="420" height="120" as="geometry" />
+    </mxCell>
+
+    <mxCell id="260" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#27AE60;strokeWidth=2;" edge="1" source="230" target="250" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+  </root>
+</mxGraphModel>

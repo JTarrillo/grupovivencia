@@ -420,6 +420,80 @@
         let pagoIdActual = null;
         let comprobanteUrlActual = null;
 
+        function abrirModalCompat(modalId) {
+            const modalElement = document.getElementById(modalId);
+            if (!modalElement) {
+                return;
+            }
+
+            if (window.bootstrap && window.bootstrap.Modal) {
+                const instance = window.bootstrap.Modal.getOrCreateInstance(modalElement);
+                instance.show();
+                return;
+            }
+
+            if (window.jQuery && typeof window.jQuery.fn.modal === 'function') {
+                window.jQuery(modalElement).modal('show');
+                return;
+            }
+
+            // Fallback cuando Bootstrap JS no esta disponible
+            modalElement.style.display = 'block';
+            modalElement.classList.add('show');
+            modalElement.removeAttribute('aria-hidden');
+            modalElement.setAttribute('aria-modal', 'true');
+            document.body.classList.add('modal-open');
+
+            if (!document.querySelector('.modal-backdrop')) {
+                const backdrop = document.createElement('div');
+                backdrop.className = 'modal-backdrop fade show';
+                backdrop.setAttribute('data-modal-fallback', modalId);
+                document.body.appendChild(backdrop);
+            }
+        }
+
+        function cerrarModalCompat(modalId) {
+            const modalElement = document.getElementById(modalId);
+            if (!modalElement) {
+                return;
+            }
+
+            if (window.bootstrap && window.bootstrap.Modal) {
+                const instance = window.bootstrap.Modal.getOrCreateInstance(modalElement);
+                instance.hide();
+                return;
+            }
+
+            if (window.jQuery && typeof window.jQuery.fn.modal === 'function') {
+                window.jQuery(modalElement).modal('hide');
+                return;
+            }
+
+            modalElement.classList.remove('show');
+            modalElement.style.display = 'none';
+            modalElement.setAttribute('aria-hidden', 'true');
+            modalElement.removeAttribute('aria-modal');
+            document.body.classList.remove('modal-open');
+
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.remove();
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const triggerClose = event.target.closest('[data-dismiss="modal"], [data-bs-dismiss="modal"], .modal .close');
+            if (!triggerClose) {
+                return;
+            }
+
+            const modal = triggerClose.closest('.modal');
+            if (modal && modal.id) {
+                event.preventDefault();
+                cerrarModalCompat(modal.id);
+            }
+        });
+
         function abrirModalValidacion(pagoId, monto, comprobanteUrl = null) {
             pagoIdActual = pagoId;
             comprobanteUrlActual = comprobanteUrl;
@@ -487,7 +561,7 @@
                 document.getElementById('validar-comprobante').value = '';
             }
 
-            $('#validarPagoModal').modal('show');
+            abrirModalCompat('validarPagoModal');
         }
 
         document.getElementById('btn-confirmar-validacion').addEventListener('click', function() {
@@ -532,7 +606,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    $('#validarPagoModal').modal('hide');
+                    cerrarModalCompat('validarPagoModal');
 
                     if (data.success) {
                         Swal.fire({
