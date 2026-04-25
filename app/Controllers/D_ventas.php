@@ -21,22 +21,18 @@ class D_ventas extends BaseController
     public function index()
     {
         $session = session();
-
-        // Seguridad: Si no está logueado, al login
         if (!$session->get('isLoggedIn')) {
             return redirect()->to(base_url('login'));
         }
 
-        $data = [
-            'session_id'   => $session->get('id'),
-            'session_name' => $session->get('name') . " " . $session->get('lastname'),
-            'title'        => 'Módulo de Ventas',
-            // Pasamos los tokens por si quieres usarlos directamente en la vista (opcional)
-            'api_token'    => $session->get('api_access_token'),
-            'token_type'   => $session->get('api_token_type') ?? 'Bearer',
-        ];
+        $contractModel = new \App\Models\ContractModel();
+        $contratos = $contractModel->getContractsWithDetails();
 
-        return view('admin/ventas/index', $data);
+        return view('admin/ventas/index', [
+            'hola'      => 'hola',
+            'contratos' => $contratos,
+            'api_url'   => 'https://apifacturacion.cleaningli.com',
+        ]);
     }
 
     /**
@@ -181,7 +177,159 @@ class D_ventas extends BaseController
         }
     }
 
+    public function contratos()
+    {
+        $contractModel = new \App\Models\ContractModel();
+        $contratos = $contractModel->getContractsWithDetails();
 
+        return view('admin/ventas/contratos', [
+            'title'     => 'Contratos',
+            'contratos' => $contratos,
+            'api_url'   => 'https://apifacturacion.cleaningli.com',
+        ]);
+    }
+
+    public function comprobantes_ajax($contract_id)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No autorizado'])->setStatusCode(401);
+        }
+
+        $db = \Config\Database::connect();
+
+        // Evita error 500 si la tabla no existe en el esquema actual.
+        if (!$db->tableExists('comprobantes_emitidos')) {
+            log_message('error', 'Tabla comprobantes_emitidos no existe en la base de datos activa');
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Tabla de comprobantes no disponible en esta base de datos.',
+                'comprobantes' => [],
+            ]);
+        }
+
+        try {
+            $comprobantes = $db->table('comprobantes_emitidos')
+                ->where('contract_id', $contract_id)
+                ->orderBy('id', 'ASC')
+                ->get()
+                ->getResultArray();
+        } catch (\Throwable $e) {
+            log_message('error', 'Error en comprobantes_ajax: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'No se pudieron cargar los comprobantes.',
+                'comprobantes' => [],
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'success'      => true,
+            'comprobantes' => $comprobantes,
+        ]);
+    }
+
+
+    public function anular_comprobante()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No autorizado'])->setStatusCode(401);
+        }
+
+        $json        = $this->request->getJSON();
+        $comp_id     = $json->comp_id     ?? null;
+        $contract_id = $json->contract_id ?? null;
+        $motivo      = $json->motivo      ?? 'Error en emisión';
+
+        if (!$comp_id) {
+            return $this->response->setJSON(['success' => false, 'message' => 'ID de comprobante requerido']);
+        }
+
+        // Obtener comprobante local
+        $db   = \Config\Database::connect();
+
+        if (!$db->tableExists('comprobantes_emitidos')) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Tabla de comprobantes no disponible en esta base de datos.'
+            ]);
+        }
+
+        $comp = $db->table('comprobantes_emitidos')->where('id', $comp_id)->get()->getRowArray();
+
+        if (!$comp) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Comprobante no encontrado']);
+        }
+
+        // Armar payload para /api/dar-baja
+        $esBoleta = $comp['tipo_documento'] === '03';
+
+        if ($esBoleta) {
+            $payload = [
+                "cabecera" => [
+                    "FECHA_EMISION"   => date('Y-m-d'),
+                    "FECHA_REFERENCIA" => $comp['fecha_emision'],
+                    "CORRELATIVO"     => "1"
+                ],
+                "detalles" => [[
+                    "TIPO_DOCUMENTO"       => "03",
+                    "NUMERO_DOCUMENTO"     => $comp['numero_completo'],
+                    "ESTADO_ITEM"          => "3",
+                    "CLIENTE_NOMBRE"       => $comp['cliente_nombre']   ?? 'ANONIMO',
+                    "CLIENTE_NRO_DOCUMENTO" => $comp['cliente_num_doc']  ?? '00000000',
+                    "CLIENTE_TIPO_IDENTIDAD" => "1",
+                    "CODIGO_MONEDA"        => $comp['moneda'] ?? 'PEN',
+                    "TOTAL_VENTA"          => $comp['monto_total'],
+                    "TOTAL_GRAVADAS"       => "0.00",
+                    "TOTAL_TRIBUTO_IGV"    => "0.00",
+                ]]
+            ];
+        } else {
+            $payload = [
+                "cabecera" => [
+                    "FECHA_EMISION"    => date('Y-m-d'),
+                    "NUMERO_DOCUMENTO" => $comp['correlativo'],
+                    "FECHA_REFERENCIA" => $comp['fecha_emision'],
+                ],
+                "detalles" => [[
+                    "TIPO_DOCUMENTO"        => "01",
+                    "DOCUMENTO_BAJA_SERIE"  => $comp['serie'],
+                    "DOCUMENTO_BAJA_NUMERO" => $comp['correlativo'],
+                    "BAJA_DESCRIPCION"      => $motivo,
+                ]]
+            ];
+        }
+
+        // Llamar a la API Laravel
+        $url  = 'https://apifacturacion.cleaningli.com/api/dar-baja';
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL            => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POSTFIELDS     => json_encode($payload),
+            CURLOPT_HTTPHEADER     => ['Accept: application/json', 'Content-Type: application/json'],
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_TIMEOUT        => 60,
+        ]);
+        $response = curl_exec($curl);
+        $err      = curl_error($curl);
+        curl_close($curl);
+
+        if ($err) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Error de conexión: ' . $err]);
+        }
+
+        $data = json_decode($response, true);
+
+        // Actualizar estado local
+        if (!empty($data['success'])) {
+            $db->table('comprobantes_emitidos')
+                ->where('id', $comp_id)
+                ->update(['estado' => 'Anulado', 'updated_at' => date('Y-m-d H:i:s')]);
+        }
+
+        return $this->response->setJSON($data);
+    }
 
     public function operacion_facturacion()
     {
@@ -194,53 +342,45 @@ class D_ventas extends BaseController
         $token   = $session->get('api_access_token');
         $tType   = $session->get('api_token_type') ?? 'Bearer';
 
-        // Validaciones iniciales
         if (!$token || !$id || !$tipo || !$nombre) {
             return $this->response
-                ->setStatus(400)
+                ->setStatusCode(400)
                 ->setContentType('application/json')
                 ->setBody(json_encode(['status' => false, 'message' => 'Parámetros incompletos']));
         }
 
-        // 1. Detección de Factura o Boleta para el segmento de la URL
         $esFactura = (strpos(strtoupper($nombre), 'F') === 0);
         $segmento  = $esFactura ? 'invoices' : 'boletas';
-
-        // 2. Definir URL y MÉTODO (POST para 'send' y 'generate')
         $metodoHttp = 'GET';
 
         if ($tipo === 'generate') {
             $metodoHttp = 'POST';
             $url = "https://apifacturacion.groupdispensersac.com/api/v1/{$segmento}/{$id}/generate-pdf?format=A4";
         } else {
-            // Rutas de descarga/envío
             $baseUrlApi = "https://apifacturacion.groupdispensersac.com/api/v1/boletas/{$id}/";
             switch ($tipo) {
                 case 'send':
                     $metodoHttp = 'POST';
-                    $url = $baseUrlApi . "send-sunat";
+                    $url = $baseUrlApi . 'send-sunat';
                     break;
                 case 'pdf':
-                    $url = $baseUrlApi . "download-pdf?format=A4";
+                    $url = $baseUrlApi . 'download-pdf?format=A4';
                     break;
                 case 'xml':
-                    $url = $baseUrlApi . "download-xml";
+                    $url = $baseUrlApi . 'download-xml';
                     break;
                 case 'cdr':
-                    $url = $baseUrlApi . "download-cdr";
+                    $url = $baseUrlApi . 'download-cdr';
                     break;
                 default:
                     return $this->response
-                        ->setStatus(400)
+                        ->setStatusCode(400)
                         ->setContentType('application/json')
                         ->setBody(json_encode(['status' => false, 'message' => 'Tipo de operación no válida']));
             }
         }
 
         try {
-            $client = \Config\Services::curlrequest();
-            
-            // Usar CURL puro en lugar de CI4 HTTP client
             $ch = curl_init();
             curl_setopt_array($ch, [
                 CURLOPT_URL            => $url,
@@ -250,8 +390,8 @@ class D_ventas extends BaseController
                 CURLOPT_TIMEOUT        => 30,
                 CURLOPT_HTTPHEADER     => [
                     "Authorization: {$tType} {$token}",
-                    "Accept: application/json"
-                ]
+                    'Accept: application/json',
+                ],
             ]);
 
             $body = curl_exec($ch);
@@ -259,81 +399,80 @@ class D_ventas extends BaseController
             $curlError = curl_error($ch);
             curl_close($ch);
 
-            // Manejo de errores CURL
             if ($curlError) {
                 return $this->response
-                    ->setStatus(500)
+                    ->setStatusCode(500)
                     ->setContentType('application/json')
                     ->setBody(json_encode(['status' => false, 'message' => 'Error CURL: ' . $curlError]));
             }
 
-            // 3. Respuesta para GENERAR (JSON con link)
             if ($tipo === 'generate') {
                 $apiRes = is_string($body) ? json_decode($body, true) : $body;
                 $result = [
                     'status'   => isset($apiRes['success']) ? $apiRes['success'] : false,
                     'message'  => isset($apiRes['message']) ? $apiRes['message'] : 'PDF Generado',
-                    'file_url' => isset($apiRes['data']['file_url']) ? $apiRes['data']['file_url'] : 
-                                 (isset($apiRes['link']) ? $apiRes['link'] : '')
+                    'file_url' => isset($apiRes['data']['file_url']) ? $apiRes['data']['file_url'] : (isset($apiRes['link']) ? $apiRes['link'] : ''),
                 ];
+
                 return $this->response
                     ->setContentType('application/json')
                     ->setBody(json_encode($result));
             }
 
-            // 4. Lógica para operaciones JSON (send)
             if ($tipo === 'send') {
                 $apiRes = is_string($body) ? json_decode($body, true) : $body;
                 $result = isset($apiRes) && is_array($apiRes) ? $apiRes : ['status' => false, 'message' => 'Respuesta inválida'];
+
                 return $this->response
                     ->setContentType('application/json')
                     ->setBody(json_encode($result));
             }
 
-            // 5. Validar respuesta HTTP para descargas (pdf, xml, cdr)
             if ($httpCode === 200 && !empty($body)) {
                 $folderPath = FCPATH . 'comprobantes/' . $nombre;
-                if (!is_dir($folderPath)) mkdir($folderPath, 0777, true);
+                if (!is_dir($folderPath)) {
+                    mkdir($folderPath, 0777, true);
+                }
 
                 $extension = ($tipo === 'pdf') ? '.pdf' : (($tipo === 'xml') ? '.xml' : '.zip');
                 $fileName  = $nombre . '_' . strtoupper($tipo) . $extension;
                 $fullPath  = $folderPath . '/' . $fileName;
 
-                // Guardar archivo
                 if (file_put_contents($fullPath, $body)) {
                     $result = [
                         'status'   => true,
                         'message'  => "Archivo {$tipo} descargado correctamente",
-                        'file_url' => base_url("comprobantes/{$nombre}/{$fileName}")
+                        'file_url' => base_url("comprobantes/{$nombre}/{$fileName}"),
                     ];
                 } else {
                     $result = [
                         'status'   => false,
-                        'message'  => "Error al guardar archivo {$tipo} localmente"
+                        'message'  => "Error al guardar archivo {$tipo} localmente",
                     ];
                 }
+
                 return $this->response
                     ->setContentType('application/json')
                     ->setBody(json_encode($result));
             }
 
-            // Error HTTP
             $result = [
                 'status'  => false,
-                'message' => "Error API (HTTP {$httpCode}): No se pudo obtener el archivo"
+                'message' => "Error API (HTTP {$httpCode}): No se pudo obtener el archivo",
             ];
+
             return $this->response
-                ->setStatus($httpCode)
+                ->setStatusCode($httpCode)
                 ->setContentType('application/json')
                 ->setBody(json_encode($result));
-
         } catch (\Exception $e) {
             $result = [
                 'status'  => false,
-                'message' => 'Excepción: ' . $e->getMessage()
+                'message' => 'Excepción: ' . $e->getMessage(),
             ];
+
             return $this->response
-                ->setStatus(500)
+                ->setStatusCode(500)
                 ->setContentType('application/json')
                 ->setBody(json_encode($result));
         }
@@ -345,22 +484,18 @@ class D_ventas extends BaseController
         $token     = $session->get('api_access_token');
         $tokenType = $session->get('api_token_type') ?? 'Bearer';
 
-        // Recibir datos del AJAX
-        $id     = $this->request->getPost('id');     // ID interno de la API
-        $numero = $this->request->getPost('nombre'); // Ejemplo: B001-12 o F001-5
+        $id     = $this->request->getPost('id');
+        $numero = $this->request->getPost('nombre');
 
         if (!$id || !$numero) {
-            return $this->response->setJSON(['status' => false, 'message' => 'ID o Número de documento faltante.']);
+            return $this->response->setJSON(['status' => false, 'message' => 'ID o Numero de documento faltante.']);
         }
 
-        // 1. Determinar el tipo de documento según la primera letra del número
         $primeraLetra = strtoupper(substr($numero, 0, 1));
 
-        // Configurar URL según el tipo (Factura o Boleta)
         if ($primeraLetra === 'F') {
             $endpoint = "https://apifacturacion.groupdispensersac.com/api/v1/invoices/{$id}/generate-pdf";
         } else {
-            // Por defecto Boleta si empieza con B
             $endpoint = "https://apifacturacion.groupdispensersac.com/api/v1/boletas/{$id}/generate-pdf";
         }
 
@@ -372,28 +507,27 @@ class D_ventas extends BaseController
                     'Authorization' => $tokenType . ' ' . $token,
                     'Accept'        => 'application/json',
                 ],
-                'http_errors' => false
+                'http_errors' => false,
             ]);
 
             $result = json_decode($response->getBody(), true);
 
-            // La API suele devolver un success y el file_url o link del PDF
             if (isset($result['success']) && $result['success']) {
                 return $this->response->setJSON([
                     'status'   => true,
-                    'message'  => 'PDF generado con éxito',
-                    'file_url' => $result['data']['file_url'] ?? $result['link'] ?? '#'
-                ]);
-            } else {
-                return $this->response->setJSON([
-                    'status'  => false,
-                    'message' => $result['message'] ?? 'La API no pudo generar el PDF.'
+                    'message'  => 'PDF generado con exito',
+                    'file_url' => $result['data']['file_url'] ?? $result['link'] ?? '#',
                 ]);
             }
+
+            return $this->response->setJSON([
+                'status'  => false,
+                'message' => $result['message'] ?? 'La API no pudo generar el PDF.',
+            ]);
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'status'  => false,
-                'message' => 'Error de conexión: ' . $e->getMessage()
+                'message' => 'Error de conexion: ' . $e->getMessage(),
             ])->setStatusCode(500);
         }
     }
@@ -404,22 +538,17 @@ class D_ventas extends BaseController
     public function debug_eliminar()
     {
         $request = \Config\Services::request();
-        
+
         $debug = [
             'method' => $request->getMethod(),
             'post_data' => $request->getPost(),
             'all_vars' => var_export($_POST, true),
             'session_logged_in' => session()->get('isLoggedIn'),
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ];
-        
+
         return $this->response
             ->setContentType('application/json')
             ->setBody(json_encode($debug, JSON_PRETTY_PRINT));
     }
-
-    /**
-     * Eliminar boleta de la base de datos local
-     */
-
 }

@@ -322,11 +322,13 @@ $routes->get('/dashboard/nuevo_socio', 'D_panel::nuevo_socio', ['filter' => 'aut
 
 
 //modulo ventas
-/* $routes->get('/dashboard/ventas', 'D_ventas::index', ['filter' => 'authGuard']); */
 $routes->get('dashboard/ventas', 'D_ventas::index', ['filter' => 'authGuard']);
 $routes->get('dashboard/test_token', 'D_ventas::test_token', ['filter' => 'authGuard']);
 $routes->get('dashboard/test_api_debug', 'D_ventas::test_api_debug', ['filter' => 'authGuard']);
 $routes->get('dashboard/get_boletas_api', 'D_ventas::get_boletas_api', ['filter' => 'authGuard']);
+$routes->get('dashboard/ventas/contratos',                     'D_ventas::contratos',            ['filter' => 'authGuard']);
+$routes->get('dashboard/ventas/contratos/comprobantes/(:num)', 'D_ventas::comprobantes_ajax/$1', ['filter' => 'authGuard']);
+$routes->post('dashboard/ventas/contratos/anular', 'D_ventas::anular_comprobante', ['filter' => 'authGuard']);
 
 
 //modulo documentario
