@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Autoplay video when page loads
   const heroVideo = document.getElementById('heroVideo');
-  if (heroVideo) {
+  if (heroVideo && typeof heroVideo.play === 'function') {
     const playPromise = heroVideo.play();
     if (playPromise !== undefined) {
       playPromise.catch(error => {
@@ -182,13 +182,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Open Quick Register Modal
-  if (btnQuieroParticipar && quickRegisterModal) {
-    btnQuieroParticipar.addEventListener('click', () => {
-      quickRegisterModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-      console.log('🎯 Quick Register Modal opened');
-    });
-  }
+  // COMENTADO: Este listener está manejado en viveland_new.php para el flujo Video → Formulario
+  // if (btnQuieroParticipar && quickRegisterModal) {
+  //   btnQuieroParticipar.addEventListener('click', () => {
+  //     quickRegisterModal.classList.add('active');
+  //     document.body.style.overflow = 'hidden';
+  //     console.log('🎯 Quick Register Modal opened');
+  //   });
+  // }
 
   // Close modal when clicking on overlay (pero NO en el contenido)
   if (quickRegisterOverlay && quickRegisterModal) {

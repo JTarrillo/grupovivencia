@@ -50,21 +50,23 @@
          HERO SECTION
          ======================================== -->
     <section class="hero" id="hero">
-        <video class="hero-video" playsinline autoplay muted id="heroVideo">
-            <source src="<?php echo site_url('assets/front/img/logo/timvillafuertevideo.mp4'); ?>" type="video/mp4">
-            Tu navegador no soporta videos HTML5
-        </video>
-        <!-- Control de volumen flotante -->
-        <button type="button" class="video-volume-toggle" id="volumeToggle" title="Activar sonido">
-            <i class="fas fa-volume-mute"></i>
-        </button>
+        <div class="hero-bg-carousel" id="heroBgCarousel">
+            <img class="hero-slide active" src="<?php echo site_url('assets/front/img/logo/bannerviveland1.png'); ?>"
+                alt="Banner principal VIVELAND 2026">
+            <img class="hero-slide" src="<?php echo site_url('assets/front/img/logo/bannerviveland2.png'); ?>"
+                alt="Banner secundario VIVELAND 2026">
+            <img class="hero-slide" src="<?php echo site_url('assets/front/img/logo/bannerviveland3.png'); ?>"
+                alt="Banner adicional VIVELAND 2026">
+        </div>
+        <div class="hero-bg-mobile">
+            <img class="hero-mobile-image" src="<?php echo site_url('assets/front/img/logo/bannervivelandresponsive1.png'); ?>"
+                alt="Banner responsive VIVELAND 2026">
+        </div>
         <!-- Overlay de participación -->
         <div class="hero-overlay-content">
             <div class="hero-cta-box">
-                <h1>VIVELAND 2026</h1>
-                <p>Entrenamiento Inmobiliario de Alto Nivel</p>
                 <button type="button" class="btn-quiero-participar" id="btnQuieroParticipar">
-                    <i class="fas fa-play-circle"></i> Quiero Participar
+                    <i class="fas fa-play-circle"></i> Reservar mi lugar
                 </button>
             </div>
         </div>
@@ -833,43 +835,114 @@
     <!-- Carousel Script -->
     <script src="<?php echo site_url('assets/js/carousel.js'); ?>"></script>
 
-    <!-- Debug Script - Diagnóstico del botón "Quiero Participar" (INLINE) -->
+    <!-- Script - Flujo Video + Formulario "Quiero Participar" -->
     <script>
-    console.log('🔍 === VIVELAND DEBUG - Botón Quiero Participar ===');
-
-    // Esperar a que el DOM esté completamente listo (incluyendo main.js)
-    // Ejecutar después de un pequeño delay para permitir que main.js se cargue
-    setTimeout(() => {
-        console.log('✓ Verificando componentes VIVELAND...');
-
-        // 1. Verificar botón
+    document.addEventListener('DOMContentLoaded', function() {
+        const heroSlides = document.querySelectorAll('#heroBgCarousel .hero-slide');
         const btnQuieroParticipar = document.getElementById('btnQuieroParticipar');
-        console.log('📌 Botón "Quiero Participar":', btnQuieroParticipar ? '✅ ENCONTRADO' : '❌ NO ENCONTRADO');
+        const heroCtaBox = document.querySelector('.hero-cta-box');
+        const videoModal = document.getElementById('videoModal');
+        const videoModalPlayer = document.getElementById('videoModalPlayer');
+        const videoModalClose = document.getElementById('videoModalClose');
+        const quickRegisterModal = document.getElementById('quickRegisterModal');
+        const closeQuickRegister = document.getElementById('closeQuickRegister');
+        const quickRegisterOverlay = document.querySelector('.quick-register-overlay');
 
-        // 2. Verificar modal
-        const modal = document.getElementById('quickRegisterModal');
-        console.log('📌 Modal de Registro:', modal ? '✅ ENCONTRADO' : '❌ NO ENCONTRADO');
-
-        // 3. Verificar componentes cargados
-        if (window.VIVELAND) {
-            console.log('✅ Componentes VIVELAND cargados correctamente');
-            console.log('   Componentes disponibles:', Object.keys(window.VIVELAND));
-        } else {
-            console.log('⚠️  VIVELAND object no disponible aún - verificando en unos segundos...');
+        // Carrusel automático para banners del hero
+        if (heroSlides.length > 1) {
+            let currentHeroSlide = 0;
+            setInterval(() => {
+                heroSlides[currentHeroSlide].classList.remove('active');
+                currentHeroSlide = (currentHeroSlide + 1) % heroSlides.length;
+                heroSlides[currentHeroSlide].classList.add('active');
+            }, 4000);
         }
 
-        // 4. Agregar listener directo si no está
-        if (btnQuieroParticipar && modal) {
-            console.log('✅ Agregando backup listener al botón...');
-            btnQuieroParticipar.addEventListener('click', () => {
-                console.log('🎯 Click detectado - abriendo modal');
-                modal.classList.add('active');
-                document.body.style.overflow = 'hidden';
+        // Cuando hace click en "Quiero Participar"
+        if (btnQuieroParticipar) {
+            btnQuieroParticipar.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('🎬 Iniciando flujo: Botón → Video → Formulario');
+                
+                // 1. Ocultar el botón/caja de CTA
+                if (heroCtaBox) {
+                    heroCtaBox.style.opacity = '0';
+                    heroCtaBox.style.transition = 'opacity 0.3s ease-out';
+                    heroCtaBox.style.pointerEvents = 'none';
+                }
+                
+                // 2. Mostrar modal de video
+                setTimeout(() => {
+                    videoModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Reproducir video automáticamente
+                    if (videoModalPlayer) {
+                        videoModalPlayer.play().catch(err => console.log('Error al reproducir:', err));
+                    }
+                    
+                    console.log('🎥 Video modal abierto y reproduciéndose');
+                }, 300);
             });
         }
 
-        console.log('✅ DEBUG LISTO - El botón debe funcionar ahora');
-    }, 500); // Esperar 500ms a que main.js se cargue
+        // Cuando el video termina
+        if (videoModalPlayer) {
+            videoModalPlayer.addEventListener('ended', function() {
+                console.log('✅ Video terminó - mostrando formulario');
+                
+                // Cerrar video modal
+                videoModal.classList.remove('active');
+                
+                // Esperar a que se cierre el video antes de abrir el formulario
+                setTimeout(() => {
+                    // Mostrar formulario modal
+                    quickRegisterModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    console.log('📋 Formulario de registro abierto');
+                }, 300);
+            });
+        }
+
+        // Cerrar video modal manualmente
+        if (videoModalClose) {
+            videoModalClose.addEventListener('click', function() {
+                videoModal.classList.remove('active');
+                videoModalPlayer.pause();
+                videoModalPlayer.currentTime = 0;
+                document.body.style.overflow = 'auto';
+                console.log('❌ Video cerrado manualmente');
+            });
+        }
+
+        // Cerrar formulario modal
+        if (closeQuickRegister) {
+            closeQuickRegister.addEventListener('click', function() {
+                quickRegisterModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+                console.log('❌ Formulario cerrado');
+            });
+        }
+
+        // Cerrar formulario al hacer click en el overlay
+        if (quickRegisterOverlay) {
+            quickRegisterOverlay.addEventListener('click', function() {
+                quickRegisterModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+        }
+
+        // Cerrar video modal si se hace click en el overlay
+        const videoOverlay = document.querySelector('.video-modal-overlay');
+        if (videoOverlay) {
+            videoOverlay.addEventListener('click', function() {
+                videoModal.classList.remove('active');
+                videoModalPlayer.pause();
+                videoModalPlayer.currentTime = 0;
+                document.body.style.overflow = 'auto';
+            });
+        }
+    });
     </script>
 
     <!-- Main JavaScript (Module) -->
