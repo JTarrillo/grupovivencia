@@ -158,4 +158,12 @@ class VivelandRegistroModel extends Model
             'fecha_confirmacion' => date('Y-m-d H:i:s')
         ]);
     }
+
+    /**
+     * Eliminar registro
+     */
+    public function eliminar_registro($id)
+    {
+        return $this->delete($id);
+    }
 }

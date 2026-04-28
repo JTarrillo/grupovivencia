@@ -137,6 +137,24 @@ class D_viveland_registros extends BaseController
         return $this->response->setJSON(['success' => true, 'message' => 'Estado actualizado correctamente']);
     }
 
+    // Eliminar registro
+    public function eliminar($id)
+    {
+        $registro = $this->registroModel->get_by_id($id);
+
+        if (!$registro) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Registro no encontrado']);
+        }
+
+        $deleted = $this->registroModel->eliminar_registro($id);
+
+        if (!$deleted) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No se pudo eliminar el registro']);
+        }
+
+        return $this->response->setJSON(['success' => true, 'message' => 'Registro eliminado correctamente']);
+    }
+
     // Exportar registros a CSV
     public function exportar()
     {

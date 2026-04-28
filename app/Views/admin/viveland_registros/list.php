@@ -158,6 +158,9 @@
                                                                                     <i class="fa fa-times"></i>
                                                                                 </button>
                                                                             <?php endif; ?>
+                                                                            <button class="btn btn-sm btn-outline-danger" onclick="eliminar_registro(<?= $registro['id'] ?>)" title="Eliminar registro">
+                                                                                <i class="fa fa-trash"></i>
+                                                                            </button>
                                                                         </div>
                                                                     </td>
                                                                 </tr>
@@ -319,6 +322,28 @@
                     } else {
                         alert('Error: ' + data.message);
                     }
+                });
+            }
+        }
+
+        function eliminar_registro(id) {
+            if (confirm('¿Eliminar este registro de forma permanente? Esta acción no se puede deshacer.')) {
+                fetch('<?= site_url("admin/viveland_registros/eliminar") ?>/' + id, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Registro eliminado correctamente');
+                        $('#detallesModal').modal('hide');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al eliminar el registro');
                 });
             }
         }

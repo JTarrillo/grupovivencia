@@ -118,6 +118,32 @@ class VivelandForm {
         const regex = /^[0-9+\s\-()]{7,}$/;
         return regex.test(phone);
     }
+
+    async showFancyAlert({
+        title = 'Aviso',
+        text = '',
+        icon = 'info',
+        confirmButtonText = 'Aceptar'
+    } = {}) {
+        if (window.Swal && typeof window.Swal.fire === 'function') {
+            return window.Swal.fire({
+                title,
+                text,
+                icon,
+                confirmButtonText,
+                confirmButtonColor: '#1f5e95',
+                background: '#ffffff',
+                customClass: {
+                    popup: 'viveland-swal-popup',
+                    title: 'viveland-swal-title',
+                    confirmButton: 'viveland-swal-confirm'
+                }
+            });
+        }
+
+        alert(`${title}\n\n${text}`);
+        return Promise.resolve();
+    }
     
     async handleSubmit(e) {
         e.preventDefault();
@@ -246,40 +272,68 @@ class VivelandForm {
             
             // Validación de campos requeridos
             if (!formData.nombre) {
-                alert('❌ Por favor ingresa tu Nombre Completo');
+                await this.showFancyAlert({
+                    title: 'Nombre requerido',
+                    text: 'Por favor ingresa tu nombre completo.',
+                    icon: 'warning'
+                });
                 console.error('⚠️  Campo nombre vacío');
                 return;
             }
             if (!formData.email) {
-                alert('❌ Por favor ingresa tu Email');
+                await this.showFancyAlert({
+                    title: 'Email requerido',
+                    text: 'Por favor ingresa tu correo electrónico.',
+                    icon: 'warning'
+                });
                 console.error('⚠️  Campo email vacío');
                 return;
             }
             if (!formData.telefono) {
-                alert('❌ Por favor ingresa tu Teléfono');
+                await this.showFancyAlert({
+                    title: 'Teléfono requerido',
+                    text: 'Por favor ingresa tu teléfono.',
+                    icon: 'warning'
+                });
                 console.error('⚠️  Campo telefono vacío');
                 return;
             }
             if (!formData.zona) {
-                alert('❌ Por favor selecciona una Zona');
+                await this.showFancyAlert({
+                    title: 'Zona requerida',
+                    text: 'Selecciona una zona para continuar.',
+                    icon: 'warning'
+                });
                 console.error('⚠️  Campo zona vacío');
                 return;
             }
             if (!formData.interes) {
-                alert('❌ Por favor selecciona tu Interés');
+                await this.showFancyAlert({
+                    title: 'Interés requerido',
+                    text: 'Selecciona tu interés principal.',
+                    icon: 'warning'
+                });
                 console.error('⚠️  Campo interes vacío');
                 return;
             }
             
             // Validar formato de nombre
             if (formData.nombre.length < 3) {
-                alert('❌ El nombre debe tener al menos 3 caracteres');
+                await this.showFancyAlert({
+                    title: 'Nombre muy corto',
+                    text: 'El nombre debe tener al menos 3 caracteres.',
+                    icon: 'warning'
+                });
                 return;
             }
             
             // Validar email
             if (!this.isValidEmail(formData.email)) {
-                alert('❌ Por favor ingresa un email válido');
+                await this.showFancyAlert({
+                    title: 'Email inválido',
+                    text: 'Por favor ingresa un correo válido.',
+                    icon: 'warning'
+                });
                 return;
             }
             
@@ -313,7 +367,7 @@ class VivelandForm {
                 window.open(urlWhatsApp, '_blank');
                 
                 // Cerrar modal y limpiar
-                setTimeout(() => {
+                setTimeout(async () => {
                     // Resetear el formulario limpiando cada campo directamente
                     document.getElementById('qr-nombre').value = '';
                     document.getElementById('qr-email').value = '';
@@ -326,7 +380,12 @@ class VivelandForm {
                         modal.classList.remove('active');
                     }
                     document.body.style.overflow = 'auto';
-                    alert('Registro guardado y WhatsApp abierto. ¡Completa tu mensaje!');
+                    await this.showFancyAlert({
+                        title: 'Registro guardado',
+                        text: 'WhatsApp se abrió correctamente. Completa y envía tu mensaje.',
+                        icon: 'success',
+                        confirmButtonText: 'Entendido'
+                    });
                     
                     // Restaurar botón
                     submitBtn.disabled = false;
@@ -339,18 +398,30 @@ class VivelandForm {
                     errorMsg += `• ${field}: ${data.errors[field]}\n`;
                 }
                 console.error('❌ Validación fallida:', data.errors);
-                alert(errorMsg);
+                await this.showFancyAlert({
+                    title: 'Revisa el formulario',
+                    text: errorMsg,
+                    icon: 'warning'
+                });
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             } else {
                 console.error('❌ Error del servidor:', data);
-                alert('Error: ' + (data.error || 'No se pudo guardar el registro'));
+                await this.showFancyAlert({
+                    title: 'No se pudo registrar',
+                    text: data.error || 'No se pudo guardar el registro.',
+                    icon: 'error'
+                });
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error de conexión. Intenta de nuevo.');
+            await this.showFancyAlert({
+                title: 'Error de conexión',
+                text: 'Intenta de nuevo en unos segundos.',
+                icon: 'error'
+            });
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
         }

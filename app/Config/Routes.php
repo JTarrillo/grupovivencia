@@ -691,6 +691,7 @@ $routes->get('/admin/viveland_registros', 'D_viveland_registros::index', ['filte
 $routes->get('/admin/viveland_registros/view/(:num)', 'D_viveland_registros::view/$1', ['filter' => 'authGuard']);
 $routes->post('/admin/viveland_registros/confirmar/(:num)', 'D_viveland_registros::confirmar/$1', ['filter' => 'authGuard']);
 $routes->post('/admin/viveland_registros/cambiar_estado/(:num)/(:alpha)', 'D_viveland_registros::cambiar_estado/$1/$2', ['filter' => 'authGuard']);
+$routes->post('/admin/viveland_registros/eliminar/(:num)', 'D_viveland_registros::eliminar/$1', ['filter' => 'authGuard']);
 $routes->get('/admin/viveland_registros/exportar', 'D_viveland_registros::exportar', ['filter' => 'authGuard']);
 
 $routes->get('/admin/comisiones/inmobiliaria', 'ComisionesController::inmobiliaria', ['filter' => 'authGuard']);
