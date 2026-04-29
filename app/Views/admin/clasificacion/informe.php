@@ -40,23 +40,41 @@
                     <!-- Filtro de Fechas -->
                     <div class="row mb-4">
                         <div class="col-md-12">
-                            <form method="get" class="form-inline" id="formFiltro">
-                                <div class="form-group mr-2">
-                                    <label for="fecha_inicio" class="mr-2">Desde:</label>
-                                    <input type="date" id="fecha_inicio" name="fecha_inicio" 
-                                           class="form-control" value="<?php echo $fecha_inicio; ?>" required>
+                            <form method="get" id="formFiltro">
+                                <div class="form-row align-items-end">
+                                    <div class="form-group col-md-4">
+                                        <label for="fecha_inicio">Desde:</label>
+                                        <input type="date" id="fecha_inicio" name="fecha_inicio"
+                                               class="form-control" value="<?php echo esc($fecha_inicio); ?>" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="fecha_fin">Hasta:</label>
+                                        <input type="date" id="fecha_fin" name="fecha_fin"
+                                               class="form-control" value="<?php echo esc($fecha_fin); ?>" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <button type="submit" class="btn btn-primary mr-2">
+                                            <i class="fa fa-search"></i> Filtrar
+                                        </button>
+                                        <button type="button" class="btn btn-success" onclick="exportarPDF()">
+                                            <i class="fa fa-file-pdf"></i> Descargar PDF
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="form-group mr-2">
-                                    <label for="fecha_fin" class="mr-2">Hasta:</label>
-                                    <input type="date" id="fecha_fin" name="fecha_fin" 
-                                           class="form-control" value="<?php echo $fecha_fin; ?>" required>
+                                <div class="form-group mt-2">
+                                    <label for="numero_informe">N° Informe:</label>
+                                    <input type="text" id="numero_informe" name="numero_informe"
+                                           class="form-control" value="<?php echo esc($numero_informe ?? ''); ?>" required>
                                 </div>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fa fa-search"></i> Filtrar
-                                </button>
-                                <button type="button" class="btn btn-success ml-2" onclick="exportarPDF()">
-                                    <i class="fa fa-file-pdf"></i> Descargar PDF
-                                </button>
+                                <div class="form-group mt-2">
+                                    <label for="asunto">Asunto:</label>
+                                    <input type="text" id="asunto" name="asunto" class="form-control"
+                                           value="<?php echo esc($asunto ?? ''); ?>" required>
+                                </div>
+                                <div class="form-group mt-2 mb-0">
+                                    <label for="cuerpo_informe">Cuerpo del informe:</label>
+                                    <textarea id="cuerpo_informe" name="cuerpo_informe" class="form-control" rows="6" required><?php echo esc($cuerpo_informe ?? ''); ?></textarea>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -186,24 +204,31 @@
 function exportarPDF() {
     const fecha_inicio = document.getElementById('fecha_inicio').value;
     const fecha_fin = document.getElementById('fecha_fin').value;
+    const numero_informe = document.getElementById('numero_informe').value.trim();
+    const asunto = document.getElementById('asunto').value.trim();
+    const cuerpo_informe = document.getElementById('cuerpo_informe').value.trim();
     
-    if (!fecha_inicio || !fecha_fin) {
+    if (!fecha_inicio || !fecha_fin || !numero_informe || !asunto || !cuerpo_informe) {
         Swal.fire({
             icon: 'warning',
             title: 'Campos requeridos',
-            text: 'Por favor selecciona las fechas de inicio y fin.'
+            text: 'Completa fecha, numero, asunto y cuerpo del informe.'
         });
         return;
     }
     
     // Redirigir a la descarga del PDF
-    window.location.href = '<?php echo site_url('dashboard/clasificacion/descargar-informe-pdf'); ?>?fecha_inicio=' + fecha_inicio + '&fecha_fin=' + fecha_fin;
+    window.location.href = '<?php echo site_url('dashboard/clasificacion/descargar-informe-pdf'); ?>?fecha_inicio=' + encodeURIComponent(fecha_inicio)
+        + '&fecha_fin=' + encodeURIComponent(fecha_fin)
+        + '&numero_informe=' + encodeURIComponent(numero_informe)
+        + '&asunto=' + encodeURIComponent(asunto)
+        + '&cuerpo_informe=' + encodeURIComponent(cuerpo_informe);
 }
 
 // Al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar DataTables si está disponible
-    if (typeof $.fn.dataTable !== 'undefined') {
+    if (typeof $.fn.dataTable !== 'undefined' && $('#tablaGastos').length) {
         $('#tablaGastos').DataTable({
             language: {
                 url: 'https://cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json'

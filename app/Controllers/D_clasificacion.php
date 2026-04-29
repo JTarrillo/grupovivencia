@@ -628,6 +628,20 @@ class D_clasificacion extends BaseController
         // Obtener parámetros
         $fecha_inicio = service('request')->getGet('fecha_inicio') ?? date('Y-m-01');
         $fecha_fin = service('request')->getGet('fecha_fin') ?? date('Y-m-d');
+        $numero_informe = trim((string) (service('request')->getGet('numero_informe') ?? 'N°032-2026-DFCL'));
+        $asunto = trim((string) (service('request')->getGet('asunto') ?? ''));
+        $cuerpo_informe = trim((string) (service('request')->getGet('cuerpo_informe') ?? ''));
+
+        if ($asunto === '') {
+            $meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+            $asunto = 'INFORME MENSUAL CORRESPONDIENTE AL MES DE ' . $meses[(int) date('m', strtotime($fecha_inicio)) - 1];
+        }
+
+        if ($cuerpo_informe === '') {
+            $cuerpo_informe = 'El presente informe tiene como finalidad detallar los gastos realizados durante el período correspondiente, los cuales fueron necesarios para el adecuado desarrollo de las actividades operativas y administrativas de la empresa.' . "\n\n"
+                . 'Dichos gastos no forman parte directa de la obra o servicio principal, sin embargo, resultan importantes para garantizar el adecuado desarrollo de las actividades fuera de la sede habitual. Dentro de los gastos realizados se incluye el servicio de alojamiento para el personal, el cual permite asegurar condiciones adecuadas de descanso y permanencia, contribuyendo al cumplimiento eficiente de las labores asignadas y al buen desempeño del equipo de trabajo.' . "\n\n"
+                . 'Todas las adquisiciones se encuentran respaldadas por comprobantes de pago (facturas emitidas por proveedores autorizados), cumpliendo con la normativa tributaria vigente y registradas en la contabilidad de la empresa.';
+        }
 
         $db = \Config\Database::connect();
 
@@ -678,6 +692,9 @@ class D_clasificacion extends BaseController
             'title' => 'Informe de Gastos por Período',
             'fecha_inicio' => $fecha_inicio,
             'fecha_fin' => $fecha_fin,
+            'numero_informe' => $numero_informe,
+            'asunto' => $asunto,
+            'cuerpo_informe' => $cuerpo_informe,
             'gastos' => $gastos,
             'totalesPorTipo' => $totalesPorTipo,
             'totalGeneral' => $totalGeneral,
@@ -701,6 +718,20 @@ class D_clasificacion extends BaseController
         // Obtener parámetros
         $fecha_inicio = service('request')->getGet('fecha_inicio') ?? date('Y-m-01');
         $fecha_fin = service('request')->getGet('fecha_fin') ?? date('Y-m-d');
+        $numero_informe = trim((string) (service('request')->getGet('numero_informe') ?? 'N°032-2026-DFCL'));
+        $asunto = trim((string) (service('request')->getGet('asunto') ?? ''));
+        $cuerpo_informe = trim((string) (service('request')->getGet('cuerpo_informe') ?? ''));
+
+        if ($asunto === '') {
+            $meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+            $asunto = 'INFORME MENSUAL CORRESPONDIENTE AL MES DE ' . $meses[(int) date('m', strtotime($fecha_inicio)) - 1];
+        }
+
+        if ($cuerpo_informe === '') {
+            $cuerpo_informe = 'El presente informe tiene como finalidad detallar los gastos realizados durante el período correspondiente, los cuales fueron necesarios para el adecuado desarrollo de las actividades operativas y administrativas de la empresa.' . "\n\n"
+                . 'Dichos gastos no forman parte directa de la obra o servicio principal, sin embargo, resultan importantes para garantizar el adecuado desarrollo de las actividades fuera de la sede habitual. Dentro de los gastos realizados se incluye el servicio de alojamiento para el personal, el cual permite asegurar condiciones adecuadas de descanso y permanencia, contribuyendo al cumplimiento eficiente de las labores asignadas y al buen desempeño del equipo de trabajo.' . "\n\n"
+                . 'Todas las adquisiciones se encuentran respaldadas por comprobantes de pago (facturas emitidas por proveedores autorizados), cumpliendo con la normativa tributaria vigente y registradas en la contabilidad de la empresa.';
+        }
 
         $db = \Config\Database::connect();
 
@@ -748,6 +779,9 @@ class D_clasificacion extends BaseController
         $data = [
             'fecha_inicio' => $fecha_inicio,
             'fecha_fin' => $fecha_fin,
+            'numero_informe' => $numero_informe,
+            'asunto' => $asunto,
+            'cuerpo_informe' => $cuerpo_informe,
             'gastos' => $gastos,
             'totalesPorTipo' => $totalesPorTipo,
             'totalGeneral' => $totalGeneral,
@@ -774,7 +808,26 @@ class D_clasificacion extends BaseController
         $dompdf->render();
 
         // Descargar como PDF
-        $nombreArchivo = 'Informe_Gastos_' . date('Y-m-d_His') . '.pdf';
+        $numeroArchivo = preg_replace('/[^A-Za-z0-9\-_]/', '_', $numero_informe);
+        $nombreArchivo = 'Informe_Gastos_' . trim((string) $numeroArchivo, '_') . '_' . date('Y-m-d_His') . '.pdf';
+
+        // Guardar registro del reporte generado con contenido dinámico
+        $this->gastoReporteModel->insert([
+            'nombre' => mb_substr($asunto, 0, 255),
+            'fecha_inicio' => $fecha_inicio,
+            'fecha_fin' => $fecha_fin,
+            'contenido_html' => $cuerpo_informe,
+            'contenido_pdf' => $nombreArchivo,
+            'total_gasto' => $totalGeneral,
+            'cantidad_compras' => count($gastos),
+            'estado' => 'completado',
+            'usuario_creador' => (int) $session->get('id'),
+            'observaciones' => json_encode([
+                'numero_informe' => $numero_informe,
+                'asunto' => $asunto,
+            ], JSON_UNESCAPED_UNICODE),
+        ]);
+
         return $dompdf->stream($nombreArchivo, array("Attachment" => 1));
     }
 

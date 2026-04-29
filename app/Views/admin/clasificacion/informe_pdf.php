@@ -16,6 +16,7 @@
             padding-bottom: 10px;
             border-bottom: 2px solid #004B97;
         }
+        .header-content h1 {
             font-size: 12px;
             color: #004B97;
             margin: 0 0 2px 0;
@@ -26,6 +27,7 @@
             color: #666;
             margin: 0 0 2px 0;
         }
+        .header-content .title {
             font-size: 9px;
             color: #000;
             margin: 0;
@@ -118,16 +120,13 @@
         <div class="header-content">
             <h1>ÁREA DE CONTABILIDAD</h1>
             <div class="subtitle">"Vive una experiencia 2026"</div>
-            <div class="title">INFORME N°032-2026-DFCL-ÁREA DE CONTABILIDAD<br>GRUPO VIVENCIA S.A.C.</div>
+            <div class="title">INFORME <?php echo esc($numero_informe); ?> - ÁREA DE CONTABILIDAD<br>GRUPO VIVENCIA S.A.C.</div>
         </div>
     </div>
 
     <div class="info-row"><span class="info-label">A</span>: C.P.P LUIS ENRIQUE RUIZ FLORES<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTADOR PÚBLICO COLEGIADO</div>
     <div class="info-row"><span class="info-label">DE</span>: BACH. CONT. DEISSY FIORELLA CHURA LOZANO<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ÁREA DE CONTABILIDAD</div>
-    <div class="info-row"><span class="info-label">ASUNTO</span>: INFORME MENSUAL CORRESPONDIENTE AL MES DE <?php 
-        $meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
-        echo $meses[(int)date('m', strtotime($fecha_inicio)) - 1];
-    ?><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INFORME MENSUAL DE GASTOS POR CONCEPTO DE ALOJAMIENTO</div>
+    <div class="info-row"><span class="info-label">ASUNTO</span>: <?php echo esc($asunto); ?></div>
     <div class="info-row"><span class="info-label">FECHA</span>: Cusco, <?php 
         $meses_min = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
         echo date('d') . ' de ' . $meses_min[(int)date('m') - 1] . ' de ' . date('Y');
@@ -136,9 +135,16 @@
     <hr style="border: 1px solid #333; margin: 10px 0;">
 
     <div class="description">
-        <p>El presente informe tiene como finalidad detallar los gastos realizados durante el período correspondiente, los cuales fueron necesarios para el adecuado desarrollo de las actividades operativas y administrativas de la empresa.</p>
-        <p>Dichos gastos no forman parte directa de la obra o servicio principal, sin embargo, resultan importantes para garantizar el adecuado desarrollo de las actividades fuera de la sede habitual. Dentro de los gastos realizados se incluye el servicio de alojamiento para el personal, el cual permite asegurar condiciones adecuadas de descanso y permanencia, contribuyendo al cumplimiento eficiente de las labores asignadas y al buen desempeño del equipo de trabajo.</p>
-        <p>Todas las adquisiciones se encuentran respaldadas por comprobantes de pago (facturas emitidas por proveedores autorizados), cumpliendo con la normativa tributaria vigente y registradas en la contabilidad de la empresa.</p>
+        <?php
+        $lineasCuerpo = preg_split('/\r\n|\r|\n/', (string) $cuerpo_informe);
+        foreach ($lineasCuerpo as $linea) {
+            $linea = trim($linea);
+            if ($linea === '') {
+                continue;
+            }
+            echo '<p>' . esc($linea) . '</p>';
+        }
+        ?>
     </div>
 
     <div class="period-info">
