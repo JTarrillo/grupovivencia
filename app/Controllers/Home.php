@@ -225,6 +225,22 @@ class Home extends BaseController
         return view('contact', $data);
     }
 
+    /**
+     * Método para mostrar landing page de VIVELAND
+     */
+    public function viveland()
+    {
+        return view('landing/viveland_new');
+    }
+
+    /**
+     * Método para mostrar página "Sobre el Evento"
+     */
+    public function about_evento()
+    {
+        return view('landing/about-evento');
+    }
+
     public function validate_captcha()
     {
         define("SECRET_KEY", '6Lcq3ZspAAAAAFiqoPbo368dc_XxMz6971uKQY_C');

@@ -728,6 +728,28 @@ $routes->get('/dashboard/inmueble/api/get_customer/(:num)', 'Inmueble::get_custo
 $routes->get('/dashboard/inmueble/api/get_lot_details/(:num)', 'Inmueble::get_lot_details/$1', ['filter' => 'authGuard']);
 $routes->get('/dashboard/inmueble/api/get_contract_details/(:num)', 'Inmueble::get_contract_details/$1', ['filter' => 'authGuard']);
 
+// ============================================================================
+// RUTAS VIVELAND - Sistema de Registros para Evento Inmobiliario
+// ============================================================================
+
+// Rutas públicas (sin autenticación)
+$routes->get('/viveland', 'Home::viveland');
+$routes->get('/viveland/sobre-evento', 'Home::about_evento');
+$routes->post('/viveland/guardar_registro', 'VivelandController::guardar_registro');
+
+// Rutas con autenticación
+$routes->get('/viveland/registros', 'VivelandController::obtener_registros', ['filter' => 'authGuard']);
+
+// Rutas Admin VIVELAND (solo coordinadores privilege=5)
+$routes->get('/admin/viveland_registros', 'D_viveland_registros::index', ['filter' => 'authGuard']);
+$routes->get('/admin/viveland_registros/view/(:num)', 'D_viveland_registros::view/$1', ['filter' => 'authGuard']);
+$routes->post('/admin/viveland_registros/confirmar/(:num)', 'D_viveland_registros::confirmar/$1', ['filter' => 'authGuard']);
+$routes->post('/admin/viveland_registros/cambiar_estado/(:num)/(:alpha)', 'D_viveland_registros::cambiar_estado/$1/$2', ['filter' => 'authGuard']);
+$routes->post('/admin/viveland_registros/eliminar/(:num)', 'D_viveland_registros::eliminar/$1', ['filter' => 'authGuard']);
+$routes->get('/admin/viveland_registros/exportar', 'D_viveland_registros::exportar', ['filter' => 'authGuard']);
+
+// ============================================================================
+
 // RUTA CATCH-ALL - DEBE IR AL FINAL para no capturar rutas explícitas
 $routes->get('/(:any)', 'Home::otras');
 

@@ -1,0 +1,81 @@
+// ========================================
+// VIVELAND - HEADER COMPONENT
+// ========================================
+
+@import "../variables";
+@import "../mixins";
+
+header {
+  background: rgba($bg-white, 0.95);
+  padding: $spacing-sm $spacing-md;
+  box-shadow: $shadow-sm;
+  position: sticky;
+  top: 0;
+  z-index: $z-sticky;
+  backdrop-filter: blur(10px);
+
+  .header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    @include flex-between;
+  }
+
+  .logo-section {
+    @include flex-center;
+    gap: $spacing-md;
+
+    img {
+      height: 50px;
+      width: auto;
+      @include transition-base;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  .brand-title {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $text-dark;
+    letter-spacing: 1px;
+    margin: 0;
+  }
+
+  .nav-items {
+    @include flex-center;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    a {
+      color: $text-dark;
+      text-decoration: none;
+      font-weight: $font-weight-semibold;
+      @include transition-base;
+
+      &:hover {
+        color: $primary;
+      }
+    }
+  }
+
+  @include media-md {
+    padding: $spacing-xs $spacing-sm;
+
+    .brand-title {
+      font-size: $font-size-lg;
+    }
+
+    .nav-items {
+      gap: 1rem;
+      font-size: $font-size-sm;
+    }
+
+    .logo-section img {
+      height: 45px;
+    }
+  }
+}
