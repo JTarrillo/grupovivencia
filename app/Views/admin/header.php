@@ -61,6 +61,8 @@
         $concepto_ticket_style = null;
         $concepto_ticket_color = null;
         $usuarios_style = null;
+        $viveland_registros_color = null;
+        $viveland_registros_style = null;
         $integracion_pagos_color = null;
         $integracion_descuentos_color = null;
         $integracion_puntos_color = null;
@@ -337,6 +339,10 @@
                 $proveedores_style = "active pcoded-trigger";
                 $inventario_color = "active_nav";
                 break;
+            case "viveland_registros":
+                $viveland_registros_style = "active pcoded-trigger";
+                $viveland_registros_color = "active_nav";
+                break;
             default:
                 $panel_style = "active pcoded-trigger";
                 $panel_color = "active_nav";
@@ -610,6 +616,16 @@
                         <span class="pcoded-mtext">Penalidades</span>
                     </a>
                 </li>
+
+                <!-- VIVELAND Registros - Solo para Coordinadores (privilege=5) -->
+                <?php if ($session_privilege == 5) { ?>
+                <li class="nav-item <?php echo $viveland_registros_style; ?>">
+                    <a href="/admin/viveland_registros" class="nav-link <?php echo $viveland_registros_color; ?>">
+                        <span class="pcoded-micon"><i class="fa fa-clipboard-list"></i></span>
+                        <span class="pcoded-mtext">VIVELAND Registros</span>
+                    </a>
+                </li>
+                <?php } ?>
 
             </ul>
         </div>
