@@ -721,6 +721,9 @@ $routes->get('/admin/comisiones/multinivel_demo', function() {
     echo view('admin/comisiones/multinivel_demo');
 }, ['filter' => 'authGuard']);
 $routes->get('/dashboard/usuarios/load/(:num)', 'D_usuarios::load/$1', ['filter' => 'authGuard']);
+$routes->post('/dashboard/usuarios/validate', 'D_usuarios::validacion', ['filter' => 'authGuard']);
+$routes->post('/dashboard/usuarios/validacion', 'D_usuarios::validacion', ['filter' => 'authGuard']);
+$routes->post('/dashboard/usuarios/eliminar', 'D_usuarios::eliminar', ['filter' => 'authGuard']);
 $routes->get('/dashboard/inmueble/api/get_customer/(:num)', 'Inmueble::get_customer/$1', ['filter' => 'authGuard']);
 $routes->get('/dashboard/inmueble/api/get_lot_details/(:num)', 'Inmueble::get_lot_details/$1', ['filter' => 'authGuard']);
 $routes->get('/dashboard/inmueble/api/get_contract_details/(:num)', 'Inmueble::get_contract_details/$1', ['filter' => 'authGuard']);
