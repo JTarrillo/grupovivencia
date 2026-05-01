@@ -24,6 +24,11 @@
         } else {
             $nav = "";
         }
+        
+        // Obtener sesión para verificar privilege level
+        $session = session();
+        $session_privilege = $session->get('privilegio') ?? $session->get('privilege') ?? null;
+        
         $panel_style = null;
         $panel_color = null;
         $ventas_style = null;
@@ -617,8 +622,8 @@
                     </a>
                 </li>
 
-                <!-- VIVELAND Registros - Solo para Coordinadores (privilege=5) -->
-                <?php if ($session_privilege == 5) { ?>
+                <!-- VIVELAND Registros - Solo para Coordinadores (privilege=5 o privilegio=viveland_registros) -->
+                <?php if ($session_privilege == 5 || $session_privilege == 'viveland_registros') { ?>
                 <li class="nav-item <?php echo $viveland_registros_style; ?>">
                     <a href="/admin/viveland_registros" class="nav-link <?php echo $viveland_registros_color; ?>">
                         <span class="pcoded-micon"><i class="fa fa-clipboard-list"></i></span>
