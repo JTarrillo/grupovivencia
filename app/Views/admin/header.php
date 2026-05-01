@@ -422,6 +422,7 @@
                 }
             </style>
             <ul class="nav pcoded-inner-navbar">
+                <?php if (!($session_privilege == 'viveland_registros')) { ?>
                 <!-- <li class="nav-item pcoded-menu-caption">
                     <label>Inicio</label>
                 </li> -->
@@ -621,6 +622,7 @@
                         <span class="pcoded-mtext">Penalidades</span>
                     </a>
                 </li>
+                <?php } ?>
 
                 <!-- VIVELAND Registros - Solo para Coordinadores (privilege=5 o privilegio=viveland_registros) -->
                 <?php if ($session_privilege == 5 || $session_privilege == 'viveland_registros') { ?>
