@@ -50,23 +50,23 @@
          HERO SECTION
          ======================================== -->
     <section class="hero" id="hero">
-        <div class="hero-bg-carousel" id="heroBgCarousel">
-            <img class="hero-slide active" src="<?php echo site_url('assets/front/img/logo/bannerviveland1.png'); ?>"
-                alt="Banner principal VIVELAND 2026">
-            <img class="hero-slide" src="<?php echo site_url('assets/front/img/logo/bannerviveland2.png'); ?>"
-                alt="Banner secundario VIVELAND 2026">
-            <img class="hero-slide" src="<?php echo site_url('assets/front/img/logo/bannerviveland3.png'); ?>"
-                alt="Banner adicional VIVELAND 2026">
+        <div class="hero-bg-carousel" id="heroBgVideo">
+            <video id="heroMainVideo" class="hero-slide active" preload="metadata" playsinline
+                poster="<?php echo site_url('assets/front/img/logo/bannerviveland1.png'); ?>">
+                <source src="<?php echo site_url('assets/front/img/logo/video tim 2 .mp4'); ?>" type="video/mp4">
+                Tu navegador no soporta videos HTML5.
+            </video>
         </div>
         <div class="hero-bg-mobile">
-            <img class="hero-mobile-image" src="<?php echo site_url('assets/front/img/logo/bannervivelandresponsive1.png'); ?>"
+            <img class="hero-mobile-image"
+                src="<?php echo site_url('assets/front/img/logo/bannervivelandresponsive1.png'); ?>"
                 alt="Banner responsive VIVELAND 2026">
         </div>
         <!-- Overlay de participación -->
         <div class="hero-overlay-content">
             <div class="hero-cta-box">
                 <button type="button" class="btn-quiero-participar" id="btnQuieroParticipar">
-                    <i class="fas fa-play-circle"></i> Reservar mi lugar
+                    <i class="fas fa-play-circle"></i> Ver video
                 </button>
             </div>
         </div>
@@ -724,8 +724,7 @@
             </button>
             <div class="video-modal-content">
                 <video id="videoModalPlayer" class="video-modal-player" controls>
-                    <source src="<?php echo site_url('assets/front/img/logo/13dejuniovileland.mp4'); ?>"
-                        type="video/mp4">
+                    <source src="<?php echo site_url('assets/front/img/logo/video tim 2 .mp4'); ?>" type="video/mp4">
                     Tu navegador no soporta videos HTML5
                 </video>
             </div>
@@ -840,7 +839,6 @@
     <!-- Script - Flujo Video + Formulario "Quiero Participar" -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const heroSlides = document.querySelectorAll('#heroBgCarousel .hero-slide');
         const btnQuieroParticipar = document.getElementById('btnQuieroParticipar');
         const heroCtaBox = document.querySelector('.hero-cta-box');
         const videoModal = document.getElementById('videoModal');
@@ -850,55 +848,39 @@
         const closeQuickRegister = document.getElementById('closeQuickRegister');
         const quickRegisterOverlay = document.querySelector('.quick-register-overlay');
 
-        // Carrusel automático para banners del hero
-        if (heroSlides.length > 1) {
-            let currentHeroSlide = 0;
-            setInterval(() => {
-                heroSlides[currentHeroSlide].classList.remove('active');
-                currentHeroSlide = (currentHeroSlide + 1) % heroSlides.length;
-                heroSlides[currentHeroSlide].classList.add('active');
-            }, 4000);
-        }
-
-        // Cuando hace click en "Quiero Participar"
+        // Abrir video en modal desde el botón Play
         if (btnQuieroParticipar) {
             btnQuieroParticipar.addEventListener('click', function(e) {
                 e.preventDefault();
-                console.log('🎬 Iniciando flujo: Botón → Video → Formulario');
-                
-                // 1. Ocultar el botón/caja de CTA
+                console.log('🎬 Iniciando flujo: Modal video → Formulario');
+
                 if (heroCtaBox) {
                     heroCtaBox.style.opacity = '0';
                     heroCtaBox.style.transition = 'opacity 0.3s ease-out';
                     heroCtaBox.style.pointerEvents = 'none';
                 }
-                
-                // 2. Mostrar modal de video
+
                 setTimeout(() => {
                     videoModal.classList.add('active');
                     document.body.style.overflow = 'hidden';
-                    
-                    // Reproducir video automáticamente
+
                     if (videoModalPlayer) {
-                        videoModalPlayer.play().catch(err => console.log('Error al reproducir:', err));
+                        videoModalPlayer.currentTime = 0;
+                        videoModalPlayer.play().catch(err => console.log(
+                            'Error al reproducir video modal:', err));
                     }
-                    
-                    console.log('🎥 Video modal abierto y reproduciéndose');
                 }, 300);
             });
         }
 
-        // Cuando el video termina
+        // Al terminar el video modal se abre el formulario rápido
         if (videoModalPlayer) {
             videoModalPlayer.addEventListener('ended', function() {
                 console.log('✅ Video terminó - mostrando formulario');
-                
-                // Cerrar video modal
+
                 videoModal.classList.remove('active');
-                
-                // Esperar a que se cierre el video antes de abrir el formulario
+
                 setTimeout(() => {
-                    // Mostrar formulario modal
                     quickRegisterModal.classList.add('active');
                     document.body.style.overflow = 'hidden';
                     console.log('📋 Formulario de registro abierto');
@@ -956,57 +938,62 @@
     <!-- CAROUSEL DEBUG SCRIPT -->
     <script>
     console.log('\n🔍 === CAROUSEL ADVANCED DEBUG ===\n');
-    
+
     // Esperar a que el DOM esté completamente listo
     setTimeout(() => {
-      const carouselContainer = document.querySelector('.experts-carousel');
-      const cards = document.querySelectorAll('.expert-card-carousel');
-      
-      if (!carouselContainer || cards.length === 0) {
-        console.error('❌ Carrusel no encontrado en el DOM');
-        return;
-      }
-      
-      console.log('✅ Carrusel DEBUG ACTIVO\n');
-      
-      // Información de cada tarjeta
-      cards.forEach((card, idx) => {
-        const name = card.querySelector('.expert-name')?.textContent || 'Sin nombre';
-        const img = card.querySelector('img');
-        const imgSrc = img?.src || 'Sin imagen';
-        
-        console.log(`\n📌 TARJETA ${idx + 1}: ${name}`);
-        console.log(`   Imagen: ${imgSrc}`);
-        console.log(`   Elemento: ${card.tagName}.${card.className}`);
-        
-        // Observar cambios en estilos calculados
-        const observer = new MutationObserver(() => {
-          const computed = window.getComputedStyle(card);
-          if (computed.display !== 'none') {
-            console.log(`   [ACTUALIZACIÓN] ${name} - zIndex: ${computed.zIndex}, opacity: ${computed.opacity}, animationPlayState: ${computed.animationPlayState}`);
-          }
-        });
-        
-        observer.observe(card, {
-          attributes: true,
-          attributeFilter: ['style'],
-          subtree: false
-        });
-      });
-      
-      // Monitorear cada 2 segundos
-      console.log('\n⏱️  Monitoreo activo cada 2 segundos...\n');
-      setInterval(() => {
+        const carouselContainer = document.querySelector('.experts-carousel');
+        const cards = document.querySelectorAll('.expert-card-carousel');
+
+        if (!carouselContainer || cards.length === 0) {
+            console.error('❌ Carrusel no encontrado en el DOM');
+            return;
+        }
+
+        console.log('✅ Carrusel DEBUG ACTIVO\n');
+
+        // Información de cada tarjeta
         cards.forEach((card, idx) => {
-          const name = card.querySelector('.expert-name')?.textContent || 'Sin nombre';
-          const computed = window.getComputedStyle(card);
-          const rect = card.getBoundingClientRect();
-          const isVisible = rect.width > 0 && rect.height > 0 && computed.visibility !== 'hidden';
-          
-          console.log(`${idx + 1}. ${name.padEnd(15)} | zIdx: ${computed.zIndex.padEnd(3)} | opacity: ${computed.opacity.padEnd(3)} | visible: ${isVisible ? '✓' : '✗'}`);
+            const name = card.querySelector('.expert-name')?.textContent || 'Sin nombre';
+            const img = card.querySelector('img');
+            const imgSrc = img?.src || 'Sin imagen';
+
+            console.log(`\n📌 TARJETA ${idx + 1}: ${name}`);
+            console.log(`   Imagen: ${imgSrc}`);
+            console.log(`   Elemento: ${card.tagName}.${card.className}`);
+
+            // Observar cambios en estilos calculados
+            const observer = new MutationObserver(() => {
+                const computed = window.getComputedStyle(card);
+                if (computed.display !== 'none') {
+                    console.log(
+                        `   [ACTUALIZACIÓN] ${name} - zIndex: ${computed.zIndex}, opacity: ${computed.opacity}, animationPlayState: ${computed.animationPlayState}`
+                        );
+                }
+            });
+
+            observer.observe(card, {
+                attributes: true,
+                attributeFilter: ['style'],
+                subtree: false
+            });
         });
-      }, 2000);
-      
+
+        // Monitorear cada 2 segundos
+        console.log('\n⏱️  Monitoreo activo cada 2 segundos...\n');
+        setInterval(() => {
+            cards.forEach((card, idx) => {
+                const name = card.querySelector('.expert-name')?.textContent || 'Sin nombre';
+                const computed = window.getComputedStyle(card);
+                const rect = card.getBoundingClientRect();
+                const isVisible = rect.width > 0 && rect.height > 0 && computed.visibility !==
+                    'hidden';
+
+                console.log(
+                    `${idx + 1}. ${name.padEnd(15)} | zIdx: ${computed.zIndex.padEnd(3)} | opacity: ${computed.opacity.padEnd(3)} | visible: ${isVisible ? '✓' : '✗'}`
+                    );
+            });
+        }, 2000);
+
     }, 1000);
     </script>
 
