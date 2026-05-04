@@ -979,8 +979,9 @@ class Inmueble extends BaseController {
     {
         // Solo lotes disponibles y proyectos activos o en planificación
         $lots = $this->lotModel
-            ->select('lots.*, projects.name as project_name, projects.status as project_status, projects.department_id as project_department_id, projects.province_id as project_province_id, projects.district_id as project_district_id, projects.base_interest_rate, projects.min_down_payment_percentage, projects.down_payment_type as project_down_payment_type, projects.min_down_payment_fixed as project_min_down_payment_fixed')
+            ->select('lots.*, projects.name as project_name, projects.status as project_status, projects.department_id as project_department_id, projects.province_id as project_province_id, projects.district_id as project_district_id, projects.base_interest_rate, payment_plans.down_payment_type, payment_plans.min_down_payment_percentage, payment_plans.min_amount, payment_plans.duration_months')
             ->join('projects', 'projects.id = lots.project_id')
+            ->join('payment_plans', 'payment_plans.id = projects.payment_plan_id', 'left')
             ->where('lots.status', 'available')
             ->whereIn('projects.status', ['active', 'planning'])
             ->findAll();
@@ -1000,10 +1001,11 @@ class Inmueble extends BaseController {
                 'department_id' => $lot['project_department_id'] ?? ($lot['department_id'] ?? null),
                 'province_id' => $lot['project_province_id'] ?? ($lot['province_id'] ?? null),
                 'district_id' => $lot['project_district_id'] ?? ($lot['district_id'] ?? null),
-                'down_payment_type' => $lot['project_down_payment_type'] ?? null,
+                'down_payment_type' => $lot['down_payment_type'] ?? null,
                 'min_down_payment_percentage' => $lot['min_down_payment_percentage'] ?? null,
-                'min_down_payment_fixed' => $lot['project_min_down_payment_fixed'] ?? null,
-                'base_interest_rate' => $lot['base_interest_rate'] ?? null
+                'min_down_payment_fixed' => $lot['min_amount'] ?? null,
+                'base_interest_rate' => $lot['base_interest_rate'] ?? null,
+                'duration_months' => $lot['duration_months'] ?? null
             ];
         }, $lots);
 
@@ -1560,8 +1562,9 @@ class Inmueble extends BaseController {
         // Consulta JOIN para obtener lotes con info de proyecto, cliente y contrato
         $db = \Config\Database::connect();
         $builder = $db->table('lots');
-    $builder->select('lots.id, lots.project_id, lots.lot_number, lots.block, lots.cadastral_unit, lots.registry_number, lots.area_sqm, lots.base_price, lots.current_price, lots.status, lots.customer_id, lots.sale_date, projects.name AS project_name, customers.name AS customer_name, contracts.is_reserved, contracts.reservation_amount AS contract_reservation_amount, contracts.reservation_date AS contract_reservation_date, contracts.status AS contract_status');
+    $builder->select('lots.id, lots.project_id, lots.lot_number, lots.block, lots.cadastral_unit, lots.registry_number, lots.area_sqm, lots.base_price, lots.current_price, lots.status, lots.customer_id, lots.sale_date, projects.name AS project_name, projects.payment_plan_id, customers.name AS customer_name, contracts.is_reserved, contracts.reservation_amount AS contract_reservation_amount, contracts.reservation_date AS contract_reservation_date, contracts.status AS contract_status, payment_plans.down_payment_type, payment_plans.min_down_payment_percentage, payment_plans.min_amount, payment_plans.duration_months, payment_plans.base_interest_rate as plan_interest_rate');
         $builder->join('projects', 'projects.id = lots.project_id', 'left');
+        $builder->join('payment_plans', 'payment_plans.id = projects.payment_plan_id', 'left');
         $builder->join('customers', 'customers.id = lots.customer_id', 'left');
         $builder->join('contracts', 'contracts.lot_id = lots.id', 'left');
         if ($project_id) {

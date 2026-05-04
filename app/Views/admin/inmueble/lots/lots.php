@@ -313,12 +313,16 @@
                                         <label for="create_project_id">Proyecto <span class="text-danger">*</span></label>
                                         <select class="form-control" id="create_project_id" name="project_id" required>
                                             <option value="">Seleccionar proyecto</option>
-                                            <?php foreach ($projects as $project): ?>
+                                            <?php foreach ($projects as $project): 
+                                                $paymentPlanModel = new \App\Models\PaymentPlanModel();
+                                                $plan = $project['payment_plan_id'] ? $paymentPlanModel->find($project['payment_plan_id']) : null;
+                                            ?>
                                             <option value="<?= $project['id'] ?>"
                                                 data-price="<?= $project['base_price_per_sqm'] ?>"
                                                 data-location="<?= $project['location'] ?>"
-                                                data-min-down-payment-percentage="<?= $project['min_down_payment_percentage'] ?>"
-                                                data-min-down-payment-fixed="<?= $project['min_down_payment_fixed'] ?>">
+                                                data-min-down-payment-percentage="<?= $plan['min_down_payment_percentage'] ?? 0 ?>"
+                                                data-min-down-payment-fixed="<?= $plan['min_amount'] ?? 0 ?>"
+                                                data-down-payment-type="<?= $plan['down_payment_type'] ?? 'percentage' ?>">
                                                 <?= $project['name'] ?> (<?= $project['code'] ?>)
                                             </option>
                                             <?php endforeach; ?>
@@ -476,13 +480,16 @@
                                 <select class="form-control" id="edit_project_id" name="project_id" required
                                     onchange="updateLotPricePerSqm()">
                                     <option value="">Seleccionar proyecto</option>
-                                    <?php foreach ($projects as $project): ?>
+                                    <?php foreach ($projects as $project): 
+                                        $paymentPlanModel = new \App\Models\PaymentPlanModel();
+                                        $plan = $project['payment_plan_id'] ? $paymentPlanModel->find($project['payment_plan_id']) : null;
+                                    ?>
                                     <option value="<?= $project['id'] ?>"
                                         data-price="<?= $project['base_price_per_sqm'] ?>"
                                         data-location="<?= $project['location'] ?>"
-                                        data-down-payment-type="<?= $project['down_payment_type'] ?>"
-                                        data-min-down-payment-percentage="<?= $project['min_down_payment_percentage'] ?>"
-                                        data-min-down-payment-fixed="<?= $project['min_down_payment_fixed'] ?>">
+                                        data-down-payment-type="<?= $plan['down_payment_type'] ?? 'percentage' ?>"
+                                        data-min-down-payment-percentage="<?= $plan['min_down_payment_percentage'] ?? 0 ?>"
+                                        data-min-down-payment-fixed="<?= $plan['min_amount'] ?? 0 ?>">
                                         <?= $project['name'] ?> (<?= $project['code'] ?>)
                                     </option>
                                     <?php endforeach; ?>
