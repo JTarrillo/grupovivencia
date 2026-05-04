@@ -82,12 +82,12 @@
                                                                 name="duration_months" required
                                                                 onchange="calculateMonthlyPayment()">
                                                                 <option value="">Seleccionar duración</option>
+                                                                <option value="12">12 meses (Rápido)</option>
                                                                 <option value="24">24 meses (Cusco)</option>
                                                                 <option value="36">36 meses (Estándar)</option>
                                                                 <option value="48">48 meses (Personalizado)</option>
                                                             </select>
-                                                            <small class="form-text text-muted">24 meses recomendado
-                                                                para Cusco, 36 meses estándar</small>
+                                                            <small class="form-text text-muted">12-24 meses para pagos rápidos, 36 meses estándar</small>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4">
@@ -96,10 +96,9 @@
                                                                     class="text-danger">*</span></label>
                                                             <input type="number" class="form-control"
                                                                 id="base_interest_rate" name="base_interest_rate"
-                                                                step="0.01" min="2" max="6" value="3.5" required
+                                                                step="0.01" min="0" max="6" value="3.5" required
                                                                 onchange="calculateMonthlyPayment()">
-                                                            <small class="form-text text-muted">Rango: 2% - 6%. Varía
-                                                                por proyecto y tiempo</small>
+                                                            <small class="form-text text-muted">Rango: 0% - 6%. (0% = sin interés)</small>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -107,31 +106,36 @@
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <div class="form-group">
+                                                            <label for="down_payment_type">Tipo de Cuota Inicial <span
+                                                                    class="text-danger">*</span></label>
+                                                            <select class="form-control" id="down_payment_type"
+                                                                name="down_payment_type" required
+                                                                onchange="toggleDownPaymentType()">
+                                                                <option value="percentage">Porcentaje (%)</option>
+                                                                <option value="fixed">Monto Fijo (S/)</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group" id="percentageGroup">
                                                             <label for="min_down_payment_percentage">Cuota Inicial
                                                                 Mínima (%)</label>
                                                             <input type="number" class="form-control"
                                                                 id="min_down_payment_percentage"
-                                                                name="min_down_payment_percentage" step="0.01" min="10"
-                                                                max="50" value="15"
+                                                                name="min_down_payment_percentage" step="0.01" min="1"
+                                                                max="100" value="15"
                                                                 onchange="calculatePaymentExample()">
                                                         </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label for="min_amount">Cuota Inicial Mínima (Monto)</label>
+                                                        <div class="form-group d-none" id="fixedGroup">
+                                                            <label for="min_amount">Cuota Inicial Mínima (S/)</label>
                                                             <div class="input-group">
                                                                 <div class="input-group-prepend">
                                                                     <span class="input-group-text">S/</span>
                                                                 </div>
-                                                                <select class="form-control" id="min_amount"
-                                                                    name="min_amount">
-                                                                    <option value="5000">5,000 (Estándar)</option>
-                                                                    <option value="10000">10,000 (Premium)</option>
-                                                                    <option value="15000">15,000 (VIP)</option>
-                                                                </select>
+                                                                <input type="number" class="form-control" id="min_amount"
+                                                                    name="min_amount" step="0.01" min="0" value="5000"
+                                                                    onchange="calculatePaymentExample()">
                                                             </div>
-                                                            <small class="form-text text-muted">Monto mínimo absoluto
-                                                                independiente del porcentaje</small>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -244,6 +248,21 @@
     </section>
 
     <script>
+    function toggleDownPaymentType() {
+        const type = document.getElementById('down_payment_type').value;
+        const percentageGroup = document.getElementById('percentageGroup');
+        const fixedGroup = document.getElementById('fixedGroup');
+
+        if (type === 'percentage') {
+            percentageGroup.classList.remove('d-none');
+            fixedGroup.classList.add('d-none');
+        } else {
+            percentageGroup.classList.add('d-none');
+            fixedGroup.classList.remove('d-none');
+        }
+        calculatePaymentExample();
+    }
+
     function updatePlanDefaults() {
         const location = document.getElementById('location').value;
         const durationSelect = document.getElementById('duration_months');
@@ -274,14 +293,19 @@
 
     function calculatePaymentExample() {
         const lotPrice = parseFloat(document.getElementById('example_lot_price').value) || 160000;
-        const downPaymentPercentage = parseFloat(document.getElementById('min_down_payment_percentage').value) || 15;
-        const minAmount = parseFloat(document.getElementById('min_amount').value) || 5000;
+        const downPaymentType = document.getElementById('down_payment_type').value;
         const interestRate = parseFloat(document.getElementById('base_interest_rate').value) || 3.5;
         const duration = parseInt(document.getElementById('duration_months').value) || 36;
 
-        // Calcular cuota inicial (mayor entre porcentaje y monto mínimo)
-        const percentageAmount = lotPrice * (downPaymentPercentage / 100);
-        const initialPayment = Math.max(percentageAmount, minAmount);
+        let initialPayment = 0;
+
+        // Calcular cuota inicial según tipo
+        if (downPaymentType === 'percentage') {
+            const downPaymentPercentage = parseFloat(document.getElementById('min_down_payment_percentage').value) || 15;
+            initialPayment = lotPrice * (downPaymentPercentage / 100);
+        } else {
+            initialPayment = parseFloat(document.getElementById('min_amount').value) || 5000;
+        }
 
         // Monto financiado
         const financedAmount = lotPrice - initialPayment;

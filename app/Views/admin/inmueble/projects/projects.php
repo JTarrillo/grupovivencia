@@ -163,9 +163,9 @@
                                                                             <input type="number" class="form-control"
                                                                                 id="create_base_interest_rate"
                                                                                 name="base_interest_rate" step="0.01"
-                                                                                min="2" max="6" required>
+                                                                                min="0" max="6" required>
                                                                             <small class="form-text text-muted">Rango
-                                                                                permitido: 2% - 6%</small>
+                                                                                permitido: 0% - 6% (0% = sin interés)</small>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -519,7 +519,7 @@
                                                         }
                                                     } else {
                                                         if (interestRate < 2 || interestRate > 6) {
-                                                            alert('La tasa de interés debe estar entre 2% y 6%');
+                                                            alert('La tasa de interés debe estar entre 2% y 6% (o 0% sin interés).');
                                                             return false;
                                                         }
                                                     }
@@ -902,8 +902,8 @@
                                     <label for="edit_base_interest_rate">Tasa de Interés Base (%) <span
                                             class="text-danger">*</span></label>
                                     <input type="number" class="form-control" id="edit_base_interest_rate"
-                                        name="base_interest_rate" step="0.01" min="2" max="6" required>
-                                    <small class="form-text text-muted">Rango permitido: 2% - 6%</small>
+                                        name="base_interest_rate" step="0.01" min="0" max="6" required>
+                                    <small class="form-text text-muted">Rango permitido: 0% - 6% (0% = sin interés)</small>
                                 </div>
                             </div>
                         </div>
@@ -1054,7 +1054,7 @@
                             Swal.fire({
                                 icon: 'warning',
                                 title: 'Validación',
-                                text: 'La tasa de interés debe estar entre 2% y 6%'
+                                text: 'La tasa de interés debe estar entre 2% y 6% (o 0% sin interés).'
                             });
                             return false;
                         }

@@ -33,10 +33,10 @@
                                         <div class="card-header">
                                             <h5>Gestión de Planes de Pago</h5>
                                             <div class="card-header-right">
-                                                <a href="/dashboard/inmueble/payment_plans/create_payment_plan"
-                                                    class="btn btn-primary btn-sm">
+                                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                                                    data-target="#createPaymentPlanModal">
                                                     <i class="feather icon-plus"></i> Nuevo Plan
-                                                </a>
+                                                </button>
                                             </div>
                                         </div>
                                         <div class="card-block">
@@ -77,7 +77,15 @@
                                                                     años</small>
                                                             </td>
                                                             <td>
+                                                                <?php if ($plan['down_payment_type'] === 'percentage'): ?>
                                                                 <strong><?= $plan['min_down_payment_percentage'] ?>%</strong>
+                                                                <span class="badge badge-secondary">Porcentaje</span>
+                                                                <?php else: ?>
+                                                                <strong>S/
+                                                                    <?= number_format($plan['min_amount'], 2) ?></strong>
+                                                                <span class="badge badge-secondary">Fijo</span>
+                                                                <?php endif; ?>
+                                                            </td>
                                                             </td>
                                                             <td>
                                                                 <strong><?= $plan['base_interest_rate'] ?>%</strong><br>
@@ -767,10 +775,10 @@
         document.getElementById('example_down_payment').textContent = 'S/ ' + downPayment.toLocaleString('es-PE');
         document.getElementById('example_financed_amount').textContent = 'S/ ' + financedAmount.toLocaleString('es-PE');
         document.getElementById('example_monthly_payment').textContent = 'S/ ' + monthlyPayment.toLocaleString(
-        'es-PE', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
+            'es-PE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
         document.getElementById('example_total_installments').textContent = months + ' cuotas';
         document.getElementById('example_duration_years').textContent = (months / 12).toFixed(1) + ' años';
         document.getElementById('example_total_payment').textContent = 'S/ ' + totalPayment.toLocaleString('es-PE');
@@ -928,6 +936,234 @@
                     submitBtn.innerHTML = '<i class="feather icon-save"></i> Actualizar Plan';
                 });
         });
+    });
+    </script>
+
+    <!-- Modal para Crear Plan de Pago -->
+    <div class="modal fade" id="createPaymentPlanModal" tabindex="-1" role="dialog"
+        aria-labelledby="createPaymentPlanModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createPaymentPlanModalLabel">
+                        <i class="feather icon-plus"></i> Nuevo Plan de Pago
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="create-payment-plan-form">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="create_name">Nombre del Plan <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="create_name" name="name" required
+                                        placeholder="Ej: Plan Estándar 36 meses">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="create_code">Código <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="create_code" name="code" required
+                                        placeholder="Ej: STD36">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="create_location">Ubicación <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="create_location" name="location" required>
+                                        <option value="">Seleccionar ubicación</option>
+                                        <option value="General">General</option>
+                                        <option value="Cusco">Cusco</option>
+                                        <option value="Lima">Lima</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="create_duration_months">Duración (meses) <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" id="create_duration_months" name="duration_months"
+                                        required onchange="calculateCreatePaymentExample()">
+                                        <option value="">Seleccionar duración</option>
+                                        <option value="12">12 meses (Rápido)</option>
+                                        <option value="24">24 meses (Cusco)</option>
+                                        <option value="36">36 meses (Estándar)</option>
+                                        <option value="48">48 meses (Personalizado)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="create_base_interest_rate">Tasa de Interés (%) <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="create_base_interest_rate"
+                                        name="base_interest_rate" step="0.01" min="0" max="6" value="3.5" required
+                                        onchange="calculateCreatePaymentExample()">
+                                    <small class="form-text text-muted">Rango: 0% - 6%. (0% = sin interés)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="create_down_payment_type">Tipo de Cuota Inicial <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" id="create_down_payment_type" name="down_payment_type"
+                                        required onchange="toggleCreateDownPaymentType()">
+                                        <option value="percentage">Porcentaje (%)</option>
+                                        <option value="fixed">Monto Fijo (S/)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group" id="createPercentageGroup">
+                                    <label for="create_min_down_payment_percentage">Cuota Inicial Mínima (%)</label>
+                                    <input type="number" class="form-control" id="create_min_down_payment_percentage"
+                                        name="min_down_payment_percentage" step="0.01" min="1" max="100" value="15"
+                                        onchange="calculateCreatePaymentExample()">
+                                </div>
+                                <div class="form-group d-none" id="createFixedGroup">
+                                    <label for="create_min_amount">Cuota Inicial Mínima (S/)</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">S/</span>
+                                        </div>
+                                        <input type="number" class="form-control" id="create_min_amount"
+                                            name="min_amount" step="0.01" min="0" value="5000"
+                                            onchange="calculateCreatePaymentExample()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="create_is_default" name="is_default" value="1">
+                                        Plan por defecto para esta ubicación
+                                    </label>
+                                    <small class="form-text text-muted">Solo puede haber un plan por defecto por
+                                        ubicación</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="create_active" name="active" value="1" checked>
+                                        Plan activo
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="feather icon-x"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="create_plan_btn">
+                            <i class="feather icon-save"></i> Crear Plan de Pago
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Funciones para el modal de creación
+    function toggleCreateDownPaymentType() {
+        const type = document.getElementById('create_down_payment_type').value;
+        const percentageGroup = document.getElementById('createPercentageGroup');
+        const fixedGroup = document.getElementById('createFixedGroup');
+
+        if (type === 'percentage') {
+            percentageGroup.classList.remove('d-none');
+            fixedGroup.classList.add('d-none');
+        } else {
+            percentageGroup.classList.add('d-none');
+            fixedGroup.classList.remove('d-none');
+        }
+        calculateCreatePaymentExample();
+    }
+
+    function calculateCreatePaymentExample() {
+        const lotPrice = 160000; // Ejemplo
+        const downPaymentType = document.getElementById('create_down_payment_type').value;
+        const interestRate = parseFloat(document.getElementById('create_base_interest_rate').value) || 3.5;
+        const duration = parseInt(document.getElementById('create_duration_months').value) || 36;
+
+        if (downPaymentType === 'percentage') {
+            const downPaymentPercentage = parseFloat(document.getElementById('create_min_down_payment_percentage')
+                .value) || 15;
+            // Solo para preview
+        }
+    }
+
+    // Manejo del formulario de creación
+    document.getElementById('create-payment-plan-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const submitBtn = document.getElementById('create_plan_btn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="feather icon-loader"></i> Creando...';
+
+        const formData = new FormData(this);
+        fetch('/dashboard/inmueble/payment_plans/create_payment_plan', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Cerrar el modal primero
+                $('#createPaymentPlanModal').modal('hide');
+
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Creado!',
+                        text: 'Plan de pago creado exitosamente',
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Error al crear el plan de pago',
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                // Cerrar el modal primero
+                $('#createPaymentPlanModal').modal('hide');
+
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al procesar la solicitud',
+                    allowOutsideClick: false,
+                    showConfirmButton: true,
+                    confirmButtonText: 'OK'
+                });
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="feather icon-save"></i> Crear Plan de Pago';
+            });
     });
     </script>
 

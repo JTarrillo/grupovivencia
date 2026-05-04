@@ -483,6 +483,7 @@ $routes->group('dashboard/inmueble', static function($routes){
     $routes->get('lots/(:num)', 'Inmueble::lots/$1', ['filter' => 'authGuard']);
     $routes->get('payment_plans', 'Inmueble::payment_plans', ['filter' => 'authGuard']);
     $routes->get('payment_plans/create_payment_plan', 'Inmueble::create_payment_plan', ['filter' => 'authGuard']);
+    $routes->post('payment_plans/create_payment_plan', 'Inmueble::create_payment_plan', ['filter' => 'authGuard']);
     $routes->get('contracts', 'Inmueble::contracts', ['filter' => 'authGuard']);
 
     // Projects CRUD
@@ -720,6 +721,7 @@ $routes->get('/admin/comisiones/inmobiliaria', 'ComisionesController::inmobiliar
 $routes->get('/admin/comisiones/multinivel_demo', function() {
     echo view('admin/comisiones/multinivel_demo');
 }, ['filter' => 'authGuard']);
+$routes->get('/dashboard/usuarios/load', 'D_usuarios::load', ['filter' => 'authGuard']);
 $routes->get('/dashboard/usuarios/load/(:num)', 'D_usuarios::load/$1', ['filter' => 'authGuard']);
 $routes->post('/dashboard/usuarios/validate', 'D_usuarios::validacion', ['filter' => 'authGuard']);
 $routes->post('/dashboard/usuarios/validacion', 'D_usuarios::validacion', ['filter' => 'authGuard']);

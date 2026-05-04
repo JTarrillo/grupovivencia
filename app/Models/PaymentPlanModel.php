@@ -11,7 +11,8 @@ class PaymentPlanModel extends Model {
     protected $protectFields = true;
     protected $allowedFields = [
         'name', 'code', 'location', 'duration_months', 
-        'min_down_payment_percentage', 'base_interest_rate', 
+        'down_payment_type', 'min_down_payment_percentage', 
+        'min_amount', 'base_interest_rate', 
         'is_default', 'active'
     ];
 

@@ -449,6 +449,22 @@ class Inmueble extends BaseController {
                 ]);
             }
 
+            // Validar tasa de interés (0% - 6%)
+            if ($data['base_interest_rate'] < 0 || $data['base_interest_rate'] > 6) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'La tasa de interés debe estar entre 0% y 6% (0% para proyectos sin interés).'
+                ]);
+            }
+
+            // Validar precio por m²
+            if ($data['base_price_per_sqm'] <= 0) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'El precio por m² debe ser mayor a 0.'
+                ]);
+            }
+
             // Procesar imagen si se envía
             $imageFile = $this->request->getFile('image');
             if ($imageFile && $imageFile->isValid() && !$imageFile->hasMoved()) {
@@ -1253,21 +1269,12 @@ class Inmueble extends BaseController {
                     'message' => 'Completa los campos obligatorios: nombre.'
                 ]);
             }
-            if ($data['base_interest_rate'] < 2 || $data['base_interest_rate'] > 6) {
-                // Permitir 0% solo para Cusco (ID 8)
-                if (isset($data['department_id']) && intval($data['department_id']) === 8) {
-                    if ($data['base_interest_rate'] < 0 || $data['base_interest_rate'] > 6) {
-                        return $this->response->setJSON([
-                            'success' => false,
-                            'message' => 'La tasa de interés para Cusco debe estar entre 0% y 6%.'
-                        ]);
-                    }
-                } else {
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => 'La tasa de interés debe estar entre 2% y 6%.'
-                    ]);
-                }
+            // Permitir 0% - 6% para todos los proyectos (0% = sin interés)
+            if ($data['base_interest_rate'] < 0 || $data['base_interest_rate'] > 6) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'La tasa de interés debe estar entre 0% y 6% (0% para proyectos sin interés).'
+                ]);
             }
             if ($data['base_price_per_sqm'] <= 0) {
                 return $this->response->setJSON([
@@ -1820,59 +1827,76 @@ class Inmueble extends BaseController {
                     $res = $json;
                 }
             }
+            
+            // Mapear ubicación a ubicación estándar (compatibilidad)
+            $location = $res['location'] ?? '';
+            
             $data = [
                 'name' => $res['name'] ?? '',
                 'code' => $res['code'] ?? '',
-                'department_id' => $res['department_id'] ?? null,
-                'province_id' => $res['province_id'] ?? null,
-                'district_id' => $res['district_id'] ?? null,
+                'location' => $location,
                 'duration_months' => $res['duration_months'] ?? '',
+                'down_payment_type' => $res['down_payment_type'] ?? 'percentage',
                 'min_down_payment_percentage' => $res['min_down_payment_percentage'] ?? '',
+                'min_amount' => $res['min_amount'] ?? '',
                 'base_interest_rate' => $res['base_interest_rate'] ?? '',
                 'is_default' => !empty($res['is_default']) ? 1 : 0,
                 'active' => !empty($res['active']) ? 1 : 0
             ];
+            
             // Validaciones robustas
-            if (empty($data['name']) || empty($data['code']) || empty($data['department_id']) || empty($data['duration_months']) || empty($data['base_interest_rate'])) {
+            if (empty($data['name']) || empty($data['code']) || empty($data['location']) || empty($data['duration_months']) || empty($data['base_interest_rate'])) {
                 return $this->response->setJSON([
                     'success' => false,
                     'message' => 'Completa todos los campos obligatorios.'
                 ]);
             }
-            if ($data['base_interest_rate'] < 2 || $data['base_interest_rate'] > 6) {
-                // Permitir 0% solo para Cusco (ID 8)
-                if (isset($data['department_id']) && intval($data['department_id']) === 8) {
-                    if ($data['base_interest_rate'] < 0 || $data['base_interest_rate'] > 6) {
-                        return $this->response->setJSON([
-                            'success' => false,
-                            'message' => 'La tasa de interés para Cusco debe estar entre 0% y 6%.'
-                        ]);
-                    }
-                } else {
+            
+            // Validar duración: permite 12, 24, 36, 48 meses
+            if (!in_array($data['duration_months'], [12, 24, 36, 48])) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'La duración debe ser 12, 24, 36 o 48 meses.'
+                ]);
+            }
+            
+            // Validar tasa de interés: 0% - 6% para todos
+            if ($data['base_interest_rate'] < 0 || $data['base_interest_rate'] > 6) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'La tasa de interés debe estar entre 0% y 6% (0% = sin interés).'
+                ]);
+            }
+            
+            // Validar campos según tipo de cuota inicial
+            if ($data['down_payment_type'] === 'percentage') {
+                if (empty($data['min_down_payment_percentage'])) {
                     return $this->response->setJSON([
                         'success' => false,
-                        'message' => 'La tasa de interés debe estar entre 2% y 6%.'
+                        'message' => 'Ingresa el porcentaje de cuota inicial.'
+                    ]);
+                }
+                if ($data['min_down_payment_percentage'] < 1 || $data['min_down_payment_percentage'] > 100) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'El porcentaje debe estar entre 1% y 100%.'
+                    ]);
+                }
+            } else {
+                if (empty($data['min_amount'])) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Ingresa el monto fijo de cuota inicial.'
+                    ]);
+                }
+                if ($data['min_amount'] <= 0) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'El monto debe ser mayor a 0.'
                     ]);
                 }
             }
-            if ($data['duration_months'] != 24 && $data['duration_months'] != 36 && $data['duration_months'] != 48) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'La duración debe ser 24, 36 o 48 meses.'
-                ]);
-            }
-            // Validar reglas de negocio específicas por ubicación/plan
-            $planValidation = $this->validate_payment_plan_rules([
-                'department_id' => $data['department_id'],
-                'duration_months' => $data['duration_months'],
-                'base_interest_rate' => $data['base_interest_rate']
-            ]);
-            if (isset($planValidation['valid']) && $planValidation['valid'] === false) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => $planValidation['message']
-                ]);
-            }
+            
             // Verificar código único
             if ($this->paymentPlanModel->where('code', $data['code'])->countAllResults() > 0) {
                 return $this->response->setJSON([
@@ -1880,17 +1904,18 @@ class Inmueble extends BaseController {
                     'message' => 'El código ya existe, ingresa uno diferente.'
                 ]);
             }
+            
             // Si es plan por defecto, desactivar otros planes por defecto de la misma ubicación
             if ($data['is_default']) {
                 $this->paymentPlanModel
-                    ->where('department_id', $data['department_id'])
-                    ->where('province_id', $data['province_id'])
-                    ->where('district_id', $data['district_id'])
+                    ->where('location', $data['location'])
                     ->set(['is_default' => 0])
                     ->update();
             }
+            
             $result = $this->paymentPlanModel->insert($data);
             $errors = $this->paymentPlanModel->errors();
+            
             if ($result) {
                 return $this->response->setJSON([
                     'success' => true,
