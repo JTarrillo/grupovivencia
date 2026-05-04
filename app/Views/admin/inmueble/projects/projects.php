@@ -138,8 +138,7 @@
                                                                 <div class="row mb-2">
                                                                     <div class="col-md-6">
                                                                         <div class="form-group mb-2">
-                                                                            <label
-                                                                                for="create_base_price_per_sqm">Precio
+                                                                            <label for="create_base_price_per_sqm">Precio
                                                                                 Base por m² <span
                                                                                     class="text-danger">*</span></label>
                                                                             <div class="input-group">
@@ -170,55 +169,15 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="row mb-2">
-                                                                    <div class="col-md-6">
+                                                                    <div class="col-md-12">
                                                                         <div class="form-group mb-2">
-                                                                            <label for="create_down_payment_type">Tipo
-                                                                                de Cuota Inicial</label>
-                                                                            <select class="form-control"
-                                                                                id="create_down_payment_type"
-                                                                                name="down_payment_type"
-                                                                                onchange="toggleDownPaymentField()">
-                                                                                <option value="fixed">Monto fijo (S/)
-                                                                                </option>
-                                                                                <option value="percentage">Porcentaje
-                                                                                    (%)</option>
+                                                                            <label for="create_payment_plan_id">Plan de Pago
+                                                                                <span class="text-danger">*</span></label>
+                                                                            <select class="form-control" id="create_payment_plan_id" 
+                                                                                name="payment_plan_id" required>
+                                                                                <option value="">Seleccionar plan de pago</option>
                                                                             </select>
-                                                                        </div>
-                                                                        <div class="form-group mb-2"
-                                                                            id="downPaymentPercentageGroup">
-                                                                            <label
-                                                                                for="create_min_down_payment_percentage">Cuota
-                                                                                Inicial Mínima (%)</label>
-                                                                            <input type="number" class="form-control"
-                                                                                id="create_min_down_payment_percentage"
-                                                                                name="min_down_payment_percentage"
-                                                                                step="0.01" min="1" max="100">
-                                                                        </div>
-                                                                        <div class="form-group mb-2 d-none"
-                                                                            id="downPaymentFixedGroup">
-                                                                            <label
-                                                                                for="create_min_down_payment_fixed">Cuota
-                                                                                Inicial Mínima (S/)</label>
-                                                                            <input type="number" class="form-control"
-                                                                                id="create_min_down_payment_fixed"
-                                                                                name="min_down_payment_fixed"
-                                                                                step="0.01" min="0">
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-md-6">
-                                                                        <div class="form-group mb-2">
-                                                                            <label
-                                                                                for="create_max_financing_months">Máximo
-                                                                                Meses de Financiamiento</label>
-                                                                            <select class="form-control"
-                                                                                id="create_max_financing_months"
-                                                                                name="max_financing_months">
-                                                                                <option value="24">24 meses (Cusco)
-                                                                                </option>
-                                                                                <option value="36">36 meses (Estándar)
-                                                                                </option>
-                                                                                <option value="48">48 meses</option>
-                                                                            </select>
+                                                                            <small class="form-text text-muted">Selecciona el plan de pago que aplicará a este proyecto</small>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -272,20 +231,15 @@
                                                                 .value = data.project.base_interest_rate || '';
                                                             document.getElementById('edit_status').value = data
                                                                 .project.status || 'planning';
-                                                            document.getElementById('edit_down_payment_type')
-                                                                .value = data.project.down_payment_type ||
-                                                                'percentage';
-                                                            document.getElementById(
-                                                                    'edit_min_down_payment_percentage').value = data
-                                                                .project.min_down_payment_percentage || '';
-                                                            document.getElementById('edit_min_down_payment_fixed')
-                                                                .value = data.project.min_down_payment_fixed || '';
-                                                            document.getElementById('edit_max_financing_months')
-                                                                .value = data.project.max_financing_months || '36';
+                                                            document.getElementById('edit_payment_plan_id')
+                                                                .value = data.project.payment_plan_id || '';
 
                                                             // Cargar selects de departamento, provincia y distrito con los valores actuales
                                                             cargarDepartamentosEdit(data.project.department_id, data
                                                                 .project.province_id, data.project.district_id);
+                                                            
+                                                            // Cargar planes de pago
+                                                            cargarPlanesDepagoEdit(data.project.payment_plan_id);
 
                                                             // Mostrar el modal
                                                             $('#editProjectModal').modal('show');
@@ -299,6 +253,44 @@
                                                             'error');
                                                     });
                                             }
+                                            
+                                            function cargarPlanesDepagoEdit(selectedPlanId) {
+                                                fetch('/dashboard/inmueble/getPaymentPlans')
+                                                    .then(res => res.json())
+                                                    .then(data => {
+                                                        let select = document.getElementById('edit_payment_plan_id');
+                                                        select.innerHTML = '<option value="">Seleccionar plan de pago</option>';
+                                                        data.forEach(plan => {
+                                                            const selected = plan.id == selectedPlanId ? ' selected' : '';
+                                                            select.innerHTML +=
+                                                                `<option value="${plan.id}" data-interest-rate="${plan.base_interest_rate}"${selected}>${plan.name} (${plan.code})</option>`;
+                                                        });
+                                                        
+                                                        // Si hay un plan seleccionado, cargar su tasa
+                                                        const selectedOption = select.querySelector('option[selected]');
+                                                        if (selectedOption) {
+                                                            const interestRate = selectedOption.getAttribute('data-interest-rate');
+                                                            if (interestRate) {
+                                                                document.getElementById('edit_base_interest_rate').value = interestRate;
+                                                            }
+                                                        }
+                                                        
+                                                        // Agregar listener para cambios en el plan
+                                                        select.addEventListener('change', function() {
+                                                            const selectedOption = this.options[this.selectedIndex];
+                                                            const interestRate = selectedOption.getAttribute('data-interest-rate');
+                                                            if (interestRate) {
+                                                                document.getElementById('edit_base_interest_rate').value = interestRate;
+                                                            }
+                                                        });
+                                                    })
+                                                    .catch(err => {
+                                                        console.error('Error cargando planes de pago:', err);
+                                                        let select = document.getElementById('edit_payment_plan_id');
+                                                        select.innerHTML = '<option value="">Error cargando planes</option>';
+                                                    });
+                                            }
+                                            
                                             // Carga dinámica de departamentos, provincias y distritos
                                             document.addEventListener('DOMContentLoaded', function() {
                                                 cargarDepartamentos();
@@ -445,26 +437,57 @@
                                                     fixedGroup.classList.remove('d-none');
                                                 }
                                             }
-                                            // Inicializar al abrir el modal
-                                            document.getElementById('createProjectModal').addEventListener(
+                                            // Inicializar al abrir el modal (solo para editar)
+                                            document.getElementById('editProjectModal').addEventListener(
                                                 'shown.bs.modal',
                                                 function() {
-                                                    toggleDownPaymentField();
+                                                    // Funcionalidad de editar si es necesaria
                                                 });
 
                                             function showCreateProjectModal() {
                                                 document.getElementById('create-project-form').reset();
                                                 document.getElementById('createProjectErrorMsg').classList.add(
                                                     'd-none');
-                                                // Limpiar opciones de meses de financiamiento
-                                                let selectMonths = document.getElementById(
-                                                    'create_max_financing_months');
-                                                selectMonths.innerHTML =
-                                                    '<option value="36">36 meses (Estándar)</option><option value="48">48 meses</option>';
-                                                // Seleccionar "Monto fijo" y mostrar el campo correspondiente
-                                                document.getElementById('create_down_payment_type').value = 'fixed';
-                                                toggleDownPaymentField();
+                                                // Cargar planes de pago disponibles
+                                                cargarPlanesDepago();
                                                 $('#createProjectModal').modal('show');
+                                            }
+
+                                            function cargarPlanesDepago() {
+                                                fetch('/dashboard/inmueble/getPaymentPlans')
+                                                    .then(res => res.json())
+                                                    .then(data => {
+                                                        let select = document.getElementById('create_payment_plan_id');
+                                                        select.innerHTML = '<option value="">Seleccionar plan de pago</option>';
+                                                        data.forEach(plan => {
+                                                            const selected = plan.is_default ? ' selected' : '';
+                                                            select.innerHTML +=
+                                                                `<option value="${plan.id}" data-interest-rate="${plan.base_interest_rate}"${selected}>${plan.name} (${plan.code})</option>`;
+                                                        });
+                                                        
+                                                        // Si hay un plan seleccionado por defecto, cargar su tasa
+                                                        const selectedOption = select.querySelector('option[selected]');
+                                                        if (selectedOption) {
+                                                            const interestRate = selectedOption.getAttribute('data-interest-rate');
+                                                            if (interestRate) {
+                                                                document.getElementById('create_base_interest_rate').value = interestRate;
+                                                            }
+                                                        }
+                                                        
+                                                        // Agregar listener para cambios en el plan
+                                                        select.addEventListener('change', function() {
+                                                            const selectedOption = this.options[this.selectedIndex];
+                                                            const interestRate = selectedOption.getAttribute('data-interest-rate');
+                                                            if (interestRate) {
+                                                                document.getElementById('create_base_interest_rate').value = interestRate;
+                                                            }
+                                                        });
+                                                    })
+                                                    .catch(err => {
+                                                        console.error('Error cargando planes de pago:', err);
+                                                        let select = document.getElementById('create_payment_plan_id');
+                                                        select.innerHTML = '<option value="">Error cargando planes</option>';
+                                                    });
                                             }
 
                                             document.getElementById('create-project-form').addEventListener('submit',
@@ -909,36 +932,13 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="edit_down_payment_type">Tipo de Cuota Inicial</label>
-                                    <select class="form-control" id="edit_down_payment_type" name="down_payment_type"
-                                        onchange="toggleEditDownPaymentField()">
-                                        <option value="fixed">Monto fijo (S/)</option>
-                                        <option value="percentage">Porcentaje (%)</option>
-
+                                    <label for="edit_payment_plan_id">Plan de Pago <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="edit_payment_plan_id" name="payment_plan_id" required>
+                                        <option value="">Seleccionar plan de pago</option>
                                     </select>
-                                </div>
-                                <div class="form-group" id="editDownPaymentPercentageGroup">
-                                    <label for="edit_min_down_payment_percentage">Cuota Inicial Mínima (%)</label>
-                                    <input type="number" class="form-control" id="edit_min_down_payment_percentage"
-                                        name="min_down_payment_percentage" step="0.01" min="1" max="100">
-                                </div>
-                                <div class="form-group d-none" id="editDownPaymentFixedGroup">
-                                    <label for="edit_min_down_payment_fixed">Cuota Inicial Mínima (S/)</label>
-                                    <input type="number" class="form-control" id="edit_min_down_payment_fixed"
-                                        name="min_down_payment_fixed" step="0.01" min="0">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="edit_max_financing_months">Máximo Meses de Financiamiento</label>
-                                    <select class="form-control" id="edit_max_financing_months"
-                                        name="max_financing_months">
-                                        <option value="24">24 meses (Cusco)</option>
-                                        <option value="36">36 meses (Estándar)</option>
-                                        <option value="48">48 meses</option>
-                                    </select>
+                                    <small class="form-text text-muted">Selecciona el plan de pago que aplicará a este proyecto</small>
                                 </div>
                             </div>
                         </div>

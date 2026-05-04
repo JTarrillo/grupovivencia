@@ -526,6 +526,7 @@ $routes->group('dashboard/inmueble', static function($routes){
     $routes->get('getDepartments', 'Inmueble::getDepartments');
     $routes->get('getProvinces/(:num)', 'Inmueble::getProvinces/$1');
     $routes->get('getDistricts/(:num)', 'Inmueble::getDistricts/$1');
+    $routes->get('getPaymentPlans', 'Inmueble::getPaymentPlans');
 
     // Misc: reminders
     $routes->post('enviar_recordatorios_vencimiento', 'Inmueble::enviar_recordatorios_vencimiento', ['filter' => 'authGuard']);
@@ -706,6 +707,7 @@ $routes->get('/dashboard/logout', 'Home::adm_logout');
 $routes->get('dashboard/inmueble/getDepartments', 'Inmueble::getDepartments');
 $routes->get('dashboard/inmueble/getProvinces/(:num)', 'Inmueble::getProvinces/$1');
 $routes->get('dashboard/inmueble/getDistricts/(:num)', 'Inmueble::getDistricts/$1');
+$routes->get('dashboard/inmueble/getPaymentPlans', 'Inmueble::getPaymentPlans');
 $routes->post('/dashboard/facturas/generarFactura', 'D_facturas::generarFactura', ['filter' => 'authGuard']);
 
 $routes->get('/dashboard/penalties/apply', 'Penalties::applyPenalties');

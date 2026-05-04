@@ -12,7 +12,7 @@ class ProjectModel extends Model
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
     protected $protectFields = true;
-    protected $allowedFields = ['name', 'code', 'description', 'image', 'total_lots', 'available_lots', 'base_price_per_sqm', 'down_payment_type', 'min_down_payment_percentage', 'min_down_payment_fixed', 'max_financing_months', 'base_interest_rate', 'status', 'created_at', 'updated_at', 'department_id', 'province_id', 'district_id'];
+    protected $allowedFields = ['name', 'code', 'description', 'image', 'total_lots', 'available_lots', 'base_price_per_sqm', 'base_interest_rate', 'status', 'payment_plan_id', 'created_at', 'updated_at', 'department_id', 'province_id', 'district_id'];
 
     protected $useTimestamps = false;
 

@@ -429,12 +429,9 @@ class Inmueble extends BaseController {
                 'code' => $this->request->getPost('code'),
                 'description' => $this->request->getPost('description'),
                 'base_price_per_sqm' => $this->request->getPost('base_price_per_sqm'),
-                'down_payment_type' => $this->request->getPost('down_payment_type') ?: 'percentage',
-                'min_down_payment_percentage' => $this->request->getPost('min_down_payment_percentage') ?: 15.00,
-                'min_down_payment_fixed' => $this->request->getPost('min_down_payment_fixed') ?: 0.00,
-                'max_financing_months' => $this->request->getPost('max_financing_months') ?: 36,
                 'base_interest_rate' => $this->request->getPost('base_interest_rate'),
                 'status' => $this->request->getPost('status') ?: 'planning',
+                'payment_plan_id' => $this->request->getPost('payment_plan_id'),
                 'department_id' => $this->request->getPost('department_id'),
                 'province_id' => $this->request->getPost('province_id'),
                 'district_id' => $this->request->getPost('district_id'),
@@ -446,6 +443,23 @@ class Inmueble extends BaseController {
                 return $this->response->setJSON([
                     'success' => false,
                     'message' => 'Completa los campos obligatorios: nombre.'
+                ]);
+            }
+
+            // Validar payment_plan_id
+            if (empty($data['payment_plan_id'])) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Debe seleccionar un plan de pago.'
+                ]);
+            }
+
+            // Verificar que el plan de pago exista
+            $paymentPlanModel = new \App\Models\PaymentPlanModel();
+            if (!$paymentPlanModel->find($data['payment_plan_id'])) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'El plan de pago seleccionado no existe.'
                 ]);
             }
 
@@ -695,6 +709,14 @@ class Inmueble extends BaseController {
     $districts = $db->table('districts')->where('province_id', $province_id)->get()->getResultArray();
     return $this->response->setJSON($districts);
     }
+
+    // Endpoint para obtener planes de pago disponibles
+    public function getPaymentPlans()
+    {
+    $paymentPlans = $this->paymentPlanModel->where('active', 1)->orderBy('is_default', 'DESC')->orderBy('name', 'ASC')->findAll();
+    return $this->response->setJSON($paymentPlans);
+    }
+
     /**
     * Enviar recordatorios de vencimiento por email a clientes con cuotas próximas a vencer (7 días antes)
  
@@ -1231,12 +1253,9 @@ class Inmueble extends BaseController {
                 'code' => $this->request->getPost('code'),
                 'description' => $this->request->getPost('description'),
                 'base_price_per_sqm' => $this->request->getPost('base_price_per_sqm'),
-                'down_payment_type' => $this->request->getPost('down_payment_type') ?: 'percentage',
-                'min_down_payment_percentage' => $this->request->getPost('min_down_payment_percentage') ?: 15.00,
-                'min_down_payment_fixed' => $this->request->getPost('min_down_payment_fixed') ?: 0.00,
-                'max_financing_months' => $this->request->getPost('max_financing_months') ?: 36,
                 'base_interest_rate' => $this->request->getPost('base_interest_rate'),
                 'status' => $this->request->getPost('status') ?: 'planning',
+                'payment_plan_id' => $this->request->getPost('payment_plan_id'),
                 'total_lots' => 0,
                 'available_lots' => 0,
                 'department_id' => $this->request->getPost('department_id'),
@@ -1269,6 +1288,24 @@ class Inmueble extends BaseController {
                     'message' => 'Completa los campos obligatorios: nombre.'
                 ]);
             }
+
+            // Validar payment_plan_id
+            if (empty($data['payment_plan_id'])) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Debe seleccionar un plan de pago.'
+                ]);
+            }
+
+            // Verificar que el plan de pago exista
+            $paymentPlanModel = new \App\Models\PaymentPlanModel();
+            if (!$paymentPlanModel->find($data['payment_plan_id'])) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'El plan de pago seleccionado no existe.'
+                ]);
+            }
+
             // Permitir 0% - 6% para todos los proyectos (0% = sin interés)
             if ($data['base_interest_rate'] < 0 || $data['base_interest_rate'] > 6) {
                 return $this->response->setJSON([

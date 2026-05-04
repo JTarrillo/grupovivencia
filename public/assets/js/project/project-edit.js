@@ -42,40 +42,18 @@ function formatDate(dateStr) {
     return d.toLocaleDateString('es-PE');
 }
 
-function toggleEditDownPaymentField() {
-    var type = document.getElementById('edit_down_payment_type').value;
-    var percentGroup = document.getElementById('editDownPaymentPercentageGroup');
-    var fixedGroup = document.getElementById('editDownPaymentFixedGroup');
-    if (type === 'percentage') {
-        percentGroup.classList.remove('d-none');
-        fixedGroup.classList.add('d-none');
-    } else {
-        percentGroup.classList.add('d-none');
-        fixedGroup.classList.remove('d-none');
-    }
-}
-
 let currentProjectData = {};
 
 function loadProjectDataToModal(project) {
     document.getElementById('edit_name').value = project.name || '';
     document.getElementById('edit_code').value = project.code || '';
-    document.getElementById('edit_location').value = project.location || '';
     document.getElementById('edit_status').value = project.status || 'planning';
     document.getElementById('edit_base_price_per_sqm').value = project.base_price_per_sqm || 0;
     document.getElementById('edit_base_interest_rate').value = project.base_interest_rate || 3.5;
-    document.getElementById('edit_max_financing_months').value = project.max_financing_months || 36;
     document.getElementById('edit_description').value = project.description || '';
 
-    // Tipo de cuota inicial
-    var downPaymentType = project.down_payment_type || 'percentage';
-    var downPaymentSelect = document.getElementById('edit_down_payment_type');
-    downPaymentSelect.value = downPaymentType;
-    downPaymentSelect.disabled = true;
-    // Ajustar visibilidad de campos según tipo
-    toggleEditDownPaymentField();
-    document.getElementById('edit_min_down_payment_percentage').value = project.min_down_payment_percentage || '';
-    document.getElementById('edit_min_down_payment_fixed').value = project.min_down_payment_fixed || '';
+    // Asignar plan de pago desde el proyecto
+    document.getElementById('edit_payment_plan_id').value = project.payment_plan_id || '';
 
     // Update statistics
     const totalLots = parseInt(project.total_lots) || 0;
