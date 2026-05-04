@@ -35,6 +35,9 @@
                                                 <button type="button" class="btn btn-primary btn-sm" onclick="showCreateLotModal()">
                                                     <i class="feather icon-plus"></i> Nuevo Lote
                                                 </button>
+                                                <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#bulkCreateModal" style="margin-left: 5px;">
+                                                    <i class="feather icon-layers"></i> Crear Múltiples Lotes
+                                                </button>
                                             </div>
                                         </div>
                                         <div class="card-block">
@@ -111,12 +114,41 @@
                                                 </div>
                                             </div>
 
+                                            <!-- BARRA DE HERRAMIENTAS PARA OPERACIONES EN MASA -->
+                                            <div id="bulk-actions-bar" class="alert alert-info" style="display: none; margin-bottom: 20px;">
+                                                <div class="row align-items-center">
+                                                    <div class="col-md-4">
+                                                        <strong id="selected-count">0 lotes seleccionados</strong>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <button type="button" class="btn btn-sm btn-warning" onclick="bulkChangeStatus()">
+                                                            <i class="feather icon-edit-2"></i> Cambiar Estado
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-info" onclick="bulkUpdatePrices()">
+                                                            <i class="feather icon-dollar-sign"></i> Actualizar Precios
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-success" onclick="bulkExport()">
+                                                            <i class="feather icon-download"></i> Exportar
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-danger" onclick="bulkDelete()">
+                                                            <i class="feather icon-trash-2"></i> Eliminar
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-secondary" onclick="clearSelection()">
+                                                            <i class="feather icon-x"></i> Limpiar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                             <div class="table-responsive">
                                                 <table id="zero-configuration"
                                                     class="display table nowrap table-striped table-hover dataTable"
                                                     style="width: 100%;">
                                                     <thead>
                                                         <tr>
+                                                            <th style="width: 40px;">
+                                                                <input type="checkbox" id="select-all" onchange="toggleSelectAll(this)">
+                                                            </th>
                                                             <th>ID</th>
                                                             <th>Proyecto</th>
                                                             <th>Lote</th>
@@ -138,7 +170,10 @@
                                                     <tbody>
                                                         <?php if ($lots): ?>
                                                         <?php foreach ($lots as $lot): ?>
-                                                        <tr>
+                                                        <tr class="lot-row" data-lot-id="<?= $lot['id'] ?>">
+                                                            <td>
+                                                                <input type="checkbox" class="lot-checkbox" value="<?= $lot['id'] ?>" onchange="updateBulkActions()">
+                                                            </td>
                                                             <td><?= $lot['id'] ?></td>
                                                             <td>
                                                                 <?php 
@@ -1476,7 +1511,595 @@
             }
         }, 500);
     });
+
+    // ============ FUNCIONES PARA OPERACIONES EN MASA ============
+    let selectedLots = [];
+
+    function getSelectedLots() {
+        const checkboxes = document.querySelectorAll('.lot-checkbox:checked');
+        return Array.from(checkboxes).map(cb => cb.value);
+    }
+
+    function updateBulkActions() {
+        selectedLots = getSelectedLots();
+        const bulkBar = document.getElementById('bulk-actions-bar');
+        const selectedCount = document.getElementById('selected-count');
+        
+        if (selectedLots.length > 0) {
+            bulkBar.style.display = 'block';
+            selectedCount.textContent = `${selectedLots.length} lote${selectedLots.length !== 1 ? 's' : ''} seleccionado${selectedLots.length !== 1 ? 's' : ''}`;
+        } else {
+            bulkBar.style.display = 'none';
+        }
+    }
+
+    function toggleSelectAll(checkbox) {
+        const lotCheckboxes = document.querySelectorAll('.lot-checkbox');
+        lotCheckboxes.forEach(cb => cb.checked = checkbox.checked);
+        updateBulkActions();
+    }
+
+    function clearSelection() {
+        const allCheckbox = document.getElementById('select-all');
+        const lotCheckboxes = document.querySelectorAll('.lot-checkbox');
+        lotCheckboxes.forEach(cb => cb.checked = false);
+        allCheckbox.checked = false;
+        updateBulkActions();
+    }
+
+    function bulkChangeStatus() {
+        selectedLots = getSelectedLots();
+        if (selectedLots.length === 0) {
+            Swal.fire('Aviso', 'Por favor selecciona al menos un lote', 'warning');
+            return;
+        }
+        Swal.fire({
+            title: 'Cambiar Estado',
+            html: `
+                <div class="form-group">
+                    <label>Nuevo Estado</label>
+                    <select id="new_status" class="form-control">
+                        <option value="">Seleccionar</option>
+                        <option value="available">Disponible</option>
+                        <option value="reserved">Reservado</option>
+                        <option value="sold">Vendido</option>
+                        <option value="blocked">Bloqueado</option>
+                    </select>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Cambiar',
+            cancelButtonText: 'Cancelar'
+        }).then(result => {
+            if (result.isConfirmed) {
+                const newStatus = document.getElementById('new_status').value;
+                if (!newStatus) {
+                    Swal.fire('Error', 'Selecciona un estado', 'error');
+                    return;
+                }
+                fetch('/dashboard/inmueble/api/bulk_change_status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        lot_ids: selectedLots,
+                        status: newStatus
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('¡Éxito!', `${data.updated_count} lote(s) actualizado(s)`, 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        Swal.fire('Error', data.message || 'Error desconocido', 'error');
+                    }
+                })
+                .catch(error => Swal.fire('Error', 'Error al procesar la solicitud', 'error'));
+            }
+        });
+    }
+
+    function bulkUpdatePrices() {
+        selectedLots = getSelectedLots();
+        if (selectedLots.length === 0) {
+            Swal.fire('Aviso', 'Por favor selecciona al menos un lote', 'warning');
+            return;
+        }
+        Swal.fire({
+            title: 'Actualizar Precios',
+            html: `
+                <div class="form-group text-left">
+                    <label>Tipo de Actualización</label>
+                    <select id="update_type" class="form-control" onchange="updatePriceInputLabel()">
+                        <option value="percentage">Por Porcentaje (%)</option>
+                        <option value="fixed">Monto Fijo (S/)</option>
+                        <option value="set">Establecer Precio Exacto</option>
+                    </select>
+                    <label class="mt-3">Valor</label>
+                    <input type="number" id="update_value" class="form-control" step="0.01" placeholder="Ej: 10">
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Actualizar',
+            cancelButtonText: 'Cancelar',
+            didOpen: () => {
+                document.getElementById('update_type').focus();
+            }
+        }).then(result => {
+            if (result.isConfirmed) {
+                const updateType = document.getElementById('update_type').value;
+                const updateValue = parseFloat(document.getElementById('update_value').value);
+                
+                if (isNaN(updateValue)) {
+                    Swal.fire('Error', 'Ingresa un valor válido', 'error');
+                    return;
+                }
+
+                fetch('/dashboard/inmueble/api/bulk_update_prices', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        lot_ids: selectedLots,
+                        update_type: updateType,
+                        value: updateValue
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('¡Éxito!', `Precios actualizados en ${data.updated_count} lote(s)`, 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        Swal.fire('Error', data.message || 'Error desconocido', 'error');
+                    }
+                })
+                .catch(error => Swal.fire('Error', 'Error al procesar la solicitud', 'error'));
+            }
+        });
+    }
+
+    function bulkExport() {
+        selectedLots = getSelectedLots();
+        if (selectedLots.length === 0) {
+            Swal.fire('Aviso', 'Por favor selecciona al menos un lote', 'warning');
+            return;
+        }
+        Swal.fire({
+            title: 'Selecciona formato',
+            icon: 'question',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Excel',
+            denyButtonText: 'PDF',
+            cancelButtonText: 'Cancelar'
+        }).then(result => {
+            if (result.isConfirmed) {
+                window.location.href = '/dashboard/inmueble/api/export_lots?format=excel&lot_ids=' + selectedLots.join(',');
+            } else if (result.isDenied) {
+                window.location.href = '/dashboard/inmueble/api/export_lots?format=pdf&lot_ids=' + selectedLots.join(',');
+            }
+        });
+    }
+
+    function bulkDelete() {
+        selectedLots = getSelectedLots();
+        if (selectedLots.length === 0) {
+            Swal.fire('Aviso', 'Por favor selecciona al menos un lote', 'warning');
+            return;
+        }
+        Swal.fire({
+            title: '¡Atención!',
+            text: `¿Estás seguro de eliminar ${selectedLots.length} lote(s)? Esta acción es irreversible.`,
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            confirmButtonColor: '#dc3545',
+            cancelButtonText: 'Cancelar'
+        }).then(result => {
+            if (result.isConfirmed) {
+                fetch('/dashboard/inmueble/api/bulk_delete_lots', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        lot_ids: selectedLots
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Eliminado', `${data.deleted_count} lote(s) eliminado(s)`, 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        Swal.fire('Error', data.message || 'Error desconocido', 'error');
+                    }
+                })
+                .catch(error => Swal.fire('Error', 'Error al procesar la solicitud', 'error'));
+            }
+        });
+    }
+
+    function updatePriceInputLabel() {
+        const type = document.getElementById('update_type').value;
+        const input = document.getElementById('update_value');
+        if (type === 'percentage') {
+            input.placeholder = 'Ej: 10 (para aumentar 10%)';
+        } else if (type === 'fixed') {
+            input.placeholder = 'Ej: 5000 (para aumentar S/ 5,000)';
+        } else {
+            input.placeholder = 'Ej: 50000 (precio exacto)';
+        }
+    }
     </script>
+
+    <!-- MODAL: CREAR MÚLTIPLES LOTES -->
+    <div class="modal fade" id="bulkCreateModal" tabindex="-1" role="dialog" aria-labelledby="bulkCreateModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bulkCreateModalLabel">Crear Múltiples Lotes</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="bulk-lot-form">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="bulk_project_id">Proyecto <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="bulk_project_id" required
+                                        onchange="updateBulkProjectInfo()">
+                                        <option value="">Seleccionar proyecto</option>
+                                        <?php foreach ($projects as $project): ?>
+                                        <option value="<?= $project['id'] ?>"
+                                            data-price="<?= $project['base_price_per_sqm'] ?>"
+                                            data-location="<?= $project['location'] ?>">
+                                            <?= $project['name'] ?> (<?= $project['code'] ?>)
+                                        </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-info" id="bulk-project-info" style="display:none;">
+                                    <strong>Ubicación:</strong> <span id="bulk-location">-</span><br>
+                                    <strong>Precio m²:</strong> S/ <span id="bulk-price">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de Lotes -->
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-bordered table-sm" id="bulk-lots-table">
+                                <thead class="bg-light sticky-top">
+                                    <tr>
+                                        <th style="width:12%">Lote #</th>
+                                        <th style="width:12%">Manzana</th>
+                                        <th style="width:15%">Área (m²)</th>
+                                        <th style="width:18%">Precio Base</th>
+                                        <th style="width:18%">Estado</th>
+                                        <th style="width:15%">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bulk-lots-body">
+                                    <!-- Las filas se agregarán aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Botones agregar filas -->
+                        <div class="mt-3 mb-3">
+                            <button type="button" class="btn btn-sm btn-primary" onclick="addBulkLotRow()">
+                                <i class="feather icon-plus"></i> Agregar Lote
+                            </button>
+                            <button type="button" class="btn btn-sm btn-primary" onclick="addBulkLotRows(5)">
+                                <i class="feather icon-plus"></i> Agregar 5 Lotes
+                            </button>
+                            <button type="button" class="btn btn-sm btn-primary" onclick="addBulkLotRows(10)">
+                                <i class="feather icon-plus"></i> Agregar 10 Lotes
+                            </button>
+                        </div>
+
+                        <!-- Resumen -->
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6>Resumen</h6>
+                                <div class="row">
+                                    <div class="col-md-3 text-center">
+                                        <small class="text-muted">Lotes a Crear</small>
+                                        <div class="h5 text-primary" id="bulk-summary-count">0</div>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <small class="text-muted">Área Total</small>
+                                        <div class="h5 text-info" id="bulk-summary-area">0 m²</div>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <small class="text-muted">Inversión Total</small>
+                                        <div class="h5 text-success" id="bulk-summary-investment">S/ 0</div>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <small class="text-muted">Cuota Inicial Prom.</small>
+                                        <div class="h5 text-warning" id="bulk-summary-initial">S/ 0</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="feather icon-x"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="submitBulkLots()">
+                        <i class="feather icon-save"></i> Crear <span id="btn-bulk-count">0</span> Lotes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ============ FUNCIONES PARA CREAR MÚLTIPLES LOTES ============
+    let bulkProjectPrice = 0;
+
+    function updateBulkProjectInfo() {
+        const projectSelect = document.getElementById('bulk_project_id');
+        const selectedOption = projectSelect.options[projectSelect.selectedIndex];
+
+        if (selectedOption.value) {
+            const price = selectedOption.getAttribute('data-price');
+            const location = selectedOption.getAttribute('data-location');
+
+            bulkProjectPrice = parseFloat(price) || 0;
+            document.getElementById('bulk-location').textContent = location;
+            document.getElementById('bulk-price').textContent = price;
+            document.getElementById('bulk-project-info').style.display = 'block';
+        } else {
+            document.getElementById('bulk-project-info').style.display = 'none';
+            bulkProjectPrice = 0;
+        }
+    }
+
+    function addBulkLotRow() {
+        const projectId = document.getElementById('bulk_project_id').value;
+        if (!projectId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Por favor selecciona un proyecto primero',
+                toast: true,
+                position: 'top-end',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            return;
+        }
+
+        const tbody = document.getElementById('bulk-lots-body');
+        const rowId = 'bulk-lot-row-' + Date.now();
+
+        const row = document.createElement('tr');
+        row.id = rowId;
+        row.innerHTML = `
+            <td>
+                <input type="text" class="form-control form-control-sm bulk-lot-number" placeholder="L001" required>
+            </td>
+            <td>
+                <input type="text" class="form-control form-control-sm bulk-lot-block" placeholder="A">
+            </td>
+            <td>
+                <input type="number" class="form-control form-control-sm bulk-lot-area" step="0.01" min="50" placeholder="250" required onchange="calculateBulkPrice(this); updateBulkSummary()">
+            </td>
+            <td>
+                <div class="input-group input-group-sm">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">S/</span>
+                    </div>
+                    <input type="number" class="form-control form-control-sm bulk-lot-price" step="0.01" min="0" placeholder="0" required onchange="updateBulkSummary()">
+                </div>
+            </td>
+            <td>
+                <select class="form-control form-control-sm bulk-lot-status" onchange="updateBulkSummary()">
+                    <option value="available">Disponible</option>
+                    <option value="blocked">Bloqueado</option>
+                </select>
+            </td>
+            <td>
+                <button type="button" class="btn btn-sm btn-danger" onclick="removeBulkLotRow('${rowId}')">
+                    <i class="feather icon-trash"></i>
+                </button>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+        updateBulkSummary();
+    }
+
+    function addBulkLotRows(count) {
+        for (let i = 0; i < count; i++) {
+            addBulkLotRow();
+        }
+    }
+
+    function removeBulkLotRow(rowId) {
+        const row = document.getElementById(rowId);
+        if (row) {
+            row.remove();
+            updateBulkSummary();
+        }
+    }
+
+    function calculateBulkPrice(areaInput) {
+        if (bulkProjectPrice > 0) {
+            const area = parseFloat(areaInput.value) || 0;
+            if (area > 0) {
+                const row = areaInput.closest('tr');
+                const priceInput = row.querySelector('.bulk-lot-price');
+                const calculatedPrice = area * bulkProjectPrice;
+                priceInput.value = calculatedPrice.toFixed(2);
+            }
+        }
+    }
+
+    function updateBulkSummary() {
+        const rows = document.querySelectorAll('#bulk-lots-body tr');
+        let totalCount = rows.length;
+        let totalArea = 0;
+        let totalPrice = 0;
+        let validRows = 0;
+
+        rows.forEach(row => {
+            const area = parseFloat(row.querySelector('.bulk-lot-area')?.value) || 0;
+            const price = parseFloat(row.querySelector('.bulk-lot-price')?.value) || 0;
+
+            if (area >= 50 && price > 0) {
+                totalArea += area;
+                totalPrice += price;
+                validRows++;
+            }
+        });
+
+        const avgInitial = validRows > 0 ? (totalPrice / validRows) * 0.15 : 0;
+
+        document.getElementById('bulk-summary-count').textContent = validRows;
+        document.getElementById('bulk-summary-area').textContent = totalArea.toFixed(2) + ' m²';
+        document.getElementById('bulk-summary-investment').textContent = 'S/ ' + totalPrice.toLocaleString('es-PE', {
+            minimumFractionDigits: 2
+        });
+        document.getElementById('bulk-summary-initial').textContent = 'S/ ' + avgInitial.toLocaleString('es-PE', {
+            minimumFractionDigits: 2
+        });
+        document.getElementById('btn-bulk-count').textContent = validRows;
+    }
+
+    function submitBulkLots() {
+        const projectId = document.getElementById('bulk_project_id').value;
+        if (!projectId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Error',
+                text: 'Por favor selecciona un proyecto'
+            });
+            return;
+        }
+
+        const rows = document.querySelectorAll('#bulk-lots-body tr');
+        const lots = [];
+
+        rows.forEach(row => {
+            const lotNumber = row.querySelector('.bulk-lot-number')?.value;
+            const block = row.querySelector('.bulk-lot-block')?.value || '';
+            const area = parseFloat(row.querySelector('.bulk-lot-area')?.value);
+            const price = parseFloat(row.querySelector('.bulk-lot-price')?.value);
+            const status = row.querySelector('.bulk-lot-status')?.value;
+
+            if (lotNumber && area >= 50 && price > 0) {
+                lots.push({
+                    lot_number: lotNumber,
+                    block: block,
+                    area_sqm: area,
+                    base_price: price,
+                    status: status
+                });
+            }
+        });
+
+        if (lots.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Error',
+                text: 'No hay lotes válidos para crear'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: '¿Crear ' + lots.length + ' lote(s)?',
+            text: 'Se crearán ' + lots.length + ' lote(s) en el proyecto seleccionado',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, crear',
+            cancelButtonText: 'Cancelar'
+        }).then(result => {
+            if (result.isConfirmed) {
+                fetch('/dashboard/inmueble/create_lots_bulk', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            project_id: projectId,
+                            lots: lots
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Éxito!',
+                                text: 'Se crearon ' + (data.created_count || lots.length) +
+                                    ' lote(s)',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            setTimeout(() => {
+                                $('#bulkCreateModal').modal('hide');
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message || 'Error desconocido'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Error al procesar la solicitud'
+                        });
+                    });
+            }
+        });
+    }
+    </script>
+
+    <style>
+    .sticky-top {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .form-control-sm {
+        height: calc(1.5em + 0.5rem + 2px);
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .input-group-sm .input-group-text {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .table-sm th,
+    .table-sm td {
+        padding: 0.5rem;
+    }
+
+    #bulk-lots-table {
+        margin-bottom: 0;
+    }
+
+    .card-header-right {
+        display: flex;
+        gap: 5px;
+    }
+    </style>
 
     <?php echo view("admin/footer"); ?>
 </body>

@@ -158,7 +158,7 @@ p.text-muted {
 }
 @media only screen and (max-width:575px) {
     .card .card-header .card-header-right {
-        display: none
+        display: inline-block !important
     }
 }
 .card .card-header .card-header-right .dropdown-menu {

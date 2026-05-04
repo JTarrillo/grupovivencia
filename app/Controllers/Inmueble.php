@@ -1649,6 +1649,152 @@ class Inmueble extends BaseController {
         return view('admin/inmueble/lots/create_lot', $data);
     }
 
+    /**
+     * Crear múltiples lotes en una sola operación
+     */
+    public function create_lots_bulk()
+    {
+        $this->response->setContentType('application/json');
+
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Método no permitido'
+            ]);
+        }
+
+        $projectId = $this->request->getJSON()->project_id;
+        $lotsData = $this->request->getJSON()->lots ?? [];
+
+        // Validaciones básicas
+        if (!$projectId) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'El proyecto es requerido'
+            ]);
+        }
+
+        if (empty($lotsData) || !is_array($lotsData)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Datos de lotes inválidos'
+            ]);
+        }
+
+        // Verificar que el proyecto existe
+        $project = $this->projectModel->find($projectId);
+        if (!$project) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Proyecto no encontrado'
+            ]);
+        }
+
+        $createdCount = 0;
+        $errorsList = [];
+
+        foreach ($lotsData as $index => $lot) {
+            $rowNum = $index + 1;
+
+            // Validaciones de campos requeridos
+            if (empty($lot['lot_number'])) {
+                $errorsList[] = "Fila {$rowNum}: Número de lote requerido";
+                continue;
+            }
+
+            if (empty($lot['area_sqm'])) {
+                $errorsList[] = "Fila {$rowNum}: Área requerida";
+                continue;
+            }
+
+            if (empty($lot['base_price'])) {
+                $errorsList[] = "Fila {$rowNum}: Precio requerido";
+                continue;
+            }
+
+            // Validaciones de valores
+            $area = floatval($lot['area_sqm']);
+            if ($area < 50) {
+                $errorsList[] = "Lote {$lot['lot_number']}: Área mínima 50 m²";
+                continue;
+            }
+
+            $price = floatval($lot['base_price']);
+            if ($price <= 0) {
+                $errorsList[] = "Lote {$lot['lot_number']}: Precio debe ser mayor a 0";
+                continue;
+            }
+
+            // Verificar duplicado
+            $existingCount = $this->lotModel
+                ->where('project_id', $projectId)
+                ->where('lot_number', $lot['lot_number'])
+                ->countAllResults();
+
+            if ($existingCount > 0) {
+                $errorsList[] = "Lote {$lot['lot_number']}: Ya existe en este proyecto";
+                continue;
+            }
+
+            // Preparar datos del lote
+            $lotData = [
+                'project_id' => $projectId,
+                'lot_number' => trim($lot['lot_number']),
+                'block' => $lot['block'] ?? '',
+                'area_sqm' => $area,
+                'base_price' => $price,
+                'current_price' => $price,
+                'status' => $lot['status'] ?? 'available',
+                'cadastral_unit' => $lot['cadastral_unit'] ?? '',
+                'registry_number' => $lot['registry_number'] ?? '',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+
+            // Intentar crear el lote
+            try {
+                $result = $this->lotModel->insert($lotData);
+                if ($result) {
+                    $createdCount++;
+                } else {
+                    $errors = $this->lotModel->errors();
+                    $errorMsg = "Lote {$lot['lot_number']}: Error al guardar";
+                    if (!empty($errors)) {
+                        $errorMsg .= ' - ' . json_encode($errors);
+                    }
+                    $errorsList[] = $errorMsg;
+                }
+            } catch (\Exception $e) {
+                $errorsList[] = "Lote {$lot['lot_number']}: " . $e->getMessage();
+            }
+        }
+
+        // Actualizar contadores del proyecto si se crearon lotes
+        if ($createdCount > 0) {
+            $this->updateProjectLotCounters($projectId);
+        }
+
+        // Log de operación
+        $logData = [
+            'timestamp' => date('Y-m-d H:i:s'),
+            'action' => 'create_lots_bulk',
+            'project_id' => $projectId,
+            'attempted' => count($lotsData),
+            'created' => $createdCount,
+            'errors' => count($errorsList)
+        ];
+        $logFile = WRITEPATH . 'logs/lots_bulk_' . date('Ymd_His') . '.log';
+        file_put_contents($logFile, json_encode($logData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+
+        return $this->response->setJSON([
+            'success' => true,
+            'created_count' => $createdCount,
+            'total_attempted' => count($lotsData),
+            'errors' => $errorsList,
+            'message' => "Se crearon {$createdCount} de " . count($lotsData) . " lote(s)"
+        ]);
+    }
+
     public function get_lot($lot_id)
     {
         $lot = $this->lotModel->find($lot_id);

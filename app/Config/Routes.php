@@ -495,6 +495,7 @@ $routes->group('dashboard/inmueble', static function($routes){
     // Lots CRUD
     $routes->get('create_lot', 'Inmueble::create_lot', ['filter' => 'authGuard']);
     $routes->post('create_lot', 'Inmueble::create_lot', ['filter' => 'authGuard']);
+    $routes->post('create_lots_bulk', 'Inmueble::create_lots_bulk', ['filter' => 'authGuard']);
     $routes->get('edit_lot/(:num)', 'Inmueble::edit_lot/$1', ['filter' => 'authGuard']);
     $routes->post('edit_lot/(:num)', 'Inmueble::edit_lot/$1', ['filter' => 'authGuard']);
     $routes->get('delete_lot/(:num)', 'Inmueble::delete_lot/$1', ['filter' => 'authGuard']);
