@@ -113,9 +113,42 @@ class ContractsController extends BaseController
     {
         $contractModel = new ContractModel();
         $paymentScheduleModel = new PaymentScheduleModel();
+        $lotModel = new LotModel();
+        $projectModel = new ProjectModel();
 
-        $contract = $contractModel->find($id);
+        $c = $contractModel->find($id);
+        if (!$c) {
+            return redirect()->to('/backoffice_new/contracts')->with('error', 'Contrato no encontrado');
+        }
+
+        $lot = $lotModel->find($c['lot_id']);
+        $project = $lot ? $projectModel->find($lot['project_id']) : null;
+
+        // Mapear los campos para que la vista los encuentre con los nombres esperados
+        $contract = [
+            'id' => $c['id'],
+            'code' => $c['contract_number'] ?? 'GV-' . $c['id'],
+            'total' => $c['total_amount'] ?? 0,
+            'total_amount' => $c['total_amount'] ?? 0,
+            'cuota_mensual' => $c['monthly_payment'] ?? 0,
+            'monthly_payment' => $c['monthly_payment'] ?? 0,
+            'down_payment' => $c['down_payment'] ?? 0,
+            'status' => $c['status'] ?? 'activo',
+            'start_date' => $c['start_date'] ?? '',
+            'end_date' => $c['end_date'] ?? '',
+            'project_name' => $project['name'] ?? 'Proyecto',
+            'lot_code' => $lot['lot_number'] ?? '',
+            'lot_area' => ($lot['area_m2'] ?? 0) . ' m²'
+        ];
+
         $cronograma = $paymentScheduleModel->where('contract_id', $id)->findAll();
+        
+        // Obtener comprobantes para esta contrato
+        $db = \Config\Database::connect();
+        $comprobantes = $db->table('comprobantes_emitidos')
+            ->where('contract_id', $id)
+            ->get()
+            ->getResultArray();
         
         // Ordenar cronograma de forma ASCENDENTE (cuota 1, 2, 3... - fecha más cercana primero)
         usort($cronograma, function($a, $b) {
@@ -144,6 +177,7 @@ class ContractsController extends BaseController
             'contractId' => $id,
             'contract' => $contract,
             'cronograma' => $cronograma,
+            'comprobantes' => $comprobantes,
             'pagos_realizados' => $pagos_realizados,
             'pagos_pendientes' => $pagos_pendientes,
             'monto_realizado' => $monto_realizado,
@@ -157,6 +191,7 @@ class ContractsController extends BaseController
         return view('backoffice_new/cronograma', [
             'contract' => $contract,
             'cronograma' => $cronograma,
+            'comprobantes' => $comprobantes,
             'pagos_realizados' => $pagos_realizados,
             'pagos_pendientes' => $pagos_pendientes,
             'monto_realizado' => $monto_realizado,

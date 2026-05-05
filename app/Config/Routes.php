@@ -102,6 +102,8 @@ $routes->get('/backoffice_new/contracts/delete/(:num)', 'B_contratos::delete/$1'
 $routes->get('/backoffice_new/contracts/detail/(:num)', 'B_contratos::detail/$1', ['filter' => 'authGuard']);
 // Cronograma de pagos (Payment Schedule) para contratos
 $routes->get('/backoffice_new/contracts/cronograma/(:num)', 'B_contratos::schedule/$1', ['filter' => 'authGuard']);
+// Get invoices/comprobantes for contract
+$routes->get('/backoffice_new/contracts/getFacturas/(:num)', 'B_contratos::getFacturas/$1', ['filter' => 'authGuard']);
 // Cronograma de pagos (Payment Schedule) for contracts
 // Rutas para contratos en backoffice_new
 $routes->get('/backoffice_new/contratos', 'B_contratos::index', ['filter' => 'authGuard']);

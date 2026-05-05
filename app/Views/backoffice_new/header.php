@@ -246,7 +246,7 @@
                                 <div class="fw-bold d-flex align-items-center fs-5">
                                     <?php echo isset($_SESSION['name']) ? $_SESSION['name'] : ''; ?>
                                     <?php
-                                    if ($_SESSION['active'] == 1) { ?>
+                                    if (isset($_SESSION['active']) && $_SESSION['active'] == 1) { ?>
                                     <span
                                         class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2"><?php echo lang('Global.activo'); ?></span>
                                     <?php } else { ?>

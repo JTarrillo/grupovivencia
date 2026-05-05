@@ -604,10 +604,10 @@
                                                                             `Código: ${data.code}`,
                                                                             'info');
                                                                     }, 1800);
-                                                                    setTimeout(() => location.reload(),
+                                                                    setTimeout(() => window.location.href = '/dashboard/inmueble/projects',
                                                                         3600);
                                                                 } else {
-                                                                    setTimeout(() => location.reload(),
+                                                                    setTimeout(() => window.location.href = '/dashboard/inmueble/projects',
                                                                         1800);
                                                                 }
                                                             } else {

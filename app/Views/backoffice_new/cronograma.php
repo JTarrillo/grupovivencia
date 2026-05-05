@@ -192,9 +192,16 @@
                                                     $estado_btn = strtolower($estado_btn);
                                                     ?>
                                                     <?php if ($estado_btn == 'paid' || $estado_btn == 'pagado'): ?>
-                                                    <button
-                                                        class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm"
-                                                        title="Pago validado por admin"><i class="fa fa-check"></i></button>
+                                                    <div style="display: flex; gap: 4px; align-items: center;">
+                                                        <button
+                                                            class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm"
+                                                            title="Pago validado por admin"><i class="fa fa-check"></i></button>
+                                                        <?php if (!empty($pago['comprobante_pdf_url'])): ?>
+                                                        <a href="<?= esc($pago['comprobante_pdf_url']) ?>" target="_blank"
+                                                            class="btn btn-icon btn-bg-light btn-active-color-success btn-sm"
+                                                            title="Descargar comprobante <?= esc($pago['comprobante_numero'] ?? '') ?>"><i class="fa fa-download"></i></a>
+                                                        <?php endif; ?>
+                                                    </div>
                                                     <?php elseif ($estado_btn == 'registered'): ?>
                                                     <button
                                                         class="btn btn-icon btn-bg-light btn-active-color-warning btn-sm"
@@ -214,6 +221,38 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Card Comprobantes Emitidos - MOVIDO A LA COLUMNA ACCIONES -->
+                        <!-- COMENTADO: Ahora los comprobantes se muestran en la columna Acciones de la tabla de cronograma
+                        <div class="card mb-8">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold mb-0">Comprobantes Emitidos <span class="text-muted fs-7">Facturas y boletas</span>
+                                </h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-compact mb-0">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th>Número</th>
+                                                <th>Tipo</th>
+                                                <th>Fecha</th>
+                                                <th>Monto</th>
+                                                <th>Estado</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody-comprobantes">
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted py-3">
+                                                    <i class="fa fa-spinner fa-spin me-2"></i> Cargando comprobantes...
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        -->
                     </div>
                 </div>
             </div>
@@ -227,6 +266,195 @@
     <script src="<?php echo site_url() . 'assets/metronic8/plugins/custom/prismjs/prismjs.bundle.js'; ?>"></script>
     <script src="<?php echo site_url() . 'assets/metronic8/js/widgets.bundle.js'; ?>"></script>
     <script src="<?php echo site_url() . 'assets/metronic8/js/custom/widgets.js'; ?>"></script>
+
+    <!-- Script para mapear comprobantes a cada cuota -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Obtener lista de comprobantes desde PHP
+        const comprobantes = <?= json_encode($comprobantes ?? []) ?>;
+        
+        console.log('📦 Comprobantes disponibles:', comprobantes);
+        
+        // Para cada fila pagada, buscar si tiene comprobante
+        if (comprobantes && comprobantes.length > 0) {
+            // Mapear comprobantes por pago_id para búsqueda rápida
+            const comprobantesByPagoId = {};
+            comprobantes.forEach(comp => {
+                if (comp.pago_id) {
+                    comprobantesByPagoId[comp.pago_id] = comp;
+                }
+            });
+            
+            console.log('🗂️ Mapa de comprobantes:', comprobantesByPagoId);
+            
+            // Obtener todas las filas de la tabla de cronograma
+            const filas = document.querySelectorAll('table.table-compact tbody tr');
+            console.log(`📊 Encontradas ${filas.length} filas en la tabla`);
+            
+            filas.forEach((fila, index) => {
+                // Obtener el ID de la cuota del data attribute o del primer td
+                const numeroCuota = fila.querySelector('td:first-child')?.textContent?.trim();
+                console.log(`Fila ${index}: ${numeroCuota}`);
+                
+                // Buscar la celda de Acciones (última celda)
+                const celdaAcciones = fila.querySelector('td:last-child');
+                if (!celdaAcciones) return;
+                
+                // Buscar un comprobante para esta fila
+                // Intentar encontrarlo por pago_id desde el atributo data
+                let comprobante = null;
+                
+                // Si esta fila está pagada, buscar comprobante
+                const estadoBadge = fila.querySelector('[class*="badge"]');
+                if (estadoBadge && estadoBadge.textContent.includes('Pagado')) {
+                    // Buscar en todos los comprobantes
+                    for (let pagoId in comprobantesByPagoId) {
+                        comprobante = comprobantesByPagoId[pagoId];
+                        // Para la primera fila (INICIAL/Pago Anticipado), usar el primer comprobante
+                        if (index === 0) {
+                            break;
+                        }
+                    }
+                }
+                
+                // Si encontramos un comprobante, añadir botón de descarga
+                if (comprobante && comprobante.pdf_url) {
+                    const botonDescargar = document.createElement('a');
+                    botonDescargar.href = comprobante.pdf_url;
+                    botonDescargar.target = '_blank';
+                    botonDescargar.className = 'btn btn-icon btn-bg-light btn-active-color-success btn-sm';
+                    botonDescargar.title = `Descargar comprobante ${comprobante.numero_completo || ''}`;
+                    botonDescargar.innerHTML = '<i class="fa fa-download"></i>';
+                    botonDescargar.style.marginLeft = '4px';
+                    
+                    // Añadir el botón a la celda de acciones
+                    const contenedor = celdaAcciones.querySelector('div');
+                    if (contenedor) {
+                        contenedor.appendChild(botonDescargar);
+                    } else {
+                        celdaAcciones.appendChild(botonDescargar);
+                    }
+                    
+                    console.log(`✓ Comprobante añadido a fila ${index}: ${comprobante.numero_completo}`);
+                }
+            });
+        }
+    });
+    </script>
+
+    <!-- Script para cargar comprobantes emitidos - DESHABILITADO -->
+    <!-- COMENTADO: Los comprobantes ahora se cargan directamente en el backend y se pasan a la vista
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get contract ID from the contract object
+        let contractId = '<?= esc($contract['id'] ?? 0) ?>';
+        
+        console.log('🔍 Debugging Contract ID:');
+        console.log('- Contract ID from $contract[id]: <?= esc($contract["id"] ?? "NO SET") ?>');
+        console.log('- Contract ID extracted: ', contractId);
+        console.log('- Type: ', typeof contractId);
+        console.log('- Is valid: ', contractId && contractId !== '0');
+        
+        if (contractId && contractId !== '0') {
+            console.log('✓ Loading comprobantes for contract:', contractId);
+            cargarComprobantes(contractId);
+        } else {
+            console.warn('✗ No valid contract ID found');
+            mostrarSinComprobantes();
+        }
+    });
+
+    function cargarComprobantes(contractId) {
+        const url = '<?php echo site_url('backoffice_new/contracts/getFacturas'); ?>/' + contractId;
+        console.log('📡 Fetch URL:', url);
+        
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => {
+                console.log('📥 Response status:', response.status, response.statusText);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('✓ Response data:', data);
+                if (data.success && data.data && data.data.length > 0) {
+                    console.log('📊 Found', data.data.length, 'comprobantes');
+                    renderizarComprobantes(data.data);
+                } else {
+                    console.log('ℹ️ No data returned or empty');
+                    mostrarSinComprobantes();
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error al cargar comprobantes:', error);
+                mostrarSinComprobantes();
+            });
+    }
+
+    function renderizarComprobantes(comprobantes) {
+        const tbody = document.getElementById('tbody-comprobantes');
+        tbody.innerHTML = '';
+
+        comprobantes.forEach(comp => {
+            const tipoDocumento = comp.tipo_documento === '01' ? 'Factura' : 'Boleta';
+            const estadoBadge = comp.estado === 'Aceptado' 
+                ? '<span class="badge bg-success">✓ Aceptado</span>' 
+                : '<span class="badge bg-warning">Pendiente</span>';
+            
+            const pdfBtn = comp.pdf_url 
+                ? `<a href="${comp.pdf_url}" target="_blank" class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm" title="Descargar PDF"><i class="fa fa-download"></i></a>`
+                : '<button class="btn btn-icon btn-bg-light btn-sm disabled" title="PDF no disponible"><i class="fa fa-file-pdf"></i></button>';
+
+            const row = `
+                <tr>
+                    <td>
+                        <a href="#" class="text-gray-800 text-hover-primary fw-bold">
+                            ${comp.numero_completo}
+                        </a>
+                    </td>
+                    <td>
+                        <span class="text-info">${tipoDocumento}</span>
+                    </td>
+                    <td>
+                        ${new Date(comp.fecha_emision).toLocaleDateString('es-PE', { 
+                            year: 'numeric', month: '2-digit', day: '2-digit' 
+                        })}
+                    </td>
+                    <td class="fw-bold text-success">
+                        S/ ${Number(comp.monto_total).toFixed(2)}
+                    </td>
+                    <td>
+                        ${estadoBadge}
+                    </td>
+                    <td>
+                        ${pdfBtn}
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+
+    function mostrarSinComprobantes() {
+        const tbody = document.getElementById('tbody-comprobantes');
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                    <i class="fa fa-inbox fs-2 mb-2 d-block"></i>
+                    No hay comprobantes emitidos aún
+                </td>
+            </tr>
+        `;
+    }
+    </script>
+    -->
 </body>
 
 <!-- Modal Pago de Cuota -->

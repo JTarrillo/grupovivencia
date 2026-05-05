@@ -123,6 +123,13 @@ class B_contratos extends Controller
         // Obtiene el cronograma de pagos real
         $cuotas = $paymentScheduleModel->where('contract_id', $id)->orderBy('due_date', 'asc')->findAll();
 
+        // Obtener comprobantes para mapear a cada cuota
+        $db = \Config\Database::connect();
+        $comprobantesList = $db->table('comprobantes_emitidos')
+            ->where('contract_id', $id)
+            ->get()
+            ->getResultArray();
+
         // Calcula estadísticas
         $pagosRealizados = 0;
         $pagosPendientes = 0;
@@ -143,7 +150,18 @@ class B_contratos extends Controller
         // Prepara datos para la vista
         $schedule = [];
         foreach ($cuotas as $i => $cuota) {
+            // Buscar comprobante para esta cuota
+            // Primero intenta por pago_id, si no encuentra intenta por installment_number
+            $comprobante = null;
+            foreach ($comprobantesList as $comp) {
+                if ($comp['pago_id'] == $cuota['id']) {
+                    $comprobante = $comp;
+                    break;
+                }
+            }
+
             $schedule[] = [
+                'id' => $cuota['id'],
                 'num' => $cuota['installment_number'] == 0 ? 'INICIAL' : str_pad($cuota['installment_number'], 2, '0', STR_PAD_LEFT),
                 'type' => $cuota['installment_number'] == 0 ? 'Inicial' : 'Cuota',
                 'due_date' => date('d/m/Y', strtotime($cuota['due_date'])),
@@ -159,11 +177,17 @@ class B_contratos extends Controller
                 'pdf_url' => isset($cuota['pdf_url']) ? $cuota['pdf_url'] : null,
                 'xml_url' => isset($cuota['xml_url']) ? $cuota['xml_url'] : null,
                 'installment_number' => $cuota['installment_number'],
+                'comprobante' => $comprobante,
+                'comprobante_pdf_url' => $comprobante ? ($comprobante['pdf_url'] ?? null) : null,
+                'comprobante_numero' => $comprobante ? ($comprobante['numero_completo'] ?? null) : null,
             ];
         }
 
         $data = [
             'schedule' => $schedule,
+            'cronograma' => $schedule,  // Compatibilidad con vista
+            'comprobantes' => $comprobantesList,  // Pasar lista de comprobantes
+            'contract' => $contract,
             'contract_id' => $id,
             'pagosRealizados' => $pagosRealizados,
             'pagosPendientes' => $pagosPendientes,
@@ -171,8 +195,11 @@ class B_contratos extends Controller
             'totalPendiente' => $totalPendiente,
             'progreso' => $progreso,
             'totalCuotas' => $totalCuotas,
-               // Agregar total de pagos para la vista
-               'total_pagos' => is_array($schedule) ? count($schedule) : 0,
+            'pagos_realizados' => $pagosRealizados,
+            'pagos_pendientes' => $pagosPendientes,
+            'monto_realizado' => $totalPagado,
+            'monto_pendiente' => $totalPendiente,
+            'total_pagos' => is_array($schedule) ? count($schedule) : 0,
             'title' => 'Cronograma de Pagos',
             'cart_count' => 0
         ];
@@ -296,5 +323,53 @@ class B_contratos extends Controller
             $contract['status'] = 'suspendido';
             $contractModel->update($id, $contract);
             return redirect()->to('/backoffice_new/contracts')->with('success', 'Contrato suspendido correctamente');
+        }
+
+        /**
+         * Get invoices/receipts (comprobantes) for a contract
+         * Used in payment schedule view
+         */
+        public function getFacturas($contractId)
+        {
+            $session = session();
+            $userId = $session->get('id');
+            
+            // Verify contract ownership
+            $contractModel = model('ContractModel');
+            $contract = $contractModel->find($contractId);
+            
+            if (!$contract || $contract['customer_id'] != $userId) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Contract not found or access denied'
+                ]);
+            }
+
+            // Get invoices from comprobantes_emitidos table
+            $db = \Config\Database::connect();
+            $comprobantes = $db->table('comprobantes_emitidos')
+                ->where('contract_id', $contractId)
+                ->orderBy('fecha_emision', 'DESC')
+                ->get()
+                ->getResultArray();
+
+            return $this->response->setJSON([
+                'success' => true,
+                'data' => array_map(function($comprobante) {
+                    return [
+                        'id' => $comprobante['id'],
+                        'numero_completo' => $comprobante['numero_completo'],
+                        'tipo_documento' => $comprobante['tipo_documento'],
+                        'serie' => $comprobante['serie'],
+                        'correlativo' => $comprobante['correlativo'],
+                        'cliente_nombre' => $comprobante['cliente_nombre'],
+                        'monto_total' => (float)$comprobante['monto_total'],
+                        'fecha_emision' => $comprobante['fecha_emision'],
+                        'estado' => $comprobante['estado'],
+                        'pdf_url' => $comprobante['pdf_url'],
+                        'xml_filename' => $comprobante['xml_filename']
+                    ];
+                }, $comprobantes)
+            ]);
         }
 }
