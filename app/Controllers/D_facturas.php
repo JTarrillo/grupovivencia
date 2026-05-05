@@ -569,7 +569,7 @@ class D_facturas extends BaseController
                 [
                     "codigo"             => $contrato['contract_number'],
                     // INMOBILIARIA: Descripción con "Pago Anticipado" según normativa SUNAT
-                    "descripcion"        => "POR EL PAGO INICIAL DEL LOTE " . $lot_number . " PROYECTO " . $project_name,
+                    "descripcion"        => "POR EL PAGO INICIAL DEL LOTE " . $lot_number . " DEL PROYECTO " . strtoupper($project_name),
                     "unidad"             => "NIU",
                     "cantidad"           => 1,
                     "mto_valor_unitario" => $mto_valor_unitario,

@@ -241,7 +241,7 @@ class PagosController extends BaseController
             "detalles" => [
                 [
                     "codigo"             => $contrato['contract_number'],
-                    "descripcion"        => "POR EL PAGO DE CUOTA " . $installment_number . " DEL LOTE " . $lot_number . " PROYECTO " . $project_name,
+                    "descripcion"        => "POR EL PAGO DE LA " . $installment_number . " CUOTA DEL LOTE " . $lot_number . " DEL PROYECTO " . strtoupper($project_name),
                     "unidad"             => "NIU",
                     "cantidad"           => 1,
                     "mto_valor_unitario" => $mto_valor_unitario,
@@ -368,7 +368,7 @@ class PagosController extends BaseController
                 [
                     "CODIGO"          => $contrato['contract_number'],
                     "CANTIDAD"        => "1",
-                    "DESCRIPCION"     => "POR EL PAGO DE CUOTA " . $installment_number . " DEL LOTE " . $lot_number . " PROYECTO " . $project_name,
+                    "DESCRIPCION"     => "POR EL PAGO DE LA " . $installment_number . " CUOTA DEL LOTE " . $lot_number . " DEL PROYECTO " . strtoupper($project_name),
                     "UNIDAD_MEDIDA"   => "NIU",
                     "PRECIO_VALOR"    => number_format($total, 2, '.', ''),
                     "TIPO_TRIBUTO_IGV" => "30", // 30 = Inafecto
