@@ -63,7 +63,7 @@
                                                             <label>DNI o cédula</label>
                                                             <div class="input-group">
                                                                 <input type="text" placeholder="Ingrese DNI" name="dni"
-                                                                    id="dni" autocomplete="off" minlength="8"
+                                                                    id="dni" autocomplete="new-password" minlength="8"
                                                                     class="form-control" required />
                                                                 <button type="button" class="btn btn-info"
                                                                     id="btnBuscarDni" title="Buscar datos por DNI">
@@ -72,12 +72,6 @@
                                                             </div>
                                                             <small id="dniSunatMsg"
                                                                 class="form-text text-muted"></small>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label>DNI o cédula</label>
-                                                            <input type="text" placeholder="Ingrese DNI" name="dni"
-                                                                autocomplete="off" minlength="8" class="form-control"
-                                                                required />
                                                         </div>
                                                         <div class="form-group">
                                                             <label>Contraseña</label>
@@ -121,26 +115,6 @@
                                                                 <option value="Viudo">Viudo</option>
                                                                 <option value="Conviviente">Conviviente</option>
                                                             </select>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label>DNI o cédula</label>
-                                                            <input type="text" placeholder="Ingrese DNI" name="dni"
-                                                                autocomplete="off" minlength="8" class="form-control"
-                                                                required />
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label>DNI o cédula</label>
-                                                            <div class="input-group">
-                                                                <input type="text" placeholder="Ingrese DNI" name="dni"
-                                                                    id="dni" autocomplete="off" minlength="8"
-                                                                    class="form-control" required />
-                                                                <button type="button" class="btn btn-info"
-                                                                    id="btnBuscarDni" title="Buscar datos por DNI">
-                                                                    <i class="fa fa-search"></i> Buscar DNI
-                                                                </button>
-                                                            </div>
-                                                            <small id="dniSunatMsg"
-                                                                class="form-text text-muted"></small>
                                                         </div>
                                                     </div>
                                                     <div class="form-group col-md-6">
@@ -280,16 +254,32 @@
     window.addEventListener('DOMContentLoaded', function() {
         var form = document.querySelector('form[name="form"]');
         if (form) {
-            // Limpiar todos los inputs excepto password y hidden
+            // Scroll a la parte superior del formulario
+            form.scrollIntoView({behavior: 'smooth', block: 'start'});
+            
+            // Limpiar todos los inputs
             var inputs = form.querySelectorAll('input');
             inputs.forEach(function(input) {
                 if (input.type === 'hidden' || input.type === 'password') return;
                 input.value = '';
+                // Forzar limpieza del caché del navegador
+                input.setAttribute('value', '');
             });
+            
             // Limpiar todos los selects
             var selects = form.querySelectorAll('select');
             selects.forEach(function(select) {
                 select.selectedIndex = 0;
+            });
+            
+            // Desabilitar autocomplete y limpiar sugerencias
+            inputs.forEach(function(input) {
+                input.removeAttribute('value');
+                if (input.name === 'dni') {
+                    input.setAttribute('autocomplete', 'new-password');
+                } else {
+                    input.setAttribute('autocomplete', 'off');
+                }
             });
         }
     });
