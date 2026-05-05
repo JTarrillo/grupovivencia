@@ -194,6 +194,20 @@ class PagosController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Cliente no encontrado.']);
         }
 
+        // 3.5. Obtener lote y proyecto para descripción
+        $lote = model('LotModel')->find($contrato['lot_id']);
+        $proyecto = $lote ? model('ProjectModel')->find($lote['project_id']) : null;
+        
+        // Obtener número de cuota del cronograma de pagos
+        $paymentSchedule = model('PaymentScheduleModel')
+            ->where('contract_id', $contract_id)
+            ->orderBy('installment_number', 'DESC')
+            ->first();
+        
+        $installment_number = $paymentSchedule['installment_number'] ?? 1;
+        $lot_number = $lote['lot_number'] ?? 'N/A';
+        $project_name = $proyecto['name'] ?? 'N/A';
+
         // 4. Configuración de montos (Usando el monto de la cuota enviado)
         $total = (float) $monto_cuota;
         $mto_valor_unitario = round($total, 2);
@@ -226,7 +240,7 @@ class PagosController extends BaseController
             "detalles" => [
                 [
                     "codigo"             => $contrato['contract_number'],
-                    "descripcion"        => "PAGO DE CUOTA - CONTRATO " . $contrato['contract_number'] . " ***Pago Anticipado***",
+                    "descripcion"        => "POR EL PAGO DE CUOTA " . $installment_number . " DEL LOTE " . $lot_number . " PROYECTO " . $project_name,
                     "unidad"             => "NIU",
                     "cantidad"           => 1,
                     "mto_valor_unitario" => $mto_valor_unitario,
@@ -314,6 +328,20 @@ class PagosController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Cliente no encontrado.']);
         }
 
+        // Obtener lote y proyecto para descripción
+        $lote = model('LotModel')->find($contrato['lot_id']);
+        $proyecto = $lote ? model('ProjectModel')->find($lote['project_id']) : null;
+        
+        // Obtener número de cuota del cronograma de pagos
+        $paymentSchedule = model('PaymentScheduleModel')
+            ->where('contract_id', $contract_id)
+            ->orderBy('installment_number', 'DESC')
+            ->first();
+        
+        $installment_number = $paymentSchedule['installment_number'] ?? 1;
+        $lot_number = $lote['lot_number'] ?? 'N/A';
+        $project_name = $proyecto['name'] ?? 'N/A';
+
         $total    = (float) $monto_cuota;
         $esRuc    = !empty($cliente['ruc']);
         $tipo_doc = $esRuc ? "6" : "1";
@@ -338,7 +366,7 @@ class PagosController extends BaseController
                 [
                     "CODIGO"          => $contrato['contract_number'],
                     "CANTIDAD"        => "1",
-                    "DESCRIPCION"     => "PAGO DE CUOTA - CONTRATO " . $contrato['contract_number'] . " ***Pago Anticipado***",
+                    "DESCRIPCION"     => "POR EL PAGO DE CUOTA " . $installment_number . " DEL LOTE " . $lot_number . " PROYECTO " . $project_name,
                     "UNIDAD_MEDIDA"   => "NIU",
                     "PRECIO_VALOR"    => number_format($total, 2, '.', ''),
                     "TIPO_TRIBUTO_IGV" => "30", // 30 = Inafecto

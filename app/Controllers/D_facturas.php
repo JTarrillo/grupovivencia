@@ -527,6 +527,13 @@ class D_facturas extends BaseController
             return $this->response->setJSON(['success' => false, 'error' => 'Cliente no encontrado.']);
         }
 
+        // 2.5. Obtener lote y proyecto para descripción
+        $lote = model('LotModel')->find($contrato['lot_id']);
+        $proyecto = $lote ? model('ProjectModel')->find($lote['project_id']) : null;
+        
+        $lot_number = $lote['lot_number'] ?? 'N/A';
+        $project_name = $proyecto['name'] ?? 'N/A';
+
         // 3. Cálculos de montos
         // INMOBILIARIA: Operación INAFECTA, no se aplica IGV.
         // El mto_valor_unitario es el monto total directamente, sin dividir entre 1.18
@@ -562,7 +569,7 @@ class D_facturas extends BaseController
                 [
                     "codigo"             => $contrato['contract_number'],
                     // INMOBILIARIA: Descripción con "Pago Anticipado" según normativa SUNAT
-                    "descripcion"        => "LOTE DE TERRENO - CONTRATO " . $contrato['contract_number'] . " ***Pago Anticipado***",
+                    "descripcion"        => "POR EL PAGO INICIAL DEL LOTE " . $lot_number . " PROYECTO " . $project_name,
                     "unidad"             => "NIU",
                     "cantidad"           => 1,
                     "mto_valor_unitario" => $mto_valor_unitario,
