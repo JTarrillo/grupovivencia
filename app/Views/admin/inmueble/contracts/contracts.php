@@ -2181,16 +2181,28 @@
                     </div>
                 `;
             }
-            // Prioridad 2: Comprobante de pago inicial
+            // Prioridad 2: Voucher de pago inicial (imagen/PDF adjuntado por cliente en cronograma)
             else if (voucherData.initial_payment_voucher && voucherData.initial_payment_voucher.trim() !== '') {
+                let voucherUrl = voucherData.initial_payment_voucher;
+                let isPdf = voucherUrl.toLowerCase().includes('.pdf');
+                let voucherContent = '';
+                
+                if (isPdf) {
+                    voucherContent = `<iframe src="${voucherUrl}" width="100%" height="500" style="border:1px solid #ddd;"></iframe>`;
+                } else {
+                    voucherContent = `<img src="${voucherUrl}" alt="Voucher Pago Inicial" style="max-width:100%;border:1px solid #ddd;" onerror="this.src='/assets/img/no-image.png';this.alt='No encontrado';">`;
+                }
+                
                 voucherHtml = `
                     <div class="alert alert-success">
-                        <strong>Comprobante de Pago Inicial</strong><br>
-                        <p class="mb-1"><strong>Número:</strong> ${voucherData.initial_payment_number}</p>
-                        <p class="mb-1"><strong>Fecha:</strong> ${voucherData.initial_payment_date}</p>
-                        <p class="mb-2"><strong>Estado:</strong> ${voucherData.initial_payment_status}</p>
-                        <a href="${voucherData.initial_payment_voucher}" target="_blank">Ver comprobante</a><br>
-                        <img src="${voucherData.initial_payment_voucher}" alt="Comprobante" style="max-width:300px;max-height:300px;" onerror="this.onerror=null;this.src='/assets/img/no-image.png';this.alt='No encontrado';">
+                        <strong>✓ Comprobante de Pago Inicial (Adjuntado por Cliente)</strong><br>
+                        <p class="mb-1"><strong>Monto:</strong> S/ ${voucherData.initial_payment_amount}</p>
+                        <p class="mb-1"><strong>Estado:</strong> ${voucherData.initial_payment_status}</p>
+                        ${voucherData.initial_payment_paid_date ? `<p class="mb-2"><strong>Fecha de Pago:</strong> ${voucherData.initial_payment_paid_date}</p>` : ''}
+                        <a href="${voucherUrl}" target="_blank" class="btn btn-sm btn-info mb-2">Descargar / Ver en nueva pestaña</a><br>
+                        <div style="border:1px solid #ddd; padding:5px; margin-top:10px; background:#f9f9f9;">
+                            ${voucherContent}
+                        </div>
                     </div>
                 `;
             }

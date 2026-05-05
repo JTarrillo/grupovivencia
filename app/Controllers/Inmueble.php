@@ -3090,28 +3090,30 @@ class Inmueble extends BaseController {
             'initial_payment_voucher_type' => 'comprobante'
         ];
         
-        // Si NO existe voucher del contrato, buscar comprobante de pago inicial
+        // Si NO existe voucher del contrato, buscar voucher de pago inicial del cronograma
         if (!$validationData['voucher_url']) {
             $db = \Config\Database::connect();
             
-            // Buscar comprobante de PAGO INICIAL específicamente (installment_number = 0)
-            // usando JOIN entre payment_schedules y comprobantes_emitidos
-            $comprobanteInicial = $db->table('comprobantes_emitidos ce')
-                ->select('ce.pdf_url, ce.numero_completo, ce.fecha_emision, ce.estado, ce.id')
-                ->join('payment_schedules ps', 'ce.pago_id = ps.id', 'inner')
-                ->where('ps.contract_id', $contract_id)
-                ->where('ps.installment_number', 0)
-                ->orderBy('ce.fecha_emision', 'DESC')
-                ->limit(1)
+            // Buscar voucher del PAGO INICIAL específicamente (installment_number = 0)
+            // El voucher es la imagen/PDF que el cliente adjunta cuando realiza el pago en el banco
+            $pagoInicial = $db->table('payment_schedules')
+                ->select('voucher_url, amount, status, paid_date, comprobante_url')
+                ->where('contract_id', $contract_id)
+                ->where('installment_number', 0)
                 ->get()
                 ->getRowArray();
             
-            if ($comprobanteInicial && !empty($comprobanteInicial['pdf_url'])) {
-                $validationData['initial_payment_voucher'] = $comprobanteInicial['pdf_url'];
-                $validationData['initial_payment_number'] = $comprobanteInicial['numero_completo'];
-                $validationData['initial_payment_date'] = $comprobanteInicial['fecha_emision'];
-                $validationData['initial_payment_status'] = $comprobanteInicial['estado'];
-                $validationData['comprobante_id'] = $comprobanteInicial['id'];
+            if ($pagoInicial && !empty($pagoInicial['voucher_url'])) {
+                // Extraer solo el nombre del archivo desde la ruta relativa
+                $voucherPath = $pagoInicial['voucher_url'];
+                $filename = basename($voucherPath); // Obtener solo el nombre del archivo
+                $voucherUrl = '/dashboard/mostrarComprobante/' . $filename; // Construir URL correcta
+                
+                $validationData['initial_payment_voucher'] = $voucherUrl;
+                $validationData['initial_payment_amount'] = $pagoInicial['amount'];
+                $validationData['initial_payment_status'] = $pagoInicial['status'];
+                $validationData['initial_payment_paid_date'] = $pagoInicial['paid_date'];
+                $validationData['voucher_type'] = 'pago_cliente';  // Tipo: voucher adjuntado por cliente
             }
         }
         
