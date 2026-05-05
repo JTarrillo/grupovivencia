@@ -530,6 +530,10 @@ $routes->group('dashboard/inmueble', static function($routes){
     $routes->get('getDistricts/(:num)', 'Inmueble::getDistricts/$1');
     $routes->get('getPaymentPlans', 'Inmueble::getPaymentPlans');
 
+    // Validation data for contract modal
+    $routes->post('get_validation_data', 'Inmueble::getValidationData', ['filter' => 'authGuard']);
+    $routes->get('get_validation_data', 'Inmueble::getValidationData', ['filter' => 'authGuard']);
+
     // Misc: reminders
     $routes->post('enviar_recordatorios_vencimiento', 'Inmueble::enviar_recordatorios_vencimiento', ['filter' => 'authGuard']);
     // ...existing code...

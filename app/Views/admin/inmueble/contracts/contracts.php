@@ -2151,37 +2151,103 @@
     }
 
     function showValidateModal(contract) {
-        let voucherHtml = '';
-        if (contract.voucher_url && contract.voucher_url.trim() !== '') {
-            let filename = contract.voucher_url.split('/').pop();
-            let url = '/dashboard/mostrarComprobante/' + filename;
-            voucherHtml =
-                `<a href="${url}" target="_blank">Ver voucher</a><br>
-            <img src="${url}" alt="Voucher" style="max-width:300px;max-height:300px;" onerror="this.onerror=null;this.src='/assets/img/no-image.png';this.alt='No encontrado';">`;
-        } else {
-            voucherHtml = `<span class="text-danger">No subido</span>`;
-        }
-        var body = document.getElementById('approveModalBody');
-        body.innerHTML = `
-        <p><strong>Contrato N°:</strong> ${contract.contract_number}</p>
-        <p><strong>Cliente:</strong> ${contract.customer_name || ''}</p>
-        <p><strong>Lote:</strong> #${contract.lot_id}</p>
-        <p><strong>Proyecto:</strong> ${contract.project_name || ''}</p>
-        <p><strong>Fecha:</strong> ${contract.contract_date}</p>
-        <p><strong>Monto:</strong> S/ ${contract.total_amount}</p>
-        <p><strong>Voucher:</strong> ${voucherHtml}</p>
-        <div class='mt-3 text-center'>
-            <form id="approveForm" method="post" action="/dashboard/inmueble/approve_contract" style="display:inline;">
-                <input type="hidden" name="contract_id" value="${contract.id}">
-                <button type="submit" class="btn btn-success mr-2">Aprobar</button>
-            </form>
-            <form id="rejectForm" method="post" action="/dashboard/inmueble/reject_contract" style="display:inline;">
-                <input type="hidden" name="contract_id" value="${contract.id}">
-                <button type="submit" class="btn btn-danger">Desaprobar</button>
-            </form>
-        </div>
-    `;
-        $('#approveModal').modal('show');
+        // Llamar al endpoint para obtener datos de validación (including comprobante inicial si no hay voucher)
+        fetch('/dashboard/inmueble/get_validation_data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ contract_id: contract.id })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                console.error('Error getting validation data:', data.message);
+                return;
+            }
+            
+            let voucherHtml = '';
+            let voucherData = data.data;
+            
+            // Prioridad 1: Voucher del contrato
+            if (voucherData.voucher_url && voucherData.voucher_url.trim() !== '') {
+                let filename = voucherData.voucher_url.split('/').pop();
+                let url = '/dashboard/mostrarComprobante/' + filename;
+                voucherHtml = `
+                    <div class="alert alert-info">
+                        <strong>Voucher del Contrato</strong><br>
+                        <a href="${url}" target="_blank">Ver voucher</a><br>
+                        <img src="${url}" alt="Voucher" style="max-width:300px;max-height:300px;" onerror="this.onerror=null;this.src='/assets/img/no-image.png';this.alt='No encontrado';">
+                    </div>
+                `;
+            }
+            // Prioridad 2: Comprobante de pago inicial
+            else if (voucherData.initial_payment_voucher && voucherData.initial_payment_voucher.trim() !== '') {
+                voucherHtml = `
+                    <div class="alert alert-success">
+                        <strong>Comprobante de Pago Inicial</strong><br>
+                        <p class="mb-1"><strong>Número:</strong> ${voucherData.initial_payment_number}</p>
+                        <p class="mb-1"><strong>Fecha:</strong> ${voucherData.initial_payment_date}</p>
+                        <p class="mb-2"><strong>Estado:</strong> ${voucherData.initial_payment_status}</p>
+                        <a href="${voucherData.initial_payment_voucher}" target="_blank">Ver comprobante</a><br>
+                        <img src="${voucherData.initial_payment_voucher}" alt="Comprobante" style="max-width:300px;max-height:300px;" onerror="this.onerror=null;this.src='/assets/img/no-image.png';this.alt='No encontrado';">
+                    </div>
+                `;
+            }
+            // Fallback: Sin voucher ni comprobante
+            else {
+                voucherHtml = `<div class="alert alert-danger"><span class="text-danger">No hay voucher ni comprobante adjunto</span></div>`;
+            }
+            
+            var body = document.getElementById('approveModalBody');
+            body.innerHTML = `
+                <p><strong>Contrato N°:</strong> ${voucherData.contract_number}</p>
+                <p><strong>Cliente:</strong> ${voucherData.customer_name || ''}</p>
+                <p><strong>Lote:</strong> #${voucherData.lot_id}</p>
+                <p><strong>Proyecto:</strong> ${voucherData.project_name || ''}</p>
+                <p><strong>Fecha:</strong> ${voucherData.contract_date}</p>
+                <p><strong>Monto:</strong> S/ ${voucherData.total_amount}</p>
+                <p><strong>Comprobante:</strong></p>
+                ${voucherHtml}
+                <div class='mt-3 text-center'>
+                    <form id="approveForm" method="post" action="/dashboard/inmueble/approve_contract" style="display:inline;">
+                        <input type="hidden" name="contract_id" value="${contract.id}">
+                        <button type="submit" class="btn btn-success mr-2">Aprobar</button>
+                    </form>
+                    <form id="rejectForm" method="post" action="/dashboard/inmueble/reject_contract" style="display:inline;">
+                        <input type="hidden" name="contract_id" value="${contract.id}">
+                        <button type="submit" class="btn btn-danger">Desaprobar</button>
+                    </form>
+                </div>
+            `;
+            $('#approveModal').modal('show');
+        })
+        .catch(err => {
+            console.error('Error fetching validation data:', err);
+            // Fallback: mostrar modal con datos básicos si el endpoint falla
+            let voucherHtml = `<span class="text-danger">Error al cargar comprobante</span>`;
+            var body = document.getElementById('approveModalBody');
+            body.innerHTML = `
+                <p><strong>Contrato N°:</strong> ${contract.contract_number}</p>
+                <p><strong>Cliente:</strong> ${contract.customer_name || ''}</p>
+                <p><strong>Lote:</strong> #${contract.lot_id}</p>
+                <p><strong>Proyecto:</strong> ${contract.project_name || ''}</p>
+                <p><strong>Fecha:</strong> ${contract.contract_date}</p>
+                <p><strong>Monto:</strong> S/ ${contract.total_amount}</p>
+                <p><strong>Comprobante:</strong> ${voucherHtml}</p>
+                <div class='mt-3 text-center'>
+                    <form id="approveForm" method="post" action="/dashboard/inmueble/approve_contract" style="display:inline;">
+                        <input type="hidden" name="contract_id" value="${contract.id}">
+                        <button type="submit" class="btn btn-success mr-2">Aprobar</button>
+                    </form>
+                    <form id="rejectForm" method="post" action="/dashboard/inmueble/reject_contract" style="display:inline;">
+                        <input type="hidden" name="contract_id" value="${contract.id}">
+                        <button type="submit" class="btn btn-danger">Desaprobar</button>
+                    </form>
+                </div>
+            `;
+            $('#approveModal').modal('show');
+        });
     }
     </script>
 

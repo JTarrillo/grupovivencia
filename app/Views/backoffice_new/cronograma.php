@@ -135,7 +135,7 @@
                                                         Inicial</span>
                                                     <?php else: ?>
                                                     <span class="text-info"><i class="fa fa-calendar"></i>
-                                                        Cuota <?= $i ?></span>
+                                                        Cuota</span>
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>

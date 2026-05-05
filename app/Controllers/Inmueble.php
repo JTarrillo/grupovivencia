@@ -3025,6 +3025,7 @@ class Inmueble extends BaseController {
             ]);
         }
         $result = $this->paymentPlanModel->delete($plan_id);
+
         if ($result) {
             return $this->response->setJSON([
                 'success' => true,
@@ -3036,5 +3037,87 @@ class Inmueble extends BaseController {
                 'message' => 'Error al eliminar el plan de pago'
             ]);
         }
+    }
+
+    /**
+     * Obtener datos de validación de un contrato incluyendo comprobante de pago inicial
+     * Si no existe voucher en el contrato, busca el comprobante de pago inicial (cuota 0)
+     * 
+     * Búsqueda específica del pago inicial via payment_schedules con installment_number = 0
+     */
+    public function getValidationData()
+    {
+        $request = service('request');
+        
+        // Intentar obtener contract_id de POST, GET, o JSON raw body
+        $contract_id = $request->getPost('contract_id') ?? $request->getGet('contract_id');
+        
+        if (!$contract_id) {
+            // Intentar desde JSON raw body
+            $json = $request->getJSON();
+            $contract_id = $json->contract_id ?? null;
+        }
+        
+        if (!$contract_id) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'contract_id no proporcionado'
+            ]);
+        }
+        
+        $ContractModel = new \App\Models\ContractModel();
+        $contract = $ContractModel->find($contract_id);
+        
+        if (!$contract) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Contrato no encontrado'
+            ]);
+        }
+        
+        // Preparar datos de respuesta
+        $validationData = [
+            'id' => $contract['id'],
+            'contract_number' => $contract['contract_number'],
+            'customer_name' => $contract['customer_name'] ?? '',
+            'lot_id' => $contract['lot_id'],
+            'project_name' => $contract['project_name'] ?? '',
+            'contract_date' => $contract['contract_date'],
+            'total_amount' => $contract['total_amount'],
+            'voucher_url' => $contract['voucher_url'] ?? null,
+            'voucher_type' => 'contrato',
+            'initial_payment_voucher' => null,
+            'initial_payment_voucher_type' => 'comprobante'
+        ];
+        
+        // Si NO existe voucher del contrato, buscar comprobante de pago inicial
+        if (!$validationData['voucher_url']) {
+            $db = \Config\Database::connect();
+            
+            // Buscar comprobante de PAGO INICIAL específicamente (installment_number = 0)
+            // usando JOIN entre payment_schedules y comprobantes_emitidos
+            $comprobanteInicial = $db->table('comprobantes_emitidos ce')
+                ->select('ce.pdf_url, ce.numero_completo, ce.fecha_emision, ce.estado, ce.id')
+                ->join('payment_schedules ps', 'ce.pago_id = ps.id', 'inner')
+                ->where('ps.contract_id', $contract_id)
+                ->where('ps.installment_number', 0)
+                ->orderBy('ce.fecha_emision', 'DESC')
+                ->limit(1)
+                ->get()
+                ->getRowArray();
+            
+            if ($comprobanteInicial && !empty($comprobanteInicial['pdf_url'])) {
+                $validationData['initial_payment_voucher'] = $comprobanteInicial['pdf_url'];
+                $validationData['initial_payment_number'] = $comprobanteInicial['numero_completo'];
+                $validationData['initial_payment_date'] = $comprobanteInicial['fecha_emision'];
+                $validationData['initial_payment_status'] = $comprobanteInicial['estado'];
+                $validationData['comprobante_id'] = $comprobanteInicial['id'];
+            }
+        }
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => $validationData
+        ]);
     }
 }
