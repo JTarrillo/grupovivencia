@@ -3065,8 +3065,17 @@ class Inmueble extends BaseController {
             ]);
         }
         
-        $ContractModel = new \App\Models\ContractModel();
-        $contract = $ContractModel->find($contract_id);
+        $db = \Config\Database::connect();
+        
+        // Traer datos del contrato con JOINs para obtener nombre del cliente y proyecto
+        $contract = $db->table('contracts')
+            ->select('contracts.id, contracts.contract_number, contracts.lot_id, contracts.customer_id, contracts.voucher_url, contracts.contract_date, contracts.total_amount, customers.name as customer_name, projects.name as project_name, lots.lot_number')
+            ->join('lots', 'contracts.lot_id = lots.id', 'left')
+            ->join('projects', 'lots.project_id = projects.id', 'left')
+            ->join('customers', 'contracts.customer_id = customers.id', 'left')
+            ->where('contracts.id', $contract_id)
+            ->get()
+            ->getRowArray();
         
         if (!$contract) {
             return $this->response->setJSON([
@@ -3081,6 +3090,7 @@ class Inmueble extends BaseController {
             'contract_number' => $contract['contract_number'],
             'customer_name' => $contract['customer_name'] ?? '',
             'lot_id' => $contract['lot_id'],
+            'lot_number' => $contract['lot_number'] ?? '',
             'project_name' => $contract['project_name'] ?? '',
             'contract_date' => $contract['contract_date'],
             'total_amount' => $contract['total_amount'],
@@ -3092,8 +3102,6 @@ class Inmueble extends BaseController {
         
         // Si NO existe voucher del contrato, buscar voucher de pago inicial del cronograma
         if (!$validationData['voucher_url']) {
-            $db = \Config\Database::connect();
-            
             // Buscar voucher del PAGO INICIAL específicamente (installment_number = 0)
             // El voucher es la imagen/PDF que el cliente adjunta cuando realiza el pago en el banco
             $pagoInicial = $db->table('payment_schedules')

@@ -1195,7 +1195,7 @@
 
     <!-- Modal Validar Contrato -->
     <div class="modal fade" id="approveModal" tabindex="-1" role="dialog" aria-labelledby="approveModalLabel">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="approveModalLabel">Validar Contrato</h5>
@@ -2176,8 +2176,10 @@
                 voucherHtml = `
                     <div class="alert alert-info">
                         <strong>Voucher del Contrato</strong><br>
-                        <a href="${url}" target="_blank">Ver voucher</a><br>
-                        <img src="${url}" alt="Voucher" style="max-width:300px;max-height:300px;" onerror="this.onerror=null;this.src='/assets/img/no-image.png';this.alt='No encontrado';">
+                        <a href="${url}" target="_blank" class="btn btn-sm btn-primary mb-2">Descargar / Ver en nueva pestaña</a>
+                        <div style="border:1px solid #ddd; padding:5px; margin-top:10px; background:#f9f9f9; max-height:550px; overflow:auto;">
+                            <img src="${url}" alt="Voucher" style="max-width:100%;height:auto;" onerror="this.onerror=null;this.src='/assets/img/no-image.png';this.alt='No encontrado';">
+                        </div>
                     </div>
                 `;
             }
@@ -2188,9 +2190,9 @@
                 let voucherContent = '';
                 
                 if (isPdf) {
-                    voucherContent = `<iframe src="${voucherUrl}" width="100%" height="500" style="border:1px solid #ddd;"></iframe>`;
+                    voucherContent = `<iframe src="${voucherUrl}" width="100%" height="550" style="border:1px solid #ddd;"></iframe>`;
                 } else {
-                    voucherContent = `<img src="${voucherUrl}" alt="Voucher Pago Inicial" style="max-width:100%;border:1px solid #ddd;" onerror="this.src='/assets/img/no-image.png';this.alt='No encontrado';">`;
+                    voucherContent = `<img src="${voucherUrl}" alt="Voucher Pago Inicial" style="max-width:100%;height:auto;border:1px solid #ddd;" onerror="this.src='/assets/img/no-image.png';this.alt='No encontrado';">`;
                 }
                 
                 voucherHtml = `
@@ -2199,8 +2201,8 @@
                         <p class="mb-1"><strong>Monto:</strong> S/ ${voucherData.initial_payment_amount}</p>
                         <p class="mb-1"><strong>Estado:</strong> ${voucherData.initial_payment_status}</p>
                         ${voucherData.initial_payment_paid_date ? `<p class="mb-2"><strong>Fecha de Pago:</strong> ${voucherData.initial_payment_paid_date}</p>` : ''}
-                        <a href="${voucherUrl}" target="_blank" class="btn btn-sm btn-info mb-2">Descargar / Ver en nueva pestaña</a><br>
-                        <div style="border:1px solid #ddd; padding:5px; margin-top:10px; background:#f9f9f9;">
+                        <a href="${voucherUrl}" target="_blank" class="btn btn-sm btn-info mb-2">Descargar / Ver en nueva pestaña</a>
+                        <div style="border:1px solid #ddd; padding:5px; margin-top:10px; background:#f9f9f9; max-height:550px; overflow:auto;">
                             ${voucherContent}
                         </div>
                     </div>
@@ -2213,15 +2215,21 @@
             
             var body = document.getElementById('approveModalBody');
             body.innerHTML = `
-                <p><strong>Contrato N°:</strong> ${voucherData.contract_number}</p>
-                <p><strong>Cliente:</strong> ${voucherData.customer_name || ''}</p>
-                <p><strong>Lote:</strong> #${voucherData.lot_id}</p>
-                <p><strong>Proyecto:</strong> ${voucherData.project_name || ''}</p>
-                <p><strong>Fecha:</strong> ${voucherData.contract_date}</p>
-                <p><strong>Monto:</strong> S/ ${voucherData.total_amount}</p>
-                <p><strong>Comprobante:</strong></p>
-                ${voucherHtml}
-                <div class='mt-3 text-center'>
+                <div class="row">
+                    <div class="col-lg-4 col-md-12">
+                        <p><strong>Contrato N°:</strong> ${voucherData.contract_number}</p>
+                        <p><strong>Cliente:</strong> ${voucherData.customer_name || ''}</p>
+                        <p><strong>Lote:</strong> #${voucherData.lot_id}</p>
+                        <p><strong>Proyecto:</strong> ${voucherData.project_name || ''}</p>
+                        <p><strong>Fecha:</strong> ${voucherData.contract_date}</p>
+                        <p><strong>Monto:</strong> S/ ${voucherData.total_amount}</p>
+                    </div>
+                    <div class="col-lg-8 col-md-12">
+                        <p><strong>Comprobante:</strong></p>
+                        ${voucherHtml}
+                    </div>
+                </div>
+                <div class='mt-4 text-center'>
                     <form id="approveForm" method="post" action="/dashboard/inmueble/approve_contract" style="display:inline;">
                         <input type="hidden" name="contract_id" value="${contract.id}">
                         <button type="submit" class="btn btn-success mr-2">Aprobar</button>
@@ -2240,14 +2248,21 @@
             let voucherHtml = `<span class="text-danger">Error al cargar comprobante</span>`;
             var body = document.getElementById('approveModalBody');
             body.innerHTML = `
-                <p><strong>Contrato N°:</strong> ${contract.contract_number}</p>
-                <p><strong>Cliente:</strong> ${contract.customer_name || ''}</p>
-                <p><strong>Lote:</strong> #${contract.lot_id}</p>
-                <p><strong>Proyecto:</strong> ${contract.project_name || ''}</p>
-                <p><strong>Fecha:</strong> ${contract.contract_date}</p>
-                <p><strong>Monto:</strong> S/ ${contract.total_amount}</p>
-                <p><strong>Comprobante:</strong> ${voucherHtml}</p>
-                <div class='mt-3 text-center'>
+                <div class="row">
+                    <div class="col-lg-4 col-md-12">
+                        <p><strong>Contrato N°:</strong> ${contract.contract_number}</p>
+                        <p><strong>Cliente:</strong> ${contract.customer_name || ''}</p>
+                        <p><strong>Lote:</strong> #${contract.lot_id}</p>
+                        <p><strong>Proyecto:</strong> ${contract.project_name || ''}</p>
+                        <p><strong>Fecha:</strong> ${contract.contract_date}</p>
+                        <p><strong>Monto:</strong> S/ ${contract.total_amount}</p>
+                    </div>
+                    <div class="col-lg-8 col-md-12">
+                        <p><strong>Comprobante:</strong></p>
+                        ${voucherHtml}
+                    </div>
+                </div>
+                <div class='mt-4 text-center'>
                     <form id="approveForm" method="post" action="/dashboard/inmueble/approve_contract" style="display:inline;">
                         <input type="hidden" name="contract_id" value="${contract.id}">
                         <button type="submit" class="btn btn-success mr-2">Aprobar</button>
