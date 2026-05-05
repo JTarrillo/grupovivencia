@@ -177,6 +177,7 @@ class PagosController extends BaseController
         $pago_id = $json->pago_id ?? null;
         $contract_id = $json->contract_id ?? null;
         $monto_cuota = $json->monto ?? null;
+        $payment_schedule_id = $json->payment_schedule_id ?? null;
 
         if (!$contract_id || !$monto_cuota) {
             return $this->response->setJSON(['success' => false, 'message' => 'Faltan datos (Contrato o Monto).']);
@@ -198,11 +199,11 @@ class PagosController extends BaseController
         $lote = model('LotModel')->find($contrato['lot_id']);
         $proyecto = $lote ? model('ProjectModel')->find($lote['project_id']) : null;
         
-        // Obtener número de cuota del cronograma de pagos
-        $paymentSchedule = model('PaymentScheduleModel')
-            ->where('contract_id', $contract_id)
-            ->orderBy('installment_number', 'DESC')
-            ->first();
+        // Obtener la cuota ESPECÍFICA (usando payment_schedule_id)
+        $paymentSchedule = null;
+        if ($payment_schedule_id) {
+            $paymentSchedule = model('PaymentScheduleModel')->find($payment_schedule_id);
+        }
         
         $installment_number = $paymentSchedule['installment_number'] ?? 1;
         $lot_number = $lote['lot_number'] ?? 'N/A';
@@ -313,6 +314,7 @@ class PagosController extends BaseController
         $pago_id     = $json->pago_id ?? null;
         $contract_id = $json->contract_id ?? null;
         $monto_cuota = $json->monto ?? null;
+        $payment_schedule_id = $json->payment_schedule_id ?? null;
 
         if (!$contract_id || !$monto_cuota) {
             return $this->response->setJSON(['success' => false, 'message' => 'Faltan datos (Contrato o Monto).']);
@@ -332,11 +334,11 @@ class PagosController extends BaseController
         $lote = model('LotModel')->find($contrato['lot_id']);
         $proyecto = $lote ? model('ProjectModel')->find($lote['project_id']) : null;
         
-        // Obtener número de cuota del cronograma de pagos
-        $paymentSchedule = model('PaymentScheduleModel')
-            ->where('contract_id', $contract_id)
-            ->orderBy('installment_number', 'DESC')
-            ->first();
+        // Obtener la cuota ESPECÍFICA (usando payment_schedule_id)
+        $paymentSchedule = null;
+        if ($payment_schedule_id) {
+            $paymentSchedule = model('PaymentScheduleModel')->find($payment_schedule_id);
+        }
         
         $installment_number = $paymentSchedule['installment_number'] ?? 1;
         $lot_number = $lote['lot_number'] ?? 'N/A';

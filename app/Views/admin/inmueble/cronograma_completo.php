@@ -431,7 +431,7 @@
                                                                         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease;"
                                                                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)'"
                                                                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'"
-                                                                        onclick="generarFacturaCuota(<?= $pago['id'] ?>, <?= $contract['id'] ?>, '<?= number_format($pago['amount'], 2) ?>')">
+                                                                        onclick="generarFacturaCuota(<?= $pago['id'] ?>, <?= $contract['id'] ?>, '<?= number_format($pago['amount'], 2) ?>', <?= $pago['id'] ?>)">
                                                                         <i class="fa fa-file-invoice"></i> Comprobante
                                                                     </button>
                                                                     <?php else: ?>
@@ -750,7 +750,7 @@
 
     // Función para generar factura de una cuota específica
     // Función para generar factura de una cuota específica
-    function generarFacturaCuota(pagoId, contractId, monto) {
+    function generarFacturaCuota(pagoId, contractId, monto, paymentScheduleId) {
         // 1. Limpiar el monto (quitar comas de miles si existen)
         // Ejemplo: "1,500.50" -> "1500.50"
         const montoLimpio = monto.toString().replace(/,/g, '');
@@ -758,6 +758,7 @@
         console.log("=== DEBUG GENERAR FACTURA ===");
         console.log("ID Pago:", pagoId);
         console.log("ID Contrato:", contractId);
+        console.log("ID Payment Schedule:", paymentScheduleId);
         console.log("Monto Enviado:", montoLimpio);
 
         Swal.fire({
@@ -775,7 +776,8 @@
                 const dataEnvio = {
                     pago_id: pagoId,
                     contract_id: contractId,
-                    monto: montoLimpio
+                    monto: montoLimpio,
+                    payment_schedule_id: paymentScheduleId
                 };
 
                 Swal.fire({
