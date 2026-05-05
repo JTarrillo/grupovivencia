@@ -531,6 +531,28 @@
         </div>
     </div>
 
+    <!-- Modal para ver imagen del voucher ampliada -->
+    <div class="modal fade" id="voucherAmpliadoModal" tabindex="-1" role="dialog" aria-labelledby="voucherAmpliadoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="voucherAmpliadoModalLabel">
+                        <i class="fa fa-image"></i> Voucher Ampliado
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar" onclick="cerrarModalVoucherAmpliado()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="voucher-ampliado-img" src="" style="max-width: 100%; max-height: 600px; border-radius: 8px;" alt="Voucher Ampliado">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="cerrarModalVoucherAmpliado()">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
     let pagoIdActual = null;
@@ -645,7 +667,10 @@
             if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) {
                 // Imagen
                 comprobanteClientePreview.innerHTML = `
-                        <img src="${comprobanteUrl}" style="max-width: 100%; max-height: 300px; border-radius: 8px;" alt="Comprobante" onerror="console.log('Error cargando imagen desde:', '${comprobanteUrl}')">
+                        <img id="voucher-preview-image" src="${comprobanteUrl}" style="max-width: 100%; max-height: 300px; border-radius: 8px; cursor: pointer; transition: transform 0.2s ease;" alt="Comprobante" onerror="console.log('Error cargando imagen desde:', '${comprobanteUrl}')" onclick="abrirModalVoucherAmpliado('${comprobanteUrl}')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <p style="text-align: center; margin-top: 8px; color: #666; font-size: 0.85rem;">
+                            <i class="fa fa-search-plus"></i> Click para ampliar
+                        </p>
                     `;
             } else if (ext === 'pdf') {
                 // PDF
@@ -829,6 +854,51 @@
                     });
             }
         });
+    }
+
+    // Función para abrir modal con imagen ampliada del voucher
+    function abrirModalVoucherAmpliado(imagenUrl) {
+        console.log("Abriendo modal con imagen:", imagenUrl);
+        
+        const modal = document.getElementById('voucherAmpliadoModal');
+        const imgAmpliada = document.getElementById('voucher-ampliado-img');
+        
+        if (!modal || !imgAmpliada) {
+            console.error("Modal o imagen no encontrados");
+            return;
+        }
+        
+        imgAmpliada.src = imagenUrl;
+        
+        // Mostrar modal (método Bootstrap 4)
+        if (typeof jQuery !== 'undefined' && jQuery.fn.modal) {
+            jQuery('#voucherAmpliadoModal').modal('show');
+        } else if (window.bootstrap && window.bootstrap.Modal) {
+            const instance = window.bootstrap.Modal.getOrCreateInstance(modal);
+            instance.show();
+        } else {
+            // Fallback: mostrar el modal manualmente
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            document.body.classList.add('modal-open');
+        }
+    }
+
+    // Cerrar modal de voucher ampliado
+    function cerrarModalVoucherAmpliado() {
+        const modal = document.getElementById('voucherAmpliadoModal');
+        
+        if (typeof jQuery !== 'undefined' && jQuery.fn.modal) {
+            jQuery('#voucherAmpliadoModal').modal('hide');
+        } else if (window.bootstrap && window.bootstrap.Modal) {
+            const instance = window.bootstrap.Modal.getOrCreateInstance(modal);
+            instance.hide();
+        } else {
+            // Fallback: ocultar el modal manualmente
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.classList.remove('modal-open');
+        }
     }
     </script>
 </body>

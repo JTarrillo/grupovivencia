@@ -239,11 +239,11 @@ class D_consolidacion extends BaseController
                 SELECT
                     DATE(comprobantes_emitidos.fecha_emision) AS fecha_operacion,
                     CASE
-                        WHEN UPPER(COALESCE(comprobantes_emitidos.sunat_mensaje, '')) LIKE '%ITF%' THEN 'ITF'
+                        WHEN UPPER(COALESCE(comprobantes_emitidos.descripcion, comprobantes_emitidos.sunat_mensaje, '')) LIKE '%ITF%' THEN 'ITF'
                         ELSE 'VENTA'
                     END AS tipo_operacion,
                     comprobantes_emitidos.id AS nro_operacion,
-                    COALESCE(NULLIF(TRIM(comprobantes_emitidos.sunat_mensaje), ''), 'VENTA COMPROBANTE ELECTRONICO') AS desc_operacion,
+                    COALESCE(NULLIF(TRIM(comprobantes_emitidos.descripcion), ''), NULLIF(TRIM(comprobantes_emitidos.sunat_mensaje), ''), 'VENTA COMPROBANTE ELECTRONICO') AS desc_operacion,
                     CASE
                         WHEN comprobantes_emitidos.tipo_documento = '01' THEN 'FACTURA'
                         WHEN comprobantes_emitidos.tipo_documento = '03' THEN 'BOLETA'

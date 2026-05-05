@@ -221,7 +221,12 @@ class PagosController extends BaseController
         $serie    = $esRuc ? "F001" : "B001";
         $num_doc  = $esRuc ? $cliente['ruc'] : $cliente['dni'];
 
-        // 6. Armado de la estructura para la API
+        // 6. Generar descripción según si es pago inicial o cuota regular
+        $descripcion = $installment_number == 0 
+            ? "POR EL PAGO INICIAL DEL LOTE " . $lot_number . " DEL PROYECTO " . strtoupper($project_name)
+            : "POR EL PAGO DE LA " . $installment_number . " CUOTA DEL LOTE " . $lot_number . " DEL PROYECTO " . strtoupper($project_name);
+
+        // 7. Armado de la estructura para la API
         $data_facturacion = [
             "scenario"        => $esRuc ? "Factura Inafecta" : "Boleta Inafecta",
             "company_id"      => 1,
@@ -238,12 +243,13 @@ class PagosController extends BaseController
                 "razon_social"     => trim(($cliente['name'] ?? '') . ' ' . ($cliente['lastname'] ?? '')),
                 "direccion"        => $cliente['address'] ?: "Lima, Perú",
                 "telefono"         => $cliente['phone'] ?? '',
-                "email"            => $cliente['email'] ?? ''
+                "email"            => $cliente['email'] ?? '',
+                "contract_number"  => $contrato['contract_number'] ?? ''
             ],
             "detalles" => [
                 [
                     "codigo"             => $contrato['contract_number'],
-                    "descripcion"        => "POR EL PAGO DE LA " . $installment_number . " CUOTA DEL LOTE " . $lot_number . " DEL PROYECTO " . strtoupper($project_name),
+                    "descripcion"        => $descripcion,
                     "unidad"             => "NIU",
                     "cantidad"           => 1,
                     "mto_valor_unitario" => $mto_valor_unitario,
@@ -354,9 +360,15 @@ class PagosController extends BaseController
         $num_doc  = $esRuc ? $cliente['ruc'] : $cliente['dni'];
         $nombre   = trim(($cliente['name'] ?? '') . ' ' . ($cliente['lastname'] ?? ''));
 
+        // Generar descripción según si es pago inicial o cuota regular
+        $descripcion = $installment_number == 0 
+            ? "POR EL PAGO INICIAL DEL LOTE " . $lot_number . " DEL PROYECTO " . strtoupper($project_name)
+            : "POR EL PAGO DE LA " . $installment_number . " CUOTA DEL LOTE " . $lot_number . " DEL PROYECTO " . strtoupper($project_name);
+
         // Estructura para tu nueva API Laravel
         $payload = [
             "tipo_documento" => $esRuc ? "01" : "03", // 01=Factura, 03=Boleta
+            "contract_number" => $contrato['contract_number'] ?? '',
             "cabecera" => [
                 "FECHA_EMISION"            => date('Y-m-d'),
                 "CLIENTE_NRO_DOCUMENTO"    => $num_doc,
@@ -366,13 +378,13 @@ class PagosController extends BaseController
                 "TOTAL_INAFECTAS"          => number_format($total, 2, '.', ''),
                 "TOTAL_GRAVADAS"           => "0.00",
                 "TOTAL_TRIBUTO_IGV"        => "0.00",
-                "TOTAL_VENTA"              => number_format($total, 2, '.', ''),
+                "TOTAL_VENTA"              => number_format($total, 2, '.', '')
             ],
             "detalles" => [
                 [
                     "CODIGO"          => $contrato['contract_number'],
                     "CANTIDAD"        => "1",
-                    "DESCRIPCION"     => "POR EL PAGO DE LA " . $installment_number . " CUOTA DEL LOTE " . $lot_number . " DEL PROYECTO " . strtoupper($project_name),
+                    "DESCRIPCION"     => $descripcion,
                     "UNIDAD_MEDIDA"   => "NIU",
                     "PRECIO_VALOR"    => number_format($total, 2, '.', ''),
                     "TIPO_TRIBUTO_IGV" => "30", // 30 = Inafecto
@@ -414,6 +426,7 @@ class PagosController extends BaseController
                     'hash_cpe'        => $xmlData['HASH_CPE'] ?? null,
                     'xml_filename'    => $pdf['filename'] ?? null,
                     'pdf_url'         => $pdf['download_url'] ?? null,
+                    'descripcion'     => $descripcion,
                     'created_at'      => date('Y-m-d H:i:s'),
                     'updated_at'      => date('Y-m-d H:i:s'),
                 ]);

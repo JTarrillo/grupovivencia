@@ -565,7 +565,8 @@ class D_facturas extends BaseController
                 "razon_social"     => trim(($cliente['name'] ?? '') . ' ' . ($cliente['lastname'] ?? '')),
                 "direccion"        => $cliente['address'] ?: "Lima, Perú",
                 "telefono"         => $cliente['phone'] ?? '',
-                "email"            => $cliente['email'] ?? ''
+                "email"            => $cliente['email'] ?? '',
+                "numero_contrato"  => $contrato['contract_number'] ?? ''
             ],
             "detalles" => [
                 [
