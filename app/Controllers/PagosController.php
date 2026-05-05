@@ -208,6 +208,8 @@ class PagosController extends BaseController
         $installment_number = $paymentSchedule['installment_number'] ?? 1;
         $lot_number = $lote['lot_number'] ?? 'N/A';
         $project_name = $proyecto['name'] ?? 'N/A';
+        // Remover "Proyecto" del inicio si existe
+        $project_name = trim(preg_replace('/^proyecto\s+/i', '', $project_name));
 
         // 4. Configuración de montos (Usando el monto de la cuota enviado)
         $total = (float) $monto_cuota;
@@ -343,6 +345,8 @@ class PagosController extends BaseController
         $installment_number = $paymentSchedule['installment_number'] ?? 1;
         $lot_number = $lote['lot_number'] ?? 'N/A';
         $project_name = $proyecto['name'] ?? 'N/A';
+        // Remover "Proyecto" del inicio si existe
+        $project_name = trim(preg_replace('/^proyecto\s+/i', '', $project_name));
 
         $total    = (float) $monto_cuota;
         $esRuc    = !empty($cliente['ruc']);

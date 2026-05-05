@@ -533,6 +533,8 @@ class D_facturas extends BaseController
         
         $lot_number = $lote['lot_number'] ?? 'N/A';
         $project_name = $proyecto['name'] ?? 'N/A';
+        // Remover "Proyecto" del inicio si existe
+        $project_name = trim(preg_replace('/^proyecto\s+/i', '', $project_name));
 
         // 3. Cálculos de montos
         // INMOBILIARIA: Operación INAFECTA, no se aplica IGV.
