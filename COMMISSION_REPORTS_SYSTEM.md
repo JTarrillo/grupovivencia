@@ -9,6 +9,7 @@ Se ha creado un **sistema automatizado y completo** para que los patrocinadores 
 ## 📋 Estructura Implementada
 
 ### 1. **Base de Datos**
+
 - **Tabla**: `commission_reports`
 - **Campos principales**:
   - `report_number`: Número único de informe (Ej: INFORME Nº009-2025-BRQ)
@@ -40,6 +41,7 @@ Se ha creado un **sistema automatizado y completo** para que los patrocinadores 
 **URL**: `/backoffice_new/commission_reports/create`
 
 El patrocinador accede a un formulario donde:
+
 1. Se muestra automáticamente el **Número de Informe** (Ej: 009-2025)
 2. Ingresa:
    - Nombre (se carga automáticamente)
@@ -65,6 +67,7 @@ El patrocinador accede a un formulario donde:
 **URL**: `/backoffice_new/commission_reports/my`
 
 Lista con estado de todos sus informes:
+
 - Pendiente (en revisión)
 - Revisado
 - Aprobado ✅
@@ -78,6 +81,7 @@ Lista con estado de todos sus informes:
 **URL**: `/admin/commission-reports/dashboard`
 
 Dashboard con:
+
 - **Resumen de estados**: Contador de pendientes, revisados, aprobados, rechazados, pagados
 - **Tabla de informes pendientes** con:
   - Nº Informe
@@ -94,6 +98,7 @@ Dashboard con:
 **URL**: `/admin/commission-reports/view/{id}`
 
 Muestra todo el detalle:
+
 - Información completa del informe
 - Descripción de comisiones
 - **Descarga de archivos adjuntos**:
@@ -103,6 +108,7 @@ Muestra todo el detalle:
   - Factura PDF
 
 **Panel de Gestión**:
+
 - Estado actual (badge con color)
 - Selector para cambiar estado: Revisado → Aprobado → Pagado (o Rechazado)
 - Campo para agregar notas/observaciones
@@ -113,27 +119,33 @@ Muestra todo el detalle:
 ## 📁 Archivos Creados
 
 ### **Modelo**
+
 - `app/Models/CommissionReportModel.php`
   - Métodos auxiliares: getNextReportNumber(), getDashboardSummary(), etc.
 
 ### **Controlador**
+
 - `app/Controllers/CommissionReportController.php`
   - 10 métodos para crear, listar, ver y gestionar informes
 
 ### **Vistas Backoffice**
+
 - `app/Views/backoffice_new/commission_reports/create.php`
   - Formulario para crear informe
 
 ### **Vistas Admin**
+
 - `app/Views/admin/commission_reports/dashboard.php`
   - Dashboard con resumen
 - `app/Views/admin/commission_reports/view.php`
   - Detalle y gestión de informe
 
 ### **Rutas**
+
 - Agregadas 10 rutas en `app/Config/Routes.php`
 
 ### **Base de Datos**
+
 - `database/create_commission_reports.sql`
   - Script para crear tabla (ya ejecutado)
 
@@ -179,10 +191,12 @@ Archivos: Excel, Vauchers, Boletas, Factura PDF
 ## 🔗 URLS DE ACCESO
 
 ### Patrocinador (Backoffice)
+
 - Crear informe: `http://localhost:8081/backoffice_new/commission_reports/create`
 - Ver mis informes: `http://localhost:8081/backoffice_new/commission_reports/my`
 
 ### Contabilidad (Admin)
+
 - Dashboard: `http://localhost:8081/admin/commission-reports/dashboard`
 - Ver todos: `http://localhost:8081/admin/commission-reports/list`
 - Ver detalle: `http://localhost:8081/admin/commission-reports/view/{id}`

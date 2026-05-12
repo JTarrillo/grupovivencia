@@ -1,3 +1,7 @@
+// Customer management functions
+console.log('customer.js loaded successfully at ' + new Date().toISOString());
+console.log('loadCreateCustomerModal function will be available');
+
 function validate() {
     document.getElementById("submit").disabled = true;
     document.getElementById("submit").innerHTML = "<span class='spinner-border spinner-border-sm' role='status'></span> Procesando...";
@@ -13,7 +17,7 @@ function validate() {
             // data ya es objeto, no parsear
             if (data.status == true) {
                 Swal.fire({
-                    position: 'top-end',
+                    position: 'center',
                     icon: 'success',
                     title: 'Cambios Guardado',
                     showConfirmButton: false,
@@ -23,7 +27,7 @@ function validate() {
                 }, 1500);
             } else {
                 Swal.fire({
-                    position: 'top-end',
+                    position: 'center',
                     icon: 'info',
                     title: 'Sucedio un error',
                     footer: 'Vuelva a Intentarlo'
@@ -54,18 +58,19 @@ function createCustomer() {
         success: function (data) {
             if (data.success == true) {
                 Swal.fire({
-                    position: 'top-end',
+                    position: 'center',
                     icon: 'success',
                     title: 'Cliente creado correctamente',
                     showConfirmButton: false,
                     timer: 1500
                 });
+                $('#modalCreateCustomer').modal('hide');
                 window.setTimeout(function () {
                     window.location = site + "dashboard/clientes";
                 }, 1500);
             } else {
                 Swal.fire({
-                    position: 'top-end',
+                    position: 'center',
                     icon: 'error',
                     title: 'Error',
                     text: data.message || 'Error al crear el cliente'
@@ -76,7 +81,7 @@ function createCustomer() {
         },
         error: function() {
             Swal.fire({
-                position: 'top-end',
+                position: 'center',
                 icon: 'error',
                 title: 'Error de conexión',
                 text: 'Intente nuevamente'
@@ -106,7 +111,7 @@ function updateCustomer() {
         success: function (data) {
             if (data.success == true) {
                 Swal.fire({
-                    position: 'top-end',
+                    position: 'center',
                     icon: 'success',
                     title: 'Cliente actualizado correctamente',
                     showConfirmButton: false,
@@ -117,7 +122,7 @@ function updateCustomer() {
                 }, 1500);
             } else {
                 Swal.fire({
-                    position: 'top-end',
+                    position: 'center',
                     icon: 'error',
                     title: 'Error',
                     text: data.message || 'Error al actualizar el cliente'
@@ -128,13 +133,34 @@ function updateCustomer() {
         },
         error: function() {
             Swal.fire({
-                position: 'top-end',
+                position: 'center',
                 icon: 'error',
                 title: 'Error de conexión',
                 text: 'Intente nuevamente'
             });
             document.getElementById("submit").disabled = false;
             document.getElementById("submit").innerHTML = "Guardar";
+        }
+    });
+}
+
+/**
+ * Cargar formulario vacío para crear nuevo cliente
+ */
+console.log('About to define loadCreateCustomerModal');
+function loadCreateCustomerModal() {
+    console.log('loadCreateCustomerModal called');
+    $.ajax({
+        url: site + 'dashboard/clientes/form_modal',
+        type: 'GET',
+        success: function(data) {
+            $('#modalCreateCustomer .modal-body').html(data);
+            $('#modalCreateCustomer .modal-title').text('Crear Nuevo Cliente');
+            $('#modalCreateCustomer .modal-footer .btn-primary').text('Crear Cliente');
+            $('#modalCreateCustomer').modal('show');
+        },
+        error: function() {
+            Swal.fire('Error', 'No se pudo cargar el formulario', 'error');
         }
     });
 }
@@ -164,18 +190,94 @@ function validate_user(username) {
 }
 
 /**
- * Ir a formulario de crear cliente
+ * Editar cliente - cargar modal con datos
+ */
+function edit_customer(customer_id) {
+    $.ajax({
+        url: site + 'dashboard/clientes/form_modal/' + customer_id,
+        type: 'GET',
+        success: function(data) {
+            $('#modalCreateCustomer .modal-body').html(data);
+            $('#modalCreateCustomer .modal-title').text('Editar Cliente');
+            $('#modalCreateCustomer .modal-footer .btn-primary').text('Guardar Cambios');
+            $('#modalCreateCustomer').modal('show');
+        },
+        error: function() {
+            Swal.fire('Error', 'No se pudo cargar el formulario', 'error');
+        }
+    });
+}
+
+/**
+ * Crear nuevo cliente - función separada para STORE
  */
 function create_customer() {
     var url = 'dashboard/clientes/create';
     location.href = site + url;
 }
-
-function edit_customer(customer_id) {
-    var url = 'dashboard/clientes/load/' + customer_id;
-    location.href = site + url;
+/**
+ * Detectar si es crear o editar y llamar función apropiada
+ */
+function submitCustomerForm() {
+    const action = document.querySelector('input[name="action"]').value;
+    const submitBtn = document.querySelector('#modalCreateCustomer .modal-footer .btn-primary');
+    
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "<span class='spinner-border spinner-border-sm' role='status'></span> Procesando...";
+    }
+    
+    var oData = new FormData(document.forms.namedItem("form-customer"));
+    const url = action === 'create' ? site + "dashboard/clientes/store" : site + "dashboard/clientes/update";
+    
+    $.ajax({
+        url: url,
+        method: "POST",
+        data: oData,
+        contentType: false,
+        cache: false,
+        processData: false,
+        success: function (data) {
+            if (data.success == true) {
+                const message = action === 'create' ? 'Cliente creado correctamente' : 'Cliente actualizado correctamente';
+                Swal.fire({
+                    position: 'center',
+                    icon: 'success',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                $('#modalCreateCustomer').modal('hide');
+                window.setTimeout(function () {
+                    window.location = site + "dashboard/clientes";
+                }, 1500);
+            } else {
+                Swal.fire({
+                    position: 'center',
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'Error al procesar'
+                });
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = action === 'create' ? 'Crear Cliente' : 'Guardar Cambios';
+                }
+            }
+        },
+        error: function() {
+            Swal.fire({
+                position: 'center',
+                icon: 'error',
+                title: 'Error de conexión',
+                text: 'No se pudo conectar con el servidor'
+            });
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = action === 'create' ? 'Crear Cliente' : 'Guardar Cambios';
+            }
+        }
+    });
 }
-
 function cancelar_customer() {
     var url = 'dashboard/clientes';
     location.href = site + url;
@@ -229,7 +331,7 @@ function eliminar(id){
                 success: function (data) {
                     if (data.status == true) {
                         Swal.fire({
-                            position: 'top-end',
+                            position: 'center',
                             icon: 'success',
                             title: data.message,
                             showConfirmButton: false,
@@ -240,7 +342,7 @@ function eliminar(id){
                         }, 1500);
                     } else {
                         Swal.fire({
-                            position: 'top-end',
+                            position: 'center',
                             icon: 'info',
                             title: data.message
                         });

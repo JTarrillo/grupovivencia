@@ -279,6 +279,24 @@ class D_clientes extends BaseController
         return view('admin/clientes/load', $data);
     }
 
+    public function form_modal($id = false)
+    {
+        $obj_customer = null;
+        if ($id != false) {
+            $Customer = new CustomerModel();
+            $obj_customer = $Customer->get_data_customer($id);
+        }
+        //get paises
+        $Paises = new CountriesModel();
+        $obj_paises = $Paises->get_data();
+        //send data
+        $data = array(
+            'obj_customer' => $obj_customer,
+            'obj_paises' => $obj_paises,
+        );
+        return view('admin/clientes/form_modal', $data);
+    }
+
     public function validacion()
     {
         // Permite activar/desactivar cliente con solo id y active, o actualizar datos completos

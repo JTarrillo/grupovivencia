@@ -5,8 +5,9 @@
 ### Usuario: `pay.php` → `B_cobros::make_pay()`
 
 **Proceso:**
+
 1. Usuario ingresa a `/backoffice_new/cobros` (pay.php)
-2. Ve saldo disponible 
+2. Ve saldo disponible
 3. Clickea botón "Solicitar Cobro"
 4. Modal pide: **Monto + PIN**
 5. El PIN se solicita por email (función `send_pin()`)
@@ -28,7 +29,6 @@
 - Estado: En espera / Procesado / Rechazado
 - Con información de banco, monto, detracción, factura
 
-
 ---
 
 ## 2. FLUJO DEL INFORME DE COMISIONES (Nuevo)
@@ -36,6 +36,7 @@
 ### Usuario: `commission_reports/create.php` → `CommissionReportController::store()`
 
 **Proceso:**
+
 1. Usuario crea informe (Nº001-2026)
 2. Llena datos:
    - Asunto, Proyectos, Descripción
@@ -53,42 +54,42 @@
 - Detalle completo de cada informe
 - Puede cambiar estado y agregar notas
 
-
 ---
 
 ## 3. COMPARATIVA: DÓNDE VA LA INFORMACIÓN
 
-| Concepto | Retiro | Informe Comisiones |
-|----------|--------|-------------------|
-| **Tabla Principal** | `pays` | `commission_reports` |
-| **Información** | Monto, banco, factura | Detalle completo, 4 archivos |
-| **Estado** | 1=Espera, 2=Procesado, 0=Rechazado | pending, reviewed, approved, rejected, paid |
-| **Auditoría** | ❌ No tiene reviewed_by/reviewed_at | ✅ Tiene audit trail completo |
-| **Admin Vista** | `/admin/pagos/list` | `/admin/commission_reports/dashboard` |
-| **PIN requerido** | ✅ Sí | ❌ No |
-| **Archivos** | 1 (factura) | 4 (Excel, vauchers, boletas, factura) |
-| **Días permitidos** | Solo 1-2 mes | Cualquier día |
-
+| Concepto            | Retiro                              | Informe Comisiones                          |
+| ------------------- | ----------------------------------- | ------------------------------------------- |
+| **Tabla Principal** | `pays`                              | `commission_reports`                        |
+| **Información**     | Monto, banco, factura               | Detalle completo, 4 archivos                |
+| **Estado**          | 1=Espera, 2=Procesado, 0=Rechazado  | pending, reviewed, approved, rejected, paid |
+| **Auditoría**       | ❌ No tiene reviewed_by/reviewed_at | ✅ Tiene audit trail completo               |
+| **Admin Vista**     | `/admin/pagos/list`                 | `/admin/commission_reports/dashboard`       |
+| **PIN requerido**   | ✅ Sí                               | ❌ No                                       |
+| **Archivos**        | 1 (factura)                         | 4 (Excel, vauchers, boletas, factura)       |
+| **Días permitidos** | Solo 1-2 mes                        | Cualquier día                               |
 
 ---
 
 ## 4. PROBLEMA IDENTIFICADO
 
 **El admin NO ve ambas cosas en UN SOLO LUGAR**
+
 - Si quiere ver retiros: va a `/admin/pagos/list`
 - Si quiere ver informes: va a `/admin/commission_reports/dashboard`
 - No hay relación visible entre ambos
 
 **Información que llega al admin:**
+
 - Retiros: Solicitud de retiro individual (sin detalle de comisiones derivadas)
 - Informes: Informe detallado (pero no vinculado con retiros posteriores)
-
 
 ---
 
 ## 5. PROPUESTA DE SOLUCIÓN UNIFICADA
 
 ### OPCIÓN A: Dashboard Admin Centralizado
+
 **Crear: `/admin/financial-reports/dashboard.php`**
 
 Una sola pantalla que muestre:
@@ -116,19 +117,22 @@ Una sola pantalla que muestre:
 ```
 
 ### OPCIÓN B: Vincular Informe con Retiro
+
 **Modificar tabla `commission_reports`:**
+
 - Agregar campo `related_withdrawal_id` (FK a pays)
 - Cuando el admin aprueba informe, genera retiro automático
 - El retiro queda vinculado al informe
 - Admin puede ver: Informe → Aprobado → Retiro generado
 
 ### OPCIÓN C: Crear Flujo Único "Solicitud de Transferencia"
+
 **Nueva tabla: `financial_requests`**
+
 - Unifica retiros + informes en un solo sistema
 - Estados: draft → pending → approved → processed → paid
 - Tipo: retiro_simple | informe_comisiones
 - Todo en un solo lugar para el admin
-
 
 ---
 
@@ -137,6 +141,7 @@ Una sola pantalla que muestre:
 **OPCIÓN A (Dashboard Centralizado) + OPCIÓN B (Vincular)**
 
 Esto porque:
+
 1. ✅ Mantiene ambos sistemas funcionales y separados
 2. ✅ Admin ve todo en un solo lugar
 3. ✅ Permite auditoría completa (quién solicitó qué, cuándo, estado)
@@ -144,7 +149,7 @@ Esto porque:
 5. ✅ Trazabilidad: "Este retiro viene de este informe"
 
 **Fases de implementación:**
+
 - Fase 1: Dashboard centralizado (list todos, filtrar, ver detalles)
 - Fase 2: Vincular informe aprobado → retiro automático
 - Fase 3: Automatizar depósito cuando retiro es procesado
-

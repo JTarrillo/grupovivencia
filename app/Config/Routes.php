@@ -459,6 +459,8 @@ $routes->post('/dashboard/puntos/eliminar', 'D_puntos::eliminar', ['filter' => '
 //Crud Clientes 
 $routes->get('/dashboard/clientes', 'D_clientes::index', ['filter' => 'authGuard']);
 $routes->get('/dashboard/clientes/create', 'D_clientes::create', ['filter' => 'authGuard']);
+$routes->get('/dashboard/clientes/form_modal', 'D_clientes::form_modal', ['filter' => 'authGuard']);
+$routes->get('/dashboard/clientes/form_modal/(:num)', 'D_clientes::form_modal/$1', ['filter' => 'authGuard']);
 $routes->post('/dashboard/clientes/store', 'D_clientes::store', ['filter' => 'authGuard']);
 $routes->get('/dashboard/clientes/load/(:num)', 'D_clientes::load/$1', ['filter' => 'authGuard']);
 $routes->post('/dashboard/clientes/update', 'D_clientes::update', ['filter' => 'authGuard']);

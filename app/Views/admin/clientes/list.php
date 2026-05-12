@@ -2,6 +2,9 @@
 <?php echo view("admin/head"); ?>
 
 <body data-new-gr-c-s-check-loaded="14.1042.0" data-gr-ext-installed="">
+    <!-- LOAD CUSTOMER SCRIPT EARLY -->
+    <script src="<?php echo base_url('assets/admin/js/script/customer.js?v=' . time()); ?>"></script>
+    
     <?php echo view("admin/header"); ?>
     <section class="pcoded-main-container">
         <div class="pcoded-wrapper">
@@ -32,12 +35,21 @@
                                                 <h5>Listado de Clientes</h5>
                                             </div>
                                             <div class="col-12">
-                                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCreateCustomer"
-                                                    title="Crear nuevo cliente">
+                                                <button class="btn btn-success" type="button"
+                                                    onclick="loadCreateCustomerModal();" title="Crear nuevo cliente">
                                                     <i class="fa fa-plus"></i> Crear Cliente
                                                 </button>
                                                 <button class="btn btn-primary" id="btn-export">
                                                     Exportar
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- Buscador por DNI y Nombre -->
+                                        <div class="card-block">
+                                            <div class="input-group mb-3" style="max-width: 350px;">
+                                                <input type="text" id="searchDNIandNombre" class="form-control" placeholder="Buscar por DNI o Nombre...">
+                                                <button class="btn btn-outline-secondary" type="button" onclick="limpiarBusqueda()">
+                                                    <i class="fa fa-times"></i> Limpiar
                                                 </button>
                                             </div>
                                         </div>
@@ -275,81 +287,129 @@
         exportToExcel(data)
     })
 
+    // Función de búsqueda por DNI y Nombre en un solo campo
+    function filtrarTabla() {
+        const searchText = document.getElementById('searchDNIandNombre').value.toUpperCase();
+        const table = document.getElementById('zero-configuration');
+        const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+        let totalVisible = 0;
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            
+            // Columna 0: Cliente (Nombre)
+            // Columna 1: DNI
+            const nombre = cells[0] ? cells[0].textContent.toUpperCase() : '';
+            const dni = cells[1] ? cells[1].textContent.toUpperCase() : '';
+
+            // Mostrar fila si el texto coincide con DNI O con Nombre
+            const match = searchText === '' || dni.includes(searchText) || nombre.includes(searchText);
+
+            if (match) {
+                rows[i].style.display = '';
+                totalVisible++;
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    }
+
+    function limpiarBusqueda() {
+        document.getElementById('searchDNIandNombre').value = '';
+        filtrarTabla();
+    }
+
+    // Event listener para búsqueda en tiempo real
+    document.getElementById('searchDNIandNombre').addEventListener('keyup', filtrarTabla);
+
+    // Ocultar elementos por defecto de DataTables con CSS y JavaScript
+    const style = document.createElement('style');
+    style.textContent = '.dataTables_filter { display: none !important; } .dataTables_length { display: none !important; }';
+    document.head.appendChild(style);
+
+    // También intentar ocultarlos directamente después de un pequeño delay
+    setTimeout(function() {
+        const dataTables_filter = document.querySelector('.dataTables_filter');
+        const dataTables_length = document.querySelector('.dataTables_length');
+        if (dataTables_filter) {
+            dataTables_filter.style.display = 'none';
+        }
+        if (dataTables_length) {
+            dataTables_length.style.display = 'none';
+        }
+    }, 500);
+
     // Limpiar formulario cuando se cierre el modal
     const modalCreateCustomer = document.getElementById('modalCreateCustomer');
     if (modalCreateCustomer) {
-        modalCreateCustomer.addEventListener('hidden.bs.modal', function () {
-            document.getElementById('form-customer').reset();
+        modalCreateCustomer.addEventListener('hidden.bs.modal', function() {
+            document.getElementById('form-customer').innerHTML = '';
+            document.getElementById('modalCreateCustomerLabel').textContent = 'Crear Nuevo Cliente';
+            document.querySelector('#modalCreateCustomer .modal-footer .btn-primary').textContent =
+                'Crear Cliente';
         });
     }
     </script>
     <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
-    
+
     <!-- Modal Crear Cliente -->
-    <div class="modal fade" id="modalCreateCustomer" tabindex="-1" role="dialog" aria-labelledby="modalCreateCustomerLabel" aria-hidden="true">
+    <div class="modal fade" id="modalCreateCustomer" tabindex="-1" role="dialog"
+        aria-labelledby="modalCreateCustomerLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalCreateCustomerLabel">Crear Nuevo Cliente</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="close" onclick="$('#modalCreateCustomer').modal('hide');"
+                        aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
-                    <form name="form-customer" id="form-customer" enctype="multipart/form-data"
-                        method="post" action="javascript:void(0);" onsubmit="createCustomer();">
+                    <form name="form-customer" id="form-customer" enctype="multipart/form-data" method="post"
+                        action="javascript:void(0);" onsubmit="submitCustomerForm();">
                         <input type="hidden" name="action" value="create">
 
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label>Nombre <span class="text-danger">*</span></label>
-                                <input class="form-control" type="text" id="name" name="name"
-                                    placeholder="Nombre" required>
+                                <input class="form-control" type="text" id="name" name="name" placeholder="Nombre"
+                                    required>
                             </div>
                             <div class="form-group col-md-6">
                                 <label>Apellido Paterno <span class="text-danger">*</span></label>
-                                <input class="form-control" type="text" id="lastname"
-                                    name="lastname" placeholder="Apellido Paterno" required>
+                                <input class="form-control" type="text" id="lastname" name="lastname"
+                                    placeholder="Apellido Paterno" required>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label>Apellido Materno</label>
-                                <input class="form-control" type="text" id="mother_last"
-                                    name="mother_last" placeholder="Apellido Materno">
+                                <input class="form-control" type="text" id="mother_last" name="mother_last"
+                                    placeholder="Apellido Materno">
                             </div>
-                            <div class="form-group col-md-3">
-                                <label>Tipo de Documento <span class="text-danger">*</span></label>
-                                <select class="form-control" id="doc_type" name="doc_type" required>
-                                    <option value="">Seleccionar</option>
-                                    <option value="DNI">DNI</option>
-                                    <option value="RUC">RUC</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label>Número de Documento <span class="text-danger">*</span></label>
-                                <input class="form-control" type="text" id="doc_number" name="doc_number"
-                                    placeholder="Número" required>
+                            <div class="form-group col-md-6">
+                                <label>DNI <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" id="dni" name="dni" placeholder="DNI" required>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group col-md-6">
-                                <label>Email <span class="text-danger">*</span></label>
-                                <input class="form-control" type="email" id="email" name="email"
-                                    placeholder="Email" required>
+                                <label>RUC</label>
+                                <input class="form-control" type="text" id="ruc" name="ruc" placeholder="RUC">
                             </div>
                             <div class="form-group col-md-6">
-                                <label>Teléfono</label>
-                                <input class="form-control" type="text" id="phone" name="phone"
-                                    placeholder="Teléfono">
+                                <label>Email <span class="text-danger">*</span></label>
+                                <input class="form-control" type="email" id="email" name="email" placeholder="Email"
+                                    required>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label>Estado Civil</label>
-                                <select class="form-control" id="civil_status"
-                                    name="civil_status">
+                                <select class="form-control" id="civil_status" name="civil_status">
                                     <option value="">Seleccionar</option>
                                     <option value="Soltero">Soltero</option>
                                     <option value="Casado">Casado</option>
@@ -360,8 +420,7 @@
                             </div>
                             <div class="form-group col-md-6">
                                 <label>Tipo de Agente</label>
-                                <select class="form-control" id="tipo_agente"
-                                    name="tipo_agente">
+                                <select class="form-control" id="tipo_agente" name="tipo_agente">
                                     <option value="">Seleccionar</option>
                                     <option value="Interno">Interno</option>
                                     <option value="Externo">Externo</option>
@@ -372,8 +431,7 @@
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label>País <span class="text-danger">*</span></label>
-                                <select class="form-control" id="country_id" name="country_id"
-                                    required>
+                                <select class="form-control" id="country_id" name="country_id" required>
                                     <option value="">Seleccionar País</option>
                                     <?php if(isset($obj_paises)): ?>
                                     <?php foreach($obj_paises as $pais): ?>
@@ -388,8 +446,8 @@
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label>Dirección</label>
-                                <input class="form-control" type="text" id="address"
-                                    name="address" placeholder="Dirección">
+                                <input class="form-control" type="text" id="address" name="address"
+                                    placeholder="Dirección">
                             </div>
                             <div class="form-group col-md-6">
                                 <label>Estado</label>
@@ -402,12 +460,14 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="document.getElementById('form-customer').dispatchEvent(new Event('submit'));">Crear Cliente</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="$('#modalCreateCustomer').modal('hide');">Cancelar</button>
+                    <button type="button" class="btn btn-primary"
+                        onclick="document.getElementById('form-customer').dispatchEvent(new Event('submit'));">Crear
+                        Cliente</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="<?php echo base_url('assets/admin/js/script/customer.js?2025'); ?>"></script>
     <?php echo view("admin/footer"); ?>
