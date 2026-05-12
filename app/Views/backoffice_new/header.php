@@ -307,6 +307,7 @@
                     $cobros_active = null;
                     $carrera_active = null;
                     $documentos_active = null;
+                    $commission_reports_active = null;
                     $soporte_active = null;
                     $sugerencias_active = null;
                     $binario_active = null;
@@ -356,6 +357,10 @@
                             break;
                         case "documentos":
                             $documentos_active = "active";
+                            break;
+                        case "commission_reports":
+                        case "commission-reports":
+                            $commission_reports_active = "active";
                             break;
                         case "unilevel":
                             $unilevel_active = "active";
@@ -474,6 +479,31 @@
                                                     <span class="d-flex flex-column">
                                                         <span class="fs-6 fw-bold text-gray-800">Documentos</span>
                                                         <span class="fs-7 fw-semibold text-muted-2">Negocio</span>
+                                                    </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 mb-3">
+                                            <div class="menu-item p-0 m-0">
+                                                <a href="<?php echo site_url() . BACKOFFICE . "/commission_reports/my"; ?>"
+                                                    class="menu-link <?php echo $commission_reports_active; ?>">
+                                                    <span
+                                                        class="menu-custom-icon d-flex flex-center flex-shrink-0 rounded w-40px h-40px me-3">
+                                                        <span class="svg-icon svg-icon-orange svg-icon-1">
+                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                                xmlns="http://www.w3.org/2000/svg">
+                                                                <path opacity="0.3"
+                                                                    d="M20 3H4C2.9 3 2 3.9 2 5V19C2 20.1 2.9 21 4 21H20C21.1 21 22 20.1 22 19V5C22 3.9 21.1 3 20 3ZM13 13H9C8.4 13 8 12.6 8 12C8 11.4 8.4 11 9 11H13C13.6 11 14 11.4 14 12C14 12.6 13.6 13 13 13ZM17 17H7C6.4 17 6 16.6 6 16C6 15.4 6.4 15 7 15H17C17.6 15 18 15.4 18 16C18 16.6 17.6 17 17 17Z"
+                                                                    fill="currentColor" />
+                                                                <path
+                                                                    d="M20 8H4V5H20V8Z"
+                                                                    fill="currentColor" />
+                                                            </svg>
+                                                        </span>
+                                                    </span>
+                                                    <span class="d-flex flex-column">
+                                                        <span class="fs-6 fw-bold text-gray-800">Comisiones</span>
+                                                        <span class="fs-7 fw-semibold text-muted-2">Reportes</span>
                                                     </span>
                                                 </a>
                                             </div>

@@ -123,6 +123,8 @@
         $periodo_color = null;
         $inmueble_style = null;
         $inmueble_color = null;
+        $commission_reports_style = null;
+        $commission_reports_color = null;
 
         switch ($nav) {
             case "ventas":
@@ -282,6 +284,11 @@
             case "reportes_ganancias":
                 $reportes_style = "active pcoded-trigger";
                 $reportes_ganancias_color = "active_nav";
+                break;
+            case "commission-reports":
+            case "commission_reports":
+                $comisiones_style = "active pcoded-trigger";
+                $commission_reports_color = "active_nav";
                 break;
             case "estructura":
                 $estructura_style = "pcoded-trigger";
@@ -446,30 +453,30 @@
                     </a>
                 </li> -->
                 <li class="nav-item <?php echo $inmueble_style; ?>">
-                    <a href="/dashboard/inmueble" class="nav-link <?php echo $inmueble_color; ?>">
+                    <a href="<?= site_url('dashboard/inmueble') ?>" class="nav-link <?php echo $inmueble_color; ?>">
                         <span class="pcoded-micon"><i class="feather icon-home"></i></span><span
                             class="pcoded-mtext">Panel</span>
                     </a>
                 </li>
                 <li class="nav-item <?php echo $estructura_style; ?>">
-                    <a href="/dashboard/estructura" class="nav-link <?php echo $estructura_color; ?>">
+                    <a href="<?= site_url('dashboard/estructura') ?>" class="nav-link <?php echo $estructura_color; ?>">
                         <span class="pcoded-micon"><i class="feather icon-share-2"></i></span><span
                             class="pcoded-mtext">Estructura</span>
                     </a>
                 </li>
                 <li class="nav-item <?php echo $nuevo_socio_style; ?>">
-                    <a href="/dashboard/nuevo_socio" class="nav-link <?php echo $nuevo_socio_color; ?>">
+                    <a href="<?= site_url('dashboard/nuevo_socio') ?>" class="nav-link <?php echo $nuevo_socio_color; ?>">
                         <span class="pcoded-micon"><i class="feather icon-user-plus"></i></span><span
                             class="pcoded-mtext">Nuevo Socio</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" style="display: none;">
                     <a href="<?php echo base_url('dashboard/ventas'); ?>" class="nav-link">
                         <span class="pcoded-micon"><i class="feather icon-shopping-cart"></i></span>
                         <span class="pcoded-mtext">Ventas</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" style="display: none;">
                     <a href="<?php echo base_url('dashboard/documentario'); ?>" class="nav-link">
                         <span class="pcoded-micon"><i class="feather icon-shopping-cart"></i></span>
                         <span class="pcoded-mtext">Documentario</span>
@@ -550,37 +557,40 @@
 
                 <!-- Penalidades: moved out from submenu into its own top-level item -->
                 <!-- (moved below to be penultimate) -->
-                <!-- Clientes: moved out from submenu into its own top-level item -->
-                <li class="nav-item <?php echo $clientes_style; ?>">
-                    <a href="/dashboard/clientes" class="nav-link <?php echo $clientes_color; ?>">
-                        <span class="pcoded-micon"><i class="fa fa-users"></i></span>
-                        <span class="pcoded-mtext">Clientes</span>
-                    </a>
+                <!-- Clientes & Proveedores: agrupado en un dropdown -->
+                <li class="nav-item pcoded-hasmenu">
+                    <a href="#!" class="nav-link"><span class="pcoded-micon"><i class="fa fa-handshake"></i></span><span class="pcoded-mtext">Clientes & Proveedores</span></a>
+                    <ul class="pcoded-submenu">
+                        <li class=""><a href="/dashboard/clientes" class="nav-link <?php echo $clientes_color; ?>" style="<?php echo ($clientes_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-users"></i></span><span class="pcoded-mtext">Clientes</span></a></li>
+                        <li class=""><a href="/dashboard/proveedores" class="nav-link <?php echo $proveedores_color; ?>" style="<?php echo ($proveedores_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-truck"></i></span><span class="pcoded-mtext">Proveedores</span></a></li>
+                    </ul>
                 </li>
                 <!-- Opción Asignar Patrocinador eliminada -->
-                <!-- Comisiones: top-level -->
-                <li class="nav-item <?php echo $comisiones_style; ?>">
-                    <a href="/dashboard/comisiones" class="nav-link <?php echo $comisiones_color; ?>">
-                        <span class="pcoded-micon"><i class="fa fa-money-bill"></i></span>
-                        <span class="pcoded-mtext">Comisiones</span>
-                    </a>
+                <!-- Comisiones e Informes: agrupado en un dropdown -->
+                <li class="nav-item pcoded-hasmenu <?php echo $comisiones_style; ?>">
+                    <a href="#!" class="nav-link"><span class="pcoded-micon"><i class="fa fa-money-bill"></i></span><span class="pcoded-mtext">Comisiones</span></a>
+                    <ul class="pcoded-submenu">
+                        <li class=""><a href="/dashboard/comisiones" class="nav-link <?php echo $comisiones_color; ?>" style="<?php echo ($comisiones_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-money-bill"></i></span><span class="pcoded-mtext">Gestión de Comisiones</span></a></li>
+                        <li class=""><a href="/dashboard/commission-reports" class="nav-link <?php echo $commission_reports_color; ?>" style="<?php echo ($commission_reports_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-file-invoice-dollar"></i></span><span class="pcoded-mtext">Informes de Comisiones</span></a></li>
+                    </ul>
                 </li>
                 <!-- Demo Comisiones Multinivel -->
 
                 <!-- Facturas: top-level -->
 
                 <!-- Facturas Contratos: top-level -->
-                <li class="nav-item <?php echo $facturascontratos_style; ?>">
+                <li class="nav-item <?php echo $facturascontratos_style; ?>" style="display: none;">
                     <a href="/dashboard/facturasContratos" class="nav-link <?php echo $facturascontratos_color; ?>">
                         <span class="pcoded-micon"><i class="fa fa-file-contract"></i></span>
                         <span class="pcoded-mtext">Facturas Contratos</span>
                     </a>
                 </li>
 
-                <!-- Compras, Gastos y Clasificación: consolidado en UN item con submenú -->
+                <!-- Ventas & Compras, Gastos y Clasificación: consolidado en UN item con submenú -->
                 <li class="nav-item pcoded-hasmenu">
-                    <a href="#!" class="nav-link"><span class="pcoded-micon"><i class="fa fa-shopping-cart"></i></span><span class="pcoded-mtext">Compras</span></a>
+                    <a href="#!" class="nav-link"><span class="pcoded-micon"><i class="fa fa-shopping-bag"></i></span><span class="pcoded-mtext">Ventas & Compras</span></a>
                     <ul class="pcoded-submenu">
+                        <li class=""><a href="/dashboard/ventas" class="nav-link <?php echo $ventas_color; ?>" style="<?php echo ($ventas_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="feather icon-shopping-cart"></i></span><span class="pcoded-mtext">Ventas</span></a></li>
                         <li class=""><a href="/dashboard/compras" class="nav-link <?php echo $compras_color; ?>" style="<?php echo ($compras_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-file-invoice"></i></span><span class="pcoded-mtext">Registrar Compra</span></a></li>
                         <li class=""><a href="/dashboard/gastos" class="nav-link <?php echo $gastos_color; ?>" style="<?php echo ($gastos_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-money-bill-wave"></i></span><span class="pcoded-mtext">Gastos</span></a></li>
                         <li class=""><a href="/dashboard/clasificacion" class="nav-link <?php echo $clasificacion_color; ?>" style="<?php echo ($clasificacion_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-tags"></i></span><span class="pcoded-mtext">Clasificación</span></a></li>
@@ -591,13 +601,6 @@
                     <a href="/dashboard/conciliacion" class="nav-link <?php echo $consolidacion_color; ?>">
                         <span class="pcoded-micon"><i class="fa fa-table"></i></span>
                         <span class="pcoded-mtext">Conciliacion</span>
-                    </a>
-                </li>
-
-                <li class="nav-item <?php echo $proveedores_style; ?>">
-                    <a href="/dashboard/proveedores" class="nav-link <?php echo $proveedores_color; ?>">
-                        <span class="pcoded-micon"><i class="fa fa-truck"></i></span>
-                        <span class="pcoded-mtext">Proveedores</span>
                     </a>
                 </li>
 

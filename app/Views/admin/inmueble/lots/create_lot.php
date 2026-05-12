@@ -16,10 +16,10 @@
                                         <h5 class="m-b-10"><?= $title ?></h5>
                                     </div>
                                     <ul class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="/dashboard/panel">Panel</a></li>
-                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble">Gestión
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/panel') ?>">Panel</a></li>
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/inmueble') ?>">Gestión
                                                 Inmobiliaria</a></li>
-                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble/lots/lots">Lotes</a>
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/inmueble/lots') ?>">Lotes</a>
                                         </li>
                                         <li class="breadcrumb-item"><a>Nuevo</a></li>
                                     </ul>
@@ -211,7 +211,7 @@
                                                     <button type="submit" class="btn btn-primary">
                                                         <i class="feather icon-save"></i> Crear Lote
                                                     </button>
-                                                    <a href="/dashboard/inmueble/lots/lots" class="btn btn-secondary">
+                                                    <a href="<?= site_url('dashboard/inmueble/lots/lots') ?>" class="btn btn-secondary">
                                                         <i class="feather icon-arrow-left"></i> Cancelar
                                                     </a>
                                                     <button type="button" class="btn btn-info"

@@ -16,8 +16,8 @@
                                         <h5 class="m-b-10"><?= $title ?></h5>
                                     </div>
                                     <ul class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="/dashboard/panel">Panel</a></li>
-                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble">Inmueble</a></li>
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/panel') ?>">Panel</a></li>
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/inmueble') ?>">Inmueble</a></li>
                                         <li class="breadcrumb-item"><a>Lotes</a></li>
                                     </ul>
                                 </div>
@@ -32,7 +32,7 @@
                                         <div class="card-header">
                                             <h5>Gestión de Lotes</h5>
                                             <div class="card-header-right">
-                                                <a href="/dashboard/inmueble/create_lot" class="btn btn-primary btn-sm">
+                                                <a href="<?= site_url('dashboard/inmueble/create_lot') ?>" class="btn btn-primary btn-sm">
                                                     <i class="feather icon-plus"></i> Nuevo Lote
                                                 </a>
                                             </div>

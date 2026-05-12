@@ -256,5 +256,27 @@ class D_usuarios extends BaseController
 
     }
 
+    public function get_form_modal($id=false){
+        
+        $session = session();
+
+        if (!$session->get('isLoggedIn')) {
+            return redirect()->to(base_url('login'));
+        }
+
+        $obj_users = null;
+
+        if ($id != false){
+            $Users = new UsersModel();
+            $obj_users = $Users->get_all_by_id($id);
+        }
+
+        $data = array(
+            'obj_users' => $obj_users
+        );
+
+        return view('admin/usuarios/form_modal', $data);
+    }
+
 }
 

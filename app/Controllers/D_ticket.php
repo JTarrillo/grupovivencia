@@ -18,7 +18,7 @@ class D_ticket extends BaseController
 
         //get data session
 
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['name']." ".$_SESSION['lastname'];
 
         //get data ticket
 
@@ -46,7 +46,7 @@ class D_ticket extends BaseController
 
         //get data session
 
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['name']." ".$_SESSION['lastname'];
 
         $obj_ticket = null;
 

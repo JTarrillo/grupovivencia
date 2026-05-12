@@ -14,7 +14,7 @@ class D_transfer extends BaseController
     public function index()
     {
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['name'] . " " . $_SESSION['lastname'];
         //get data bonus
         $Transfer = new TransferModel();
         $obj_transfer = $Transfer->get_all();

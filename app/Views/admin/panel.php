@@ -90,7 +90,7 @@
                                             <?php $total_ticket_pending = $obj_pending ? $obj_pending->total_ticket_pending : 0; ?>
                                             <h3 class="text-white m-t-20 f-w-300">
                                                 <?php echo format_number_miles($total_ticket_pending); ?></h3>
-                                            <a href="/dashboard/ticket" class="text-white"><span
+                                            <a href="<?= site_url('dashboard/ticket') ?>" class="text-white"><span
                                                     class="text-white">Ticket Pendientes</span></a>
                                         </div>
                                     </div>
@@ -103,7 +103,7 @@
                                             <?php $total_pay_pending = $obj_pending ? $obj_pending->total_pay_pending : 0; ?>
                                             <h3 class="text-white m-t-20 f-w-300">
                                                 <?php echo format_number_miles($total_pay_pending); ?></h3>
-                                            <a href="/dashboard/activar_pagos" class="text-white"><span
+                                            <a href="<?= site_url('dashboard/activar_pagos') ?>" class="text-white"><span
                                                     class="text-white">Pagos Pendientes</span></a>
                                         </div>
                                     </div>
@@ -116,7 +116,7 @@
                                             <?php $total_new_range = $obj_pending ? $obj_pending->total_new_range : 0; ?>
                                             <h3 class="text-white m-t-20 f-w-300">
                                                 <?php echo format_number_miles($total_new_range); ?></h3>
-                                            <a href="/dashboard/nuevos_rangos" class="text-white"><span
+                                            <a href="<?= site_url('dashboard/nuevos_rangos') ?>" class="text-white"><span
                                                     class="text-white">Mes en Curso</span></a>
                                         </div>
                                     </div>
@@ -129,7 +129,7 @@
                                             <?php $total_invoice_compra_tienda = $obj_pending ? $obj_pending->total_invoice_compra_tienda : 0; ?>
                                             <h3 class="text-white m-t-20 f-w-300">
                                                 <?php echo format_number_miles($total_invoice_compra_tienda); ?></h3>
-                                            <a href="/dashboard/pago_tienda" class="text-white"><span
+                                            <a href="<?= site_url('dashboard/pago_tienda') ?>" class="text-white"><span
                                                     class="text-white">Ver</span></a>
                                         </div>
                                     </div>
@@ -142,7 +142,7 @@
                                             <?php $total_comments_pending = $obj_pending ? $obj_pending->total_comments_pending : 0; ?>
                                             <h3 class="text-white m-t-20 f-w-300">
                                                 <?php echo format_number_miles($total_comments_pending); ?></h3>
-                                            <a href="/dashboard/comentarios" class="text-white"><span
+                                            <a href="<?= site_url('dashboard/comentarios') ?>" class="text-white"><span
                                                     class="text-white">Comentarios sin atender</span></a>
                                         </div>
                                     </div>
@@ -155,7 +155,7 @@
                                             <?php $total_suggestions = $obj_pending ? $obj_pending->total_suggestions : 0; ?>
                                             <h3 class="text-white m-t-20 f-w-300">
                                                 <?php echo format_number_miles($total_suggestions); ?></h3>
-                                            <a href="/dashboard/sugerencias" class="text-white"><span
+                                            <a href="<?= site_url('dashboard/sugerencias') ?>" class="text-white"><span
                                                     class="text-white">Ver</span></a>
                                         </div>
                                     </div>

@@ -65,7 +65,28 @@
                                                             <td><?= esc($c['id']) ?></td>
                                                             <td><?= date('d/m/Y H:i', strtotime($c['fecha_generada'])) ?>
                                                             </td>
-                                                            <td><?= !empty($c['customer_name']) ? esc($c['customer_name']) : '-' ?>
+                                                            <td>
+                                                                <?php 
+                                                                // Buscar nombre del cliente desde el contrato si beneficiario_id es NULL
+                                                                $customer_name = $c['customer_name'] ?? '-';
+                                                                if (empty($customer_name) || $customer_name === '-') {
+                                                                    // Buscar el nombre del cliente desde el contrato
+                                                                    $db = \Config\Database::connect();
+                                                                    $contract = $db->table('contracts')
+                                                                        ->select('customers.name, customers.lastname')
+                                                                        ->join('customers', 'customers.id = contracts.customer_id', 'left')
+                                                                        ->where('contracts.id', $c['venta_id'])
+                                                                        ->get()
+                                                                        ->getRowArray();
+                                                                    
+                                                                    if ($contract) {
+                                                                        $customer_name = ($contract['name'] ?? '') . ' ' . ($contract['lastname'] ?? '');
+                                                                    } else {
+                                                                        $customer_name = '-';
+                                                                    }
+                                                                }
+                                                                echo esc($customer_name);
+                                                                ?>
                                                             </td>
                                                             <td>
                                                                 <?php if (!empty($c['beneficiario_id'])): ?>

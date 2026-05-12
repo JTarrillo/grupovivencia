@@ -14,7 +14,7 @@ class D_clientes extends BaseController
     public function index()
     {
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['name']." ".$_SESSION['lastname'];
         //get data invoices by customer
         $Customer = new CustomerModel();
         $obj_customer = $Customer->get_customer_by_kit();
@@ -98,7 +98,7 @@ public function updateCustomer()
     public function load($id = false)
     {
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['name']." ".$_SESSION['lastname'];
         //isset id
         $obj_sponsor = null;
         if ($id != ""){

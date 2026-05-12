@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     $('#createProjectModal').modal('hide');
                     Swal.fire({ icon: 'success', title: '¡Éxito!', text: data.message || 'Proyecto creado exitosamente', timer: 1800, showConfirmButton: false });
-                    setTimeout(() => location.reload(), 1800);
+                    setTimeout(() => window.location.href = '/dashboard/inmueble/projects', 1800);
                 } else {
                     errorDiv.textContent = data.message || 'Error desconocido';
                     errorDiv.classList.remove('d-none');

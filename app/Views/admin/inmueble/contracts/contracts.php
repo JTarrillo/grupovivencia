@@ -70,9 +70,8 @@
                                         <h5 class="m-b-10"><?= $title ?></h5>
                                     </div>
                                     <ul class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="/dashboard/panel">Panel</a></li>
-                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble">Gestión
-                                                Inmobiliaria</a></li>
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/panel') ?>">Panel</a></li>
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/inmueble') ?>">Gestión Inmobiliaria</a></li>
                                         <li class="breadcrumb-item"><a>Contratos</a></li>
                                     </ul>
                                 </div>
@@ -104,6 +103,7 @@
                                                     <select class="form-control" id="status-filter"
                                                         onchange="filterContracts()">
                                                         <option value="">Todos los Estados</option>
+                                                        <option value="reserved" selected>Reservado</option>
                                                         <option value="active">Activo</option>
                                                         <option value="completed">Completado</option>
                                                         <option value="cancelled">Cancelado</option>
@@ -259,8 +259,19 @@
                                                                         return intval($b['id']) - intval($a['id']);
                                                                     });
                                                                     foreach ($contracts as $contract) {
+                                                                        // Determinar estado para data attribute
+                                                                        $data_status = '';
+                                                                        if ($contract['status'] === 'rejected') {
+                                                                            $data_status = 'rejected';
+                                                                        } elseif ($contract['status'] === 'suspended') {
+                                                                            $data_status = 'suspended';
+                                                                        } elseif (!empty($contract['is_reserved']) && $contract['is_reserved'] == 1) {
+                                                                            $data_status = 'reserved';
+                                                                        } else {
+                                                                            $data_status = $contract['status'];
+                                                                        }
                                                             ?>
-                                                            <tr>
+                                                            <tr data-status="<?= $data_status ?>" >
                                                                 <td>
                                                                     <strong><?= $contract['contract_number'] ?></strong><br>
                                                                     <small class="text-muted">ID:
@@ -410,42 +421,13 @@
                                                                 </td>
                                                                 <td>
                                                                     <div class="btn-group">
-                                                                        <button type="button"
-                                                                            class="btn btn-icon btn-info btn-sm dropdown-toggle"
-                                                                            data-toggle="dropdown" title="Acciones">
-                                                                            <i class="fa fa-cog"></i>
-                                                                        </button>
-                                                                        <div class="dropdown-menu">
-                                                                            <a class="dropdown-item"
-                                                                                href="/dashboard/inmueble/contracts/view/<?= $contract['id'] ?>">
-                                                                                <i class="fa fa-list"></i> Detalle y
-                                                                                Pagos
-                                                                            </a>
-                                                                            <a class="dropdown-item" href="#"
-                                                                                onclick="viewContract('<?= $contract['id'] ?>')">
-                                                                                <i class="fa fa-eye"></i> Ver Contrato
-                                                                            </a>
-                                                                            <a class="dropdown-item"
-                                                                                href="<?= base_url('dashboard/inmueble/edit_contract/' . $contract['id']) ?>">
-                                                                                <i class="fa fa-edit"></i> Editar
-                                                                            </a>
-                                                                            <a class="dropdown-item"
-                                                                                href="/dashboard/inmueble/cronograma/<?= $contract['id'] ?>">
-                                                                                <i class="fa fa-calendar"></i>
-                                                                                Cronograma
-                                                                            </a>
-                                                                            <a class="dropdown-item" href="#"
-                                                                                onclick="printContract('<?= $contract['id'] ?>')">
-                                                                                <i class="fa fa-print"></i> Imprimir
-                                                                            </a>
-                                                                            <div class="dropdown-divider"></div>
-                                                                            <a class="dropdown-item" href="#"
-                                                                                onclick="toggleContractStatus('<?= $contract['id'] ?>', '<?= $contract['status'] ?>')">
-                                                                                <i
-                                                                                    class="fa <?= $contract['status'] == 'suspended' ? 'fa-play' : 'fa-pause' ?>"></i>
-                                                                                <?= $contract['status'] == 'suspended' ? 'Activar' : 'Suspender' ?>
-                                                                            </a>
-                                                                        </div>
+                                                                        <a href="<?= site_url('dashboard/inmueble/cronograma/' . $contract['id']) ?>"
+                                                                            class="btn btn-icon btn-success btn-sm"
+                                                                            title="Cronograma"
+                                                                            data-toggle="tooltip"
+                                                                            data-placement="top">
+                                                                            <i class="fa fa-hourglass-end" style="font-weight: bold;"></i>
+                                                                        </a>
                                                                     </div>
                                                                     <!-- Botón Documentos (PDF/Word) -->
                                                                     <div class="btn-group ml-1" role="group">
@@ -474,39 +456,7 @@
                                                                         </div>
                                                                     </div>
 
-                                                                    <button type="button" class="btn btn-sm ml-1 <?php 
-                                                                        if (!empty($contract['is_approved']) && $contract['is_approved'] == 1) {
-                                                                            echo 'btn-success';
-                                                                        } elseif (!empty($contract['is_rejected']) && $contract['is_rejected'] == 1) {
-                                                                            echo 'btn-danger';
-                                                                        } else {
-                                                                            echo 'btn-primary';
-                                                                        }
-                                                                        ?>" title="<?php 
-                                                                        if (!empty($contract['is_approved']) && $contract['is_approved'] == 1) {
-                                                                            echo 'Comisión Generada';
-                                                                        } elseif (!empty($contract['is_rejected']) && $contract['is_rejected'] == 1) {
-                                                                            echo 'Comisión Rechazada';
-                                                                        } else {
-                                                                            echo 'Validar Contrato';
-                                                                        }
-                                                                        ?>" <?php 
-                                                                        if (!empty($contract['is_approved']) || !empty($contract['is_rejected'])) {
-                                                                            echo 'disabled';
-                                                                        } else {
-                                                                            echo 'onclick="showValidateModal(' . htmlspecialchars(json_encode($contract), ENT_QUOTES, "UTF-8") . ')"';
-                                                                        }
-                                                                        ?>>
-                                                                        <i class="fa <?php 
-                                                                        if (!empty($contract['is_approved']) && $contract['is_approved'] == 1) {
-                                                                            echo 'fa-check-circle';
-                                                                        } elseif (!empty($contract['is_rejected']) && $contract['is_rejected'] == 1) {
-                                                                            echo 'fa-times-circle';
-                                                                        } else {
-                                                                            echo 'fa-check-circle';
-                                                                        }
-                                                                        ?>"></i>
-                                                                    </button>
+
                                                                     <button type="button"
                                                                         class="btn btn-danger btn-sm ml-1"
                                                                         onclick="deleteContract('<?= $contract['id'] ?>')">
@@ -660,36 +610,6 @@
                                 </script>
                             </div>
                         </div>
-                        <?php
-                        $session = session();
-                        $isSponsor = isset($_SESSION['tipo_agente']) && $_SESSION['tipo_agente'] === 'sponsor';
-                        $userId = isset($_SESSION['id']) ? $_SESSION['id'] : null;
-                        ?>
-                        <?php if ($isSponsor && $userId): ?>
-                        <input type="hidden" name="sponsor_id" value="<?= $userId ?>">
-                        <div class="form-group row">
-                            <label class="col-sm-3 col-form-label"><strong>Patrocinador</strong></label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control"
-                                    value="<?= $_SESSION['name'] . ' ' . $_SESSION['lastname'] ?>" readonly>
-                            </div>
-                        </div>
-                        <?php else: ?>
-                        <div class="form-group row">
-                            <label for="sponsor_id" class="col-sm-3 col-form-label"><strong>Patrocinador <span
-                                        class="text-danger">*</span></strong></label>
-                            <div class="col-sm-9">
-                                <select name="sponsor_id" id="sponsor_id" class="form-control" required>
-                                    <option value="">Seleccionar patrocinador</option>
-                                    <?php foreach ($agents as $sponsor): ?>
-                                    <option value="<?= $sponsor['id'] ?>">[<?= $sponsor['code'] ?>]
-                                        <?= $sponsor['name'] ?> <?= $sponsor['lastname'] ?> (DNI:
-                                        <?= $sponsor['dni'] ?>)</option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                        <?php endif; ?>
                         <!-- Navegación de Tabs -->
                         <ul class="nav nav-tabs" id="contractTabs" role="tablist">
                             <li class="nav-item">
@@ -870,7 +790,7 @@
                                                             </div>
                                                             <input type="number" class="form-control" id="down_payment"
                                                                 name="down_payment" step="0.01"
-                                                                onchange="calculateContract()" readonly>
+                                                                onchange="calculateContract()">
                                                         </div>
                                                         <small class="form-text text-muted">Mínimo: S/ <span
                                                                 id="min_down_payment">-</span></small>
@@ -882,6 +802,7 @@
                                                                 <select class="form-control" id="financing_months"
                                                                     name="financing_months"
                                                                     onchange="calculateContract()">
+                                                                    <option value="12">12 meses</option>
                                                                     <option value="24">24 meses</option>
                                                                     <option value="36" selected>36 meses</option>
                                                                     <option value="48">48 meses</option>
@@ -893,7 +814,7 @@
                                                                 <label for="interest_rate">Tasa (%)</label>
                                                                 <input type="number" class="form-control"
                                                                     id="interest_rate" name="interest_rate" step="0.01"
-                                                                    min="2" max="6" value="3.5"
+                                                                    min="0" max="6" value="3.5"
                                                                     onchange="calculateContract()">
                                                             </div>
                                                         </div>
@@ -1118,18 +1039,22 @@
                                                 <div class="form-group">
                                                     <label for="comprobante">
                                                         <strong>Adjuntar Comprobante de Pago</strong>
-                                                        <small class="text-muted">(Opcional - Foto del recibo/voucher de
-                                                            la cuota inicial)</small>
+                                                        <small class="text-muted">(Opcional)</small>
                                                     </label>
-                                                    <div class="custom-file">
-                                                        <input type="file" class="custom-file-input" id="comprobante"
-                                                            name="comprobante" accept="image/*,.pdf"
-                                                            onchange="updateFileName(this)">
-                                                        <label class="custom-file-label" for="comprobante">Seleccionar
-                                                            archivo...</label>
+                                                    <div class="input-group">
+                                                        <div class="custom-file">
+                                                            <input type="file" class="custom-file-input"
+                                                                id="comprobante" name="comprobante"
+                                                                onchange="updateFileName(this)">
+                                                            <label class="custom-file-label" for="comprobante">
+                                                                Seleccionar archivo...
+                                                            </label>
+                                                        </div>
                                                     </div>
-                                                    <small class="form-text text-muted">Formatos aceptados: JPG, PNG,
-                                                        PDF</small>
+                                                    <small class="form-text text-muted d-block mt-2">
+                                                        <i class="feather icon-info"></i> Opcional - Soporta: JPG, PNG,
+                                                        PDF, GIF, BMP
+                                                    </small>
                                                 </div>
                                             </div>
                                         </div>
@@ -1193,20 +1118,7 @@
         </div>
     </div>
 
-    <!-- Modal Validar Contrato -->
-    <div class="modal fade" id="approveModal" tabindex="-1" role="dialog" aria-labelledby="approveModalLabel">
-        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="approveModalLabel">Validar Contrato</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" id="approveModalBody"></div>
-            </div>
-        </div>
-    </div>
+
 
     <script>
     function displayAvailableLots(lots) {
@@ -1268,8 +1180,22 @@
         }
 
         document.getElementById('min_down_payment').textContent = minDownPayment.toLocaleString('es-PE');
-        document.getElementById('down_payment').setAttribute('min', minDownPayment);
         document.getElementById('down_payment').value = minDownPayment;
+        document.getElementById('down_payment').disabled = true;
+        
+        // Auto-seleccionar plan de pagos del proyecto si existe
+        if (lot.payment_plan_id) {
+            const planSelect = document.getElementById('payment_plan_id');
+            planSelect.value = lot.payment_plan_id;
+            planSelect.disabled = true;
+            
+            // Deshabilitar meses e interés (se cargan del plan)
+            document.getElementById('financing_months').disabled = true;
+            document.getElementById('interest_rate').disabled = true;
+            
+            planSelect.dispatchEvent(new Event('change'));
+        }
+        
         calculateContract();
         updateNavigationButtons();
     }
@@ -1397,11 +1323,29 @@
     let availableLots = [];
     // Cargar lotes disponibles desde el backend
     function loadAvailableLots() {
-        fetch('/dashboard/inmueble/api/get_available_lots')
-            .then(response => response.json())
-            .then(data => {
-                availableLots = data.lots || [];
-                filterAvailableLots();
+        fetch('/dashboard/inmueble/api/available_lots')
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                return response.text();
+            })
+            .then(text => {
+                console.log('Raw response:', text);
+                if (!text) {
+                    console.warn('Respuesta vacía del servidor');
+                    availableLots = [];
+                    filterAvailableLots();
+                    return;
+                }
+                try {
+                    const data = JSON.parse(text);
+                    availableLots = data || [];
+                    filterAvailableLots();
+                } catch (e) {
+                    console.error('Error parseando JSON:', e, 'Text:', text);
+                    availableLots = [];
+                    filterAvailableLots();
+                }
             })
             .catch(error => {
                 console.error('Error cargando lotes disponibles:', error);
@@ -1448,6 +1392,14 @@
         document.getElementById('selected_lot_info').style.display = 'none';
         document.getElementById('available_lots').innerHTML = '';
         document.getElementById('create_contract_btn').disabled = true;
+
+        // Resetear campos de contrato con valores por defecto
+        document.getElementById('payment_plan_id').value = '';
+        document.getElementById('financing_months').value = '36';
+        document.getElementById('interest_rate').value = '3.5';
+        document.getElementById('down_payment').value = '';
+        document.getElementById('min_down_payment').textContent = '-';
+
         // Resetear el campo de comprobante
         const comprobanteInput = document.getElementById('comprobante');
         if (comprobanteInput) {
@@ -1479,10 +1431,11 @@
     // La función loadAvailableLots ahora está in contracts-add.js
 
     function loadPaymentPlans() {
-        fetch('/dashboard/inmueble/api/payment_plans')
+        fetch('/dashboard/inmueble/getPaymentPlans')
             .then(response => response.json())
             .then(data => {
-                paymentPlans = data.plans || [];
+                const plans = Array.isArray(data) ? data : (data.plans || []);
+                paymentPlans = plans;
                 const select = document.getElementById('payment_plan_id');
                 select.innerHTML = '<option value="">Seleccionar plan</option>';
 
@@ -1493,7 +1446,9 @@
                         `${plan.name} (${plan.duration_months} meses - ${plan.base_interest_rate}%)`;
                     option.dataset.rate = plan.base_interest_rate;
                     option.dataset.duration = plan.duration_months;
-                    option.dataset.minPercent = plan.min_down_payment_percentage;
+                    option.dataset.minPercent = plan.min_down_payment_percentage || 0;
+                    option.dataset.minAmount = plan.min_down_payment_amount || 0;
+                    option.dataset.planId = plan.id;
                     select.appendChild(option);
                 });
             })
@@ -1596,10 +1551,29 @@
         const selectedOption = select.options[select.selectedIndex];
 
         if (selectedOption.value) {
-            document.getElementById('interest_rate').value = selectedOption.dataset.rate;
-            document.getElementById('financing_months').value = selectedOption.dataset.duration;
+            // Cargar tasa de interés
+            document.getElementById('interest_rate').value = selectedOption.dataset.rate || '3.5';
+
+            // Cargar meses
+            document.getElementById('financing_months').value = selectedOption.dataset.duration || '36';
+
+            // Actualizar cuota inicial mínima
+            const minAmount = parseFloat(selectedOption.dataset.minAmount) || 0;
+            const minPercent = parseFloat(selectedOption.dataset.minPercent) || 0;
+
+            if (minPercent > 0) {
+                document.getElementById('min_down_payment').textContent =
+                    minPercent + '% del precio del lote';
+            } else if (minAmount > 0) {
+                document.getElementById('min_down_payment').textContent =
+                    'S/ ' + minAmount.toFixed(2);
+            } else {
+                document.getElementById('min_down_payment').textContent = '0';
+            }
+
             calculateContract();
-            console.log('Tasa de interés seleccionada: ' + selectedOption.dataset.rate + '%');
+            console.log('Plan seleccionado: ' + selectedOption.textContent + ' - Tasa: ' + selectedOption.dataset.rate +
+                '%');
         }
     }
 
@@ -1839,12 +1813,6 @@
             formData.append('reservation_date', '');
         }
 
-        // Agregar sponsor_id seleccionado
-        const sponsorIdElement = document.getElementById('sponsor_id');
-        if (sponsorIdElement && sponsorIdElement.value) {
-            formData.append('sponsor_id', sponsorIdElement.value);
-        }
-
         // Agregar comprobante/voucher si se seleccionó
         const comprobanteInput = document.getElementById('comprobante');
         if (comprobanteInput && comprobanteInput.files.length > 0) {
@@ -1901,12 +1869,25 @@
         const status = document.getElementById('status-filter').value;
         const dateFrom = document.getElementById('date-from').value;
         const dateTo = document.getElementById('date-to').value;
+        const table = document.getElementById('contracts-table');
+        const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
 
-        console.log('Filtering contracts:', {
-            status,
-            dateFrom,
-            dateTo
-        });
+        // Filtrar filas basado en estado y fechas
+        for (let row of rows) {
+            let showRow = true;
+            
+            // Filtro de estado
+            if (status) {
+                const rowStatus = row.getAttribute('data-status');
+                if (rowStatus !== status) {
+                    showRow = false;
+                }
+            }
+            
+            // Los filtros de fecha se pueden implementar después si es necesario
+            
+            row.style.display = showRow ? '' : 'none';
+        }
     }
 
     function clearFilters() {
@@ -2150,132 +2131,7 @@
         });
     }
 
-    function showValidateModal(contract) {
-        // Llamar al endpoint para obtener datos de validación (including comprobante inicial si no hay voucher)
-        fetch('/dashboard/inmueble/get_validation_data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ contract_id: contract.id })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (!data.success) {
-                console.error('Error getting validation data:', data.message);
-                return;
-            }
-            
-            let voucherHtml = '';
-            let voucherData = data.data;
-            
-            // Prioridad 1: Voucher del contrato
-            if (voucherData.voucher_url && voucherData.voucher_url.trim() !== '') {
-                let filename = voucherData.voucher_url.split('/').pop();
-                let url = '/dashboard/mostrarComprobante/' + filename;
-                voucherHtml = `
-                    <div class="alert alert-info">
-                        <strong>Voucher del Contrato</strong><br>
-                        <a href="${url}" target="_blank" class="btn btn-sm btn-primary mb-2">Descargar / Ver en nueva pestaña</a>
-                        <div style="border:1px solid #ddd; padding:5px; margin-top:10px; background:#f9f9f9; max-height:550px; overflow:auto;">
-                            <img src="${url}" alt="Voucher" style="max-width:100%;height:auto;" onerror="this.onerror=null;this.src='/assets/img/no-image.png';this.alt='No encontrado';">
-                        </div>
-                    </div>
-                `;
-            }
-            // Prioridad 2: Voucher de pago inicial (imagen/PDF adjuntado por cliente en cronograma)
-            else if (voucherData.initial_payment_voucher && voucherData.initial_payment_voucher.trim() !== '') {
-                let voucherUrl = voucherData.initial_payment_voucher;
-                let isPdf = voucherUrl.toLowerCase().includes('.pdf');
-                let voucherContent = '';
-                
-                if (isPdf) {
-                    voucherContent = `<iframe src="${voucherUrl}" width="100%" height="550" style="border:1px solid #ddd;"></iframe>`;
-                } else {
-                    voucherContent = `<img src="${voucherUrl}" alt="Voucher Pago Inicial" style="max-width:100%;height:auto;border:1px solid #ddd;" onerror="this.src='/assets/img/no-image.png';this.alt='No encontrado';">`;
-                }
-                
-                voucherHtml = `
-                    <div class="alert alert-success">
-                        <strong>✓ Comprobante de Pago Inicial (Adjuntado por Cliente)</strong><br>
-                        <p class="mb-1"><strong>Monto:</strong> S/ ${voucherData.initial_payment_amount}</p>
-                        <p class="mb-1"><strong>Estado:</strong> ${voucherData.initial_payment_status}</p>
-                        ${voucherData.initial_payment_paid_date ? `<p class="mb-2"><strong>Fecha de Pago:</strong> ${voucherData.initial_payment_paid_date}</p>` : ''}
-                        <a href="${voucherUrl}" target="_blank" class="btn btn-sm btn-info mb-2">Descargar / Ver en nueva pestaña</a>
-                        <div style="border:1px solid #ddd; padding:5px; margin-top:10px; background:#f9f9f9; max-height:550px; overflow:auto;">
-                            ${voucherContent}
-                        </div>
-                    </div>
-                `;
-            }
-            // Fallback: Sin voucher ni comprobante
-            else {
-                voucherHtml = `<div class="alert alert-danger"><span class="text-danger">No hay voucher ni comprobante adjunto</span></div>`;
-            }
-            
-            var body = document.getElementById('approveModalBody');
-            body.innerHTML = `
-                <div class="row">
-                    <div class="col-lg-4 col-md-12">
-                        <p><strong>Contrato N°:</strong> ${voucherData.contract_number}</p>
-                        <p><strong>Cliente:</strong> ${voucherData.customer_name || ''}</p>
-                        <p><strong>Lote:</strong> #${voucherData.lot_id}</p>
-                        <p><strong>Proyecto:</strong> ${voucherData.project_name || ''}</p>
-                        <p><strong>Fecha:</strong> ${voucherData.contract_date}</p>
-                        <p><strong>Monto:</strong> S/ ${voucherData.total_amount}</p>
-                    </div>
-                    <div class="col-lg-8 col-md-12">
-                        <p><strong>Comprobante:</strong></p>
-                        ${voucherHtml}
-                    </div>
-                </div>
-                <div class='mt-4 text-center'>
-                    <form id="approveForm" method="post" action="/dashboard/inmueble/approve_contract" style="display:inline;">
-                        <input type="hidden" name="contract_id" value="${contract.id}">
-                        <button type="submit" class="btn btn-success mr-2">Aprobar</button>
-                    </form>
-                    <form id="rejectForm" method="post" action="/dashboard/inmueble/reject_contract" style="display:inline;">
-                        <input type="hidden" name="contract_id" value="${contract.id}">
-                        <button type="submit" class="btn btn-danger">Desaprobar</button>
-                    </form>
-                </div>
-            `;
-            $('#approveModal').modal('show');
-        })
-        .catch(err => {
-            console.error('Error fetching validation data:', err);
-            // Fallback: mostrar modal con datos básicos si el endpoint falla
-            let voucherHtml = `<span class="text-danger">Error al cargar comprobante</span>`;
-            var body = document.getElementById('approveModalBody');
-            body.innerHTML = `
-                <div class="row">
-                    <div class="col-lg-4 col-md-12">
-                        <p><strong>Contrato N°:</strong> ${contract.contract_number}</p>
-                        <p><strong>Cliente:</strong> ${contract.customer_name || ''}</p>
-                        <p><strong>Lote:</strong> #${contract.lot_id}</p>
-                        <p><strong>Proyecto:</strong> ${contract.project_name || ''}</p>
-                        <p><strong>Fecha:</strong> ${contract.contract_date}</p>
-                        <p><strong>Monto:</strong> S/ ${contract.total_amount}</p>
-                    </div>
-                    <div class="col-lg-8 col-md-12">
-                        <p><strong>Comprobante:</strong></p>
-                        ${voucherHtml}
-                    </div>
-                </div>
-                <div class='mt-4 text-center'>
-                    <form id="approveForm" method="post" action="/dashboard/inmueble/approve_contract" style="display:inline;">
-                        <input type="hidden" name="contract_id" value="${contract.id}">
-                        <button type="submit" class="btn btn-success mr-2">Aprobar</button>
-                    </form>
-                    <form id="rejectForm" method="post" action="/dashboard/inmueble/reject_contract" style="display:inline;">
-                        <input type="hidden" name="contract_id" value="${contract.id}">
-                        <button type="submit" class="btn btn-danger">Desaprobar</button>
-                    </form>
-                </div>
-            `;
-            $('#approveModal').modal('show');
-        });
-    }
+
     </script>
 
     <?php echo view("admin/footer"); ?>
@@ -2315,18 +2171,10 @@
                     .then(data => {
                         $('#approveModal').modal('hide');
                         if (data.success) {
-                            let htmlMsg = '';
-                            if (data.message && (data.message.includes('bonus') || data.message
-                                    .includes('Bonus') || data.message.includes('sumados'))) {
-                                htmlMsg = '<b>Comisión generada:</b><br>' +
-                                    '<span style="color:#2196f3;font-weight:bold;">5% del monto + S/ 300 (bonus reserva)</span><br>' +
-                                    '<b style="font-size:1.2em;">Total: ' + (data.total_comision ?
-                                        'S/ ' + data.total_comision : 'ver detalle') + '</b>' +
-                                    '<br><br><i class="fa fa-check-circle text-success" style="font-size:2em;"></i>';
-                            } else {
-                                htmlMsg =
-                                    '<b>La comisión se generó correctamente.</b><br><br><i class="fa fa-check-circle text-success" style="font-size:2em;"></i>';
-                            }
+                            let htmlMsg = '<b>✓ Contrato aprobado correctamente</b><br>' +
+                                '<small class="text-muted">Comisión pendiente creada (se asignará patrocinador en Cronograma)</small><br><br>' +
+                                '<i class="fa fa-check-circle text-success" style="font-size:2em;"></i>';
+                            
                             Swal.fire({
                                 icon: 'success',
                                 title: '¡Contrato aprobado!',
@@ -2509,6 +2357,50 @@
                 $('#newContractModal').modal('hide');
             });
     });
+    </script>
+
+    <!-- Modal para ver imagen del voucher ampliada -->
+    <div class="modal fade" id="voucherAmpliadoModal" tabindex="-1" role="dialog" aria-labelledby="voucherAmpliadoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="voucherAmpliadoModalLabel">
+                        <i class="fa fa-image"></i> Comprobante
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="voucher-ampliado-img" src="" style="max-width: 100%; max-height: 600px; border-radius: 8px;" alt="Comprobante">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Función para abrir modal con imagen ampliada del voucher
+    function abrirModalVoucherAmpliado(imagenUrl) {
+        console.log("Abriendo modal con imagen:", imagenUrl);
+        
+        const modal = document.getElementById('voucherAmpliadoModal');
+        const imgAmpliada = document.getElementById('voucher-ampliado-img');
+        
+        if (!modal || !imgAmpliada) {
+            console.error("Modal o imagen no encontrados");
+            return;
+        }
+        
+        imgAmpliada.src = imagenUrl;
+        
+        // Mostrar modal (método Bootstrap 4)
+        if (typeof jQuery !== 'undefined' && jQuery.fn.modal) {
+            jQuery('#voucherAmpliadoModal').modal('show');
+        }
+    }
     </script>
 </body>
 

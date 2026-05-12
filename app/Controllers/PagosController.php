@@ -33,9 +33,15 @@ class PagosController extends BaseController
         }
 
         // Obtener pagos ordenados (ASC - cronológicamente)
+        // IMPORTANTE: Explícitamente incluir voucher_url
         $payments = $paymentScheduleModel->where('contract_id', $contractId)
             ->orderBy('installment_number', 'ASC')
             ->findAll();
+        
+        // DEBUG: Verificar que voucher_url está en los datos
+        \Config\Services::logger()->info('DEBUG cronograma_completo: payments=' . json_encode(array_map(function($p) {
+            return ['id' => $p['id'], 'voucher_url' => $p['voucher_url'] ?? 'NOT_SET'];
+        }, $payments)));
 
         // Calcular estadísticas
         $stats = [
@@ -257,6 +263,7 @@ class PagosController extends BaseController
                     "tip_afe_igv"        => "30" // INAFECTO
                 ]
             ],
+            "numero_contrato"   => $contrato['contract_number'] ?? '',
             "usuario_creacion" => session()->get('user_name') ?? "vendedor_sistema"
         ];
 
@@ -369,6 +376,7 @@ class PagosController extends BaseController
         $payload = [
             "tipo_documento" => $esRuc ? "01" : "03", // 01=Factura, 03=Boleta
             "contract_number" => $contrato['contract_number'] ?? '',
+            "numero_contrato" => $contrato['contract_number'] ?? '',
             "cabecera" => [
                 "FECHA_EMISION"            => date('Y-m-d'),
                 "CLIENTE_NRO_DOCUMENTO"    => $num_doc,

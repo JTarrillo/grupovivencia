@@ -16,8 +16,8 @@
                                         <h5 class="m-b-10"><?= $title ?></h5>
                                     </div>
                                     <ul class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="/dashboard/panel">Panel</a></li>
-                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble">Inmueble</a></li>
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/panel') ?>">Panel</a></li>
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/inmueble') ?>">Gestión Inmobiliaria</a></li>
                                         <li class="breadcrumb-item"><a>Lotes</a></li>
                                     </ul>
                                 </div>
@@ -41,75 +41,24 @@
                                             </div>
                                         </div>
                                         <div class="card-block">
-                                            <!-- Filtros Avanzados Mejorados -->
-                                            <div class="row mb-4 p-3 bg-light rounded" style="border: 1px solid #e3e6f0;">
-                                                <!-- Búsqueda Principal -->
-                                                <div class="col-md-3 col-sm-6 mb-2">
-                                                    <label class="small mb-2"><strong><i class="fa fa-search"></i> Buscar</strong></label>
-                                                    <input type="text" class="form-control form-control-sm" id="search-lotes" 
-                                                        placeholder="Lote, Manzana..." onkeyup="filterTable()">
-                                                </div>
-
-                                                <!-- Proyecto -->
-                                                <div class="col-md-3 col-sm-6 mb-2">
-                                                    <label class="small mb-2"><strong><i class="fa fa-building"></i> Proyecto</strong></label>
-                                                    <select class="form-control form-control-sm" id="project-filter" onchange="filterTable()">
-                                                        <option value="">Todos</option>
-                                                        <?php foreach ($projects as $project): ?>
-                                                        <option value="<?= $project['id'] ?>"
-                                                            <?= $selected_project == $project['id'] ? 'selected' : '' ?>>
-                                                            <?= $project['name'] ?>
-                                                        </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </div>
-
-                                                <!-- Estado -->
-                                                <div class="col-md-3 col-sm-6 mb-2">
-                                                    <label class="small mb-2"><strong><i class="fa fa-tag"></i> Estado</strong></label>
-                                                    <select class="form-control form-control-sm" id="status-filter" onchange="filterTable()">
-                                                        <option value="">Todos</option>
-                                                        <option value="available">Disponible</option>
-                                                        <option value="reserved">Reservado</option>
-                                                        <option value="sold">Vendido</option>
-                                                        <option value="blocked">Bloqueado</option>
-                                                    </select>
-                                                </div>
-
-                                                <!-- Rango de Precio -->
-                                                <div class="col-md-3 col-sm-6 mb-2">
-                                                    <label class="small mb-2"><strong><i class="fa fa-dollar"></i> Precio</strong></label>
-                                                    <div class="input-group input-group-sm">
-                                                        <input type="number" class="form-control" id="price-min" 
-                                                            placeholder="Mín" onkeyup="filterTable()" min="0">
-                                                        <input type="number" class="form-control" id="price-max" 
-                                                            placeholder="Máx" onkeyup="filterTable()" min="0">
+                                            <!-- Buscador Simple -->
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" 
+                                                            id="search-lotes" placeholder="Buscar por Lote o Manzana..."
+                                                            onkeyup="filterTable()">
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-outline-secondary" type="button"
+                                                                onclick="clearFilters()">
+                                                                <i class="fa fa-times"></i> Limpiar
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
-
-                                                <!-- Rango de Área -->
-                                                <div class="col-md-3 col-sm-6 mb-2">
-                                                    <label class="small mb-2"><strong><i class="fa fa-expand"></i> Área (m²)</strong></label>
-                                                    <div class="input-group input-group-sm">
-                                                        <input type="number" class="form-control" id="area-min" 
-                                                            placeholder="Mín" onkeyup="filterTable()" min="0">
-                                                        <input type="number" class="form-control" id="area-max" 
-                                                            placeholder="Máx" onkeyup="filterTable()" min="0">
-                                                    </div>
-                                                </div>
-
-                                                <!-- Botón Limpiar -->
-                                                <div class="col-md-3 col-sm-6 d-flex align-items-end mb-2">
-                                                    <button type="button" class="btn btn-secondary btn-sm btn-block" onclick="clearFilters()">
-                                                        <i class="fa fa-times"></i> Limpiar Filtros
-                                                    </button>
-                                                </div>
-
-                                                <!-- Contador de Resultados -->
-                                                <div class="col-12 mt-2">
+                                                <div class="col-md-6 text-right">
                                                     <small class="text-muted">
-                                                        <i class="fa fa-info-circle"></i> 
-                                                        Mostrando <strong id="result-count">0</strong> lote(s) de <strong id="total-count">0</strong>
+                                                        Mostrando <strong id="result-count">0</strong> de <strong id="total-count">0</strong>
                                                     </small>
                                                 </div>
                                             </div>

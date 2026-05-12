@@ -47,6 +47,9 @@
     <!-- Prerequisites datepicker-->
     <script src="<?php echo site_url() . "assets/admin/js/jquery-3.3.1.js"; ?>"></script>
     <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script>
+        var site = '<?php echo site_url(); ?>';
+    </script>
     <!-- begin estructure -->
     <link href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css" rel="stylesheet" />
     <!-- begin favicon -->

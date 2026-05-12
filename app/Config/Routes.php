@@ -71,7 +71,10 @@ $routes->post('/dashboard/inmueble/aprobarMejor', 'Inmueble::aprobarMejor');
 
 $routes->get('dashboard/mostrarComprobante/(:any)', 'Inmueble::mostrarComprobante/$1', ['filter' => 'authGuard']);
 // Aprobar contrato
-$routes->post('/dashboard/inmueble/approve_contract', 'Inmueble::aprobarContrato', ['filter' => 'authGuard']);
+$routes->post('/dashboard/inmueble/approve_contract', 'Inmueble::approve_contract', ['filter' => 'authGuard']);
+
+// Generar comisión desde cronograma_completo
+$routes->post('/dashboard/inmueble/generate_commission', 'Inmueble::generate_commission', ['filter' => 'authGuard']);
 
 // Desaprobar contrato
 $routes->post('/dashboard/inmueble/reject_contract', 'Inmueble::reject_contract', ['filter' => 'authGuard']);
@@ -102,8 +105,6 @@ $routes->get('/backoffice_new/contracts/delete/(:num)', 'B_contratos::delete/$1'
 $routes->get('/backoffice_new/contracts/detail/(:num)', 'B_contratos::detail/$1', ['filter' => 'authGuard']);
 // Cronograma de pagos (Payment Schedule) para contratos
 $routes->get('/backoffice_new/contracts/cronograma/(:num)', 'B_contratos::schedule/$1', ['filter' => 'authGuard']);
-// Get invoices/comprobantes for contract
-$routes->get('/backoffice_new/contracts/getFacturas/(:num)', 'B_contratos::getFacturas/$1', ['filter' => 'authGuard']);
 // Cronograma de pagos (Payment Schedule) for contracts
 // Rutas para contratos en backoffice_new
 $routes->get('/backoffice_new/contratos', 'B_contratos::index', ['filter' => 'authGuard']);
@@ -315,6 +316,9 @@ $routes->get('/admin/contrato_word/(:num)', 'B_admin::contrato_word/$1');
 //estrucuta
 $routes->get('dashboard/inmueble/edit_contract/(:num)', 'Inmueble::edit_contract/$1', ['filter' => 'authGuard']);
 $routes->post('dashboard/inmueble/edit_contract/(:num)', 'Inmueble::edit_contract/$1', ['filter' => 'authGuard']);
+$routes->get('/dashboard/inmueble/check_contract_sponsor', 'Inmueble::check_contract_sponsor', ['filter' => 'authGuard']);
+$routes->post('/dashboard/inmueble/assign_sponsor_to_contract', 'Inmueble::assign_sponsor_to_contract', ['filter' => 'authGuard']);
+$routes->post('/dashboard/inmueble/save_contract_changes', 'Inmueble::save_contract_changes', ['filter' => 'authGuard']);
 $routes->post('/dashboard/inmueble/api/delete_contract', 'Inmueble::delete_contract', ['filter' => 'authGuard']);
 $routes->match(['get', 'post'], '/dashboard/estructura', 'D_panel::estructura', ['filter' => 'authGuard']);
 $routes->post('/dashboard/estructura_up', 'D_panel::estructura_up', ['filter' => 'authGuard']);
@@ -484,14 +488,14 @@ $routes->group('dashboard/inmueble', static function($routes){
     $routes->get('lots', 'Inmueble::lots', ['filter' => 'authGuard']);
     $routes->get('lots/(:num)', 'Inmueble::lots/$1', ['filter' => 'authGuard']);
     $routes->get('payment_plans', 'Inmueble::payment_plans', ['filter' => 'authGuard']);
-    $routes->get('payment_plans/create_payment_plan', 'Inmueble::create_payment_plan', ['filter' => 'authGuard']);
-    $routes->post('payment_plans/create_payment_plan', 'Inmueble::create_payment_plan', ['filter' => 'authGuard']);
+    $routes->post('create_payment_plan', 'Inmueble::create_payment_plan', ['filter' => 'authGuard']);
     $routes->get('contracts', 'Inmueble::contracts', ['filter' => 'authGuard']);
 
     // Projects CRUD
     $routes->post('create_project', 'Inmueble::create_project', ['filter' => 'authGuard']);
     $routes->get('edit_project/(:num)', 'Inmueble::edit_project/$1', ['filter' => 'authGuard']);
     $routes->post('edit_project/(:num)', 'Inmueble::edit_project/$1', ['filter' => 'authGuard']);
+    $routes->delete('delete_project/(:num)', 'Inmueble::delete_project/$1', ['filter' => 'authGuard']);
     $routes->get('delete_project/(:num)', 'Inmueble::delete_project/$1', ['filter' => 'authGuard']);
 
     // Lots CRUD
@@ -514,7 +518,7 @@ $routes->group('dashboard/inmueble', static function($routes){
     $routes->get('api/project_lots/(:num)', 'Inmueble::get_project_lots/$1', ['filter' => 'authGuard']);
     $routes->post('api/update_lot_status', 'Inmueble::update_lot_status', ['filter' => 'authGuard']);
     $routes->post('api/search_customers', 'Inmueble::search_customers', ['filter' => 'authGuard']);
-    $routes->get('api/get_available_lots', 'Inmueble::get_available_lots', ['filter' => 'authGuard']);
+    $routes->get('api/available_lots', 'Inmueble::get_available_lots', ['filter' => 'authGuard']);
     $routes->get('api/payment_plans', 'Inmueble::get_payment_plans_api', ['filter' => 'authGuard']);
     $routes->get('api/get_payment_plan/(:num)', 'Inmueble::get_payment_plan_api/$1', ['filter' => 'authGuard']);
     $routes->get('api/plan_contract_stats/(:num)', 'Inmueble::get_plan_contract_stats/$1', ['filter' => 'authGuard']);
@@ -528,11 +532,7 @@ $routes->group('dashboard/inmueble', static function($routes){
     $routes->get('getDepartments', 'Inmueble::getDepartments');
     $routes->get('getProvinces/(:num)', 'Inmueble::getProvinces/$1');
     $routes->get('getDistricts/(:num)', 'Inmueble::getDistricts/$1');
-    $routes->get('getPaymentPlans', 'Inmueble::getPaymentPlans');
-
-    // Validation data for contract modal
-    $routes->post('get_validation_data', 'Inmueble::getValidationData', ['filter' => 'authGuard']);
-    $routes->get('get_validation_data', 'Inmueble::getValidationData', ['filter' => 'authGuard']);
+    $routes->get('getPaymentPlans', 'Inmueble::getPaymentPlans', ['filter' => 'authGuard']);
 
     // Misc: reminders
     $routes->post('enviar_recordatorios_vencimiento', 'Inmueble::enviar_recordatorios_vencimiento', ['filter' => 'authGuard']);
@@ -641,6 +641,22 @@ $routes->post('/dashboard/integracion_puntos_rango/validate_user', 'D_integracio
 $routes->post('/dashboard/integracion_puntos_rango/active_points', 'D_integracion_pagos::active_puntos_rangos', ['filter' => 'authGuard']);
 $routes->post('/dashboard/integracion_puntos_rango/delete', 'D_integracion_pagos::eliminar_point_rangos', ['filter' => 'authGuard']);
 
+// ============================================================================
+// Rutas para Informes de Comisiones (Commission Reports)
+// ============================================================================
+// Backoffice - Patrocinador
+$routes->get('/backoffice_new/commission_reports/create', 'CommissionReportController::create', ['filter' => 'authGuard']);
+$routes->get('/backoffice_new/commission_reports/my', 'CommissionReportController::myReports', ['filter' => 'authGuard']);
+$routes->post('/backoffice_new/commission_reports/store', 'CommissionReportController::store', ['filter' => 'authGuard']);
+
+// Admin - Gestión de Informes
+$routes->get('/dashboard/commission-reports', 'CommissionReportController::adminDashboard', ['filter' => 'authGuard']);
+$routes->get('/dashboard/commission-reports/view/(:num)', 'CommissionReportController::view/$1', ['filter' => 'authGuard']);
+$routes->get('/dashboard/commission-reports/list', 'CommissionReportController::listAll', ['filter' => 'authGuard']);
+$routes->post('/dashboard/commission-reports/update-status', 'CommissionReportController::updateStatus', ['filter' => 'authGuard']);
+$routes->post('/dashboard/commission-reports/store', 'CommissionReportController::store', ['filter' => 'authGuard']);
+$routes->get('/dashboard/commission-reports/download/(:num)/(:any)', 'CommissionReportController::downloadAttachment/$1/$2', ['filter' => 'authGuard']);
+
 // Soporte
 $routes->get('/dashboard/ticket', 'D_ticket::index', ['filter' => 'authGuard']);
 $routes->get('/dashboard/ticket/load/(:num)', 'D_ticket::load/$1', ['filter' => 'authGuard']);
@@ -713,7 +729,6 @@ $routes->get('/dashboard/logout', 'Home::adm_logout');
 $routes->get('dashboard/inmueble/getDepartments', 'Inmueble::getDepartments');
 $routes->get('dashboard/inmueble/getProvinces/(:num)', 'Inmueble::getProvinces/$1');
 $routes->get('dashboard/inmueble/getDistricts/(:num)', 'Inmueble::getDistricts/$1');
-$routes->get('dashboard/inmueble/getPaymentPlans', 'Inmueble::getPaymentPlans');
 $routes->post('/dashboard/facturas/generarFactura', 'D_facturas::generarFactura', ['filter' => 'authGuard']);
 
 $routes->get('/dashboard/penalties/apply', 'Penalties::applyPenalties');
@@ -732,6 +747,8 @@ $routes->get('/admin/comisiones/multinivel_demo', function() {
 }, ['filter' => 'authGuard']);
 $routes->get('/dashboard/usuarios/load', 'D_usuarios::load', ['filter' => 'authGuard']);
 $routes->get('/dashboard/usuarios/load/(:num)', 'D_usuarios::load/$1', ['filter' => 'authGuard']);
+$routes->get('/dashboard/usuarios/form_modal', 'D_usuarios::get_form_modal', ['filter' => 'authGuard']);
+$routes->get('/dashboard/usuarios/form_modal/(:num)', 'D_usuarios::get_form_modal/$1', ['filter' => 'authGuard']);
 $routes->post('/dashboard/usuarios/validate', 'D_usuarios::validacion', ['filter' => 'authGuard']);
 $routes->post('/dashboard/usuarios/validacion', 'D_usuarios::validacion', ['filter' => 'authGuard']);
 $routes->post('/dashboard/usuarios/eliminar', 'D_usuarios::eliminar', ['filter' => 'authGuard']);

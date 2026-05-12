@@ -41,7 +41,6 @@ class PaymentPlanController extends BaseController {
                 'code' => $res['code'] ?? '',
                 'location' => $res['location'] ?? '',
                 'duration_months' => $res['duration_months'] ?? '',
-                'min_down_payment_percentage' => $res['min_down_payment_percentage'] ?? '',
                 'base_interest_rate' => $res['base_interest_rate'] ?? '',
                 'is_default' => !empty($res['is_default']) ? 1 : 0,
                 'active' => !empty($res['active']) ? 1 : 0
@@ -152,7 +151,6 @@ class PaymentPlanController extends BaseController {
                 'code' => $res['code'] ?? '',
                 'location' => $res['location'] ?? '',
                 'duration_months' => $res['duration_months'] ?? '',
-                'min_down_payment_percentage' => $res['min_down_payment_percentage'] ?? '',
                 'base_interest_rate' => $res['base_interest_rate'] ?? '',
                 'is_default' => !empty($res['is_default']) ? 1 : 0,
                 'active' => !empty($res['active']) ? 1 : 0

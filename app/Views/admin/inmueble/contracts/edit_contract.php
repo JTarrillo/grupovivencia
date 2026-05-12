@@ -18,11 +18,14 @@
                                         <h5 class="m-b-10">Editar Contrato</h5>
                                     </div>
                                     <ul class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="/dashboard/panel">Panel</a></li>
-                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble">Gestión
+                                        <li class="breadcrumb-item"><a
+                                                href="<?= site_url('dashboard/panel') ?>">Panel</a></li>
+                                        <li class="breadcrumb-item"><a
+                                                href="<?= site_url('dashboard/inmueble') ?>">Gestión
                                                 Inmobiliaria</a></li>
                                         <li class="breadcrumb-item"><a
-                                                href="/dashboard/inmueble/contracts">Contratos</a></li>
+                                                href="<?= site_url('dashboard/inmueble/contracts') ?>">Contratos</a>
+                                        </li>
                                         <li class="breadcrumb-item active">Editar</li>
                                     </ul>
                                 </div>
@@ -51,6 +54,19 @@
                                                         value="<?= $contract['lot_number'] ?? '' ?>" disabled>
                                                 </div>
                                                 <div class="form-group">
+                                                    <label><strong>Patrocinador (Opcional)</strong></label>
+                                                    <select name="sponsor_id" id="sponsor_id" class="form-control">
+                                                        <option value="">-- Seleccionar patrocinador --</option>
+                                                        <?php foreach ($agents as $agent): ?>
+                                                        <option value="<?= $agent['id'] ?>"
+                                                            <?= ($contract['sponsor_id'] == $agent['id']) ? 'selected' : '' ?>>
+                                                            [<?= $agent['code'] ?>] <?= $agent['name'] ?>
+                                                            <?= $agent['lastname'] ?> (DNI: <?= $agent['dni'] ?>)
+                                                        </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
                                                     <label>Cuota Inicial</label>
                                                     <input type="number" class="form-control" name="down_payment"
                                                         value="<?= $contract['down_payment'] ?>">
@@ -71,7 +87,7 @@
                                                         value="<?= $contract['contract_date'] ?>">
                                                 </div>
                                                 <button type="submit" class="btn btn-success">Guardar Cambios</button>
-                                                <a href="/dashboard/inmueble/contracts"
+                                                <a href="<?= site_url('dashboard/inmueble/contracts') ?>"
                                                     class="btn btn-secondary">Cancelar</a>
                                             </form>
                                         </div>
@@ -90,7 +106,14 @@
         e.preventDefault();
         const form = this;
         const formData = new FormData(form);
-        fetch(window.location.pathname, {
+
+        // DEBUG: Ver qué se está enviando
+        console.log('FormData enviado:');
+        for (let [key, value] of formData.entries()) {
+            console.log(`  ${key}: ${value}`);
+        }
+
+        fetch('<?= site_url("/dashboard/inmueble/save_contract_changes") ?>', {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -99,6 +122,7 @@
             })
             .then(response => response.json())
             .then(data => {
+                console.log('Respuesta del servidor:', data);
                 if (data.success) {
                     Swal.fire({
                         icon: 'success',
@@ -121,6 +145,7 @@
                 }
             })
             .catch((err) => {
+                console.error('Error en la solicitud:', err);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',

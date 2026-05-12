@@ -76,8 +76,7 @@
                                                 <span>Las solicitudes de retiro se realizan <b>solo los días 1 y 2 de
                                                         cada mes</b>.</span>
                                                 <span>El importe mínimo de retiro es de S/100.</span>
-                                                <span>A partir de S/700, se aplica una <b>retención del 10%</b> del
-                                                    importe.</span>
+                                                <span>Si el monto en factura es <b>mayor o igual a S/700</b>, se aplica una <b>detracción del 10%</b>.</span>
                                                 <span>Es obligatorio adjuntar factura para retiros de gestión
                                                     inmobiliaria.</span>
                                             </div>
@@ -115,14 +114,8 @@
                                 <div class="card-header cursor-pointer">
                                     <div class="card-title m-0">
                                     </div>
-                                    <?php
-									if ($customer_pay == 1) { ?>
                                     <a href="#" data-bs-toggle="modal" data-bs-target="#kt_modal_new_ticket"
                                         class="btn btn-primary align-self-center"><?php echo lang('Global.solicitar_cobro'); ?></a>
-                                    <?php  } elseif ($allow == 1) { ?>
-                                    <a href="#" data-bs-toggle="modal" data-bs-target="#kt_modal_new_ticket"
-                                        class="btn btn-primary align-self-center"><?php echo lang('Global.solicitar_cobro'); ?></a>
-                                    <?php } ?>
                                 </div>
                                 <div class="card-header pt-7">
                                     <h3 class="card-title align-items-start flex-column">
@@ -157,7 +150,7 @@
                                                         <th class="pe-3 min-w-100px sorting" tabindex="0" rowspan="1"
                                                             colspan="1" style="width: 136.817px;">Comisión</th>
                                                         <th class="pe-3 min-w-100px sorting" tabindex="0" rowspan="1"
-                                                            colspan="1" style="width: 136.817px;">Retención</th>
+                                                            colspan="1" style="width: 136.817px;">Detracción</th>
                                                         <th class="pe-3 min-w-100px sorting" tabindex="0" rowspan="1"
                                                             colspan="1" style="width: 136.817px;">Factura</th>
                                                         <th class="pe-3 min-w-50px sorting" tabindex="0" rowspan="1"
@@ -185,12 +178,12 @@
                                                         </td>
                                                         <td>
                                                             <?php
-                                                            // Regla: Retención 10% si amount >= 700
-                                                            $retencion = 0;
+                                                            // Detracción 10% si amount >= 700
+                                                            $detraccion = 0;
                                                             if ($value->amount >= 700) {
-                                                                $retencion = round($value->amount * 0.10, 2);
+                                                                $detraccion = round($value->amount * 0.10, 2);
                                                             }
-                                                            echo format_number_moneda_soles($retencion);
+                                                            echo format_number_moneda_soles($detraccion);
                                                             ?>
                                                         </td>
                                                         <td>

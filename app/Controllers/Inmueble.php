@@ -104,21 +104,25 @@ class Inmueble extends BaseController {
             ];
             
             $contentType = $contentTypes[$ext] ?? 'application/octet-stream';
-            header('Content-Type: ' . $contentType);
-            header('Cache-Control: public, max-age=3600');
-            readfile($path);
-            exit;
+            $fileContent = file_get_contents($path);
+            
+            return $this->response
+                ->setHeader('Content-Type', $contentType)
+                ->setHeader('Cache-Control', 'public, max-age=3600')
+                ->setHeader('Content-Length', strlen($fileContent))
+                ->setBody($fileContent);
         } else {
             // Imagen de reemplazo si no existe el comprobante
             $noImage = FCPATH . 'assets/img/no-image.png';
             if (is_file($noImage)) {
-                header('Content-Type: image/png');
-                readfile($noImage);
-                exit;
+                $fileContent = file_get_contents($noImage);
+                return $this->response
+                    ->setHeader('Content-Type', 'image/png')
+                    ->setBody($fileContent);
             } else {
-                header('Content-Type: text/plain');
-                echo 'Imagen no encontrada';
-                exit;
+                return $this->response
+                    ->setHeader('Content-Type', 'text/plain')
+                    ->setBody('Imagen no encontrada');
             }
         }
     }
@@ -237,72 +241,314 @@ class Inmueble extends BaseController {
     {
         $request = service('request');
         $contract_id = $request->getPost('contract_id');
+        $sponsor_id = $request->getPost('sponsor_id');  // Recibir patrocinador desde el frontend (puede no venir)
+        
         $ContractModel = new \App\Models\ContractModel();
-        $ComisionModel = new \App\Models\ComisionesInmobiliariasModel();
         
         $contract = $ContractModel->find($contract_id);
         if (!$contract) {
             return $this->response->setJSON(['success' => false, 'message' => 'Contrato no encontrado']);
         }
         
+        // Asignar patrocinador al contrato SOLO si se proporciona (opcional)
+        if (!empty($sponsor_id)) {
+            try {
+                $db = \Config\Database::connect();
+                $db->table('contracts')
+                    ->where('id', $contract_id)
+                    ->update(['sponsor_id' => $sponsor_id]);
+                log_message('debug', '[approve_contract] Patrocinador asignado: sponsor_id=' . $sponsor_id);
+            } catch (\Exception $e) {
+                log_message('error', '[approve_contract] Error asignando sponsor: ' . $e->getMessage());
+            }
+        }
+        
         // Cambiar estado del contrato a 'active' y marcar como aprobado
-        $ContractModel->update($contract_id, [
-            'status' => 'active',
-            'is_approved' => 1,
-            'is_rejected' => 0
-        ]);
+        try {
+            $db = \Config\Database::connect();
+            $db->table('contracts')
+                ->where('id', $contract_id)
+                ->update([
+                    'status' => 'active',
+                    'is_approved' => 1,
+                    'is_rejected' => 0
+                ]);
+            log_message('debug', '[approve_contract] Contrato aprobado. ID=' . $contract_id);
+        } catch (\Exception $e) {
+            log_message('error', '[approve_contract] Error actualizando estado: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Error al aprobar contrato: ' . $e->getMessage()]);
+        }
         
-        // Generar comisión según el tipo de contrato
-        $comisiones_creadas = [];
-        $total_comision = 0;
-        
-        if (!empty($contract['sponsor_id'])) {
+        // CREAR COMISIÓN PENDIENTE sin sponsor (beneficiario_id=NULL)
+        try {
             $fecha = date('Y-m-d H:i:s');
             $totalAmount = $contract['total_amount'] ?? 0;
             
             // Determinar tipo de comisión según contract_type e is_reserved
             if (!empty($contract['is_reserved']) && $contract['is_reserved'] == 1) {
-                // RESERVA: S/ 300 fijo
                 $monto_comision = 300;
                 $tipo_comision = 'bono_reserva';
                 $porcentaje_comision = null;
-                $total_comision = 300;
             } else {
-                // INICIAL o CONTADO: 5% del monto total
                 $monto_comision = round($totalAmount * 0.05, 2);
                 $tipo_comision = 'venta_base';
                 $porcentaje_comision = 5;
-                $total_comision = $monto_comision;
             }
             
+            // Crear comisión PENDIENTE sin sponsor (beneficiario_id=NULL)
             $comision_data = [
                 'venta_id' => $contract_id,
-                'beneficiario_id' => $contract['sponsor_id'],
+                'beneficiario_id' => null,  // SIN sponsor inicialmente
                 'tipo_comision' => $tipo_comision,
                 'monto' => $monto_comision,
                 'porcentaje' => $porcentaje_comision,
-                'estado' => 'aprobada',
+                'estado' => 'pendiente',  // Comisión pendiente
                 'fecha_generada' => $fecha,
                 'created_at' => $fecha,
                 'updated_at' => $fecha
             ];
-            
+            $ComisionModel = new \App\Models\ComisionesInmobiliariasModel();
             $com_insert_result = $ComisionModel->insert($comision_data);
-            log_message('debug', '[approve_contract] Comisión insertada. com_insert_result=' . json_encode($com_insert_result) . ' comision_data=' . json_encode($comision_data));
-            
-            $comisiones_creadas[] = [
-                'beneficiario_id' => $contract['sponsor_id'],
-                'tipo' => $tipo_comision,
-                'monto' => $monto_comision,
-                'porcentaje' => $porcentaje_comision
-            ];
+            log_message('debug', '[approve_contract] Comisión PENDIENTE creada sin sponsor. venta_id=' . $contract_id . ', monto=' . $monto_comision);
+        } catch (\Exception $e) {
+            log_message('error', '[approve_contract] Error creando comisión: ' . $e->getMessage());
+            // No retornar error - la aprobación del contrato ya fue exitosa
         }
         
         return $this->response->setJSON([
             'success' => true,
-            'message' => 'Contrato aprobado correctamente. Comisión generada.',
+            'message' => 'Contrato aprobado. Comisión pendiente creada (se completará en Cronograma).'
+        ]);
+    }
+    
+    public function check_contract_sponsor()
+    {
+        $contract_id = $this->request->getGet('contract_id');
+        $ContractModel = new \App\Models\ContractModel();
+        
+        $contract = $ContractModel->find($contract_id);
+        if (!$contract) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Contrato no encontrado']);
+        }
+        
+        return $this->response->setJSON([
+            'has_sponsor' => !empty($contract['sponsor_id']),
+            'sponsor_id' => $contract['sponsor_id'] ?? null
+        ]);
+    }
+    
+    public function assign_sponsor_to_contract()
+    {
+        $request = service('request');
+        $contract_id = $request->getPost('contract_id');
+        $sponsor_id = $request->getPost('sponsor_id');
+        
+        if (!$contract_id || !$sponsor_id) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos']);
+        }
+        
+        $ContractModel = new \App\Models\ContractModel();
+        $contract = $ContractModel->find($contract_id);
+        
+        if (!$contract) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Contrato no encontrado']);
+        }
+        
+        // Usar Query Builder en lugar de Model->update() para evitar problemas en CodeIgniter 4
+        try {
+            $db = \Config\Database::connect();
+            $db->table('contracts')
+                ->where('id', $contract_id)
+                ->update(['sponsor_id' => $sponsor_id]);
+            
+            log_message('debug', '[assign_sponsor_to_contract] Sponsor ' . $sponsor_id . ' asignado al contrato ' . $contract_id);
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Patrocinador asignado correctamente'
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', '[assign_sponsor_to_contract] Error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al asignar patrocinador: ' . $e->getMessage()
+            ]);
+        }
+    }
+    
+    public function save_contract_changes()
+    {
+        $request = service('request');
+        $contract_id = $request->getPost('contract_id');
+        $sponsor_id = $request->getPost('sponsor_id');
+        
+        // DEBUG: Logging de lo que se recibe
+        log_message('debug', '[save_contract_changes] POST data: ' . json_encode($request->getPost()));
+        log_message('debug', '[save_contract_changes] sponsor_id recibido: ' . ($sponsor_id ?? 'NULL') . ' (type: ' . gettype($sponsor_id) . ')');
+        
+        // Convertir string vacío a null
+        if ($sponsor_id === '' || $sponsor_id === '0') {
+            $sponsor_id = null;
+        }
+        
+        $down_payment = $request->getPost('down_payment');
+        $financing_months = $request->getPost('financing_months');
+        $interest_rate = $request->getPost('interest_rate');
+        $contract_date = $request->getPost('contract_date');
+        
+        $ContractModel = new \App\Models\ContractModel();
+        
+        $contract = $ContractModel->find($contract_id);
+        if (!$contract) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Contrato no encontrado']);
+        }
+        
+        $updateData = [];
+        
+        // Siempre incluir sponsor_id (puede ser null)
+        $updateData['sponsor_id'] = $sponsor_id;
+        
+        if ($down_payment !== null && $down_payment !== '') {
+            $updateData['down_payment'] = $down_payment;
+        }
+        if ($financing_months !== null && $financing_months !== '') {
+            $updateData['financing_months'] = $financing_months;
+        }
+        if ($interest_rate !== null && $interest_rate !== '') {
+            $updateData['interest_rate'] = $interest_rate;
+        }
+        if ($contract_date !== null && $contract_date !== '') {
+            $updateData['contract_date'] = $contract_date;
+        }
+        
+        if (empty($updateData)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sin cambios para guardar']);
+        }
+        
+        $updateData['updated_at'] = date('Y-m-d H:i:s');
+        
+        log_message('debug', '[save_contract_changes] updateData: ' . json_encode($updateData));
+        
+        // Usar Query Builder en lugar de Model->update() para evitar problemas en CodeIgniter 4
+        try {
+            $db = \Config\Database::connect();
+            $db->table('contracts')
+                ->where('id', $contract_id)
+                ->update($updateData);
+            
+            // Verificar que se guardó
+            $updated = $db->table('contracts')->where('id', $contract_id)->get()->getRowArray();
+            log_message('debug', '[save_contract_changes] Contrato ' . $contract_id . ' actualizado. Nuevo sponsor_id: ' . ($updated['sponsor_id'] ?? 'NULL'));
+            
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Contrato actualizado correctamente',
+                'sponsor_id' => $sponsor_id
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', '[save_contract_changes] Error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al actualizar el contrato: ' . $e->getMessage()
+            ]);
+        }
+    }
+    
+    /**
+     * Generar comisión desde cronograma_completo
+     * Crea una nueva comisión o actualiza la existente con el sponsor seleccionado
+     */
+    public function generate_commission()
+    {
+        $request = service('request');
+        $contract_id = $request->getPost('contract_id');
+        $sponsor_id = $request->getPost('sponsor_id');  // Puede ser NULL o vacío
+        
+        $ContractModel = new \App\Models\ContractModel();
+        $contract = $ContractModel->find($contract_id);
+        
+        if (!$contract) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Contrato no encontrado']);
+        }
+        
+        // Asignar patrocinador al contrato si se proporciona
+        if (!empty($sponsor_id)) {
+            try {
+                $db = \Config\Database::connect();
+                $db->table('contracts')
+                    ->where('id', $contract_id)
+                    ->update(['sponsor_id' => $sponsor_id]);
+                log_message('debug', '[generate_commission] Patrocinador asignado: sponsor_id=' . $sponsor_id);
+            } catch (\Exception $e) {
+                log_message('error', '[generate_commission] Error asignando sponsor: ' . $e->getMessage());
+            }
+        }
+        
+        // Verificar si ya existe una comisión para este contrato
+        $db = \Config\Database::connect();
+        $comision_existente = $db->table('comisiones_inmobiliarias')
+            ->where('venta_id', $contract_id)
+            ->orderBy('id', 'DESC')
+            ->limit(1)
+            ->get()
+            ->getRowArray();
+        
+        $fecha = date('Y-m-d H:i:s');
+        $totalAmount = $contract['total_amount'] ?? 0;
+        $beneficiario_id = !empty($sponsor_id) ? $sponsor_id : null;  // NULL si no hay sponsor seleccionado
+        
+        // Determinar tipo de comisión según contract_type e is_reserved
+        if (!empty($contract['is_reserved']) && $contract['is_reserved'] == 1) {
+            $monto_comision = 300;
+            $tipo_comision = 'bono_reserva';
+            $porcentaje_comision = null;
+            $total_comision = 300;
+        } else {
+            $monto_comision = round($totalAmount * 0.05, 2);
+            $tipo_comision = 'venta_base';
+            $porcentaje_comision = 5;
+            $total_comision = $monto_comision;
+        }
+        
+        try {
+            if ($comision_existente) {
+                // ACTUALIZAR comisión existente con el sponsor seleccionado
+                $db->table('comisiones_inmobiliarias')
+                    ->where('id', $comision_existente['id'])
+                    ->update([
+                        'beneficiario_id' => $beneficiario_id,
+                        'estado' => 'aprobada',
+                        'updated_at' => $fecha
+                    ]);
+                log_message('debug', '[generate_commission] Comisión actualizada. ID=' . $comision_existente['id'] . ', beneficiario_id=' . ($beneficiario_id ?? 'NULL'));
+            } else {
+                // CREAR nueva comisión
+                $comision_data = [
+                    'venta_id' => $contract_id,
+                    'beneficiario_id' => $beneficiario_id,
+                    'tipo_comision' => $tipo_comision,
+                    'monto' => $monto_comision,
+                    'porcentaje' => $porcentaje_comision,
+                    'estado' => 'aprobada',
+                    'fecha_generada' => $fecha,
+                    'created_at' => $fecha,
+                    'updated_at' => $fecha
+                ];
+                $ComisionModel = new \App\Models\ComisionesInmobiliariasModel();
+                $com_insert_result = $ComisionModel->insert($comision_data);
+                log_message('debug', '[generate_commission] Comisión creada. beneficiario_id=' . ($beneficiario_id ?? 'NULL'));
+            }
+        } catch (\Exception $e) {
+            log_message('error', '[generate_commission] Error con comisión: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Error al generar comisión: ' . $e->getMessage()]);
+        }
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Comisión generada correctamente.',
             'total_comision' => $total_comision,
-            'comisiones' => $comisiones_creadas
+            'beneficiario_id' => $beneficiario_id,
+            'tipo' => $tipo_comision,
+            'monto' => $monto_comision
         ]);
     }
     
@@ -357,9 +603,10 @@ class Inmueble extends BaseController {
         return $code;
     }
 
-    // --- Solicitud de retiro con reglas de retención y días permitidos ---
+    // --- Solicitud de retiro con reglas de detracción y días permitidos ---
     public function solicitarRetiro()
     {
+    // REGLA 1: Validar que sea solo días 1 y 2 de cada mes
     $dia = date('j');
     if ($dia != 1 && $dia != 2) {
     return $this->response->setJSON([
@@ -372,11 +619,19 @@ class Inmueble extends BaseController {
     $monto = $this->request->getPost('amount');
     $factura = $this->request->getFile('factura');
 
-    // Validar factura requerida
+    // REGLA 2: Validar importe mínimo (S/100)
+    if ($monto < 100) {
+    return $this->response->setJSON([
+    'success' => false,
+    'message' => 'El importe mínimo de retiro es de S/100.'
+    ]);
+    }
+
+    // REGLA 4: Validar factura requerida
     if (!$factura || !$factura->isValid()) {
     return $this->response->setJSON([
     'success' => false,
-    'message' => 'Debes subir la factura.'
+    'message' => 'Es obligatorio adjuntar factura para retiros de gestión inmobiliaria.'
     ]);
     }
 
@@ -389,10 +644,10 @@ class Inmueble extends BaseController {
     ]);
     }
 
-    // Calcular retención
+    // REGLA 3: Calcular detracción del 10% si importe >= S/700
     $retencion = 0;
-    if ($monto >= 700 && isset($customer['retencion']) && $customer['retencion'] == 1) {
-    $retencion = round($monto * 0.12, 2);
+    if ($monto >= 700) {
+    $retencion = round($monto * 0.10, 2);
     }
     $monto_neto = $monto - $retencion;
 
@@ -429,9 +684,12 @@ class Inmueble extends BaseController {
                 'code' => $this->request->getPost('code'),
                 'description' => $this->request->getPost('description'),
                 'base_price_per_sqm' => $this->request->getPost('base_price_per_sqm'),
+                'down_payment_type' => $this->request->getPost('down_payment_type') ?: 'percentage',
+                'min_down_payment_percentage' => $this->request->getPost('min_down_payment_percentage') ?: 15.00,
+                'min_down_payment_fixed' => $this->request->getPost('min_down_payment_fixed') ?: 0.00,
+                'max_financing_months' => $this->request->getPost('max_financing_months') ?: 36,
                 'base_interest_rate' => $this->request->getPost('base_interest_rate'),
                 'status' => $this->request->getPost('status') ?: 'planning',
-                'payment_plan_id' => $this->request->getPost('payment_plan_id'),
                 'department_id' => $this->request->getPost('department_id'),
                 'province_id' => $this->request->getPost('province_id'),
                 'district_id' => $this->request->getPost('district_id'),
@@ -443,39 +701,6 @@ class Inmueble extends BaseController {
                 return $this->response->setJSON([
                     'success' => false,
                     'message' => 'Completa los campos obligatorios: nombre.'
-                ]);
-            }
-
-            // Validar payment_plan_id
-            if (empty($data['payment_plan_id'])) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Debe seleccionar un plan de pago.'
-                ]);
-            }
-
-            // Verificar que el plan de pago exista
-            $paymentPlanModel = new \App\Models\PaymentPlanModel();
-            if (!$paymentPlanModel->find($data['payment_plan_id'])) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'El plan de pago seleccionado no existe.'
-                ]);
-            }
-
-            // Validar tasa de interés (0% - 6%)
-            if ($data['base_interest_rate'] < 0 || $data['base_interest_rate'] > 6) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'La tasa de interés debe estar entre 0% y 6% (0% para proyectos sin interés).'
-                ]);
-            }
-
-            // Validar precio por m²
-            if ($data['base_price_per_sqm'] <= 0) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'El precio por m² debe ser mayor a 0.'
                 ]);
             }
 
@@ -713,7 +938,7 @@ class Inmueble extends BaseController {
     // Endpoint para obtener planes de pago disponibles
     public function getPaymentPlans()
     {
-    $paymentPlans = $this->paymentPlanModel->where('active', 1)->orderBy('is_default', 'DESC')->orderBy('name', 'ASC')->findAll();
+    $paymentPlans = $this->paymentPlanModel->getActivePlans();
     return $this->response->setJSON($paymentPlans);
     }
 
@@ -977,42 +1202,43 @@ class Inmueble extends BaseController {
  // API: Obtener lotes disponibles para contratos
     public function get_available_lots()
     {
-        // Solo lotes disponibles y proyectos activos o en planificación
-        $lots = $this->lotModel
-            ->select('lots.*, projects.name as project_name, projects.status as project_status, projects.department_id as project_department_id, projects.province_id as project_province_id, projects.district_id as project_district_id, projects.base_interest_rate, payment_plans.down_payment_type, payment_plans.min_down_payment_percentage, payment_plans.min_amount, payment_plans.duration_months')
-            ->join('projects', 'projects.id = lots.project_id')
-            ->join('payment_plans', 'payment_plans.id = projects.payment_plan_id', 'left')
-            ->where('lots.status', 'available')
-            ->whereIn('projects.status', ['active', 'planning'])
-            ->findAll();
+        try {
+            $lots = $this->lotModel
+                ->join('projects', 'projects.id = lots.project_id')
+                ->where('lots.status', 'available')
+                ->whereIn('projects.status', ['active', 'planning'])
+                ->select('lots.id, lots.project_id, lots.lot_number, lots.block, lots.area_sqm, lots.current_price, lots.status, projects.name as project_name, projects.status as project_status, projects.payment_plan_id, projects.down_payment_type, projects.min_down_payment_fixed, projects.min_down_payment_percentage')
+                ->findAll();
 
-        // Formatear respuesta para frontend
-        $responseLots = array_map(function($lot) {
-            return [
-                'id' => $lot['id'],
-                'project_id' => $lot['project_id'],
-                'project_name' => $lot['project_name'],
-                'project_status' => $lot['project_status'],
-                'lot_number' => $lot['lot_number'],
-                'block' => $lot['block'],
-                'area_sqm' => $lot['area_sqm'],
-                'current_price' => $lot['current_price'],
-                'status' => $lot['status'],
-                'department_id' => $lot['project_department_id'] ?? ($lot['department_id'] ?? null),
-                'province_id' => $lot['project_province_id'] ?? ($lot['province_id'] ?? null),
-                'district_id' => $lot['project_district_id'] ?? ($lot['district_id'] ?? null),
-                'down_payment_type' => $lot['down_payment_type'] ?? null,
-                'min_down_payment_percentage' => $lot['min_down_payment_percentage'] ?? null,
-                'min_down_payment_fixed' => $lot['min_amount'] ?? null,
-                'base_interest_rate' => $lot['base_interest_rate'] ?? null,
-                'duration_months' => $lot['duration_months'] ?? null
-            ];
-        }, $lots);
+            // Formatear respuesta
+            $responseLots = [];
+            foreach ($lots as $lot) {
+                $responseLots[] = [
+                    'id' => $lot['id'],
+                    'project_id' => $lot['project_id'],
+                    'project_name' => $lot['project_name'],
+                    'project_status' => $lot['project_status'],
+                    'payment_plan_id' => $lot['payment_plan_id'],
+                    'lot_number' => $lot['lot_number'],
+                    'block' => $lot['block'],
+                    'area_sqm' => $lot['area_sqm'],
+                    'current_price' => $lot['current_price'],
+                    'status' => $lot['status'],
+                    'down_payment_type' => $lot['down_payment_type'] ?? 'percentage',
+                    'min_down_payment_fixed' => $lot['min_down_payment_fixed'] ?? 0,
+                    'min_down_payment_percentage' => $lot['min_down_payment_percentage'] ?? 15
+                ];
+            }
 
-        return $this->response->setJSON([
-            'success' => true,
-            'lots' => $responseLots
-        ]);
+            return $this->response
+                ->setHeader('Content-Type', 'application/json; charset=utf-8')
+                ->setJSON($responseLots);
+        } catch (\Exception $e) {
+            log_message('error', 'Error en get_available_lots: ' . $e->getMessage());
+            return $this->response
+                ->setHeader('Content-Type', 'application/json; charset=utf-8')
+                ->setJSON([]);
+        }
     }
     // Actualiza los contadores de lotes en el proyecto
     
@@ -1250,14 +1476,27 @@ class Inmueble extends BaseController {
     {
     if (strtolower($this->request->getMethod()) === 'post') {
                 log_message('debug', 'Entró a create_project POST');
+                
+                // DEBUG: Log la sesión
+                $debugLog = "=== DEBUG CREATE PROJECT ===\n";
+                $debugLog .= "Timestamp: " . date('Y-m-d H:i:s') . "\n";
+                $debugLog .= "Session ID: " . session_id() . "\n";
+                $debugLog .= "Session Data: " . json_encode($_SESSION ?? [], JSON_UNESCAPED_UNICODE) . "\n";
+                $debugLog .= "POST Data: " . json_encode($this->request->getPost(), JSON_UNESCAPED_UNICODE) . "\n";
+                file_put_contents(FCPATH . 'debug_create_project.log', $debugLog, FILE_APPEND);
+                
             $data = [
                 'name' => $this->request->getPost('name'),
                 'code' => $this->request->getPost('code'),
                 'description' => $this->request->getPost('description'),
                 'base_price_per_sqm' => $this->request->getPost('base_price_per_sqm'),
+                'payment_plan_id' => $this->request->getPost('payment_plan_id'),
+                'down_payment_type' => $this->request->getPost('down_payment_type') ?: 'percentage',
+                'min_down_payment_percentage' => $this->request->getPost('min_down_payment_percentage') ?: 15.00,
+                'min_down_payment_fixed' => $this->request->getPost('min_down_payment_fixed') ?: 0.00,
+                'max_financing_months' => $this->request->getPost('max_financing_months') ?: 36,
                 'base_interest_rate' => $this->request->getPost('base_interest_rate'),
                 'status' => $this->request->getPost('status') ?: 'planning',
-                'payment_plan_id' => $this->request->getPost('payment_plan_id'),
                 'total_lots' => 0,
                 'available_lots' => 0,
                 'department_id' => $this->request->getPost('department_id'),
@@ -1285,37 +1524,24 @@ class Inmueble extends BaseController {
 
             // Validaciones básicas: solo nombre es obligatorio; el código puede generarse server-side
             if (empty($data['name'])) {
+                $debugLog = "ERROR: Nombre vacío\n";
+                file_put_contents(FCPATH . 'debug_create_project.log', $debugLog, FILE_APPEND);
                 return $this->response->setJSON([
                     'success' => false,
                     'message' => 'Completa los campos obligatorios: nombre.'
                 ]);
             }
-
-            // Validar payment_plan_id
-            if (empty($data['payment_plan_id'])) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Debe seleccionar un plan de pago.'
-                ]);
-            }
-
-            // Verificar que el plan de pago exista
-            $paymentPlanModel = new \App\Models\PaymentPlanModel();
-            if (!$paymentPlanModel->find($data['payment_plan_id'])) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'El plan de pago seleccionado no existe.'
-                ]);
-            }
-
-            // Permitir 0% - 6% para todos los proyectos (0% = sin interés)
             if ($data['base_interest_rate'] < 0 || $data['base_interest_rate'] > 6) {
+                $debugLog = "ERROR: Tasa de interés fuera de rango: " . $data['base_interest_rate'] . "\n";
+                file_put_contents(FCPATH . 'debug_create_project.log', $debugLog, FILE_APPEND);
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'La tasa de interés debe estar entre 0% y 6% (0% para proyectos sin interés).'
+                    'message' => 'La tasa de interés debe estar entre 0% y 6%.'
                 ]);
             }
             if ($data['base_price_per_sqm'] <= 0) {
+                $debugLog = "ERROR: Precio por m² debe ser mayor a 0\n";
+                file_put_contents(FCPATH . 'debug_create_project.log', $debugLog, FILE_APPEND);
                 return $this->response->setJSON([
                     'success' => false,
                     'message' => 'El precio por m² debe ser mayor a 0.'
@@ -1336,6 +1562,11 @@ class Inmueble extends BaseController {
 
             $result = $this->projectModel->insert($data);
             $errors = $this->projectModel->errors();
+            
+            // DEBUG: Log del resultado
+            $debugLog = "Insert result: " . json_encode(['result' => $result, 'errors' => $errors]) . "\n";
+            file_put_contents(FCPATH . 'debug_create_project.log', $debugLog, FILE_APPEND);
+            
             // Crear log de resultado de inserción
             $logFileResult = WRITEPATH . 'logs/project_create_result_' . date('Ymd_His') . '.log';
             $logContent = [
@@ -1347,18 +1578,31 @@ class Inmueble extends BaseController {
             file_put_contents($logFileResult, json_encode($logContent, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
             if ($result) {
-                return $this->response->setJSON([
-                    'success' => true,
-                    'message' => 'Proyecto creado exitosamente.',
-                    'id' => $result,
-                    'code' => $data['code'],
-                    'generated_code' => $usedGeneratedCode
-                ]);
+                $debugLog = "SUCCESS: Project created with ID: $result\n";
+                file_put_contents(FCPATH . 'debug_create_project.log', $debugLog, FILE_APPEND);
+                
+                // Si es AJAX request, devolver JSON
+                if ($this->request->isAJAX()) {
+                    $responseData = [
+                        'success' => true,
+                        'message' => 'Proyecto creado exitosamente.',
+                        'id' => $result,
+                        'code' => $data['code'],
+                        'generated_code' => $usedGeneratedCode
+                    ];
+                    return $this->response->setJSON($responseData);
+                } else {
+                    // Si es POST tradicional, redirigir directamente
+                    return redirect()->to('/dashboard/inmueble/projects');
+                }
             } else {
                 $errorMsg = 'Error al crear el proyecto';
                 if (!empty($errors)) {
                     $errorMsg .= ': ' . json_encode($errors, JSON_UNESCAPED_UNICODE);
                 }
+                $debugLog = "DATABASE ERROR: " . $errorMsg . "\n";
+                file_put_contents(FCPATH . 'debug_create_project.log', $debugLog, FILE_APPEND);
+                
                 return $this->response->setJSON([
                     'success' => false,
                     'message' => $errorMsg
@@ -1440,38 +1684,68 @@ class Inmueble extends BaseController {
 
     // Projects Management
     public function projects() {
-        $db = \Config\Database::connect();
-        // Obtener todos los departamentos
-        $departamentos = [];
-        foreach ($db->table('departments')->get()->getResultArray() as $dep) {
-            $departamentos[$dep['id']] = $dep['name'];
-        }
-        // Obtener todas las provincias
-        $provincias = [];
-        foreach ($db->table('provinces')->get()->getResultArray() as $prov) {
-            $provincias[$prov['id']] = $prov['name'];
-        }
-        // Obtener todos los distritos
-        $distritos = [];
-        foreach ($db->table('districts')->get()->getResultArray() as $dist) {
-            $distritos[$dist['id']] = $dist['name'];
-        }
+        $debugLog = "=== DEBUG PROJECTS ===\n";
+        $debugLog .= "Timestamp: " . date('Y-m-d H:i:s') . "\n";
+        $debugLog .= "Session ID: " . session_id() . "\n";
+        
+        try {
+            $debugLog .= "Connecting to database...\n";
+            $db = \Config\Database::connect();
+            $debugLog .= "Database connected successfully\n";
+            
+            // Obtener todos los departamentos
+            $debugLog .= "Fetching departments...\n";
+            $departamentos = [];
+            foreach ($db->table('departments')->get()->getResultArray() as $dep) {
+                $departamentos[$dep['id']] = $dep['name'];
+            }
+            $debugLog .= "Departments fetched: " . count($departamentos) . "\n";
+            
+            // Obtener todas las provincias
+            $debugLog .= "Fetching provinces...\n";
+            $provincias = [];
+            foreach ($db->table('provinces')->get()->getResultArray() as $prov) {
+                $provincias[$prov['id']] = $prov['name'];
+            }
+            $debugLog .= "Provinces fetched: " . count($provincias) . "\n";
+            
+            // Obtener todos los distritos
+            $debugLog .= "Fetching districts...\n";
+            $distritos = [];
+            foreach ($db->table('districts')->get()->getResultArray() as $dist) {
+                $distritos[$dist['id']] = $dist['name'];
+            }
+            $debugLog .= "Districts fetched: " . count($distritos) . "\n";
 
-        $data = [
-            'title' => 'Proyectos Inmobiliarios',
-            'projects' => $this->projectModel->findAll(),
-            'departamentos' => $departamentos,
-            'provincias' => $provincias,
-            'distritos' => $distritos,
-            'session_name' => $_SESSION['name'] ?? 'Usuario'
-        ];
-        // Registrar acceso en TXT
-        $txtMsg = date('Y-m-d H:i:s') . "\n";
-        $txtMsg .= "Acceso a projects()\n";
-        $txtMsg .= "Datos enviados a la vista: " . json_encode($data, JSON_UNESCAPED_UNICODE) . "\n";
-        $txtMsg .= str_repeat('-', 40) . "\n";
-        file_put_contents(FCPATH . 'prueba_modal_mensaje.txt', $txtMsg, FILE_APPEND);
-        return view('admin/inmueble/projects/projects', $data);
+            $debugLog .= "Fetching projects...\n";
+            $projects = $this->projectModel->findAll();
+            $debugLog .= "Projects fetched: " . count($projects) . "\n";
+            
+            $data = [
+                'title' => 'Proyectos Inmobiliarios',
+                'projects' => $projects,
+                'departamentos' => $departamentos,
+                'provincias' => $provincias,
+                'distritos' => $distritos,
+                'session_name' => $_SESSION['name'] ?? 'Usuario'
+            ];
+            
+            $debugLog .= "Data prepared successfully\n";
+            $debugLog .= "Rendering view...\n";
+            
+            file_put_contents(FCPATH . 'debug_projects.log', $debugLog, FILE_APPEND);
+            
+            return view('admin/inmueble/projects/projects', $data);
+        } catch (\Exception $e) {
+            $debugLog .= "ERROR: " . $e->getMessage() . "\n";
+            $debugLog .= "Stack Trace: " . $e->getTraceAsString() . "\n";
+            file_put_contents(FCPATH . 'debug_projects.log', $debugLog, FILE_APPEND);
+            
+            log_message('error', 'Error en projects(): ' . $e->getMessage());
+            return view('errors/html/error_exception', [
+                'exception' => $e
+            ]);
+        }
     }
 
     
@@ -1512,7 +1786,7 @@ class Inmueble extends BaseController {
     public function delete_project($project_id)
     {
         $project = $this->projectModel->find($project_id);
-        if ($this->request->isAJAX()) {
+        if ($this->request->isAJAX() || $this->request->getMethod() === 'delete') {
             if (!$project) {
                 echo json_encode([
                     'success' => false,
@@ -1562,9 +1836,8 @@ class Inmueble extends BaseController {
         // Consulta JOIN para obtener lotes con info de proyecto, cliente y contrato
         $db = \Config\Database::connect();
         $builder = $db->table('lots');
-    $builder->select('lots.id, lots.project_id, lots.lot_number, lots.block, lots.cadastral_unit, lots.registry_number, lots.area_sqm, lots.base_price, lots.current_price, lots.status, lots.customer_id, lots.sale_date, projects.name AS project_name, projects.payment_plan_id, customers.name AS customer_name, contracts.is_reserved, contracts.reservation_amount AS contract_reservation_amount, contracts.reservation_date AS contract_reservation_date, contracts.status AS contract_status, payment_plans.down_payment_type, payment_plans.min_down_payment_percentage, payment_plans.min_amount, payment_plans.duration_months, payment_plans.base_interest_rate as plan_interest_rate');
+    $builder->select('lots.id, lots.project_id, lots.lot_number, lots.block, lots.cadastral_unit, lots.registry_number, lots.area_sqm, lots.base_price, lots.current_price, lots.status, lots.customer_id, lots.sale_date, projects.name AS project_name, customers.name AS customer_name, contracts.is_reserved, contracts.reservation_amount AS contract_reservation_amount, contracts.reservation_date AS contract_reservation_date, contracts.status AS contract_status');
         $builder->join('projects', 'projects.id = lots.project_id', 'left');
-        $builder->join('payment_plans', 'payment_plans.id = projects.payment_plan_id', 'left');
         $builder->join('customers', 'customers.id = lots.customer_id', 'left');
         $builder->join('contracts', 'contracts.lot_id = lots.id', 'left');
         if ($project_id) {
@@ -1687,152 +1960,6 @@ class Inmueble extends BaseController {
             'session_name' => $_SESSION['name'] ?? 'Usuario'
         ];
         return view('admin/inmueble/lots/create_lot', $data);
-    }
-
-    /**
-     * Crear múltiples lotes en una sola operación
-     */
-    public function create_lots_bulk()
-    {
-        $this->response->setContentType('application/json');
-
-        if (strtolower($this->request->getMethod()) !== 'post') {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Método no permitido'
-            ]);
-        }
-
-        $projectId = $this->request->getJSON()->project_id;
-        $lotsData = $this->request->getJSON()->lots ?? [];
-
-        // Validaciones básicas
-        if (!$projectId) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'El proyecto es requerido'
-            ]);
-        }
-
-        if (empty($lotsData) || !is_array($lotsData)) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Datos de lotes inválidos'
-            ]);
-        }
-
-        // Verificar que el proyecto existe
-        $project = $this->projectModel->find($projectId);
-        if (!$project) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Proyecto no encontrado'
-            ]);
-        }
-
-        $createdCount = 0;
-        $errorsList = [];
-
-        foreach ($lotsData as $index => $lot) {
-            $rowNum = $index + 1;
-
-            // Validaciones de campos requeridos
-            if (empty($lot['lot_number'])) {
-                $errorsList[] = "Fila {$rowNum}: Número de lote requerido";
-                continue;
-            }
-
-            if (empty($lot['area_sqm'])) {
-                $errorsList[] = "Fila {$rowNum}: Área requerida";
-                continue;
-            }
-
-            if (empty($lot['base_price'])) {
-                $errorsList[] = "Fila {$rowNum}: Precio requerido";
-                continue;
-            }
-
-            // Validaciones de valores
-            $area = floatval($lot['area_sqm']);
-            if ($area < 50) {
-                $errorsList[] = "Lote {$lot['lot_number']}: Área mínima 50 m²";
-                continue;
-            }
-
-            $price = floatval($lot['base_price']);
-            if ($price <= 0) {
-                $errorsList[] = "Lote {$lot['lot_number']}: Precio debe ser mayor a 0";
-                continue;
-            }
-
-            // Verificar duplicado
-            $existingCount = $this->lotModel
-                ->where('project_id', $projectId)
-                ->where('lot_number', $lot['lot_number'])
-                ->countAllResults();
-
-            if ($existingCount > 0) {
-                $errorsList[] = "Lote {$lot['lot_number']}: Ya existe en este proyecto";
-                continue;
-            }
-
-            // Preparar datos del lote
-            $lotData = [
-                'project_id' => $projectId,
-                'lot_number' => trim($lot['lot_number']),
-                'block' => $lot['block'] ?? '',
-                'area_sqm' => $area,
-                'base_price' => $price,
-                'current_price' => $price,
-                'status' => $lot['status'] ?? 'available',
-                'cadastral_unit' => $lot['cadastral_unit'] ?? '',
-                'registry_number' => $lot['registry_number'] ?? '',
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ];
-
-            // Intentar crear el lote
-            try {
-                $result = $this->lotModel->insert($lotData);
-                if ($result) {
-                    $createdCount++;
-                } else {
-                    $errors = $this->lotModel->errors();
-                    $errorMsg = "Lote {$lot['lot_number']}: Error al guardar";
-                    if (!empty($errors)) {
-                        $errorMsg .= ' - ' . json_encode($errors);
-                    }
-                    $errorsList[] = $errorMsg;
-                }
-            } catch (\Exception $e) {
-                $errorsList[] = "Lote {$lot['lot_number']}: " . $e->getMessage();
-            }
-        }
-
-        // Actualizar contadores del proyecto si se crearon lotes
-        if ($createdCount > 0) {
-            $this->updateProjectLotCounters($projectId);
-        }
-
-        // Log de operación
-        $logData = [
-            'timestamp' => date('Y-m-d H:i:s'),
-            'action' => 'create_lots_bulk',
-            'project_id' => $projectId,
-            'attempted' => count($lotsData),
-            'created' => $createdCount,
-            'errors' => count($errorsList)
-        ];
-        $logFile = WRITEPATH . 'logs/lots_bulk_' . date('Ymd_His') . '.log';
-        file_put_contents($logFile, json_encode($logData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-
-        return $this->response->setJSON([
-            'success' => true,
-            'created_count' => $createdCount,
-            'total_attempted' => count($lotsData),
-            'errors' => $errorsList,
-            'message' => "Se crearon {$createdCount} de " . count($lotsData) . " lote(s)"
-        ]);
     }
 
     public function get_lot($lot_id)
@@ -1991,6 +2118,166 @@ class Inmueble extends BaseController {
         return redirect()->to('/dashboard/inmueble/lots/lots');
     }
 
+    /**
+     * Crear múltiples lotes en un proyecto
+     * Endpoint: POST /dashboard/inmueble/create_lots_bulk
+     * JSON: { project_id: int, lots: [ { lot_number, block, area_sqm, base_price, status } ] }
+     */
+    public function create_lots_bulk()
+    {
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Método no permitido. Use POST.'
+            ]);
+        }
+
+        // Obtener datos JSON
+        $json = $this->request->getJSON(true);
+        $projectId = $json['project_id'] ?? null;
+        $lots = $json['lots'] ?? [];
+
+        // Validaciones básicas
+        if (empty($projectId)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'El ID del proyecto es requerido.'
+            ]);
+        }
+
+        if (empty($lots) || !is_array($lots)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Debe proporcionar un array de lotes.'
+            ]);
+        }
+
+        // Verificar que el proyecto existe
+        $project = $this->projectModel->find($projectId);
+        if (!$project) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'El proyecto no existe.'
+            ]);
+        }
+
+        $createdCount = 0;
+        $failedCount = 0;
+        $errors = [];
+
+        foreach ($lots as $index => $lotData) {
+            try {
+                // Validaciones de cada lote
+                $lotNumber = trim($lotData['lot_number'] ?? '');
+                $block = trim($lotData['block'] ?? '');
+                $areaSqm = floatval($lotData['area_sqm'] ?? 0);
+                $basePrice = floatval($lotData['base_price'] ?? 0);
+                $status = $lotData['status'] ?? 'available';
+
+                // Validación de área mínima
+                if ($areaSqm < 50) {
+                    $errors[] = "Lote " . ($index + 1) . ": El área mínima debe ser de 50 m². Recibido: {$areaSqm}";
+                    $failedCount++;
+                    continue;
+                }
+
+                // Validación de precio
+                if ($basePrice <= 0) {
+                    $errors[] = "Lote " . ($index + 1) . ": El precio debe ser mayor a 0. Recibido: {$basePrice}";
+                    $failedCount++;
+                    continue;
+                }
+
+                // Validación de número de lote
+                if (empty($lotNumber)) {
+                    $errors[] = "Lote " . ($index + 1) . ": El número de lote es obligatorio.";
+                    $failedCount++;
+                    continue;
+                }
+
+                // Verificar número de lote único en el proyecto
+                $existingLot = $this->lotModel
+                    ->where('project_id', $projectId)
+                    ->where('lot_number', $lotNumber)
+                    ->first();
+
+                if ($existingLot) {
+                    $errors[] = "Lote " . ($index + 1) . ": El número de lote '{$lotNumber}' ya existe en este proyecto.";
+                    $failedCount++;
+                    continue;
+                }
+
+                // Preparar datos para insertar
+                $insertData = [
+                    'project_id' => $projectId,
+                    'lot_number' => $lotNumber,
+                    'block' => $block,
+                    'cadastral_unit' => '',
+                    'registry_number' => '',
+                    'area_sqm' => $areaSqm,
+                    'base_price' => $basePrice,
+                    'current_price' => $basePrice,
+                    'status' => $status
+                ];
+
+                // Insertar lote
+                $result = $this->lotModel->insert($insertData);
+                if ($result) {
+                    $createdCount++;
+                } else {
+                    $modelErrors = $this->lotModel->errors();
+                    $errorMsg = "Lote " . ($index + 1) . ": Error al guardar. ";
+                    if (!empty($modelErrors)) {
+                        $errorMsg .= json_encode($modelErrors);
+                    }
+                    $errors[] = $errorMsg;
+                    $failedCount++;
+                }
+
+            } catch (\Exception $e) {
+                $errors[] = "Lote " . ($index + 1) . ": Excepción: " . $e->getMessage();
+                $failedCount++;
+            }
+        }
+
+        // Actualizar contadores del proyecto
+        if ($createdCount > 0) {
+            $this->updateProjectLotCounters($projectId);
+        }
+
+        // Log de la operación
+        $logData = [
+            'timestamp' => date('Y-m-d H:i:s'),
+            'action' => 'create_lots_bulk',
+            'project_id' => $projectId,
+            'total_lots_processed' => count($lots),
+            'created_count' => $createdCount,
+            'failed_count' => $failedCount,
+            'errors' => $errors
+        ];
+        $logFile = WRITEPATH . 'logs/lots_bulk_create_' . date('Ymd_His') . '.log';
+        file_put_contents($logFile, json_encode($logData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+        // Respuesta
+        if ($createdCount > 0) {
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => "Se crearon {$createdCount} lote(s) correctamente.",
+                'created_count' => $createdCount,
+                'failed_count' => $failedCount,
+                'errors' => $errors
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => "No se crearon lotes. " . ($failedCount > 0 ? "{$failedCount} error(es)." : ""),
+                'created_count' => $createdCount,
+                'failed_count' => $failedCount,
+                'errors' => $errors
+            ]);
+        }
+    }
+
     // Payment Plans Management
     public function payment_plans() {
         $data = [
@@ -2014,73 +2301,36 @@ class Inmueble extends BaseController {
                 }
             }
             
-            // Mapear ubicación a ubicación estándar (compatibilidad)
-            $location = $res['location'] ?? '';
-            
+            // Preparar datos del plan de pago (sin campos de cuota inicial)
             $data = [
                 'name' => $res['name'] ?? '',
                 'code' => $res['code'] ?? '',
-                'location' => $location,
-                'duration_months' => $res['duration_months'] ?? '',
-                'down_payment_type' => $res['down_payment_type'] ?? 'percentage',
-                'min_down_payment_percentage' => $res['min_down_payment_percentage'] ?? '',
-                'min_amount' => $res['min_amount'] ?? '',
-                'base_interest_rate' => $res['base_interest_rate'] ?? '',
+                'duration_months' => isset($res['duration_months']) ? intval($res['duration_months']) : 12,
+                'base_interest_rate' => isset($res['base_interest_rate']) ? floatval($res['base_interest_rate']) : 0,
                 'is_default' => !empty($res['is_default']) ? 1 : 0,
                 'active' => !empty($res['active']) ? 1 : 0
             ];
             
             // Validaciones robustas
-            if (empty($data['name']) || empty($data['code']) || empty($data['location']) || empty($data['duration_months']) || empty($data['base_interest_rate'])) {
+            if (empty($data['name']) || empty($data['code'])) {
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'Completa todos los campos obligatorios.'
+                    'message' => 'Completa todos los campos obligatorios (nombre, código).'
                 ]);
             }
             
-            // Validar duración: permite 12, 24, 36, 48 meses
+            if ($data['base_interest_rate'] < 0 || $data['base_interest_rate'] > 6) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'La tasa de interés debe estar entre 0% y 6%.'
+                ]);
+            }
+            
             if (!in_array($data['duration_months'], [12, 24, 36, 48])) {
                 return $this->response->setJSON([
                     'success' => false,
                     'message' => 'La duración debe ser 12, 24, 36 o 48 meses.'
                 ]);
-            }
-            
-            // Validar tasa de interés: 0% - 6% para todos
-            if ($data['base_interest_rate'] < 0 || $data['base_interest_rate'] > 6) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'La tasa de interés debe estar entre 0% y 6% (0% = sin interés).'
-                ]);
-            }
-            
-            // Validar campos según tipo de cuota inicial
-            if ($data['down_payment_type'] === 'percentage') {
-                if (empty($data['min_down_payment_percentage'])) {
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => 'Ingresa el porcentaje de cuota inicial.'
-                    ]);
-                }
-                if ($data['min_down_payment_percentage'] < 1 || $data['min_down_payment_percentage'] > 100) {
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => 'El porcentaje debe estar entre 1% y 100%.'
-                    ]);
-                }
-            } else {
-                if (empty($data['min_amount'])) {
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => 'Ingresa el monto fijo de cuota inicial.'
-                    ]);
-                }
-                if ($data['min_amount'] <= 0) {
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => 'El monto debe ser mayor a 0.'
-                    ]);
-                }
             }
             
             // Verificar código único
@@ -2091,17 +2341,9 @@ class Inmueble extends BaseController {
                 ]);
             }
             
-            // Si es plan por defecto, desactivar otros planes por defecto de la misma ubicación
-            if ($data['is_default']) {
-                $this->paymentPlanModel
-                    ->where('location', $data['location'])
-                    ->set(['is_default' => 0])
-                    ->update();
-            }
-            
+            // Insertar el plan de pago
             $result = $this->paymentPlanModel->insert($data);
             $errors = $this->paymentPlanModel->errors();
-            
             if ($result) {
                 return $this->response->setJSON([
                     'success' => true,
@@ -2155,38 +2397,59 @@ class Inmueble extends BaseController {
         return view('admin/inmueble/contracts/contracts', $data);
     }
     public function getContractsWithDetails() {
-    $db = \Config\Database::connect();
-    return $db->table('contracts')
-        ->select('
-            contracts.*,
-            customers.name as customer_name,
-            customers.lastname as customer_lastname,
-            customers.dni as customer_dni,
-            customers.email as customer_email,
-            customers.phone as customer_phone,
-            customers.address as customer_address,
-            customers.created_at as customer_created_at,
-            customers.kyc as customer_kyc,
-            customers.ruc as customer_ruc,
-            customers.company_name as customer_company_name,
-            lots.lot_number as lot_number,
-            lots.block as lot_block,
-            lots.area_sqm as lot_area,
-            lots.current_price as lot_price,
-            lots.status as lot_status,
-            projects.name as project_name,
-            comisiones_inmobiliarias.estado as comision_estado,
-            comisiones_inmobiliarias.monto as comision_monto,
-            comisiones_inmobiliarias.porcentaje as comision_porcentaje,
-            comisiones_inmobiliarias.tipo_comision as comision_tipo
-        ')
-        ->join('customers', 'customers.id = contracts.customer_id')
-        ->join('lots', 'lots.id = contracts.lot_id')
-        ->join('projects', 'projects.id = lots.project_id')
-        ->join('comisiones_inmobiliarias', 'comisiones_inmobiliarias.venta_id = contracts.id', 'left')
-        ->get()
-        ->getResultArray();
-}
+        $db = \Config\Database::connect();
+        
+        // Obtener contratos con último registro de comisiones
+        $contracts = $db->table('contracts')
+            ->select('
+                contracts.*,
+                customers.name as customer_name,
+                customers.lastname as customer_lastname,
+                customers.dni as customer_dni,
+                customers.email as customer_email,
+                customers.phone as customer_phone,
+                customers.address as customer_address,
+                customers.created_at as customer_created_at,
+                customers.kyc as customer_kyc,
+                customers.ruc as customer_ruc,
+                customers.company_name as customer_company_name,
+                lots.lot_number as lot_number,
+                lots.block as lot_block,
+                lots.area_sqm as lot_area,
+                lots.current_price as lot_price,
+                lots.status as lot_status,
+                projects.name as project_name
+            ')
+            ->join('customers', 'customers.id = contracts.customer_id')
+            ->join('lots', 'lots.id = contracts.lot_id')
+            ->join('projects', 'projects.id = lots.project_id')
+            ->get()
+            ->getResultArray();
+        
+        // Para cada contrato, obtener la comisión más reciente
+        foreach ($contracts as &$contract) {
+            $comision = $db->table('comisiones_inmobiliarias')
+                ->where('venta_id', $contract['id'])
+                ->orderBy('id', 'DESC')
+                ->limit(1)
+                ->get()
+                ->getRowArray();
+            
+            if ($comision) {
+                $contract['comision_estado'] = $comision['estado'];
+                $contract['comision_monto'] = $comision['monto'];
+                $contract['comision_porcentaje'] = $comision['porcentaje'];
+                $contract['comision_tipo'] = $comision['tipo_comision'];
+            } else {
+                $contract['comision_estado'] = null;
+                $contract['comision_monto'] = null;
+                $contract['comision_porcentaje'] = null;
+                $contract['comision_tipo'] = null;
+            }
+        }
+        
+        return $contracts;
+    }
     // API endpoints for AJAX calls
     public function get_project_lots($project_id)
     {
@@ -2278,7 +2541,7 @@ class Inmueble extends BaseController {
             ->where('active', 1)
             ->findAll();
         
-        return $this->response->setJSON(['plans' => $plans]);
+        return $this->response->setJSON($plans);
     }
 
     public function enviar_recordatorios_vencimiento()
@@ -2477,10 +2740,14 @@ class Inmueble extends BaseController {
                 }
             }
             // Crear contrato
+            $sponsorId = $this->request->getPost('sponsor_id');
+            // Convertir string vacío a NULL
+            $sponsorId = (empty($sponsorId) || $sponsorId === '') ? null : $sponsorId;
+            
             $contractData = [
                 'lot_id' => $lotId,
                 'customer_id' => $customerId,
-                'sponsor_id' => $this->request->getPost('sponsor_id'),
+                'sponsor_id' => $sponsorId,
                 'payment_plan_id' => $paymentPlanId,
                 'contract_number' => $contractNumber,
                 'total_amount' => $totalAmount,
@@ -2532,8 +2799,14 @@ class Inmueble extends BaseController {
             log_message('debug', $log_prefix . 'Iniciando transacción para crear contrato');
             try {
                 // Insert contract
-                $contractId = $this->contractModel->insert($contractData);
-                log_message('debug', $log_prefix . 'Contrato insertado. contractId=' . $contractId . ' contractData=' . json_encode($contractData));
+                $insertResult = $this->contractModel->insert($contractData);
+                $contractId = $this->contractModel->getInsertID();
+                log_message('debug', $log_prefix . 'Contrato insertado. insertResult=' . json_encode($insertResult) . ' contractId=' . $contractId . ' contractData=' . json_encode($contractData));
+                
+                if (!$contractId) {
+                    log_message('error', $log_prefix . 'Error al obtener contractId después del insert');
+                    throw new \Exception('No se pudo obtener el ID del contrato insertado');
+                }
 
                 // Update lot status and customer
                 if (!empty($isReserved) && $isReserved == 1 && !empty($reservationAmount)) {
@@ -2767,21 +3040,14 @@ class Inmueble extends BaseController {
             $data = [
                 'name' => $res['name'] ?? '',
                 'code' => $res['code'] ?? '',
-                'department_id' => $res['department_id'] ?? null,
-                'province_id' => $res['province_id'] ?? null,
-                'district_id' => $res['district_id'] ?? null,
                 'duration_months' => $res['duration_months'] ?? '',
-                'min_down_payment_percentage' => $res['min_down_payment_percentage'] ?? '',
                 'base_interest_rate' => $res['base_interest_rate'] ?? '',
                 'is_default' => !empty($res['is_default']) ? 1 : 0,
                 'active' => !empty($res['active']) ? 1 : 0
             ];
-            // Si es plan por defecto, desactivar otros planes por defecto de la misma ubicación
+            // Si es plan por defecto, desactivar otros planes por defecto
             if ($data['is_default']) {
                 $this->paymentPlanModel
-                    ->where('department_id', $data['department_id'])
-                    ->where('province_id', $data['province_id'])
-                    ->where('district_id', $data['district_id'])
                     ->where('id !=', $plan_id)
                     ->set(['is_default' => 0])
                     ->update();
@@ -2902,50 +3168,14 @@ class Inmueble extends BaseController {
     // Validación específica para planes de pago según ubicación
     public function validate_payment_plan_rules($planData)
     {
-        $rules = [
-            'Cusco' => [
-                'duration_months' => 24,
-                'min_down_payment' => 10000, // S/10,000 para Cusco
-            ],
-            'General' => [
-                'duration_months' => 36,
-                'min_down_payment' => 5000, // S/5,000 general
-                'max_interest_rate' => 6.0
-            ]
-        ];
+        // Solo validar tasa de interés (rango permitido 0-6%)
+        // Se eliminó validación de duración para permitir flexibilidad
         
-        // Usar department_id (ID 8 = Cusco) para la validación
-        if (
-            isset($planData['department_id']) && intval($planData['department_id']) === 8
-        ) {
-            $locationRules = $rules['Cusco'];
-        } else {
-            $locationRules = $rules['General'];
-        }
-        
-        // Validar que cumple con tus especificaciones exactas
-        if ($planData['duration_months'] != $locationRules['duration_months']) {
+        if ($planData['base_interest_rate'] < 0 || $planData['base_interest_rate'] > 6.0) {
             return [
                 'valid' => false,
-                'message' => "La duración debe ser {$locationRules['duration_months']} meses"
+                'message' => 'La tasa de interés debe estar entre 0% y 6%'
             ];
-        }
-        
-        if ($planData['base_interest_rate'] < 2.0 || $planData['base_interest_rate'] > 6.0) {
-            // Permitir 0% solo para Cusco (ID 8)
-            if (isset($planData['department_id']) && intval($planData['department_id']) === 8) {
-                if ($planData['base_interest_rate'] < 0.0 || $planData['base_interest_rate'] > 6.0) {
-                    return [
-                        'valid' => false,
-                        'message' => 'La tasa de interés para Cusco debe estar entre 0% y 6%'
-                    ];
-                }
-            } else {
-                return [
-                    'valid' => false,
-                    'message' => 'La tasa de interés debe estar entre 2% y 6%'
-                ];
-            }
         }
         
         return ['valid' => true];
@@ -3025,7 +3255,6 @@ class Inmueble extends BaseController {
             ]);
         }
         $result = $this->paymentPlanModel->delete($plan_id);
-
         if ($result) {
             return $this->response->setJSON([
                 'success' => true,
@@ -3040,94 +3269,64 @@ class Inmueble extends BaseController {
     }
 
     /**
-     * Obtener datos de validación de un contrato incluyendo comprobante de pago inicial
-     * Si no existe voucher en el contrato, busca el comprobante de pago inicial (cuota 0)
-     * 
-     * Búsqueda específica del pago inicial via payment_schedules con installment_number = 0
+     * Obtener datos de validación de contrato para el modal
      */
-    public function getValidationData()
+    public function get_validation_data()
     {
-        $request = service('request');
-        
-        // Intentar obtener contract_id de POST, GET, o JSON raw body
-        $contract_id = $request->getPost('contract_id') ?? $request->getGet('contract_id');
-        
-        if (!$contract_id) {
-            // Intentar desde JSON raw body
-            $json = $request->getJSON();
-            $contract_id = $json->contract_id ?? null;
-        }
-        
-        if (!$contract_id) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'contract_id no proporcionado'
-            ]);
-        }
-        
-        $db = \Config\Database::connect();
-        
-        // Traer datos del contrato con JOINs para obtener nombre del cliente y proyecto
-        $contract = $db->table('contracts')
-            ->select('contracts.id, contracts.contract_number, contracts.lot_id, contracts.customer_id, contracts.voucher_url, contracts.contract_date, contracts.total_amount, customers.name as customer_name, projects.name as project_name, lots.lot_number')
-            ->join('lots', 'contracts.lot_id = lots.id', 'left')
-            ->join('projects', 'lots.project_id = projects.id', 'left')
-            ->join('customers', 'contracts.customer_id = customers.id', 'left')
-            ->where('contracts.id', $contract_id)
-            ->get()
-            ->getRowArray();
-        
-        if (!$contract) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Contrato no encontrado'
-            ]);
-        }
-        
-        // Preparar datos de respuesta
-        $validationData = [
-            'id' => $contract['id'],
-            'contract_number' => $contract['contract_number'],
-            'customer_name' => $contract['customer_name'] ?? '',
-            'lot_id' => $contract['lot_id'],
-            'lot_number' => $contract['lot_number'] ?? '',
-            'project_name' => $contract['project_name'] ?? '',
-            'contract_date' => $contract['contract_date'],
-            'total_amount' => $contract['total_amount'],
-            'voucher_url' => $contract['voucher_url'] ?? null,
-            'voucher_type' => 'contrato',
-            'initial_payment_voucher' => null,
-            'initial_payment_voucher_type' => 'comprobante'
-        ];
-        
-        // Si NO existe voucher del contrato, buscar voucher de pago inicial del cronograma
-        if (!$validationData['voucher_url']) {
-            // Buscar voucher del PAGO INICIAL específicamente (installment_number = 0)
-            // El voucher es la imagen/PDF que el cliente adjunta cuando realiza el pago en el banco
-            $pagoInicial = $db->table('payment_schedules')
-                ->select('voucher_url, amount, status, paid_date, comprobante_url')
-                ->where('contract_id', $contract_id)
-                ->where('installment_number', 0)
-                ->get()
-                ->getRowArray();
+        try {
+            $json = $this->request->getJSON(true);
+            $contract_id = $json['contract_id'] ?? null;
             
-            if ($pagoInicial && !empty($pagoInicial['voucher_url'])) {
-                // Extraer solo el nombre del archivo desde la ruta relativa
-                $voucherPath = $pagoInicial['voucher_url'];
-                $filename = basename($voucherPath); // Obtener solo el nombre del archivo
-                $voucherUrl = '/dashboard/mostrarComprobante/' . $filename; // Construir URL correcta
-                
-                $validationData['initial_payment_voucher'] = $voucherUrl;
-                $validationData['initial_payment_amount'] = $pagoInicial['amount'];
-                $validationData['initial_payment_status'] = $pagoInicial['status'];
-                $validationData['initial_payment_paid_date'] = $pagoInicial['paid_date'];
-                $validationData['voucher_type'] = 'pago_cliente';  // Tipo: voucher adjuntado por cliente
+            if (!$contract_id) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'ID de contrato no proporcionado'
+                ]);
             }
+
+            // Obtener contrato con join
+            $contract = $this->contractModel
+                ->select('contracts.*, customers.name as customer_name, customers.lastname as customer_lastname, customers.dni as customer_dni, lots.lot_number, lots.area_sqm, projects.name as project_name')
+                ->join('customers', 'contracts.customer_id = customers.id', 'left')
+                ->join('lots', 'contracts.lot_id = lots.id', 'left')
+                ->join('projects', 'lots.project_id = projects.id', 'left')
+                ->find($contract_id);
+
+            if (!$contract) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Contrato no encontrado'
+                ]);
+            }
+
+            // Preparar datos
+            $data = [
+                'success' => true,
+                'data' => [
+                    'contract_number' => $contract['contract_number'],
+                    'customer_name' => ($contract['customer_name'] ?? '') . ' ' . ($contract['customer_lastname'] ?? ''),
+                    'customer_dni' => $contract['customer_dni'] ?? 'N/A',
+                    'lot_id' => $contract['lot_id'],
+                    'lot_number' => $contract['lot_number'] ?? 'N/A',
+                    'project_name' => $contract['project_name'] ?? 'N/A',
+                    'contract_date' => $contract['contract_date'] ?? 'N/A',
+                    'total_amount' => number_format($contract['total_amount'] ?? 0, 2),
+                    'voucher_url' => $contract['voucher_url'] ?? '',
+                    'initial_payment_voucher' => '',
+                    'initial_payment_amount' => $contract['down_payment'] ?? 0,
+                    'initial_payment_status' => 'Pendiente',
+                    'initial_payment_paid_date' => null
+                ]
+            ];
+
+            return $this->response->setJSON($data);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error en get_validation_data: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al obtener datos de validación: ' . $e->getMessage()
+            ]);
         }
-        
-        return $this->response->setJSON([
-            'success' => true,
-            'data' => $validationData
-        ]);
     }
 }

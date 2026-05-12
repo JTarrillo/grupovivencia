@@ -20,16 +20,7 @@
                                             style="color: rgba(255,255,255,0.95); margin: 8px 0 0 0; font-size: 0.95rem;">
                                             Gestiona y valida los pagos de tu contrato</p>
                                     </div>
-                                    <ul class="breadcrumb" style="margin: 12px 0 0 0;">
-                                        <li class="breadcrumb-item"><a href="/dashboard/panel"
-                                                style="color: rgba(255,255,255,0.95);">Panel</a></li>
-                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble"
-                                                style="color: rgba(255,255,255,0.95);">Gestión Inmobiliaria</a></li>
-                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble/contracts"
-                                                style="color: rgba(255,255,255,0.95);">Contratos</a></li>
-                                        <li class="breadcrumb-item"><a style="color: rgba(255,255,255,0.8);">Cronograma
-                                                de Pagos</a></li>
-                                    </ul>
+
                                 </div>
                                 <div class="col-md-4">
                                     <div
@@ -100,6 +91,43 @@
                                                     <strong>Estado:</strong><br>
                                                     <span
                                                         class="badge badge-success"><?= ucfirst($contract['status'] ?? 'Activo') ?></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Card de Acciones del Contrato -->
+                                    <div class="card mb-4 border-0 shadow-sm">
+                                        <div class="card-header bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.2rem;">
+                                            <h5 class="mb-0" style="color: white; font-weight: 600;">
+                                                <i class="feather icon-settings"></i> Acciones del Contrato
+                                            </h5>
+                                        </div>
+                                        <div class="card-body p-4">
+                                            <div class="row g-3">
+                                                <div class="col-md-3 col-sm-6">
+                                                    <button class="btn btn-info btn-block btn-lg d-flex align-items-center justify-content-center" onclick="abrirDetallesPagos('<?= $contract['id'] ?>')" style="height: 60px; font-size: 0.95rem; border-radius: 10px; transition: all 0.3s;">
+                                                        <i class="fa fa-list mr-2"></i>
+                                                        <span>Detalle de Pagos</span>
+                                                    </button>
+                                                </div>
+                                                <div class="col-md-3 col-sm-6">
+                                                    <button class="btn btn-primary btn-block btn-lg d-flex align-items-center justify-content-center" onclick="abrirVerContrato('<?= $contract['id'] ?>')" style="height: 60px; font-size: 0.95rem; border-radius: 10px; transition: all 0.3s;">
+                                                        <i class="fa fa-eye mr-2"></i>
+                                                        <span>Ver Contrato</span>
+                                                    </button>
+                                                </div>
+                                                <div class="col-md-3 col-sm-6">
+                                                    <button class="btn btn-warning btn-block btn-lg d-flex align-items-center justify-content-center" onclick="abrirEditarContrato('<?= $contract['id'] ?>')" style="height: 60px; font-size: 0.95rem; border-radius: 10px; transition: all 0.3s;">
+                                                        <i class="fa fa-edit mr-2"></i>
+                                                        <span>Editar Contrato</span>
+                                                    </button>
+                                                </div>
+                                                <div class="col-md-3 col-sm-6">
+                                                    <button class="btn btn-success btn-block btn-lg d-flex align-items-center justify-content-center" onclick="printContract('<?= $contract['id'] ?>')" style="height: 60px; font-size: 0.95rem; border-radius: 10px; transition: all 0.3s;">
+                                                        <i class="fa fa-print mr-2"></i>
+                                                        <span>Imprimir</span>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -265,6 +293,12 @@
                                     </div>
 
                                     <!-- Tabla de Cronograma -->
+                                    <ul class="breadcrumb" style="margin: 0 0 1.5rem 0; padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/panel') ?>" style="color: #667eea; font-weight: 500;">Panel</a></li>
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/inmueble') ?>" style="color: #667eea; font-weight: 500;">Gestión Inmobiliaria</a></li>
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/inmueble/contracts') ?>" style="color: #667eea; font-weight: 500;">Contratos</a></li>
+                                        <li class="breadcrumb-item active" style="color: #764ba2; font-weight: 600;">Cronograma de Pagos</li>
+                                    </ul>
                                     <div class="card"
                                         style="border: none; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); overflow: hidden;">
                                         <div class="card-header"
@@ -396,11 +430,11 @@
                                                                                 $filename = basename($pago['voucher_url']);
                                                                                 $viewUrl = '/dashboard/mostrarComprobante/' . $filename;
                                                                             ?>
-                                                                <a href="<?= $viewUrl ?>" target="_blank"
-                                                                    class="btn btn-sm"
-                                                                    style="background: linear-gradient(135deg, #11cdef 0%, #00bcd4 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; transition: transform 0.2s ease;">
+                                                                <button class="btn btn-sm"
+                                                                    style="background: linear-gradient(135deg, #11cdef 0%, #00bcd4 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; transition: transform 0.2s ease; cursor: pointer;"
+                                                                    onclick="abrirModalVoucherAmpliado('<?= $viewUrl ?>', <?= $pago['id'] ?>, <?= $contract['id'] ?>, '<?= number_format($pago['amount'], 2) ?>')">
                                                                     <i class="fa fa-file-pdf"></i> Ver
-                                                                </a>
+                                                                </button>
                                                                 <?php else: ?>
                                                                 <span class="text-muted">—</span>
                                                                 <?php endif; ?>
@@ -459,7 +493,7 @@
                                     </div>
 
                                     <div class="mt-4 text-center">
-                                        <a href="/dashboard/inmueble/contracts" class="btn"
+                                        <a href="<?= site_url('dashboard/inmueble/contracts') ?>" class="btn"
                                             style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 32px; border-radius: 8px; font-weight: 600; border: none; transition: all 0.3s ease; text-decoration: none;"
                                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(102, 126, 234, 0.4)'"
                                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.3)'">
@@ -532,22 +566,140 @@
     </div>
 
     <!-- Modal para ver imagen del voucher ampliada -->
-    <div class="modal fade" id="voucherAmpliadoModal" tabindex="-1" role="dialog" aria-labelledby="voucherAmpliadoModalLabel" aria-hidden="true">
+    <div class="modal fade" id="voucherAmpliadoModal" tabindex="-1" role="dialog"
+        aria-labelledby="voucherAmpliadoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
                     <h5 class="modal-title" id="voucherAmpliadoModalLabel">
-                        <i class="fa fa-image"></i> Voucher Ampliado
+                        <i class="fa fa-image"></i> Comprobante
                     </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar" onclick="cerrarModalVoucherAmpliado()">
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body text-center">
-                    <img id="voucher-ampliado-img" src="" style="max-width: 100%; max-height: 600px; border-radius: 8px;" alt="Voucher Ampliado">
+                    <img id="voucher-ampliado-img" src=""
+                        style="max-width: 100%; max-height: 400px; border-radius: 8px;" alt="Comprobante">
+
+                    <!-- Campo para asignar patrocinador -->
+                    <div id="sponsor-selection-area"
+                        style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
+                        <label><strong>👤 Patrocinador de la Comisión (Opcional):</strong></label>
+                        <select id="sponsor-select-modal" class="form-control" style="margin-top: 8px;"
+                            <?= !empty($contract['sponsor_id']) ? 'disabled' : '' ?>>
+                            <option value="">-- Sin patrocinador (comisión sin asignar) --</option>
+                            <?php 
+                            $customerModel = new \App\Models\CustomerModel();
+                            $agents = $customerModel->getActiveSponsors();
+                            foreach ($agents as $agent): 
+                            ?>
+                            <option value="<?= $agent['id'] ?>"
+                                <?= ($contract['sponsor_id'] == $agent['id']) ? 'selected' : '' ?>>
+                                [<?= $agent['code'] ?>] <?= $agent['name'] ?> <?= $agent['lastname'] ?> (DNI:
+                                <?= $agent['dni'] ?>)
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <?php if (!empty($contract['sponsor_id'])): ?>
+                        <small style="display: block; margin-top: 8px; color: #666;">
+                            <i class="fa fa-lock"></i> Este patrocinador fue asignado en la edición del contrato
+                        </small>
+                        <?php endif; ?>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="cerrarModalVoucherAmpliado()">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-success" id="btn-generar-comision" style="display: none;">
+                        <i class="fa fa-file-invoice"></i> Generar Comisión
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn-desaprobar-comision" style="display: none;">
+                        <i class="fa fa-times-circle"></i> Desaprobar Comisión
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Ver Contrato -->
+    <div class="modal fade" id="verContratoModal" tabindex="-1" role="dialog" aria-labelledby="verContratoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document" style="max-width: 95vw;">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="verContratoModalLabel">
+                        <i class="fa fa-eye"></i> Vista Previa del Contrato
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="verContratoModalContent" style="max-height: 90vh; overflow-y: auto;">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Cargando...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-success" onclick="printContract('<?= $contract['id'] ?>')">
+                        <i class="fa fa-print"></i> Imprimir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Contrato -->
+    <div class="modal fade" id="editarContratoModal" tabindex="-1" role="dialog" aria-labelledby="editarContratoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document" style="max-width: 95vw;">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="editarContratoModalLabel">
+                        <i class="fa fa-edit"></i> Editar Contrato
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="editarContratoModalContent" style="max-height: 90vh; overflow-y: auto;">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Cargando...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnGuardarEdicion">
+                        <i class="fa fa-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Detalle de Pagos -->
+    <div class="modal fade" id="detallesPagosModal" tabindex="-1" role="dialog" aria-labelledby="detallesPagosModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document" style="max-width: 95vw;">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="detallesPagosModalLabel">
+                        <i class="fa fa-list-alt"></i> Detalle de Pagos
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="detallesPagosModalContent" style="max-height: 90vh; overflow-y: auto;">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Cargando...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -557,6 +709,7 @@
     <script>
     let pagoIdActual = null;
     let comprobanteUrlActual = null;
+    let contractIdGlobal = <?= $contract['id'] ?? 'null' ?>;
 
     function abrirModalCompat(modalId) {
         const modalElement = document.getElementById(modalId);
@@ -653,7 +806,11 @@
         const subirComprobanteSection = document.getElementById('subir-comprobante-section');
         const comprobanteClientePreview = document.getElementById('comprobante-cliente-preview');
 
-        if (comprobanteUrl) {
+        // CORREGIDO: Verificar correctamente si hay comprobante (no solo comprobanteUrl)
+        const tieneComprobante = comprobanteUrl && comprobanteUrl.trim() !== '' && comprobanteUrl !==
+            '/dashboard/mostrarComprobante/';
+
+        if (tieneComprobante) {
             console.log('Mostrando comprobante del cliente...');
             // Mostrar comprobante del cliente
             comprobanteClienteSection.style.display = 'block';
@@ -667,7 +824,7 @@
             if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) {
                 // Imagen
                 comprobanteClientePreview.innerHTML = `
-                        <img id="voucher-preview-image" src="${comprobanteUrl}" style="max-width: 100%; max-height: 300px; border-radius: 8px; cursor: pointer; transition: transform 0.2s ease;" alt="Comprobante" onerror="console.log('Error cargando imagen desde:', '${comprobanteUrl}')" onclick="abrirModalVoucherAmpliado('${comprobanteUrl}')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <img id="voucher-preview-image" src="${comprobanteUrl}" style="max-width: 100%; max-height: 300px; border-radius: 8px; cursor: pointer; transition: transform 0.2s ease;" alt="Comprobante" onerror="console.log('Error cargando imagen desde:', '${comprobanteUrl}')" onclick="abrirModalVoucherAmpliado('${comprobanteUrl}', pagoIdActual, contractIdGlobal, '${monto}')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                         <p style="text-align: center; margin-top: 8px; color: #666; font-size: 0.85rem;">
                             <i class="fa fa-search-plus"></i> Click para ampliar
                         </p>
@@ -857,19 +1014,53 @@
     }
 
     // Función para abrir modal con imagen ampliada del voucher
-    function abrirModalVoucherAmpliado(imagenUrl) {
+    let voucherModalData = {
+        pagoId: null,
+        contractId: null,
+        monto: null
+    };
+
+    function abrirModalVoucherAmpliado(imagenUrl, pagoId = null, contractId = null, monto = null) {
         console.log("Abriendo modal con imagen:", imagenUrl);
-        
+        console.log("Datos del pago:", {
+            pagoId,
+            contractId,
+            monto
+        });
+
         const modal = document.getElementById('voucherAmpliadoModal');
         const imgAmpliada = document.getElementById('voucher-ampliado-img');
-        
+
         if (!modal || !imgAmpliada) {
             console.error("Modal o imagen no encontrados");
             return;
         }
-        
+
         imgAmpliada.src = imagenUrl;
-        
+
+        // Guardar datos para usar en los botones de acción
+        voucherModalData.pagoId = pagoId;
+        voucherModalData.contractId = contractId;
+        voucherModalData.monto = monto;
+
+        // Mostrar/ocultar botones según si hay datos Y si hay voucher
+        const btnGenerar = document.getElementById('btn-generar-comision');
+        const btnDesaprobar = document.getElementById('btn-desaprobar-comision');
+
+        // Solo mostrar botones si TODOS los datos están presentes
+        const tieneDataCompleta = pagoId && contractId && monto && imagenUrl && imagenUrl.trim() !== '';
+
+        if (tieneDataCompleta) {
+            console.log('✓ Datos completos - mostrando botones de comisión');
+            btnGenerar.style.display = 'inline-block';
+            btnDesaprobar.style.display = 'inline-block';
+        } else {
+            console.warn('✗ Datos incompletos - ocultando botones. pagoId:', pagoId, 'contractId:', contractId,
+                'monto:', monto, 'imagenUrl:', imagenUrl);
+            btnGenerar.style.display = 'none';
+            btnDesaprobar.style.display = 'none';
+        }
+
         // Mostrar modal (método Bootstrap 4)
         if (typeof jQuery !== 'undefined' && jQuery.fn.modal) {
             jQuery('#voucherAmpliadoModal').modal('show');
@@ -887,7 +1078,7 @@
     // Cerrar modal de voucher ampliado
     function cerrarModalVoucherAmpliado() {
         const modal = document.getElementById('voucherAmpliadoModal');
-        
+
         if (typeof jQuery !== 'undefined' && jQuery.fn.modal) {
             jQuery('#voucherAmpliadoModal').modal('hide');
         } else if (window.bootstrap && window.bootstrap.Modal) {
@@ -899,6 +1090,245 @@
             modal.classList.remove('show');
             document.body.classList.remove('modal-open');
         }
+    }
+
+    // Botón: Generar Comisión
+    document.getElementById('btn-generar-comision').addEventListener('click', function() {
+        const {
+            contractId
+        } = voucherModalData;
+
+        if (!contractId) {
+            Swal.fire('Error', 'Datos incompletos', 'error');
+            return;
+        }
+
+        generarComision(contractId);
+        cerrarModalVoucherAmpliado();
+    });
+
+    // Función para generar comisión
+    function generarComision(contractId) {
+        // Obtener patrocinador seleccionado del modal
+        const sponsorSelectModal = document.getElementById('sponsor-select-modal');
+        const sponsorId = sponsorSelectModal ? sponsorSelectModal.value : null;
+
+        Swal.fire({
+            title: '¿Generar Comisión?',
+            text: sponsorId ? 'Se asignará patrocinador ID ' + sponsorId :
+                'Se generará comisión sin patrocinador',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Generar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#28a745',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Procesando...',
+                    text: 'Generando comisión',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                const formData = new FormData();
+                formData.append('contract_id', contractId);
+                if (sponsorId) {
+                    formData.append('sponsor_id', sponsorId); // Enviar patrocinador si está seleccionado
+                }
+
+                fetch('<?= site_url("/dashboard/inmueble/generate_commission") ?>', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Respuesta:', data);
+                        if (data.success) {
+                            const beneficiarioMsg = data.beneficiario_id ? 'Asignado a patrocinador ID: ' +
+                                data.beneficiario_id : 'Sin patrocinador asignado';
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Comisión Generada!',
+                                text: 'Monto: S/ ' + (data.total_comision ? parseFloat(data
+                                        .total_comision).toFixed(2) : '0.00') + '\n' +
+                                    beneficiarioMsg,
+                                confirmButtonText: 'Aceptar'
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('Error', data.message || 'No se pudo generar la comisión', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'Error en la conexión: ' + error.message, 'error');
+                    });
+            }
+        });
+    }
+
+    // Botón: Desaprobar Comisión
+    document.getElementById('btn-desaprobar-comision').addEventListener('click', function() {
+        Swal.fire({
+            title: '¿Desaprobar Comisión?',
+            text: 'Esto marcará la comisión como rechazada',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Desaprobar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#dc3545'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const {
+                    pagoId,
+                    contractId
+                } = voucherModalData;
+                // Aquí irá la lógica para desaprobar
+                Swal.fire('Desaprobado', 'La comisión ha sido marcada como rechazada', 'success');
+                cerrarModalVoucherAmpliado();
+                location.reload();
+            }
+        });
+    });
+
+    // Funciones para abrir modales de Ver Contrato y Editar Contrato
+    function abrirVerContrato(contractId) {
+        const modal = document.getElementById('verContratoModal');
+        const content = document.getElementById('verContratoModalContent');
+        
+        // Mostrar spinner
+        content.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Cargando...</span></div></div>';
+        
+        // Abrir modal
+        abrirModalCompat('verContratoModal');
+        
+        // Cargar contenido via AJAX
+        fetch('/dashboard/inmueble/contracts/view/' + contractId, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Extraer solo el contenido del contrato, sin header/footer
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const contractContent = doc.querySelector('.card, .contract-content, main');
+            
+            if (contractContent) {
+                content.innerHTML = contractContent.innerHTML;
+            } else {
+                // Si no encuentra contenedor específico, usa el HTML completo
+                content.innerHTML = html;
+            }
+            
+            // Remover botones de navegación que están demás
+            const btnGroups = content.querySelectorAll('.btn-group, .button-group');
+            btnGroups.forEach(btn => btn.remove());
+            
+            // Remover divs que contengan solo botones de acción
+            const actionButtons = content.querySelectorAll('[style*="display:"], div:has(> .btn)');
+            actionButtons.forEach(el => {
+                if (el.textContent.includes('Regresar') || el.textContent.includes('Cronograma') || 
+                    el.textContent.includes('Editar') || el.textContent.includes('Registrar Pago')) {
+                    el.remove();
+                }
+            });
+            
+            // Remover buttons específicos por su contenido
+            const allButtons = content.querySelectorAll('button, a.btn');
+            allButtons.forEach(btn => {
+                const text = btn.textContent.toLowerCase();
+                if (text.includes('regresar') || text.includes('cronograma') || 
+                    text.includes('editar') || text.includes('registrar pago') ||
+                    text.includes('imprimir')) {
+                    btn.remove();
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            content.innerHTML = '<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> Error al cargar el contrato</div>';
+        });
+    }
+
+    function abrirEditarContrato(contractId) {
+        const modal = document.getElementById('editarContratoModal');
+        const content = document.getElementById('editarContratoModalContent');
+        
+        // Mostrar spinner
+        content.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Cargando...</span></div></div>';
+        
+        // Abrir modal
+        abrirModalCompat('editarContratoModal');
+        
+        // Cargar contenido via AJAX
+        fetch('/dashboard/inmueble/edit_contract/' + contractId, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Extraer solo el formulario, sin header/footer
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const formContent = doc.querySelector('form, .card-body, main');
+            
+            if (formContent) {
+                content.innerHTML = formContent.innerHTML;
+            } else {
+                // Si no encuentra formulario específico, usa el HTML completo
+                content.innerHTML = html;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            content.innerHTML = '<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> Error al cargar el formulario de edición</div>';
+        });
+    }
+
+    function abrirDetallesPagos(contractId) {
+        const modal = document.getElementById('detallesPagosModal');
+        const content = document.getElementById('detallesPagosModalContent');
+        
+        // Mostrar spinner
+        content.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Cargando...</span></div></div>';
+        
+        // Abrir modal
+        abrirModalCompat('detallesPagosModal');
+        
+        // Cargar contenido via AJAX
+        fetch('/dashboard/inmueble/contracts/view/' + contractId, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Extraer solo el contenido de detalles de pagos
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const detailsContent = doc.querySelector('.card, .payment-details, .details-section, main');
+            
+            if (detailsContent) {
+                content.innerHTML = detailsContent.innerHTML;
+            } else {
+                // Si no encuentra contenedor específico, usa el HTML completo
+                content.innerHTML = html;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            content.innerHTML = '<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> Error al cargar los detalles de pagos</div>';
+        });
     }
     </script>
 </body>

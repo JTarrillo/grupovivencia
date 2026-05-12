@@ -147,30 +147,37 @@ class B_cobros extends BaseController
       $Customer = new CustomerModel();
       $result = $Customer->get_data_customer_pin($id, $pin);
       if ($result) {
+        // REGLA 1: Validar que sea solo días 1 y 2 de cada mes
+        $dia_actual = date('j');
+        if ($dia_actual != 1 && $dia_actual != 2) {
+          $data['status'] = false;
+          $data['message'] = 'Solo puedes solicitar retiro el 1 y 2 de cada mes.';
+          echo json_encode($data);
+          exit();
+        }
+        
         //verify amount
         if ($amount >= 100 && $amount <= $total_disponible) {
-          // Aplicar retención si corresponde
-          $retencion = 0;
+          // Aplicar detracción 10% si el monto >= S/700
+          $detraccion = 0;
           if ($amount >= 700) {
-            $retencion = round($amount * 0.10, 2);
+            $detraccion = round($amount * 0.10, 2);
           }
-          $neto = $amount - $retencion;
-          // Validar obligatoriedad de factura para gestión inmobiliaria
-          // (Aquí deberías agregar la lógica para saber si el retiro es de gestión inmobiliaria)
-          // Por ejemplo:
-          // $es_gestion_inmobiliaria = ...;
-          // if ($es_gestion_inmobiliaria && empty($factura)) {
-          //   $data['status'] = false;
-          //   $data['message'] = 'Debe adjuntar factura para retiros de gestión inmobiliaria.';
-          //   echo json_encode($data);
-          //   exit();
-          // }
+          $neto = $amount - $detraccion;
+          // REGLA 4: Validar obligatoriedad de factura para retiros de gestión inmobiliaria
+          // Es obligatorio adjuntar factura
+          if (empty($factura)) {
+            $data['status'] = false;
+            $data['message'] = 'Es obligatorio adjuntar factura para retiros de gestión inmobiliaria.';
+            echo json_encode($data);
+            exit();
+          }
           $Pay = new PaysModel();
           //insert table pay
           $param = array(
             'customer_id' => $id,
             'amount' => $amount,
-            'discount' => $retencion,
+            'discount' => $detraccion,
             'bank' => $bank_name,
             'number' => $number,
             'cci' => $cci,

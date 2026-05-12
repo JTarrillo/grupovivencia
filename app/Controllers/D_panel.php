@@ -19,7 +19,7 @@ class D_panel extends BaseController
     {
         //get data session
         $id = $_SESSION['id'];
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['name'] . " " . $_SESSION['lastname'];
         //get data invoices by customer
         $Customer = new CustomerModel();
         //get year

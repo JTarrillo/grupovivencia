@@ -87,7 +87,7 @@ class PaymentScheduleModel extends Model
             $status = !empty($voucherUrl) ? 'paid' : 'pending';
             $paidDate = !empty($voucherUrl) ? date('Y-m-d H:i:s') : null;
             
-            $this->insert([
+            $initialPayment = [
                 'lot_id' => $lotId,
                 'payment_plan_id' => $paymentPlanId,
                 'contract_id' => $contractId,
@@ -98,9 +98,15 @@ class PaymentScheduleModel extends Model
                 'interest' => 0,
                 'balance' => round($financedAmount, 2),
                 'status' => $status,
-                'paid_date' => $paidDate,
-                'voucher_url' => $voucherUrl
-            ]);
+                'paid_date' => $paidDate
+            ];
+            
+            // 🔧 ASEGURARSE DE GUARDAR voucher_url SIEMPRE QUE EXISTA
+            if (!empty($voucherUrl)) {
+                $initialPayment['voucher_url'] = $voucherUrl;
+            }
+            
+            $this->insert($initialPayment);
         }
         
         // Cuotas mensuales (1 a N)

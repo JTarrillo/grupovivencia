@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="es-PE">
 <?php echo view("admin/head"); ?>
-<!-- JS modularizados para gestión de proyectos -->
-<script src="/assets/js/project/project-add.js"></script>
-<script src="/assets/js/project/project-edit.js"></script>
-<script src="/assets/js/project/project-delete.js"></script>
-<script src="/assets/js/project/project-detail.js"></script>
+<!-- JS modularizados para gestión de proyectos - DESACTIVADOS (usar los inline en la vista) -->
+<!-- <script src="/assets/js/project/project-add.js"></script> -->
+<!-- <script src="/assets/js/project/project-edit.js"></script> -->
+<!-- <script src="/assets/js/project/project-delete.js"></script> -->
+<!-- <script src="/assets/js/project/project-detail.js"></script> -->
 
 <body data-new-gr-c-s-check-loaded="14.1042.0" data-gr-ext-installed="">
     <?php echo view("admin/header"); ?>
@@ -21,8 +21,11 @@
                                         <h5 class="m-b-10"><?= $title ?></h5>
                                     </div>
                                     <ul class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="/dashboard/panel">Panel</a></li>
-                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble">Inmueble</a></li>
+                                        <li class="breadcrumb-item"><a
+                                                href="<?= site_url('dashboard/panel') ?>">Panel</a></li>
+                                        <li class="breadcrumb-item"><a
+                                                href="<?= site_url('dashboard/inmueble') ?>">Gestión Inmobiliaria</a>
+                                        </li>
                                         <li class="breadcrumb-item"><a>Proyectos</a></li>
                                     </ul>
                                 </div>
@@ -52,6 +55,7 @@
                                                 <div class="modal-dialog modal-lg" role="document">
                                                     <div class="modal-content">
                                                         <form id="create-project-form" method="POST"
+                                                            action="/dashboard/inmueble/create_project"
                                                             enctype="multipart/form-data">
                                                             <div class="modal-header">
                                                                 <h5 class="modal-title" id="createProjectModalLabel">
@@ -136,9 +140,10 @@
                                                                     <div class="col-md-6"></div>
                                                                 </div>
                                                                 <div class="row mb-2">
-                                                                    <div class="col-md-6">
+                                                                    <div class="col-md-12">
                                                                         <div class="form-group mb-2">
-                                                                            <label for="create_base_price_per_sqm">Precio
+                                                                            <label
+                                                                                for="create_base_price_per_sqm">Precio
                                                                                 Base por m² <span
                                                                                     class="text-danger">*</span></label>
                                                                             <div class="input-group">
@@ -154,7 +159,29 @@
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="col-md-6">
+                                                                </div>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group mb-2">
+                                                                            <label for="create_payment_plan_id">Plan de
+                                                                                Pago
+                                                                                <span
+                                                                                    class="text-danger">*</span></label>
+                                                                            <select class="form-control"
+                                                                                id="create_payment_plan_id"
+                                                                                name="payment_plan_id" required>
+                                                                                <option value="">Seleccionar plan de
+                                                                                    pago</option>
+                                                                            </select>
+                                                                            <small
+                                                                                class="form-text text-muted">Selecciona
+                                                                                el plan de pago que aplicará a este
+                                                                                proyecto</small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mb-2">
+                                                                    <div class="col-md-12">
                                                                         <div class="form-group mb-2">
                                                                             <label for="create_base_interest_rate">Tasa
                                                                                 de Interés Base (%) <span
@@ -164,23 +191,28 @@
                                                                                 name="base_interest_rate" step="0.01"
                                                                                 min="0" max="6" required>
                                                                             <small class="form-text text-muted">Rango
-                                                                                permitido: 0% - 6% (0% = sin interés)</small>
+                                                                                permitido: 0% - 6% (0% = sin
+                                                                                interés)</small>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                                 <div class="row mb-2">
-                                                                    <div class="col-md-12">
+                                                                    <div class="col-md-6">
                                                                         <div class="form-group mb-2">
-                                                                            <label for="create_payment_plan_id">Plan de Pago
-                                                                                <span class="text-danger">*</span></label>
-                                                                            <select class="form-control" id="create_payment_plan_id" 
-                                                                                name="payment_plan_id" required>
-                                                                                <option value="">Seleccionar plan de pago</option>
-                                                                            </select>
-                                                                            <small class="form-text text-muted">Selecciona el plan de pago que aplicará a este proyecto</small>
+                                                                            <label
+                                                                                for="create_min_down_payment_fixed">Monto
+                                                                                Mínimo (S/)</label>
+                                                                            <input type="number" class="form-control"
+                                                                                id="create_min_down_payment_fixed"
+                                                                                name="min_down_payment_fixed" step="1"
+                                                                                min="0" value="0">
                                                                         </div>
                                                                     </div>
+                                                                    <div class="col-md-6"></div>
                                                                 </div>
+                                                                <!-- Tipo de cuota siempre es monto fijo -->
+                                                                <input type="hidden" name="down_payment_type"
+                                                                    value="fixed">
                                                                 <div class="form-group mb-2">
                                                                     <label for="create_description">Descripción</label>
                                                                     <textarea class="form-control"
@@ -213,7 +245,13 @@
                                             // Función para editar proyecto y cargar datos en el modal
                                             function editProject(id) {
                                                 fetch(`/dashboard/inmueble/api/get_project/${id}`)
-                                                    .then(res => res.json())
+                                                    .then(res => {
+                                                        console.log('Response status:', res.status);
+                                                        if (!res.ok) {
+                                                            throw new Error(`HTTP error! status: ${res.status}`);
+                                                        }
+                                                        return res.json();
+                                                    })
                                                     .then(data => {
                                                         if (data.success && data.project) {
                                                             window.currentProject = data.project;
@@ -227,18 +265,31 @@
                                                                 .project.description || '';
                                                             document.getElementById('edit_base_price_per_sqm')
                                                                 .value = data.project.base_price_per_sqm || '';
+                                                            // LIMPIAR la tasa antes de cargar el plan - se asignará correctamente desde el plan
                                                             document.getElementById('edit_base_interest_rate')
-                                                                .value = data.project.base_interest_rate || '';
+                                                                .value = '';
                                                             document.getElementById('edit_status').value = data
                                                                 .project.status || 'planning';
-                                                            document.getElementById('edit_payment_plan_id')
-                                                                .value = data.project.payment_plan_id || '';
+
+                                                            // Llenar campos de cuota inicial
+                                                            // down_payment_type siempre es "fixed" (monto fijo)
+                                                            document.getElementById('edit_down_payment_type') ?
+                                                                (document.getElementById('edit_down_payment_type')
+                                                                    .value = 'fixed') : null;
+                                                            document.getElementById(
+                                                                    'edit_min_down_payment_fixed').value = data
+                                                                .project.min_down_payment_fixed || '0';
+                                                            document.getElementById('edit_max_financing_months')
+                                                                .value = data.project.max_financing_months || '36';
+
+                                                            // Alternar visibilidad de campos de cuota inicial
+                                                            // toggleEditDownPaymentField();
 
                                                             // Cargar selects de departamento, provincia y distrito con los valores actuales
                                                             cargarDepartamentosEdit(data.project.department_id, data
                                                                 .project.province_id, data.project.district_id);
-                                                            
-                                                            // Cargar planes de pago
+
+                                                            // Cargar planes de pago - esto cargará la tasa correcta DEL PLAN (no del proyecto)
                                                             cargarPlanesDepagoEdit(data.project.payment_plan_id);
 
                                                             // Mostrar el modal
@@ -249,48 +300,88 @@
                                                         }
                                                     })
                                                     .catch(err => {
-                                                        Swal.fire('Error', 'No se pudo conectar con el servidor',
+                                                        console.error('Error en editProject:', err);
+                                                        Swal.fire('Error', 'No se pudo conectar: ' + err.message,
                                                             'error');
                                                     });
                                             }
-                                            
+
                                             function cargarPlanesDepagoEdit(selectedPlanId) {
                                                 fetch('/dashboard/inmueble/getPaymentPlans')
                                                     .then(res => res.json())
                                                     .then(data => {
-                                                        let select = document.getElementById('edit_payment_plan_id');
-                                                        select.innerHTML = '<option value="">Seleccionar plan de pago</option>';
+                                                        let select = document.getElementById(
+                                                            'edit_payment_plan_id');
+                                                        select.innerHTML =
+                                                            '<option value="">Seleccionar plan de pago</option>';
+
+                                                        // Convertir selectedPlanId a número para comparación correcta
+                                                        const selectedId = parseInt(selectedPlanId) || null;
+                                                        console.log('Cargando planes - selectedPlanId recibido:',
+                                                            selectedPlanId, 'convertido a:', selectedId);
+
+                                                        // Construir todas las opciones PRIMERO
+                                                        let selectedPlanRate = null;
                                                         data.forEach(plan => {
-                                                            const selected = plan.id == selectedPlanId ? ' selected' : '';
+                                                            // Comparar como números
+                                                            const isSelected = parseInt(plan.id) ===
+                                                                selectedId;
                                                             select.innerHTML +=
-                                                                `<option value="${plan.id}" data-interest-rate="${plan.base_interest_rate}"${selected}>${plan.name} (${plan.code})</option>`;
-                                                        });
-                                                        
-                                                        // Si hay un plan seleccionado, cargar su tasa
-                                                        const selectedOption = select.querySelector('option[selected]');
-                                                        if (selectedOption) {
-                                                            const interestRate = selectedOption.getAttribute('data-interest-rate');
-                                                            if (interestRate) {
-                                                                document.getElementById('edit_base_interest_rate').value = interestRate;
+                                                                `<option value="${plan.id}" data-interest-rate="${plan.base_interest_rate}"${isSelected ? ' selected' : ''}>${plan.name} (${plan.code})</option>`;
+
+                                                            console.log(
+                                                                `Plan ${plan.id} (${plan.name}): isSelected=${isSelected}, tasa=${plan.base_interest_rate}`
+                                                            );
+
+                                                            // Guardar la tasa del plan seleccionado
+                                                            if (isSelected) {
+                                                                selectedPlanRate = parseFloat(plan
+                                                                    .base_interest_rate);
+                                                                console.log('✓ Plan encontrado:', plan.name,
+                                                                    'Tasa:', selectedPlanRate);
                                                             }
+                                                        });
+
+                                                        // DESPUÉS de renderizar todas las opciones, cargar la tasa
+                                                        if (selectedPlanRate !== null && selectedPlanRate !==
+                                                            undefined) {
+                                                            console.log('✓ Asignando tasa del plan:',
+                                                                selectedPlanRate);
+                                                            document.getElementById('edit_base_interest_rate')
+                                                                .value = selectedPlanRate;
+                                                        } else if (selectedId) {
+                                                            console.warn('⚠ No se encontró tasa para el plan ID:',
+                                                                selectedId);
+                                                        } else {
+                                                            console.log('ℹ Sin plan seleccionado');
                                                         }
-                                                        
-                                                        // Agregar listener para cambios en el plan
-                                                        select.addEventListener('change', function() {
-                                                            const selectedOption = this.options[this.selectedIndex];
-                                                            const interestRate = selectedOption.getAttribute('data-interest-rate');
-                                                            if (interestRate) {
-                                                                document.getElementById('edit_base_interest_rate').value = interestRate;
+
+                                                        // Remover listener anterior y agregar uno nuevo
+                                                        const oldListener = select.onchange;
+                                                        select.onchange = function() {
+                                                            const selectedOption = this.options[this
+                                                                .selectedIndex];
+                                                            const interestRate = selectedOption.getAttribute(
+                                                                'data-interest-rate');
+                                                            if (interestRate !== null && interestRate !==
+                                                                undefined) {
+                                                                console.log('Plan cambiado, nueva tasa:',
+                                                                    interestRate);
+                                                                document.getElementById(
+                                                                        'edit_base_interest_rate').value =
+                                                                    interestRate;
                                                             }
-                                                        });
+                                                        };
                                                     })
                                                     .catch(err => {
                                                         console.error('Error cargando planes de pago:', err);
-                                                        let select = document.getElementById('edit_payment_plan_id');
-                                                        select.innerHTML = '<option value="">Error cargando planes</option>';
+                                                        let select = document.getElementById(
+                                                            'edit_payment_plan_id');
+                                                        select.innerHTML =
+                                                            '<option value="">Error cargando planes</option>';
                                                     });
                                             }
-                                            
+
                                             // Carga dinámica de departamentos, provincias y distritos
                                             document.addEventListener('DOMContentLoaded', function() {
                                                 cargarDepartamentos();
@@ -305,7 +396,7 @@
                                                         actualizarOpcionesFinanciamiento(
                                                             'create_department_id',
                                                             'create_max_financing_months');
-                                                        // Si es Cusco, poner tasa de interés en 0
+                                                        // Si es Cusco, poner tasa de interés en 0 y bloquear
                                                         if (deptId === 8) {
                                                             document.getElementById(
                                                                 'create_base_interest_rate').value = 0;
@@ -313,8 +404,7 @@
                                                                     'create_base_interest_rate')
                                                                 .setAttribute('readonly', 'readonly');
                                                         } else {
-                                                            document.getElementById(
-                                                                'create_base_interest_rate').value = '';
+                                                            // No limpiar la tasa, solo desbloquear (puede venir del plan de pago)
                                                             document.getElementById(
                                                                     'create_base_interest_rate')
                                                                 .removeAttribute('readonly');
@@ -331,7 +421,7 @@
                                                         actualizarOpcionesFinanciamiento(
                                                             'edit_department_id',
                                                             'edit_max_financing_months');
-                                                        // Si es Cusco, poner tasa de interés en 0
+                                                        // Si es Cusco, poner tasa de interés en 0 y bloquear
                                                         if (parseInt(deptId) === 8) {
                                                             document.getElementById(
                                                                 'edit_base_interest_rate').value = 0;
@@ -339,8 +429,7 @@
                                                                 'edit_base_interest_rate').setAttribute(
                                                                 'readonly', 'readonly');
                                                         } else {
-                                                            document.getElementById(
-                                                                'edit_base_interest_rate').value = '';
+                                                            // No limpiar la tasa, solo desbloquear (puede venir del plan de pago)
                                                             document.getElementById(
                                                                     'edit_base_interest_rate')
                                                                 .removeAttribute('readonly');
@@ -359,7 +448,7 @@
                                                         'edit_max_financing_months');
                                                     cargarDepartamentosEdit(project.department_id,
                                                         project.province_id, project.district_id);
-                                                    // Si es Cusco, poner tasa de interés en 0
+                                                    // Si es Cusco, poner tasa de interés en 0 y bloquear
                                                     if (parseInt(project.department_id) === 8) {
                                                         document.getElementById(
                                                             'edit_base_interest_rate').value = 0;
@@ -367,6 +456,7 @@
                                                             'edit_base_interest_rate').setAttribute(
                                                             'readonly', 'readonly');
                                                     } else {
+                                                        // No limpiar, solo desbloquear - la tasa viene del plan de pago
                                                         document.getElementById(
                                                                 'edit_base_interest_rate')
                                                             .removeAttribute('readonly');
@@ -432,7 +522,21 @@
                                                 if (type === 'percentage') {
                                                     percentGroup.classList.remove('d-none');
                                                     fixedGroup.classList.add('d-none');
-                                                } else {
+                                                } else if (type === 'fixed') {
+                                                    percentGroup.classList.add('d-none');
+                                                    fixedGroup.classList.remove('d-none');
+                                                }
+                                            }
+
+                                            function toggleEditDownPaymentField() {
+                                                var type = document.getElementById('edit_down_payment_type').value;
+                                                var percentGroup = document.getElementById(
+                                                    'editDownPaymentPercentageGroup');
+                                                var fixedGroup = document.getElementById('editDownPaymentFixedGroup');
+                                                if (type === 'percentage') {
+                                                    percentGroup.classList.remove('d-none');
+                                                    fixedGroup.classList.add('d-none');
+                                                } else if (type === 'fixed') {
                                                     percentGroup.classList.add('d-none');
                                                     fixedGroup.classList.remove('d-none');
                                                 }
@@ -457,36 +561,48 @@
                                                 fetch('/dashboard/inmueble/getPaymentPlans')
                                                     .then(res => res.json())
                                                     .then(data => {
-                                                        let select = document.getElementById('create_payment_plan_id');
-                                                        select.innerHTML = '<option value="">Seleccionar plan de pago</option>';
+                                                        let select = document.getElementById(
+                                                            'create_payment_plan_id');
+                                                        select.innerHTML =
+                                                            '<option value="">Seleccionar plan de pago</option>';
                                                         data.forEach(plan => {
-                                                            const selected = plan.is_default ? ' selected' : '';
+                                                            const selected = plan.is_default ? ' selected' :
+                                                                '';
                                                             select.innerHTML +=
                                                                 `<option value="${plan.id}" data-interest-rate="${plan.base_interest_rate}"${selected}>${plan.name} (${plan.code})</option>`;
                                                         });
-                                                        
+
                                                         // Si hay un plan seleccionado por defecto, cargar su tasa
-                                                        const selectedOption = select.querySelector('option[selected]');
+                                                        const selectedOption = select.querySelector(
+                                                            'option[selected]');
                                                         if (selectedOption) {
-                                                            const interestRate = selectedOption.getAttribute('data-interest-rate');
+                                                            const interestRate = selectedOption.getAttribute(
+                                                                'data-interest-rate');
                                                             if (interestRate) {
-                                                                document.getElementById('create_base_interest_rate').value = interestRate;
+                                                                document.getElementById('create_base_interest_rate')
+                                                                    .value = interestRate;
                                                             }
                                                         }
-                                                        
+
                                                         // Agregar listener para cambios en el plan
                                                         select.addEventListener('change', function() {
-                                                            const selectedOption = this.options[this.selectedIndex];
-                                                            const interestRate = selectedOption.getAttribute('data-interest-rate');
+                                                            const selectedOption = this.options[this
+                                                                .selectedIndex];
+                                                            const interestRate = selectedOption
+                                                                .getAttribute('data-interest-rate');
                                                             if (interestRate) {
-                                                                document.getElementById('create_base_interest_rate').value = interestRate;
+                                                                document.getElementById(
+                                                                        'create_base_interest_rate').value =
+                                                                    interestRate;
                                                             }
                                                         });
                                                     })
                                                     .catch(err => {
                                                         console.error('Error cargando planes de pago:', err);
-                                                        let select = document.getElementById('create_payment_plan_id');
-                                                        select.innerHTML = '<option value="">Error cargando planes</option>';
+                                                        let select = document.getElementById(
+                                                            'create_payment_plan_id');
+                                                        select.innerHTML =
+                                                            '<option value="">Error cargando planes</option>';
                                                     });
                                             }
 
@@ -509,26 +625,16 @@
                                                         'base_interest_rate'));
                                                     const pricePerSqm = parseFloat(formData.get(
                                                         'base_price_per_sqm'));
-                                                    const downPaymentType = formData.get('down_payment_type');
+                                                    // Siempre es monto fijo
+                                                    const downPaymentType = 'fixed';
                                                     let downPaymentValid = true;
-                                                    if (downPaymentType === 'percentage') {
-                                                        const percent = parseFloat(formData.get(
-                                                            'min_down_payment_percentage'));
-                                                        if (isNaN(percent) || percent < 1 || percent > 100) {
-                                                            alert(
-                                                                'La cuota inicial en porcentaje debe estar entre 1% y 100%'
-                                                            );
-                                                            downPaymentValid = false;
-                                                        }
-                                                    } else {
-                                                        const fixed = parseFloat(formData.get(
-                                                            'min_down_payment_fixed'));
-                                                        if (isNaN(fixed) || fixed < 0) {
-                                                            alert(
-                                                                'La cuota inicial en soles debe ser mayor o igual a 0'
-                                                            );
-                                                            downPaymentValid = false;
-                                                        }
+                                                    const fixed = parseFloat(formData.get(
+                                                        'min_down_payment_fixed')) || 0;
+                                                    if (isNaN(fixed) || fixed < 0) {
+                                                        alert(
+                                                            'La cuota inicial en soles debe ser mayor o igual a 0'
+                                                        );
+                                                        downPaymentValid = false;
                                                     }
                                                     // Validaciones generales
                                                     const deptId = parseInt(formData.get('department_id'));
@@ -541,8 +647,8 @@
                                                             return false;
                                                         }
                                                     } else {
-                                                        if (interestRate < 2 || interestRate > 6) {
-                                                            alert('La tasa de interés debe estar entre 2% y 6% (o 0% sin interés).');
+                                                        if (interestRate < 0 || interestRate > 6) {
+                                                            alert('La tasa de interés debe estar entre 0% y 6%.');
                                                             return false;
                                                         }
                                                     }
@@ -568,48 +674,42 @@
                                                             }
                                                         })
                                                         .then(async response => {
-                                                            // Log completo de la respuesta HTTP
                                                             console.log('HTTP status:', response.status);
-                                                            console.log('HTTP headers:', [...response
-                                                                .headers
-                                                            ]);
+                                                            console.log('Content-Type:', response.headers
+                                                                .get('content-type'));
+
                                                             let text = await response.text();
-                                                            console.log('HTTP body:', text);
+                                                            console.log('Response body:', text);
+
                                                             let data;
                                                             try {
                                                                 data = JSON.parse(text);
                                                             } catch (e) {
+                                                                console.error('JSON parse error:', e);
                                                                 data = {
                                                                     success: false,
-                                                                    message: 'Respuesta no es JSON',
-                                                                    raw: text
+                                                                    message: 'Respuesta no es JSON válido: ' +
+                                                                        text.substring(0, 100)
                                                                 };
                                                             }
+
                                                             const errorDiv = document.getElementById(
                                                                 'createProjectErrorMsg');
                                                             if (data.success) {
                                                                 $('#createProjectModal').modal('hide');
+                                                                // Mostrar mensaje de éxito
                                                                 Swal.fire({
                                                                     icon: 'success',
                                                                     title: '¡Éxito!',
                                                                     text: data.message ||
                                                                         'Proyecto creado exitosamente',
-                                                                    timer: 1800,
-                                                                    showConfirmButton: false
+                                                                    timer: 2000,
+                                                                    didClose: function() {
+                                                                        window.location.replace(
+                                                                            '/dashboard/inmueble/projects?t=' +
+                                                                            Date.now());
+                                                                    }
                                                                 });
-                                                                // If server generated a code, show it briefly before reloading
-                                                                if (data.generated_code) {
-                                                                    setTimeout(() => {
-                                                                        Swal.fire('Código generado',
-                                                                            `Código: ${data.code}`,
-                                                                            'info');
-                                                                    }, 1800);
-                                                                    setTimeout(() => window.location.href = '/dashboard/inmueble/projects',
-                                                                        3600);
-                                                                } else {
-                                                                    setTimeout(() => window.location.href = '/dashboard/inmueble/projects',
-                                                                        1800);
-                                                                }
                                                             } else {
                                                                 errorDiv.textContent = data.message ||
                                                                     'Error desconocido';
@@ -621,7 +721,8 @@
                                                             const errorDiv = document.getElementById(
                                                                 'createProjectErrorMsg');
                                                             errorDiv.textContent =
-                                                                'Error al procesar la solicitud';
+                                                                'Error al procesar la solicitud: ' + error
+                                                                .message;
                                                             errorDiv.classList.remove('d-none');
                                                         })
                                                         .finally(() => {
@@ -636,72 +737,25 @@
                                             </script>
                                         </div>
                                         <div class="card-block">
-                                            <!-- Filtros Avanzados Mejorados para Proyectos -->
-                                            <div class="row mb-4 p-3 bg-light rounded"
-                                                style="border: 1px solid #e3e6f0;">
-                                                <!-- Búsqueda Principal -->
-                                                <div class="col-md-3 col-sm-6 mb-2">
-                                                    <label class="small mb-2"><strong><i class="fa fa-search"></i>
-                                                            Buscar</strong></label>
-                                                    <input type="text" class="form-control form-control-sm"
-                                                        id="search-projects" placeholder="Nombre, Código..."
-                                                        onkeyup="filterProjectTable()">
-                                                </div>
-
-                                                <!-- Estado -->
-                                                <div class="col-md-2 col-sm-6 mb-2">
-                                                    <label class="small mb-2"><strong><i class="fa fa-tag"></i>
-                                                            Estado</strong></label>
-                                                    <select class="form-control form-control-sm" id="status-filter-proj"
-                                                        onchange="filterProjectTable()">
-                                                        <option value="">Todos</option>
-                                                        <option value="active">Activo</option>
-                                                        <option value="planning">En Planificación</option>
-                                                        <option value="sold_out">Agotado</option>
-                                                        <option value="suspended">Suspendido</option>
-                                                    </select>
-                                                </div>
-
-                                                <!-- Disponibilidad -->
-                                                <div class="col-md-2 col-sm-6 mb-2">
-                                                    <label class="small mb-2"><strong><i class="fa fa-cubes"></i>
-                                                            Disponibles</strong></label>
-                                                    <div class="input-group input-group-sm">
-                                                        <input type="number" class="form-control" id="available-min"
-                                                            placeholder="Mín" onkeyup="filterProjectTable()" min="0">
-                                                        <span class="input-group-text">-</span>
-                                                        <input type="number" class="form-control" id="available-max"
-                                                            placeholder="Máx" onkeyup="filterProjectTable()" min="0">
+                                            <!-- Buscador Simple -->
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="search-projects"
+                                                            placeholder="Buscar por Código o Nombre..."
+                                                            onkeyup="filterProjectTable()">
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-outline-secondary" type="button"
+                                                                onclick="clearProjectFilters()">
+                                                                <i class="fa fa-times"></i> Limpiar
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
-
-                                                <!-- Precio m² -->
-                                                <div class="col-md-2 col-sm-6 mb-2">
-                                                    <label class="small mb-2"><strong><i class="fa fa-dollar"></i>
-                                                            Precio m²</strong></label>
-                                                    <div class="input-group input-group-sm">
-                                                        <input type="number" class="form-control" id="price-min-proj"
-                                                            placeholder="Mín" onkeyup="filterProjectTable()" min="0">
-                                                        <span class="input-group-text">-</span>
-                                                        <input type="number" class="form-control" id="price-max-proj"
-                                                            placeholder="Máx" onkeyup="filterProjectTable()" min="0">
-                                                    </div>
-                                                </div>
-
-                                                <!-- Botón Limpiar -->
-                                                <div class="col-md-2 col-sm-6 d-flex align-items-end mb-2">
-                                                    <button type="button" class="btn btn-secondary btn-sm btn-block"
-                                                        onclick="clearProjectFilters()">
-                                                        <i class="fa fa-times"></i> Limpiar
-                                                    </button>
-                                                </div>
-
-                                                <!-- Contador de Resultados -->
-                                                <div class="col-12 mt-2">
+                                                <div class="col-md-6 text-right">
                                                     <small class="text-muted">
-                                                        <i class="fa fa-info-circle"></i>
-                                                        Mostrando <strong id="result-count-proj">0</strong> proyecto(s)
-                                                        de <strong id="total-count-proj">0</strong>
+                                                        Mostrando <strong id="result-count-proj">0</strong> de <strong
+                                                            id="total-count-proj">0</strong>
                                                     </small>
                                                 </div>
                                             </div>
@@ -834,7 +888,8 @@
         aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
-                <form id="edit-project-form" method="POST" enctype="multipart/form-data">
+                <form id="edit-project-form" method="POST" action="/dashboard/inmueble/edit_project"
+                    enctype="multipart/form-data">
                     <div class="modal-header">
                         <h5 class="modal-title" id="editProjectModalLabel">Editar Proyecto</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -902,9 +957,6 @@
                                     </select>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="edit_base_price_per_sqm">Precio Base por m² <span
@@ -920,13 +972,19 @@
                                         lotes</small>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="edit_base_interest_rate">Tasa de Interés Base (%) <span
+                                    <label for="edit_payment_plan_id">Plan de Pago <span
                                             class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="edit_base_interest_rate"
-                                        name="base_interest_rate" step="0.01" min="0" max="6" required>
-                                    <small class="form-text text-muted">Rango permitido: 0% - 6% (0% = sin interés)</small>
+                                    <select class="form-control" id="edit_payment_plan_id" name="payment_plan_id"
+                                        required>
+                                        <option value="">Seleccionar plan de pago</option>
+                                    </select>
+                                    <small class="form-text text-muted">Selecciona el plan de pago que aplicará a este
+                                        proyecto</small>
                                 </div>
                             </div>
                         </div>
@@ -934,11 +992,39 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="edit_payment_plan_id">Plan de Pago <span class="text-danger">*</span></label>
-                                    <select class="form-control" id="edit_payment_plan_id" name="payment_plan_id" required>
-                                        <option value="">Seleccionar plan de pago</option>
+                                    <label for="edit_base_interest_rate">Tasa de Interés Base (%) <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="edit_base_interest_rate"
+                                        name="base_interest_rate" step="0.01" min="0" max="6" required>
+                                    <small class="form-text text-muted">Rango permitido: 0% - 6% (0% = sin
+                                        interés)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label for="edit_min_down_payment_fixed">Monto Mínimo (S/)</label>
+                                    <input type="number" class="form-control" id="edit_min_down_payment_fixed"
+                                        name="min_down_payment_fixed" step="1" min="0" value="0">
+                                </div>
+                            </div>
+                            <div class="col-md-6"></div>
+                        </div>
+                        <!-- Tipo de cuota siempre es monto fijo -->
+                        <input type="hidden" name="down_payment_type" value="fixed">
+
+                        <div class="row mb-2">
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label for="edit_max_financing_months">Meses de Financiamiento Máximo</label>
+                                    <select class="form-control" id="edit_max_financing_months"
+                                        name="max_financing_months">
+                                        <option value="24">24 meses</option>
+                                        <option value="36" selected>36 meses</option>
+                                        <option value="48">48 meses</option>
                                     </select>
-                                    <small class="form-text text-muted">Selecciona el plan de pago que aplicará a este proyecto</small>
                                 </div>
                             </div>
                         </div>
@@ -952,44 +1038,24 @@
                             <input type="file" class="form-control" id="edit_image" name="image" accept="image/*">
                             <small class="form-text text-muted">Formatos permitidos: jpg, png, jpeg, webp.</small>
                             <div id="edit_image_preview" style="margin-top:10px;"></div>
-                            <script>
-                            // Preview selected image in edit modal
-                            document.getElementById('edit_image').addEventListener('change', function(e) {
-                                const preview = document.getElementById('edit_image_preview');
-                                preview.innerHTML = '';
-                                if (this.files && this.files[0]) {
-                                    const reader = new FileReader();
-                                    reader.onload = function(ev) {
-                                        preview.innerHTML =
-                                            `<img src='${ev.target.result}' style='max-width:120px;max-height:120px;border-radius:8px;object-fit:cover;'>`;
-                                    };
-                                    reader.readAsDataURL(this.files[0]);
-                                }
-                            });
-                            </script>
-                        </div>
 
-                        <!-- Estadísticas del proyecto -->
-                        <div class="card bg-light">
-                            <div class="card-body">
-                                <h6>Estadísticas del Proyecto</h6>
-                                <div class="row">
-                                    <div class="col-md-3 text-center">
-                                        <small class="text-muted">Total Lotes</small>
-                                        <div class="h5 text-primary" id="project_total_lots">0</div>
-                                    </div>
-                                    <div class="col-md-3 text-center">
-                                        <small class="text-muted">Disponibles</small>
-                                        <div class="h5 text-success" id="project_available_lots">0</div>
-                                    </div>
-                                    <div class="col-md-3 text-center">
-                                        <small class="text-muted">Vendidos</small>
-                                        <div class="h5 text-info" id="project_sold_lots">0</div>
-                                    </div>
-                                    <div class="col-md-3 text-center">
-                                        <small class="text-muted">% Vendido</small>
-                                        <div class="h5 text-warning" id="project_sold_percentage">0%</div>
-                                    </div>
+                            <h6>Estadísticas del Proyecto</h6>
+                            <div class="row">
+                                <div class="col-md-3 text-center">
+                                    <small class="text-muted">Total Lotes</small>
+                                    <div class="h5 text-primary" id="project_total_lots">0</div>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <small class="text-muted">Disponibles</small>
+                                    <div class="h5 text-success" id="project_available_lots">0</div>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <small class="text-muted">Vendidos</small>
+                                    <div class="h5 text-info" id="project_sold_lots">0</div>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <small class="text-muted">% Vendido</small>
+                                    <div class="h5 text-warning" id="project_sold_percentage">0%</div>
                                 </div>
                             </div>
                         </div>
@@ -1015,28 +1081,16 @@
                     // Validaciones básicas
                     const interestRate = parseFloat(formData.get('base_interest_rate'));
                     const pricePerSqm = parseFloat(formData.get('base_price_per_sqm'));
-                    const downPaymentType = formData.get('down_payment_type');
+                    // Siempre es monto fijo
                     let downPaymentValid = true;
-                    if (downPaymentType === 'percentage') {
-                        const percent = parseFloat(formData.get('min_down_payment_percentage'));
-                        if (isNaN(percent) || percent < 1 || percent > 100) {
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Validación',
-                                text: 'La cuota inicial en porcentaje debe estar entre 1% y 100%'
-                            });
-                            downPaymentValid = false;
-                        }
-                    } else {
-                        const fixed = parseFloat(formData.get('min_down_payment_fixed'));
-                        if (isNaN(fixed) || fixed < 0) {
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Validación',
-                                text: 'La cuota inicial en soles debe ser mayor o igual a 0'
-                            });
-                            downPaymentValid = false;
-                        }
+                    const fixed = parseFloat(formData.get('min_down_payment_fixed'));
+                    if (isNaN(fixed) || fixed < 0) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Validación',
+                            text: 'La cuota inicial en soles debe ser mayor o igual a 0'
+                        });
+                        downPaymentValid = false;
                     }
                     const deptId = parseInt(formData.get('department_id'));
                     if (deptId === 8) {
@@ -1050,11 +1104,11 @@
                             return false;
                         }
                     } else {
-                        if (interestRate < 2 || interestRate > 6) {
+                        if (interestRate < 0 || interestRate > 6) {
                             Swal.fire({
                                 icon: 'warning',
                                 title: 'Validación',
-                                text: 'La tasa de interés debe estar entre 2% y 6% (o 0% sin interés).'
+                                text: 'La tasa de interés debe estar entre 0% y 6%.'
                             });
                             return false;
                         }
@@ -1103,24 +1157,10 @@
                                 $('#editProjectModal').modal('hide');
                                 Swal.fire({
                                     icon: 'success',
-                                    title: '¡Éxito!',
-                                    text: data.message || 'Proyecto actualizado exitosamente',
-                                    timer: 1800,
-                                    showConfirmButton: false
+                                    title: '¡Proyecto actualizado!',
+                                    html: '<p>El proyecto se actualizó exitosamente.</p><p><strong>Para ver los cambios, presiona F5 o haz clic en el botón de actualizar.</strong></p>',
+                                    confirmButtonText: 'Entendido'
                                 });
-                                // Actualizar la imagen en la tabla sin recargar
-                                if (data.image_url && window.currentProject?.id) {
-                                    const row = document.querySelector(
-                                        `tr td:first-child:contains('${window.currentProject.id}')`);
-                                    if (row) {
-                                        const imgCell = row.nextElementSibling;
-                                        if (imgCell) {
-                                            imgCell.innerHTML =
-                                                `<img src='/${data.image_url}' alt='Imagen' style='max-width:60px;max-height:60px;border-radius:6px;object-fit:cover;'>`;
-                                        }
-                                    }
-                                }
-                                setTimeout(() => location.reload(), 1800);
                             } else {
                                 errorDiv.textContent = data.message || 'Error desconocido';
                                 errorDiv.classList.remove('d-none');
@@ -1135,9 +1175,7 @@
                 });
                 </script>
             </div>
-            </form>
         </div>
-    </div>
     </div>
 
     <!-- Modal Detalle Proyecto -->
@@ -1229,43 +1267,7 @@
     }
     </script>
     <script>
-    // Carga dinámica de departamentos, provincias y distritos para editar
-    document.addEventListener('DOMContentLoaded', function() {
-        // Cuando se abre el modal de editar, cargar departamentos y setear valores
-        $('#editProjectModal').on('shown.bs.modal', function() {
-            // Obtener el proyecto actual (debe estar en window.currentProject)
-            let project = window.currentProject || {};
-            // Setear los valores en los selects antes de cargar opciones
-            document.getElementById('edit_department_id').value = project.department_id || '';
-            document.getElementById('edit_province_id').value = project.province_id || '';
-            document.getElementById('edit_district_id').value = project.district_id || '';
-            cargarDepartamentosEdit(project.department_id, project.province_id, project.district_id);
-        });
-
-        document.getElementById('edit_department_id').addEventListener('change', function() {
-            let deptId = this.value;
-            cargarProvinciasEdit(deptId);
-            document.getElementById('edit_district_id').innerHTML =
-                '<option value="">Seleccionar distrito</option>';
-        });
-        document.getElementById('edit_province_id').addEventListener('change', function() {
-            let provId = this.value;
-            cargarDistritosEdit(provId);
-        });
-    });
-
-    // Actualiza las opciones de meses de financiamiento según el departamento seleccionado
-    function actualizarOpcionesFinanciamiento(selectDeptId, selectMonthsId) {
-        const deptId = parseInt(document.getElementById(selectDeptId).value);
-        const selectMonths = document.getElementById(selectMonthsId);
-        selectMonths.innerHTML = '';
-        if (deptId === 8) {
-            selectMonths.innerHTML += '<option value="24">24 meses (Cusco)</option>';
-        }
-        selectMonths.innerHTML += '<option value="36">36 meses (Estándar)</option>';
-        selectMonths.innerHTML += '<option value="48">48 meses</option>';
-    }
-
+    // ===== FUNCIONES PARA CARGAR CASCADA DE DEPARTAMENTO/PROVINCIA/DISTRITO (EDITAR) =====
     function cargarDepartamentosEdit(selectedDept, selectedProv, selectedDist) {
         fetch('/dashboard/inmueble/getDepartments')
             .then(res => res.json())
@@ -1308,10 +1310,191 @@
                 });
             });
     }
-    // Al abrir el modal de edición, debes asignar el proyecto actual a window.currentProject
-    // Ejemplo: window.currentProject = { department_id: ..., province_id: ..., district_id: ... }
 
-    // ===== FUNCIONES DE FILTRADO AVANZADO PARA PROYECTOS =====
+    function actualizarOpcionesFinanciamiento(selectDeptId, selectMonthsId) {
+        const deptId = parseInt(document.getElementById(selectDeptId).value);
+        const selectMonths = document.getElementById(selectMonthsId);
+        if (!selectMonths) return;
+        selectMonths.innerHTML = '';
+        if (deptId === 8) {
+            selectMonths.innerHTML += '<option value="24">24 meses (Cusco)</option>';
+        }
+        selectMonths.innerHTML += '<option value="36" selected>36 meses (Estándar)</option>';
+        selectMonths.innerHTML += '<option value="48">48 meses</option>';
+    }
+
+    // Inicializar event listeners cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cuando se abre el modal de editar, cargar departamentos y setear valores
+        $('#editProjectModal').on('shown.bs.modal', function() {
+            let project = window.currentProject || {};
+            document.getElementById('edit_department_id').value = project.department_id || '';
+            document.getElementById('edit_province_id').value = project.province_id || '';
+            document.getElementById('edit_district_id').value = project.district_id || '';
+            cargarDepartamentosEdit(project.department_id, project.province_id, project.district_id);
+        });
+
+        document.getElementById('edit_department_id').addEventListener('change', function() {
+            let deptId = this.value;
+            cargarProvinciasEdit(deptId);
+            document.getElementById('edit_district_id').innerHTML =
+                '<option value="">Seleccionar distrito</option>';
+        });
+
+        document.getElementById('edit_province_id').addEventListener('change', function() {
+            let provId = this.value;
+            cargarDistritosEdit(provId);
+        });
+
+        // Preview selected image in edit modal
+        const editImageInput = document.getElementById('edit_image');
+        if (editImageInput) {
+            editImageInput.addEventListener('change', function(e) {
+                const preview = document.getElementById('edit_image_preview');
+                if (preview) {
+                    preview.innerHTML = '';
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            preview.innerHTML =
+                                `<img src='${ev.target.result}' style='max-width:120px;max-height:120px;border-radius:8px;object-fit:cover;'>`;
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                }
+            });
+        }
+    });
+
+    // Mostrar detalles del proyecto
+    function showProjectDetail(id) {
+        fetch('/dashboard/inmueble/api/get_project/' + id, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.project) {
+                    const project = data.project;
+                    const statusMap = {
+                        'active': {
+                            text: 'Activo',
+                            class: 'badge-success'
+                        },
+                        'planning': {
+                            text: 'En Planificación',
+                            class: 'badge-warning'
+                        },
+                        'sold_out': {
+                            text: 'Agotado',
+                            class: 'badge-danger'
+                        },
+                        'suspended': {
+                            text: 'Suspendido',
+                            class: 'badge-secondary'
+                        }
+                    };
+                    const status = statusMap[project.status] || {
+                        text: project.status,
+                        class: 'badge-info'
+                    };
+
+                    const detailHtml = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-2">INFORMACIÓN GENERAL</h6>
+                                <div class="mb-3">
+                                    <label class="small text-muted">Código</label>
+                                    <p class="h6 mb-0">${project.code}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="small text-muted">Nombre</label>
+                                    <p class="h6 mb-0">${project.name}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="small text-muted">Estado</label>
+                                    <p class="mb-0"><span class="badge ${status.class}">${status.text}</span></p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="small text-muted">Descripción</label>
+                                    <p class="mb-0">${project.description || 'N/A'}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-2">DATOS FINANCIEROS</h6>
+                                <div class="mb-3">
+                                    <label class="small text-muted">Precio por m²</label>
+                                    <p class="h6 mb-0">S/ ${parseFloat(project.base_price_per_sqm).toFixed(2)}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="small text-muted">Tasa de Interés Base</label>
+                                    <p class="h6 mb-0">${project.base_interest_rate}%</p>
+                                </div>
+                                <h6 class="text-muted mb-2 mt-4">ESTADÍSTICAS</h6>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="small text-muted">Total Lotes</label>
+                                        <p class="h6 mb-0 text-info">${project.total_lots}</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="small text-muted">Disponibles</label>
+                                        <p class="h6 mb-0 text-success">${project.available_lots}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    document.getElementById('projectDetailBody').innerHTML = detailHtml;
+                    $('#projectDetailModal').modal('show');
+                } else {
+                    Swal.fire('Error', 'No se pudo cargar el proyecto', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Error al cargar el proyecto', 'error');
+            });
+    }
+
+    // Eliminar proyecto
+    function eliminar(id) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esta acción no se puede deshacer',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/dashboard/inmueble/delete_project/' + id, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('¡Eliminado!', data.message, 'success').then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('Error', data.message || 'Error al eliminar', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'Error al procesar la solicitud', 'error');
+                    });
+            }
+        });
+    }
 
     // Cerrar modal de editar proyecto
     function closeEditProjectModal() {
@@ -1328,19 +1511,14 @@
         }
     }
 
-    // ===== FUNCIONES DE FILTRADO AVANZADO PARA PROYECTOS =====
+    // ===== FUNCIONES DE FILTRADO SIMPLE PARA PROYECTOS =====
     function filterProjectTable() {
         const table = document.getElementById('zero-configuration');
         const tbody = table.getElementsByTagName('tbody')[0];
         const rows = tbody.getElementsByTagName('tr');
 
-        // Obtener valores de filtros
+        // Obtener valor de búsqueda
         const searchVal = document.getElementById('search-projects').value.toLowerCase();
-        const statusVal = document.getElementById('status-filter-proj').value;
-        const availableMin = parseInt(document.getElementById('available-min').value) || 0;
-        const availableMax = parseInt(document.getElementById('available-max').value) || Infinity;
-        const priceMin = parseFloat(document.getElementById('price-min-proj').value) || 0;
-        const priceMax = parseFloat(document.getElementById('price-max-proj').value) || Infinity;
 
         let visibleCount = 0;
 
@@ -1351,41 +1529,10 @@
             // Extraer datos de la fila
             const nombre = cells[3]?.textContent.toLowerCase() || '';
             const codigo = cells[2]?.textContent.toLowerCase() || '';
-            const disponibles = parseInt(cells[6]?.textContent || 0);
-            const precioText = cells[7]?.textContent.replace(/[^\d.]/g, '') || '0';
-            const statusBadge = cells[8]?.querySelector('.badge');
-            const statusText = statusBadge?.textContent.trim().toLowerCase() || '';
 
-            let precio = parseFloat(precioText) || 0;
-
-            // Aplicar filtros
+            // Aplicar filtro de búsqueda
             let show = true;
-
-            // Filtro de búsqueda
             if (searchVal && !(nombre.includes(searchVal) || codigo.includes(searchVal))) {
-                show = false;
-            }
-
-            // Filtro de estado
-            if (statusVal) {
-                const estadoMap = {
-                    'active': 'activo',
-                    'planning': 'planificación',
-                    'sold_out': 'agotado',
-                    'suspended': 'suspendido'
-                };
-                if (!statusText.includes(estadoMap[statusVal] || statusVal)) {
-                    show = false;
-                }
-            }
-
-            // Filtro de disponibles
-            if (disponibles < availableMin || disponibles > availableMax) {
-                show = false;
-            }
-
-            // Filtro de precio
-            if (precio < priceMin || precio > priceMax) {
                 show = false;
             }
 
@@ -1400,11 +1547,6 @@
 
     function clearProjectFilters() {
         document.getElementById('search-projects').value = '';
-        document.getElementById('status-filter-proj').value = '';
-        document.getElementById('available-min').value = '';
-        document.getElementById('available-max').value = '';
-        document.getElementById('price-min-proj').value = '';
-        document.getElementById('price-max-proj').value = '';
         filterProjectTable();
     }
 

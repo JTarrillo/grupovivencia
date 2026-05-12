@@ -45,7 +45,7 @@ class ContractModel extends Model
 
     public function getContractsWithDetails()
     {
-        return $this->select('contracts.*, lots.lot_number, lots.block, lots.cadastral_unit, lots.registry_number, lots.area_sqm, projects.name as project_name, customers.name as customer_name, customers.dni, customers.ruc, customers.address, customers.civil_status, departments.name as department, provinces.name as province, districts.name as district')
+        return $this->select('contracts.*, contracts.sponsor_id, lots.lot_number, lots.block, lots.cadastral_unit, lots.registry_number, lots.area_sqm, projects.name as project_name, customers.name as customer_name, customers.dni, customers.ruc, customers.address, customers.civil_status, departments.name as department, provinces.name as province, districts.name as district')
             ->join('lots', 'lots.id = contracts.lot_id')
             ->join('projects', 'projects.id = lots.project_id')
             ->join('customers', 'customers.id = contracts.customer_id')

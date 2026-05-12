@@ -11,7 +11,7 @@ class D_comentarios extends BaseController
     {
         $session = session();
         //get data session
-        $session_name = $session->get('first_name') . " " . $session->get('last_name');
+        $session_name = $session->get('name') . " " . $session->get('lastname');
         //get data invoices by customer
         $Comments = new CommentsModel();
         //get comments
@@ -90,7 +90,7 @@ class D_comentarios extends BaseController
         //load model 
         $Comments = new CommentsModel();
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['name'] . " " . $_SESSION['lastname'];
         //set var
         $obj_comments = null;
         //verify

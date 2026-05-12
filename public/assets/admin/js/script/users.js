@@ -1,14 +1,32 @@
 function edit_users(user_id){    
-    var url = 'dashboard/usuarios/load/'+user_id;
-    location.href = site+url;   
+    $.ajax({
+        url: site + 'dashboard/usuarios/form_modal/' + user_id,
+        type: 'GET',
+        success: function(data) {
+            $('#userModalBody').html(data);
+            $('#userModal').modal('show');
+        },
+        error: function() {
+            Swal.fire('Error', 'No se pudo cargar el formulario', 'error');
+        }
+    });
 }
+
 function new_user(){
-   var url= 'dashboard/usuarios/load';
-   location.href = site+url;
+    $.ajax({
+        url: site + 'dashboard/usuarios/form_modal',
+        type: 'GET',
+        success: function(data) {
+            $('#userModalBody').html(data);
+            $('#userModal').modal('show');
+        },
+        error: function() {
+            Swal.fire('Error', 'No se pudo cargar el formulario', 'error');
+        }
+    });
 }
 function cancelar_users(){
-   var url= 'dashboard/usuarios';
-   location.href = site+url;
+   $('#userModal').modal('hide');
 }
 function validate(){
    document.getElementById("submit").disabled = true;
@@ -25,17 +43,18 @@ function validate(){
                var data = JSON.parse(data);
                if (data.status == true) {
                    Swal.fire({
-                       position: 'top-end',
+                       position: 'center',
                        icon: 'success',
                        title: data.message,
                        showConfirmButton: false,
                    });
+                   $('#userModal').modal('hide');
                    window.setTimeout(function () {
                        window.location = site + "dashboard/usuarios";
                    }, 1500);
                } else {
                    Swal.fire({
-                       position: 'top-end',
+                       position: 'center',
                        icon: 'info',
                        title: data.message
                    });
@@ -64,7 +83,7 @@ function eliminar(user_id){
                 success: function (data) {
                     if (data.status == true) {
                         Swal.fire({
-                            position: 'top-end',
+                            position: 'center',
                             icon: 'success',
                             title: 'Registro Eliminado',
                             showConfirmButton: false,
@@ -75,7 +94,7 @@ function eliminar(user_id){
                         }, 1500);
                     } else {
                         Swal.fire({
-                            position: 'top-end',
+                            position: 'center',
                             icon: 'info',
                             title: 'Sucedio un error',
                             footer: 'Comunique a soporte'
@@ -85,4 +104,13 @@ function eliminar(user_id){
             });
         }
     }); 
+}
+
+function show_pass(){
+    var passwordInput = document.getElementById("password");
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+    } else {
+        passwordInput.type = "password";
+    }
 }

@@ -10,8 +10,9 @@ class ComisionesInmobiliariasModel extends Model {
     ];
 
     public function getComisionesConCliente() {
-        return $this->select('comisiones_inmobiliarias.*, customers.name as customer_name')
-            ->join('customers', 'customers.id = comisiones_inmobiliarias.beneficiario_id', 'inner')
+        return $this->select('comisiones_inmobiliarias.*, customers.name as customer_name, contracts.customer_id')
+            ->join('customers', 'customers.id = comisiones_inmobiliarias.beneficiario_id', 'left')
+            ->join('contracts', 'contracts.id = comisiones_inmobiliarias.venta_id', 'left')
             ->orderBy('comisiones_inmobiliarias.id', 'DESC')
             ->findAll();
     }

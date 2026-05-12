@@ -162,15 +162,20 @@ class D_pagos extends BaseController
             $pin = $this->request->getPost('pin');
             $factura = $this->request->getFile('factura');
 
-            // Validar día permitido (solo 1 y 2 de cada mes)
+            // REGLA 1: Validar día permitido (solo 1 y 2 de cada mes)
             $dia = date('j');
             if ($dia != 1 && $dia != 2) {
                 return $this->response->setJSON(['status' => false, 'message' => 'Solo puedes solicitar retiro el 1 y 2 de cada mes.']);
             }
 
-            // Validar factura obligatoria
+            // REGLA 2: Validar importe mínimo (S/100)
+            if ($amount < 100) {
+                return $this->response->setJSON(['status' => false, 'message' => 'El importe mínimo de retiro es de S/100.']);
+            }
+
+            // REGLA 4: Validar factura obligatoria para retiros de gestión inmobiliaria
             if (!$factura || !$factura->isValid()) {
-                return $this->response->setJSON(['status' => false, 'message' => 'Debes subir una factura válida.']);
+                return $this->response->setJSON(['status' => false, 'message' => 'Es obligatorio adjuntar factura para retiros de gestión inmobiliaria.']);
             }
 
             // Validar extensión de factura
@@ -183,8 +188,8 @@ class D_pagos extends BaseController
             $facturaName = $factura->getRandomName();
             $factura->move(WRITEPATH . 'uploads/facturas', $facturaName);
 
-            // Calcular retención 12% si aplica
-            $discount = ($amount >= 700) ? round($amount * 0.12, 2) : 0;
+            // REGLA 3: Calcular detracción del 10% si importe >= S/700
+            $discount = ($amount >= 700) ? round($amount * 0.10, 2) : 0;
             $total = $amount - $discount;
 
             // Guardar solicitud en la base de datos

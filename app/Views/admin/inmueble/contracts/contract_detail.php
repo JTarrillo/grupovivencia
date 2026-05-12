@@ -16,11 +16,11 @@
                                         <h5 class="m-b-10">Detalle de Contrato</h5>
                                     </div>
                                     <ul class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="/dashboard/panel">Panel</a></li>
-                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble">Gestión
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/panel') ?>">Panel</a></li>
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/inmueble') ?>">Gestión
                                                 Inmobiliaria</a></li>
                                         <li class="breadcrumb-item"><a
-                                                href="/dashboard/inmueble/contracts">Contratos</a></li>
+                                                href="<?= site_url('dashboard/inmueble/contracts') ?>">Contratos</a></li>
                                         <li class="breadcrumb-item"><a>Detalle</a></li>
                                     </ul>
                                 </div>

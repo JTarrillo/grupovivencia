@@ -8,7 +8,7 @@ class D_almacenes extends BaseController
     public function index()
     {
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['name']." ".$_SESSION['lastname'];
         //get data bonus
         $Store = new StoreModel();
         $obj_store = $Store->get_all();
@@ -22,7 +22,7 @@ class D_almacenes extends BaseController
     
     public function load($id=false){
         //get data session
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session_name = $_SESSION['name']." ".$_SESSION['lastname'];
         //set var
         $obj_store = null;
         //verify

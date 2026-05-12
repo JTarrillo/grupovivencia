@@ -16,8 +16,8 @@
                                         <h5 class="m-b-10"><?= $title ?></h5>
                                     </div>
                                     <ul class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="/dashboard/panel">Panel</a></li>
-                                        <li class="breadcrumb-item"><a href="/dashboard/inmueble">Gestión
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/panel') ?>">Panel</a></li>
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/inmueble') ?>">Gestión
                                                 Inmobiliaria</a></li>
                                         <li class="breadcrumb-item"><a>Planes de Pago</a></li>
                                     </ul>
@@ -40,16 +40,14 @@
                                             </div>
                                         </div>
                                         <div class="card-block">
-                                            <div class="table-responsive">
+                                            <div class="table-responsive" style="overflow-x: auto; position: relative;">
                                                 <table id="payment-plans-table"
                                                     class="display table nowrap table-striped table-hover dataTable"
                                                     style="width: 100%;">
                                                     <thead>
                                                         <tr>
                                                             <th>Plan</th>
-                                                            <th>Ubicación</th>
                                                             <th>Duración</th>
-                                                            <th>Cuota Inicial</th>
                                                             <th>Tasa Interés</th>
                                                             <th>Por Defecto</th>
                                                             <th>Estado</th>
@@ -66,26 +64,11 @@
                                                                     <?= $plan['code'] ?></small>
                                                             </td>
                                                             <td>
-                                                                <span
-                                                                    class="badge badge-info"><?= $plan['location'] ?></span>
-                                                            </td>
-                                                            <td>
                                                                 <strong><?= $plan['duration_months'] ?>
                                                                     meses</strong><br>
                                                                 <small
                                                                     class="text-muted"><?= number_format($plan['duration_months']/12, 1) ?>
                                                                     años</small>
-                                                            </td>
-                                                            <td>
-                                                                <?php if ($plan['down_payment_type'] === 'percentage'): ?>
-                                                                <strong><?= $plan['min_down_payment_percentage'] ?>%</strong>
-                                                                <span class="badge badge-secondary">Porcentaje</span>
-                                                                <?php else: ?>
-                                                                <strong>S/
-                                                                    <?= number_format($plan['min_amount'], 2) ?></strong>
-                                                                <span class="badge badge-secondary">Fijo</span>
-                                                                <?php endif; ?>
-                                                            </td>
                                                             </td>
                                                             <td>
                                                                 <strong><?= $plan['base_interest_rate'] ?>%</strong><br>
@@ -157,6 +140,26 @@
         </div>
     </section>
 
+    <style>
+        /* Estilos para que el dropdown funcione correctamente en la tabla */
+        .btn-group {
+            position: relative !important;
+        }
+        
+        .btn-group .dropdown-menu {
+            position: absolute !important;
+            z-index: 1000 !important;
+        }
+        
+        .table-responsive {
+            overflow: visible !important;
+        }
+        
+        table td {
+            overflow: visible !important;
+        }
+    </style>
+
     <!-- Modal para Editar Plan de Pago -->
     <div class="modal fade" id="editPaymentPlanModal" tabindex="-1" role="dialog"
         aria-labelledby="editPaymentPlanModalLabel" aria-hidden="true">
@@ -192,48 +195,29 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="edit_location">Ubicación <span class="text-danger">*</span></label>
-                                    <select class="form-control" id="edit_location" name="location" required>
-                                        <option value="">Seleccionar ubicación</option>
-                                        <option value="General">General</option>
-                                        <option value="Cusco">Cusco</option>
-                                        <option value="Lima">Lima</option>
-                                        <option value="Arequipa">Arequipa</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
                                     <label for="edit_duration_months">Duración (Meses) <span
                                             class="text-danger">*</span></label>
                                     <select class="form-control" id="edit_duration_months" name="duration_months"
                                         required>
                                         <option value="">Seleccionar duración</option>
+                                        <option value="12">12 meses</option>
                                         <option value="24">24 meses</option>
                                         <option value="36">36 meses</option>
                                         <option value="48">48 meses</option>
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-6"></div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="edit_min_down_payment_percentage">Cuota Inicial Mínima (%) <span
-                                            class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="edit_min_down_payment_percentage"
-                                        name="min_down_payment_percentage" step="0.01" min="10" max="50" required>
-                                    <small class="form-text text-muted">Entre 10% y 50%</small>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
                                     <label for="edit_base_interest_rate">Tasa de Interés Base (%) <span
                                             class="text-danger">*</span></label>
                                     <input type="number" class="form-control" id="edit_base_interest_rate"
-                                        name="base_interest_rate" step="0.01" min="2" max="6" required>
-                                    <small class="form-text text-muted">Entre 2% y 6% anual</small>
+                                        name="base_interest_rate" step="0.01" min="0" max="6" required>
+                                    <small class="form-text text-muted">Entre 0% y 6% anual</small>
                                 </div>
                             </div>
                         </div>
@@ -247,8 +231,6 @@
                                         <label class="form-check-label" for="edit_is_default">
                                             Plan por Defecto
                                         </label>
-                                        <small class="form-text text-muted">Solo puede haber un plan por defecto por
-                                            ubicación</small>
                                     </div>
                                 </div>
                             </div>
@@ -263,34 +245,6 @@
                                         <small class="form-text text-muted">Los planes inactivos no aparecerán en
                                             contratos</small>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Vista Previa del Plan -->
-                        <div class="card bg-light mt-3">
-                            <div class="card-header">
-                                <h6><i class="feather icon-info"></i> Vista Previa del Plan</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4 text-center">
-                                        <h5 id="preview_duration" class="text-primary">-</h5>
-                                        <small>Duración en Meses</small>
-                                    </div>
-                                    <div class="col-md-4 text-center">
-                                        <h5 id="preview_down_payment" class="text-warning">-</h5>
-                                        <small>Cuota Inicial Mínima</small>
-                                    </div>
-                                    <div class="col-md-4 text-center">
-                                        <h5 id="preview_interest" class="text-success">-</h5>
-                                        <small>Tasa de Interés Anual</small>
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="text-center">
-                                    <p class="mb-0"><strong>Aplicable para:</strong> <span id="preview_location"
-                                            class="badge badge-info">-</span></p>
                                 </div>
                             </div>
                         </div>
@@ -343,11 +297,7 @@
                                                     <td><span id="view_plan_code" class="badge badge-secondary">-</span>
                                                     </td>
                                                 </tr>
-                                                <tr>
-                                                    <td><strong>Ubicación:</strong></td>
-                                                    <td><span id="view_plan_location" class="badge badge-info">-</span>
-                                                    </td>
-                                                </tr>
+
                                                 <tr>
                                                     <td><strong>Estado:</strong></td>
                                                     <td><span id="view_plan_status" class="badge">-</span></td>
@@ -545,16 +495,10 @@
                     document.getElementById('edit_plan_id').value = plan.id;
                     document.getElementById('edit_name').value = plan.name;
                     document.getElementById('edit_code').value = plan.code;
-                    document.getElementById('edit_location').value = plan.location;
                     document.getElementById('edit_duration_months').value = plan.duration_months;
-                    document.getElementById('edit_min_down_payment_percentage').value = plan
-                        .min_down_payment_percentage;
                     document.getElementById('edit_base_interest_rate').value = plan.base_interest_rate;
                     document.getElementById('edit_is_default').checked = plan.is_default == 1;
                     document.getElementById('edit_active').checked = plan.active == 1;
-
-                    // Actualizar vista previa
-                    updateEditPreview();
 
                     // Mostrar modal
                     $('#editPaymentPlanModal').modal('show');
@@ -566,18 +510,6 @@
                 console.error('Error:', error);
                 alert('Error al cargar los datos del plan');
             });
-    }
-
-    function updateEditPreview() {
-        const duration = document.getElementById('edit_duration_months').value;
-        const downPayment = document.getElementById('edit_min_down_payment_percentage').value;
-        const interest = document.getElementById('edit_base_interest_rate').value;
-        const location = document.getElementById('edit_location').value;
-
-        document.getElementById('preview_duration').textContent = duration ? duration : '-';
-        document.getElementById('preview_down_payment').textContent = downPayment ? downPayment + '%' : '-';
-        document.getElementById('preview_interest').textContent = interest ? interest + '%' : '-';
-        document.getElementById('preview_location').textContent = location || '-';
     }
 
     function activatePlan(planId) {
@@ -710,7 +642,7 @@
         // Información básica
         document.getElementById('view_plan_name').textContent = plan.name || '-';
         document.getElementById('view_plan_code').textContent = plan.code || '-';
-        document.getElementById('view_plan_location').textContent = plan.location || '-';
+
 
         // Estado
         const statusBadge = document.getElementById('view_plan_status');
@@ -876,14 +808,6 @@
 
     // Event listeners
     document.addEventListener('DOMContentLoaded', function() {
-        // Actualizar vista previa cuando cambien los valores
-        document.getElementById('edit_duration_months').addEventListener('change', updateEditPreview);
-        document.getElementById('edit_min_down_payment_percentage').addEventListener('input',
-            updateEditPreview);
-        document.getElementById('edit_base_interest_rate').addEventListener('input', updateEditPreview);
-        document.getElementById('edit_location').addEventListener('change', updateEditPreview);
-
-        // Envío del formulario de edición
         document.getElementById('edit-payment-plan-form').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -972,72 +896,27 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="create_location">Ubicación <span class="text-danger">*</span></label>
-                                    <select class="form-control" id="create_location" name="location" required>
-                                        <option value="">Seleccionar ubicación</option>
-                                        <option value="General">General</option>
-                                        <option value="Cusco">Cusco</option>
-                                        <option value="Lima">Lima</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="create_duration_months">Duración (meses) <span
+                                    <label for="create_duration_months">Duración (Meses) <span
                                             class="text-danger">*</span></label>
                                     <select class="form-control" id="create_duration_months" name="duration_months"
-                                        required onchange="calculateCreatePaymentExample()">
+                                        required>
                                         <option value="">Seleccionar duración</option>
-                                        <option value="12">12 meses (Rápido)</option>
-                                        <option value="24">24 meses (Cusco)</option>
-                                        <option value="36">36 meses (Estándar)</option>
-                                        <option value="48">48 meses (Personalizado)</option>
+                                        <option value="12">12 meses</option>
+                                        <option value="24">24 meses</option>
+                                        <option value="36">36 meses</option>
+                                        <option value="48">48 meses</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="create_base_interest_rate">Tasa de Interés (%) <span
                                             class="text-danger">*</span></label>
                                     <input type="number" class="form-control" id="create_base_interest_rate"
-                                        name="base_interest_rate" step="0.01" min="0" max="6" value="3.5" required
-                                        onchange="calculateCreatePaymentExample()">
-                                    <small class="form-text text-muted">Rango: 0% - 6%. (0% = sin interés)</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="create_down_payment_type">Tipo de Cuota Inicial <span
-                                            class="text-danger">*</span></label>
-                                    <select class="form-control" id="create_down_payment_type" name="down_payment_type"
-                                        required onchange="toggleCreateDownPaymentType()">
-                                        <option value="percentage">Porcentaje (%)</option>
-                                        <option value="fixed">Monto Fijo (S/)</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group" id="createPercentageGroup">
-                                    <label for="create_min_down_payment_percentage">Cuota Inicial Mínima (%)</label>
-                                    <input type="number" class="form-control" id="create_min_down_payment_percentage"
-                                        name="min_down_payment_percentage" step="0.01" min="1" max="100" value="15"
-                                        onchange="calculateCreatePaymentExample()">
-                                </div>
-                                <div class="form-group d-none" id="createFixedGroup">
-                                    <label for="create_min_amount">Cuota Inicial Mínima (S/)</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">S/</span>
-                                        </div>
-                                        <input type="number" class="form-control" id="create_min_amount"
-                                            name="min_amount" step="0.01" min="0" value="5000"
-                                            onchange="calculateCreatePaymentExample()">
-                                    </div>
+                                        name="base_interest_rate" step="0.01" min="0" max="6" value="3.5" required>
+                                    <small class="form-text text-muted">Rango: 0% - 6%</small>
                                 </div>
                             </div>
                         </div>
@@ -1047,10 +926,8 @@
                                 <div class="form-group">
                                     <label>
                                         <input type="checkbox" id="create_is_default" name="is_default" value="1">
-                                        Plan por defecto para esta ubicación
+                                        Plan por defecto
                                     </label>
-                                    <small class="form-text text-muted">Solo puede haber un plan por defecto por
-                                        ubicación</small>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -1078,35 +955,6 @@
     </div>
 
     <script>
-    // Funciones para el modal de creación
-    function toggleCreateDownPaymentType() {
-        const type = document.getElementById('create_down_payment_type').value;
-        const percentageGroup = document.getElementById('createPercentageGroup');
-        const fixedGroup = document.getElementById('createFixedGroup');
-
-        if (type === 'percentage') {
-            percentageGroup.classList.remove('d-none');
-            fixedGroup.classList.add('d-none');
-        } else {
-            percentageGroup.classList.add('d-none');
-            fixedGroup.classList.remove('d-none');
-        }
-        calculateCreatePaymentExample();
-    }
-
-    function calculateCreatePaymentExample() {
-        const lotPrice = 160000; // Ejemplo
-        const downPaymentType = document.getElementById('create_down_payment_type').value;
-        const interestRate = parseFloat(document.getElementById('create_base_interest_rate').value) || 3.5;
-        const duration = parseInt(document.getElementById('create_duration_months').value) || 36;
-
-        if (downPaymentType === 'percentage') {
-            const downPaymentPercentage = parseFloat(document.getElementById('create_min_down_payment_percentage')
-                .value) || 15;
-            // Solo para preview
-        }
-    }
-
     // Manejo del formulario de creación
     document.getElementById('create-payment-plan-form').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -1115,7 +963,7 @@
         submitBtn.innerHTML = '<i class="feather icon-loader"></i> Creando...';
 
         const formData = new FormData(this);
-        fetch('/dashboard/inmueble/payment_plans/create_payment_plan', {
+        fetch('/dashboard/inmueble/create_payment_plan', {
                 method: 'POST',
                 body: formData
             })

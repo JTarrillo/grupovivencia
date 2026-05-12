@@ -21,7 +21,7 @@ class D_activaciones extends BaseController
         //get all of today's sales
         $obj_invoices = $Invoices->get_sales_pending_delivery();
         //get data session
-        $session_name = $_SESSION['first_name'] . " " . $_SESSION['last_name'];
+        $session_name = $_SESSION['name'] . " " . $_SESSION['lastname'];
         //send
         $data = array(
             'obj_invoices' => $obj_invoices,

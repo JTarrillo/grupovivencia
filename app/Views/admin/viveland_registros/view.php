@@ -15,7 +15,7 @@
                                         <h5 class="m-b-10">Detalles del Registro</h5>
                                     </div>
                                     <ul class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="/dashboard/">Panel</a></li>
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard') ?>">Panel</a></li>
                                         <li class="breadcrumb-item"><a href="<?= site_url('admin/viveland_registros') ?>">Registros VIVELAND</a></li>
                                         <li class="breadcrumb-item"><a>Detalles</a></li>
                                     </ul>
