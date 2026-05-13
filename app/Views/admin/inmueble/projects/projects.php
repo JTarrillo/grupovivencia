@@ -1550,7 +1550,6 @@
         filterProjectTable();
     }
 
-    // Inicializar contador e desactivar DataTable search al cargar
     document.addEventListener('DOMContentLoaded', function() {
         const table = document.getElementById('zero-configuration');
         const tbody = table.getElementsByTagName('tbody')[0];

@@ -128,7 +128,7 @@
 
         switch ($nav) {
             case "ventas":
-                $ventas_style = "active pcoded-trigger";
+                $compras_style = "active pcoded-trigger";
                 $ventas_color = "active_nav";
                 break;
             case "usuarios":
@@ -587,7 +587,7 @@
                 </li>
 
                 <!-- Ventas & Compras, Gastos y Clasificación: consolidado en UN item con submenú -->
-                <li class="nav-item pcoded-hasmenu">
+                <li class="nav-item pcoded-hasmenu <?php echo $compras_style; ?>">
                     <a href="#!" class="nav-link"><span class="pcoded-micon"><i class="fa fa-shopping-bag"></i></span><span class="pcoded-mtext">Ventas & Compras</span></a>
                     <ul class="pcoded-submenu">
                         <li class=""><a href="/dashboard/ventas" class="nav-link <?php echo $ventas_color; ?>" style="<?php echo ($ventas_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="feather icon-shopping-cart"></i></span><span class="pcoded-mtext">Ventas</span></a></li>

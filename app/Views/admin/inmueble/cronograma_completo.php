@@ -750,75 +750,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-    // ========== MENU PCODED HANDLER - MEJORADO ==========
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('🔧 Inicializando manejador de menú pcoded...');
-
-        // Obtener todos los elementos del menú que tienen submenu
-        const menuItems = document.querySelectorAll('.pcoded-navbar .nav-item.pcoded-hasmenu');
-
-        console.log(`📍 Encontrados ${menuItems.length} items de menú con submenu`);
-
-        menuItems.forEach((item, index) => {
-            // Obtener el link principal y el submenu
-            const link = item.querySelector('> a');
-            const submenu = item.querySelector('> .pcoded-submenu');
-
-            if (!link || !submenu) {
-                console.warn(`⚠️ Item ${index}: estructura inválida (no tiene link o submenu)`);
-                return;
-            }
-
-            const itemText = link.textContent.trim();
-            console.log(`✓ Item ${index}: "${itemText}"`);
-
-            // Agregar click handler al link
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                console.log(`🔓 Click en: "${itemText}"`);
-
-                // Toggle la clase pcoded-trigger
-                const isOpen = item.classList.contains('pcoded-trigger');
-
-                if (isOpen) {
-                    // Cerrar
-                    item.classList.remove('pcoded-trigger');
-                    submenu.style.maxHeight = '0px';
-                    submenu.style.opacity = '0';
-                    submenu.style.overflow = 'hidden';
-                    console.log(`🔐 Cerrado: "${itemText}"`);
-                } else {
-                    // Abrir
-                    item.classList.add('pcoded-trigger');
-                    submenu.style.maxHeight = submenu.scrollHeight + 'px';
-                    submenu.style.opacity = '1';
-                    submenu.style.overflow = 'visible';
-                    console.log(`🔓 Abierto: "${itemText}"`);
-                }
-            });
-
-            // Estilo inicial para transiciones suaves
-            submenu.style.transition = 'all 0.3s ease-in-out';
-            submenu.style.overflow = 'hidden';
-
-            // Si ya está activo, abrir por defecto
-            if (item.classList.contains('active') || item.classList.contains('pcoded-trigger')) {
-                submenu.style.maxHeight = submenu.scrollHeight + 'px';
-                submenu.style.opacity = '1';
-                item.classList.add('pcoded-trigger');
-                console.log(`📂 Abierto por defecto: "${itemText}"`);
-            } else {
-                submenu.style.maxHeight = '0px';
-                submenu.style.opacity = '0';
-                console.log(`📁 Cerrado por defecto: "${itemText}"`);
-            }
-        });
-
-        console.log('✅ Manejador de menú pcoded inicializado');
-    });
-
     console.log("=== CRONOGRAMA COMPLETO - DEBUG INICIADO ===");
     console.log("URL Base del Sitio:", "<?= site_url() ?>");
 
@@ -1499,6 +1430,4 @@
             });
     }
     </script>
-</body>
-
-</html>
+    <?php echo view("admin/footer"); ?>
