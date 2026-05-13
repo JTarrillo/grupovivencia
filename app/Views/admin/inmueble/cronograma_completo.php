@@ -98,7 +98,8 @@
 
                                     <!-- Card de Acciones del Contrato -->
                                     <div class="card mb-4 border-0 shadow-sm">
-                                        <div class="card-header bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.2rem;">
+                                        <div class="card-header bg-gradient"
+                                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.2rem;">
                                             <h5 class="mb-0" style="color: white; font-weight: 600;">
                                                 <i class="feather icon-settings"></i> Acciones del Contrato
                                             </h5>
@@ -106,25 +107,37 @@
                                         <div class="card-body p-4">
                                             <div class="row g-3">
                                                 <div class="col-md-3 col-sm-6">
-                                                    <button class="btn btn-info btn-block btn-lg d-flex align-items-center justify-content-center" onclick="abrirDetallesPagos('<?= $contract['id'] ?>')" style="height: 60px; font-size: 0.95rem; border-radius: 10px; transition: all 0.3s;">
+                                                    <button
+                                                        class="btn btn-info btn-block btn-lg d-flex align-items-center justify-content-center"
+                                                        onclick="abrirDetallesPagos('<?= $contract['id'] ?>')"
+                                                        style="height: 60px; font-size: 0.95rem; border-radius: 10px; transition: all 0.3s;">
                                                         <i class="fa fa-list mr-2"></i>
                                                         <span>Detalle de Pagos</span>
                                                     </button>
                                                 </div>
                                                 <div class="col-md-3 col-sm-6">
-                                                    <button class="btn btn-primary btn-block btn-lg d-flex align-items-center justify-content-center" onclick="abrirVerContrato('<?= $contract['id'] ?>')" style="height: 60px; font-size: 0.95rem; border-radius: 10px; transition: all 0.3s;">
+                                                    <button
+                                                        class="btn btn-primary btn-block btn-lg d-flex align-items-center justify-content-center"
+                                                        onclick="abrirVerContrato('<?= $contract['id'] ?>')"
+                                                        style="height: 60px; font-size: 0.95rem; border-radius: 10px; transition: all 0.3s;">
                                                         <i class="fa fa-eye mr-2"></i>
                                                         <span>Ver Contrato</span>
                                                     </button>
                                                 </div>
                                                 <div class="col-md-3 col-sm-6">
-                                                    <button class="btn btn-warning btn-block btn-lg d-flex align-items-center justify-content-center" onclick="abrirEditarContrato('<?= $contract['id'] ?>')" style="height: 60px; font-size: 0.95rem; border-radius: 10px; transition: all 0.3s;">
+                                                    <button
+                                                        class="btn btn-warning btn-block btn-lg d-flex align-items-center justify-content-center"
+                                                        onclick="abrirEditarContrato('<?= $contract['id'] ?>')"
+                                                        style="height: 60px; font-size: 0.95rem; border-radius: 10px; transition: all 0.3s;">
                                                         <i class="fa fa-edit mr-2"></i>
                                                         <span>Editar Contrato</span>
                                                     </button>
                                                 </div>
                                                 <div class="col-md-3 col-sm-6">
-                                                    <button class="btn btn-success btn-block btn-lg d-flex align-items-center justify-content-center" onclick="printContract('<?= $contract['id'] ?>')" style="height: 60px; font-size: 0.95rem; border-radius: 10px; transition: all 0.3s;">
+                                                    <button
+                                                        class="btn btn-success btn-block btn-lg d-flex align-items-center justify-content-center"
+                                                        onclick="printContract('<?= $contract['id'] ?>')"
+                                                        style="height: 60px; font-size: 0.95rem; border-radius: 10px; transition: all 0.3s;">
                                                         <i class="fa fa-print mr-2"></i>
                                                         <span>Imprimir</span>
                                                     </button>
@@ -293,11 +306,17 @@
                                     </div>
 
                                     <!-- Tabla de Cronograma -->
-                                    <ul class="breadcrumb" style="margin: 0 0 1.5rem 0; padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
-                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/panel') ?>" style="color: #667eea; font-weight: 500;">Panel</a></li>
-                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/inmueble') ?>" style="color: #667eea; font-weight: 500;">Gestión Inmobiliaria</a></li>
-                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/inmueble/contracts') ?>" style="color: #667eea; font-weight: 500;">Contratos</a></li>
-                                        <li class="breadcrumb-item active" style="color: #764ba2; font-weight: 600;">Cronograma de Pagos</li>
+                                    <ul class="breadcrumb"
+                                        style="margin: 0 0 1.5rem 0; padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/panel') ?>"
+                                                style="color: #667eea; font-weight: 500;">Panel</a></li>
+                                        <li class="breadcrumb-item"><a href="<?= site_url('dashboard/inmueble') ?>"
+                                                style="color: #667eea; font-weight: 500;">Gestión Inmobiliaria</a></li>
+                                        <li class="breadcrumb-item"><a
+                                                href="<?= site_url('dashboard/inmueble/contracts') ?>"
+                                                style="color: #667eea; font-weight: 500;">Contratos</a></li>
+                                        <li class="breadcrumb-item active" style="color: #764ba2; font-weight: 600;">
+                                            Cronograma de Pagos</li>
                                     </ul>
                                     <div class="card"
                                         style="border: none; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); overflow: hidden;">
@@ -426,13 +445,23 @@
                                                             <td style="padding: 1rem; vertical-align: middle;">
                                                                 <?php if (!empty($pago['voucher_url'])): ?>
                                                                 <?php 
-                                                                                // Extraer solo el nombre del archivo de la ruta completa
-                                                                                $filename = basename($pago['voucher_url']);
-                                                                                $viewUrl = '/dashboard/mostrarComprobante/' . $filename;
+                                                                                // La URL ya está guardada completa en la BD
+                                                                                // Si no empieza con / o http, agregarle el base URL
+                                                                                $comprobanteUrlFull = $pago['voucher_url'];
+                                                                                
+                                                                                // Si es una ruta relativa, construirla correctamente
+                                                                                if (strpos($comprobanteUrlFull, '/') !== 0 && strpos($comprobanteUrlFull, 'http') !== 0) {
+                                                                                    $comprobanteUrlFull = site_url($comprobanteUrlFull);
+                                                                                } elseif (strpos($comprobanteUrlFull, '/') === 0) {
+                                                                                    // Si empieza con /, convertir a URL completa
+                                                                                    $comprobanteUrlFull = site_url(ltrim($comprobanteUrlFull, '/'));
+                                                                                }
+                                                                                
+                                                                                echo "<script>console.log('📄 Comprobante URL para pago ID " . $pago['id'] . ":', '" . addslashes($comprobanteUrlFull) . "');</script>";
                                                                             ?>
                                                                 <button class="btn btn-sm"
                                                                     style="background: linear-gradient(135deg, #11cdef 0%, #00bcd4 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; transition: transform 0.2s ease; cursor: pointer;"
-                                                                    onclick="abrirModalVoucherAmpliado('<?= $viewUrl ?>', <?= $pago['id'] ?>, <?= $contract['id'] ?>, '<?= number_format($pago['amount'], 2) ?>')">
+                                                                    onclick="abrirModalVoucherAmpliado('<?= addslashes($comprobanteUrlFull) ?>', <?= $pago['id'] ?>, <?= $contract['id'] ?>, '<?= number_format($pago['amount'], 2) ?>')">
                                                                     <i class="fa fa-file-pdf"></i> Ver
                                                                 </button>
                                                                 <?php else: ?>
@@ -446,13 +475,24 @@
                                                                             // Mostrar Validar si: tiene voucher O está registrado, y NO está validado
                                                                             $tieneVoucher = !empty($pago['voucher_url']);
                                                                             $puedeValidar = ($registrado || $tieneVoucher) && !$validado;
+                                                                            
+                                                                            // Construir URL del comprobante si existe
+                                                                            $voucherUrlForModal = '';
+                                                                            if ($tieneVoucher) {
+                                                                                $voucherUrlForModal = $pago['voucher_url'];
+                                                                                if (strpos($voucherUrlForModal, '/') !== 0 && strpos($voucherUrlForModal, 'http') !== 0) {
+                                                                                    $voucherUrlForModal = site_url($voucherUrlForModal);
+                                                                                } elseif (strpos($voucherUrlForModal, '/') === 0) {
+                                                                                    $voucherUrlForModal = site_url(ltrim($voucherUrlForModal, '/'));
+                                                                                }
+                                                                            }
                                                                             ?>
                                                                     <?php if ($puedeValidar): ?>
                                                                     <button class="btn btn-sm"
                                                                         style="background: linear-gradient(135deg, #2dce89 0%, #10b981 100%); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease;"
                                                                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(45, 206, 137, 0.4)'"
                                                                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'"
-                                                                        onclick="abrirModalValidacion(<?= $pago['id'] ?>, '<?= number_format($pago['amount'], 2) ?>', '<?= !empty($pago['voucher_url']) ? '/dashboard/mostrarComprobante/' . basename($pago['voucher_url']) : '' ?>')">
+                                                                        onclick="abrirModalValidacion(<?= $pago['id'] ?>, '<?= number_format($pago['amount'], 2) ?>', '<?= addslashes($voucherUrlForModal) ?>')">
                                                                         <i class="fa fa-check-circle"></i> Validar
                                                                     </button>
                                                                     <?php elseif ($validado): ?>
@@ -622,7 +662,8 @@
     </div>
 
     <!-- Modal para Ver Contrato -->
-    <div class="modal fade" id="verContratoModal" tabindex="-1" role="dialog" aria-labelledby="verContratoModalLabel" aria-hidden="true">
+    <div class="modal fade" id="verContratoModal" tabindex="-1" role="dialog" aria-labelledby="verContratoModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered" role="document" style="max-width: 95vw;">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
@@ -651,7 +692,8 @@
     </div>
 
     <!-- Modal para Editar Contrato -->
-    <div class="modal fade" id="editarContratoModal" tabindex="-1" role="dialog" aria-labelledby="editarContratoModalLabel" aria-hidden="true">
+    <div class="modal fade" id="editarContratoModal" tabindex="-1" role="dialog"
+        aria-labelledby="editarContratoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered" role="document" style="max-width: 95vw;">
             <div class="modal-content">
                 <div class="modal-header bg-warning text-dark">
@@ -680,7 +722,8 @@
     </div>
 
     <!-- Modal para Detalle de Pagos -->
-    <div class="modal fade" id="detallesPagosModal" tabindex="-1" role="dialog" aria-labelledby="detallesPagosModalLabel" aria-hidden="true">
+    <div class="modal fade" id="detallesPagosModal" tabindex="-1" role="dialog"
+        aria-labelledby="detallesPagosModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered" role="document" style="max-width: 95vw;">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
@@ -707,6 +750,78 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+    // ========== MENU PCODED HANDLER - MEJORADO ==========
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🔧 Inicializando manejador de menú pcoded...');
+
+        // Obtener todos los elementos del menú que tienen submenu
+        const menuItems = document.querySelectorAll('.pcoded-navbar .nav-item.pcoded-hasmenu');
+
+        console.log(`📍 Encontrados ${menuItems.length} items de menú con submenu`);
+
+        menuItems.forEach((item, index) => {
+            // Obtener el link principal y el submenu
+            const link = item.querySelector('> a');
+            const submenu = item.querySelector('> .pcoded-submenu');
+
+            if (!link || !submenu) {
+                console.warn(`⚠️ Item ${index}: estructura inválida (no tiene link o submenu)`);
+                return;
+            }
+
+            const itemText = link.textContent.trim();
+            console.log(`✓ Item ${index}: "${itemText}"`);
+
+            // Agregar click handler al link
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                console.log(`🔓 Click en: "${itemText}"`);
+
+                // Toggle la clase pcoded-trigger
+                const isOpen = item.classList.contains('pcoded-trigger');
+
+                if (isOpen) {
+                    // Cerrar
+                    item.classList.remove('pcoded-trigger');
+                    submenu.style.maxHeight = '0px';
+                    submenu.style.opacity = '0';
+                    submenu.style.overflow = 'hidden';
+                    console.log(`🔐 Cerrado: "${itemText}"`);
+                } else {
+                    // Abrir
+                    item.classList.add('pcoded-trigger');
+                    submenu.style.maxHeight = submenu.scrollHeight + 'px';
+                    submenu.style.opacity = '1';
+                    submenu.style.overflow = 'visible';
+                    console.log(`🔓 Abierto: "${itemText}"`);
+                }
+            });
+
+            // Estilo inicial para transiciones suaves
+            submenu.style.transition = 'all 0.3s ease-in-out';
+            submenu.style.overflow = 'hidden';
+
+            // Si ya está activo, abrir por defecto
+            if (item.classList.contains('active') || item.classList.contains('pcoded-trigger')) {
+                submenu.style.maxHeight = submenu.scrollHeight + 'px';
+                submenu.style.opacity = '1';
+                item.classList.add('pcoded-trigger');
+                console.log(`📂 Abierto por defecto: "${itemText}"`);
+            } else {
+                submenu.style.maxHeight = '0px';
+                submenu.style.opacity = '0';
+                console.log(`📁 Cerrado por defecto: "${itemText}"`);
+            }
+        });
+
+        console.log('✅ Manejador de menú pcoded inicializado');
+    });
+
+    console.log("=== CRONOGRAMA COMPLETO - DEBUG INICIADO ===");
+    console.log("URL Base del Sitio:", "<?= site_url() ?>");
+
     let pagoIdActual = null;
     let comprobanteUrlActual = null;
     let contractIdGlobal = <?= $contract['id'] ?? 'null' ?>;
@@ -786,6 +901,17 @@
         }
     });
 
+    function mostrarErrorImagen(imgEl, url) {
+        imgEl.parentElement.innerHTML = `
+            <div style="text-align: center; padding: 30px; background: #ffe6e6; border-radius: 8px; border: 2px dashed #ff5252;">
+                <i class="fa fa-exclamation-triangle" style="font-size: 48px; color: #ff5252; margin-bottom: 10px;"></i><br>
+                <p style="color: #c62828; font-weight: bold; margin-top: 10px;">Error al cargar imagen</p>
+                <p style="font-size: 0.85rem; color: #d32f2f;">URL: ${url}</p>
+                <p style="font-size: 0.75rem; color: #666; margin-top: 10px;">Verifica que el archivo existe</p>
+            </div>
+        `;
+    }
+
     function abrirModalValidacion(pagoId, monto, comprobanteUrl = null) {
         pagoIdActual = pagoId;
         comprobanteUrlActual = comprobanteUrl;
@@ -796,7 +922,7 @@
         console.log('Monto:', monto);
         console.log('Comprobante URL recibida:', comprobanteUrl);
         console.log('Tipo:', typeof comprobanteUrl);
-        console.log('Vacía?:', comprobanteUrl === '' || comprobanteUrl === null);
+        console.log('¿Vacía?:', comprobanteUrl === '' || comprobanteUrl === null || !comprobanteUrl);
 
         document.getElementById('modal-monto-pago').textContent = 'S/ ' + monto;
         document.getElementById('validar-notas').value = '';
@@ -811,7 +937,7 @@
             '/dashboard/mostrarComprobante/';
 
         if (tieneComprobante) {
-            console.log('Mostrando comprobante del cliente...');
+            console.log('✓ Mostrando comprobante del cliente desde URL:', comprobanteUrl);
             // Mostrar comprobante del cliente
             comprobanteClienteSection.style.display = 'block';
             subirComprobanteSection.style.display = 'none';
@@ -821,21 +947,31 @@
             console.log('Extensión detectada:', ext);
             console.log('URL completa a cargar:', comprobanteUrl);
 
-            if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) {
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
                 // Imagen
                 comprobanteClientePreview.innerHTML = `
-                        <img id="voucher-preview-image" src="${comprobanteUrl}" style="max-width: 100%; max-height: 300px; border-radius: 8px; cursor: pointer; transition: transform 0.2s ease;" alt="Comprobante" onerror="console.log('Error cargando imagen desde:', '${comprobanteUrl}')" onclick="abrirModalVoucherAmpliado('${comprobanteUrl}', pagoIdActual, contractIdGlobal, '${monto}')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                        <p style="text-align: center; margin-top: 8px; color: #666; font-size: 0.85rem;">
-                            <i class="fa fa-search-plus"></i> Click para ampliar
-                        </p>
+                        <div style="text-align: center;">
+                            <img id="voucher-preview-image" 
+                                 src="${comprobanteUrl}" 
+                                 style="max-width: 100%; max-height: 300px; border-radius: 8px; cursor: pointer; transition: transform 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" 
+                                 alt="Comprobante"
+                                 loading="lazy"
+                                 onerror="mostrarErrorImagen(this, this.src)"
+                                 onclick="abrirModalVoucherAmpliado('${comprobanteUrl}', ${pagoIdActual}, ${contractIdGlobal}, '${monto}')" 
+                                 onmouseover="this.style.transform='scale(1.05)'" 
+                                 onmouseout="this.style.transform='scale(1)'">
+                            <p style="text-align: center; margin-top: 12px; color: #666; font-size: 0.85rem;">
+                                <i class="fa fa-search-plus"></i> Click para ampliar
+                            </p>
+                        </div>
                     `;
             } else if (ext === 'pdf') {
                 // PDF
                 comprobanteClientePreview.innerHTML = `
-                        <div style="text-align: center;">
-                            <i class="fa fa-file-pdf" style="font-size: 48px; color: #dc3545;"></i>
-                            <br>
-                            <a href="${comprobanteUrl}" target="_blank" class="btn btn-sm btn-danger mt-2">
+                        <div style="text-align: center; padding: 30px; background: #f0f0f0; border-radius: 8px;">
+                            <i class="fa fa-file-pdf" style="font-size: 64px; color: #dc3545; margin-bottom: 15px;"></i>
+                            <p style="margin: 10px 0; color: #333; font-weight: bold;">Comprobante PDF</p>
+                            <a href="${comprobanteUrl}" target="_blank" class="btn btn-sm btn-danger">
                                 <i class="fa fa-download"></i> Descargar PDF
                             </a>
                         </div>
@@ -843,17 +979,17 @@
             } else {
                 // Archivo genérico
                 comprobanteClientePreview.innerHTML = `
-                        <div style="text-align: center;">
-                            <i class="fa fa-file" style="font-size: 48px; color: #999;"></i>
-                            <br>
-                            <a href="${comprobanteUrl}" target="_blank" class="btn btn-sm btn-primary mt-2">
+                        <div style="text-align: center; padding: 30px; background: #f0f0f0; border-radius: 8px;">
+                            <i class="fa fa-file" style="font-size: 64px; color: #999; margin-bottom: 15px;"></i>
+                            <p style="margin: 10px 0; color: #333; font-weight: bold;">Comprobante (.${ext})</p>
+                            <a href="${comprobanteUrl}" target="_blank" class="btn btn-sm btn-primary">
                                 <i class="fa fa-download"></i> Descargar
                             </a>
                         </div>
                     `;
             }
         } else {
-            console.log('No hay comprobante, mostrando formulario para subir...');
+            console.log('✗ No hay comprobante válido, mostrando formulario para subir...');
             // No hay comprobante, permitir subir
             comprobanteClienteSection.style.display = 'none';
             subirComprobanteSection.style.display = 'block';
@@ -1036,6 +1172,32 @@
             return;
         }
 
+        // Limpiar manejadores anteriores
+        imgAmpliada.onerror = null;
+        imgAmpliada.onload = null;
+
+        // Resetear visibilidad y mensaje de error previo
+        imgAmpliada.style.display = '';
+        const errorMsgPrev = document.getElementById('voucher-error-msg');
+        if (errorMsgPrev) errorMsgPrev.remove();
+
+        // Agregar manejadores de error y carga
+        imgAmpliada.onerror = function() {
+            console.error("❌ Error al cargar imagen:", imagenUrl);
+            this.style.display = 'none';
+            // Mostrar mensaje de error sin destruir el resto del modal
+            const errorDiv = document.createElement('div');
+            errorDiv.id = 'voucher-error-msg';
+            errorDiv.style.cssText = 'text-align:center;padding:30px;background:#ffe6e6;border-radius:8px;border:2px dashed #ff5252;margin-bottom:12px;';
+            errorDiv.innerHTML = '<i class="fa fa-exclamation-triangle" style="font-size:48px;color:#ff5252;"></i><br><p style="color:#c62828;font-weight:bold;margin-top:10px;">Error al cargar la imagen</p><p style="font-size:0.85rem;color:#d32f2f;word-break:break-all;">' + imagenUrl + '</p>';
+            this.parentNode.insertBefore(errorDiv, this.nextSibling);
+        };
+
+        imgAmpliada.onload = function() {
+            console.log("✓ Imagen cargada correctamente:", imagenUrl);
+            this.style.display = '';
+        };
+
         imgAmpliada.src = imagenUrl;
 
         // Guardar datos para usar en los botones de acción
@@ -1199,136 +1361,142 @@
     function abrirVerContrato(contractId) {
         const modal = document.getElementById('verContratoModal');
         const content = document.getElementById('verContratoModalContent');
-        
+
         // Mostrar spinner
-        content.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Cargando...</span></div></div>';
-        
+        content.innerHTML =
+            '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Cargando...</span></div></div>';
+
         // Abrir modal
         abrirModalCompat('verContratoModal');
-        
+
         // Cargar contenido via AJAX
         fetch('/dashboard/inmueble/contracts/view/' + contractId, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.text())
-        .then(html => {
-            // Extraer solo el contenido del contrato, sin header/footer
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const contractContent = doc.querySelector('.card, .contract-content, main');
-            
-            if (contractContent) {
-                content.innerHTML = contractContent.innerHTML;
-            } else {
-                // Si no encuentra contenedor específico, usa el HTML completo
-                content.innerHTML = html;
-            }
-            
-            // Remover botones de navegación que están demás
-            const btnGroups = content.querySelectorAll('.btn-group, .button-group');
-            btnGroups.forEach(btn => btn.remove());
-            
-            // Remover divs que contengan solo botones de acción
-            const actionButtons = content.querySelectorAll('[style*="display:"], div:has(> .btn)');
-            actionButtons.forEach(el => {
-                if (el.textContent.includes('Regresar') || el.textContent.includes('Cronograma') || 
-                    el.textContent.includes('Editar') || el.textContent.includes('Registrar Pago')) {
-                    el.remove();
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
-            });
-            
-            // Remover buttons específicos por su contenido
-            const allButtons = content.querySelectorAll('button, a.btn');
-            allButtons.forEach(btn => {
-                const text = btn.textContent.toLowerCase();
-                if (text.includes('regresar') || text.includes('cronograma') || 
-                    text.includes('editar') || text.includes('registrar pago') ||
-                    text.includes('imprimir')) {
-                    btn.remove();
+            })
+            .then(response => response.text())
+            .then(html => {
+                // Extraer solo el contenido del contrato, sin header/footer
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const contractContent = doc.querySelector('.card, .contract-content, main');
+
+                if (contractContent) {
+                    content.innerHTML = contractContent.innerHTML;
+                } else {
+                    // Si no encuentra contenedor específico, usa el HTML completo
+                    content.innerHTML = html;
                 }
+
+                // Remover botones de navegación que están demás
+                const btnGroups = content.querySelectorAll('.btn-group, .button-group');
+                btnGroups.forEach(btn => btn.remove());
+
+                // Remover divs que contengan solo botones de acción
+                const actionButtons = content.querySelectorAll('[style*="display:"], div:has(> .btn)');
+                actionButtons.forEach(el => {
+                    if (el.textContent.includes('Regresar') || el.textContent.includes('Cronograma') ||
+                        el.textContent.includes('Editar') || el.textContent.includes('Registrar Pago')) {
+                        el.remove();
+                    }
+                });
+
+                // Remover buttons específicos por su contenido
+                const allButtons = content.querySelectorAll('button, a.btn');
+                allButtons.forEach(btn => {
+                    const text = btn.textContent.toLowerCase();
+                    if (text.includes('regresar') || text.includes('cronograma') ||
+                        text.includes('editar') || text.includes('registrar pago') ||
+                        text.includes('imprimir')) {
+                        btn.remove();
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                content.innerHTML =
+                    '<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> Error al cargar el contrato</div>';
             });
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            content.innerHTML = '<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> Error al cargar el contrato</div>';
-        });
     }
 
     function abrirEditarContrato(contractId) {
         const modal = document.getElementById('editarContratoModal');
         const content = document.getElementById('editarContratoModalContent');
-        
+
         // Mostrar spinner
-        content.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Cargando...</span></div></div>';
-        
+        content.innerHTML =
+            '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Cargando...</span></div></div>';
+
         // Abrir modal
         abrirModalCompat('editarContratoModal');
-        
+
         // Cargar contenido via AJAX
         fetch('/dashboard/inmueble/edit_contract/' + contractId, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.text())
-        .then(html => {
-            // Extraer solo el formulario, sin header/footer
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const formContent = doc.querySelector('form, .card-body, main');
-            
-            if (formContent) {
-                content.innerHTML = formContent.innerHTML;
-            } else {
-                // Si no encuentra formulario específico, usa el HTML completo
-                content.innerHTML = html;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            content.innerHTML = '<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> Error al cargar el formulario de edición</div>';
-        });
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                // Extraer solo el formulario, sin header/footer
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const formContent = doc.querySelector('form, .card-body, main');
+
+                if (formContent) {
+                    content.innerHTML = formContent.innerHTML;
+                } else {
+                    // Si no encuentra formulario específico, usa el HTML completo
+                    content.innerHTML = html;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                content.innerHTML =
+                    '<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> Error al cargar el formulario de edición</div>';
+            });
     }
 
     function abrirDetallesPagos(contractId) {
         const modal = document.getElementById('detallesPagosModal');
         const content = document.getElementById('detallesPagosModalContent');
-        
+
         // Mostrar spinner
-        content.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Cargando...</span></div></div>';
-        
+        content.innerHTML =
+            '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Cargando...</span></div></div>';
+
         // Abrir modal
         abrirModalCompat('detallesPagosModal');
-        
+
         // Cargar contenido via AJAX
         fetch('/dashboard/inmueble/contracts/view/' + contractId, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.text())
-        .then(html => {
-            // Extraer solo el contenido de detalles de pagos
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const detailsContent = doc.querySelector('.card, .payment-details, .details-section, main');
-            
-            if (detailsContent) {
-                content.innerHTML = detailsContent.innerHTML;
-            } else {
-                // Si no encuentra contenedor específico, usa el HTML completo
-                content.innerHTML = html;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            content.innerHTML = '<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> Error al cargar los detalles de pagos</div>';
-        });
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                // Extraer solo el contenido de detalles de pagos
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const detailsContent = doc.querySelector('.card, .payment-details, .details-section, main');
+
+                if (detailsContent) {
+                    content.innerHTML = detailsContent.innerHTML;
+                } else {
+                    // Si no encuentra contenedor específico, usa el HTML completo
+                    content.innerHTML = html;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                content.innerHTML =
+                    '<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> Error al cargar los detalles de pagos</div>';
+            });
     }
     </script>
 </body>

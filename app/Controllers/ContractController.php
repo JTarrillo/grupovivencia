@@ -172,8 +172,8 @@ class ContractController extends BaseController {
             // Procesar comprobante si existe
             $comprobanteUrl = null;
             if ($comprobante && $comprobante->isValid() && !$comprobante->hasMoved()) {
-                // Crear directorio si no existe
-                $uploadPath = ROOTPATH . 'writable/uploads/comprobantes';
+                // Crear directorio en carpeta pública si no existe
+                $uploadPath = FCPATH . 'uploads/comprobantes';
                 if (!is_dir($uploadPath)) {
                     mkdir($uploadPath, 0755, true);
                 }

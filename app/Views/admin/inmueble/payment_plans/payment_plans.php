@@ -883,14 +883,14 @@
                                 <div class="form-group">
                                     <label for="create_name">Nombre del Plan <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="create_name" name="name" required
-                                        placeholder="Ej: Plan Estándar 36 meses">
+                                        placeholder="Ej: Plan Estándar 36 meses" onkeyup="generateCode()">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="create_code">Código <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="create_code" name="code" required
-                                        placeholder="Ej: STD36">
+                                    <label for="create_code">Código <span class="text-muted">(Auto-generado)</span></label>
+                                    <input type="text" class="form-control" id="create_code" name="code" readonly
+                                        placeholder="Se genera automáticamente">
                                 </div>
                             </div>
                         </div>
@@ -955,10 +955,84 @@
     </div>
 
     <script>
+    // Función para generar código automáticamente ÚNICO
+    function generateCode() {
+        const name = document.getElementById('create_name').value.trim();
+        const duration = document.getElementById('create_duration_months').value;
+        
+        if (name.length > 0) {
+            // Tomar las primeras letras de cada palabra
+            const words = name.split(' ');
+            let code = words.map(word => word.charAt(0).toUpperCase()).join('');
+            
+            // Agregar la duración si está disponible
+            if (duration) {
+                code += duration;
+            }
+            
+            // Agregar identificador único (timestamp + número aleatorio)
+            const timestamp = Date.now().toString().slice(-6);
+            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            code += '-' + timestamp + random;
+            
+            // Asignar el código generado
+            document.getElementById('create_code').value = code;
+        } else {
+            document.getElementById('create_code').value = '';
+        }
+    }
+
+    // Regenerar código cuando cambia la duración
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('create_duration_months').addEventListener('change', generateCode);
+    });
+
+    // Verificar si el código ya existe
+    async function checkCodeExists(code) {
+        try {
+            const response = await fetch('/dashboard/inmueble/api/check_payment_plan_code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code: code })
+            });
+            const data = await response.json();
+            return data.exists || false;
+        } catch (error) {
+            console.error('Error checking code:', error);
+            return false;
+        }
+    }
+
     // Manejo del formulario de creación
-    document.getElementById('create-payment-plan-form').addEventListener('submit', function(e) {
+    document.getElementById('create-payment-plan-form').addEventListener('submit', async function(e) {
         e.preventDefault();
         const submitBtn = document.getElementById('create_plan_btn');
+        const code = document.getElementById('create_code').value.trim();
+
+        if (!code) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Código vacío',
+                text: 'El código no se puede generar. Verifica el nombre del plan.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Verificar si el código ya existe
+        const codeExists = await checkCodeExists(code);
+        if (codeExists) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Código duplicado',
+                text: 'Este código ya existe. Cambia el nombre del plan.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="feather icon-loader"></i> Creando...';
 

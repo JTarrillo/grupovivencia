@@ -283,7 +283,7 @@
                                     </div>
                                     <div class="form-group col-md-3">
                                         <label for="create_block">Manzana</label>
-                                        <input type="text" class="form-control" id="create_block" name="block" placeholder="Ej: A, B, C">
+                                        <input type="text" class="form-control uppercase-input" id="create_block" name="block" placeholder="Ej: A, B, C" oninput="this.value = this.value.toUpperCase()">
                                     </div>
                                 </div>
 
@@ -452,7 +452,7 @@
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="edit_block">Manzana</label>
-                                <input type="text" class="form-control" id="edit_block" name="block">
+                                <input type="text" class="form-control uppercase-input" id="edit_block" name="block" oninput="this.value = this.value.toUpperCase()">
                             </div>
                         </div>
 
@@ -2054,6 +2054,11 @@
     .card-header-right {
         display: flex;
         gap: 5px;
+    }
+
+    /* Campo Manzana siempre en mayúsculas */
+    .uppercase-input {
+        text-transform: uppercase;
     }
     </style>
 

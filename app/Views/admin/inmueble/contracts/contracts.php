@@ -794,6 +794,7 @@
                                                         </div>
                                                         <small class="form-text text-muted">Mínimo: S/ <span
                                                                 id="min_down_payment">-</span></small>
+                                                        <div id="down_payment_error_alert" class="alert alert-danger mt-2" style="display: none; margin-bottom: 0;"></div>
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-md-6">
@@ -1613,6 +1614,41 @@
         const annualRate = parseFloat(document.getElementById('interest_rate').value) || 3.5;
 
         const financedAmount = lotPrice - downPayment;
+        
+        // 🔧 VALIDAR que la cuota inicial no sea mayor que el precio del lote
+        if (downPayment > lotPrice) {
+            console.error('❌ Error: Cuota inicial mayor que el precio del lote');
+            console.error('Cuota inicial:', downPayment, 'Precio lote:', lotPrice);
+            
+            // Mostrar alerta visual
+            const errorAlert = document.getElementById('down_payment_error_alert');
+            if (errorAlert) {
+                errorAlert.style.display = 'block';
+                errorAlert.innerHTML = `<strong>❌ Error:</strong> La cuota inicial (S/ ${downPayment.toLocaleString('es-PE', {minimumFractionDigits: 2})}) no puede ser mayor que el precio del lote (S/ ${lotPrice.toLocaleString('es-PE', {minimumFractionDigits: 2})})`;
+            }
+            
+            // Deshabilitar botón de crear contrato
+            const createBtn = document.getElementById('create_contract_btn');
+            if (createBtn) {
+                createBtn.disabled = true;
+                createBtn.title = 'Cuota inicial inválida - debe ser menor que el precio del lote';
+            }
+            return;
+        } else {
+            // Limpiar error si estaba visible
+            const errorAlert = document.getElementById('down_payment_error_alert');
+            if (errorAlert) {
+                errorAlert.style.display = 'none';
+            }
+            
+            // Rehabilitar botón si no hay otros errores
+            const createBtn = document.getElementById('create_contract_btn');
+            if (createBtn) {
+                createBtn.disabled = false;
+                createBtn.title = '';
+            }
+        }
+        
         const monthlyRate = annualRate / 100 / 12;
 
         let monthlyPayment = 0;

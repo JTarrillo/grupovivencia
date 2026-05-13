@@ -90,10 +90,28 @@ class Inmueble extends BaseController {
     }
      public function mostrarComprobante($filename)
     {
-        $path = WRITEPATH . 'uploads/comprobantes/' . $filename;
-        if (is_file($path)) {
+        // Sanitizar nombre de archivo para evitar path traversal
+        $filename = basename($filename);
+        
+        // Buscar en múltiples ubicaciones posibles (en orden de preferencia)
+        $possiblePaths = [
+            WRITEPATH . 'uploads/comprobantes/' . $filename,      // writable/uploads/comprobantes/ (PREFERIDA)
+            FCPATH . 'uploads/comprobantes/' . $filename,         // public/uploads/comprobantes/
+            ROOTPATH . 'public/uploads/comprobantes/' . $filename // public/uploads/comprobantes/ (absoluta)
+        ];
+
+        $fileFound = null;
+        foreach ($possiblePaths as $path) {
+            if (file_exists($path) && is_file($path)) {
+                $fileFound = $path;
+                log_message('info', "[mostrarComprobante] Archivo encontrado en: $path");
+                break;
+            }
+        }
+
+        if ($fileFound) {
             // Detectar el tipo de contenido basado en la extensión
-            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+            $ext = strtolower(pathinfo($fileFound, PATHINFO_EXTENSION));
             $contentTypes = [
                 'jpg' => 'image/jpeg',
                 'jpeg' => 'image/jpeg',
@@ -104,7 +122,7 @@ class Inmueble extends BaseController {
             ];
             
             $contentType = $contentTypes[$ext] ?? 'application/octet-stream';
-            $fileContent = file_get_contents($path);
+            $fileContent = file_get_contents($fileFound);
             
             return $this->response
                 ->setHeader('Content-Type', $contentType)
@@ -112,17 +130,23 @@ class Inmueble extends BaseController {
                 ->setHeader('Content-Length', strlen($fileContent))
                 ->setBody($fileContent);
         } else {
-            // Imagen de reemplazo si no existe el comprobante
+            // Log de no encontrado
+            log_message('warning', "[mostrarComprobante] Comprobante no encontrado: {$filename}. Rutas buscadas: " . implode(', ', $possiblePaths));
+            
+            // Intentar devolver imagen de no disponible
             $noImage = FCPATH . 'assets/img/no-image.png';
-            if (is_file($noImage)) {
+            if (file_exists($noImage)) {
                 $fileContent = file_get_contents($noImage);
                 return $this->response
                     ->setHeader('Content-Type', 'image/png')
+                    ->setStatus(404)
                     ->setBody($fileContent);
             } else {
+                // Si no hay imagen de fallback, devolver error
                 return $this->response
                     ->setHeader('Content-Type', 'text/plain')
-                    ->setBody('Imagen no encontrada');
+                    ->setStatus(404)
+                    ->setBody("Comprobante no encontrado: {$filename}");
             }
         }
     }
@@ -2708,6 +2732,16 @@ class Inmueble extends BaseController {
                 ]);
             }
             $financedAmount = $totalAmount - $downPayment;
+            
+            // 🔧 VALIDAR que la cuota inicial no sea mayor que el precio total
+            if ($downPayment > $totalAmount) {
+                log_message('error', $log_prefix . 'Cuota inicial MAYOR que el precio total. downPayment=' . $downPayment . ', totalAmount=' . $totalAmount);
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'La cuota inicial NO puede ser mayor que el precio total del lote. Total: S/ ' . number_format($totalAmount, 2) . ', Cuota Inicial: S/ ' . number_format($downPayment, 2)
+                ]);
+            }
+            
             $monthlyRate = $interestRate / 100 / 12;
             if ($contractType === 'futura') {
                 $monthlyPayment = 0;
@@ -2731,13 +2765,12 @@ class Inmueble extends BaseController {
                 $comprobante_name = $comprobante->getRandomName();
                 $voucher_url = 'uploads/comprobantes/' . $comprobante_name;
                 $contract_file = $voucher_url;
-                $writablePath = ROOTPATH . 'writable/uploads/comprobantes/' . $comprobante_name;
-                $publicPath = ROOTPATH . 'public/upload/comprobantes/' . $comprobante_name;
-                $comprobante->move(ROOTPATH . 'writable/uploads/comprobantes', $comprobante_name);
-                // Copia el archivo a la carpeta pública
-                if (file_exists($writablePath)) {
-                    @copy($writablePath, $publicPath);
+                // Guardar en carpeta pública para que sea accesible
+                $publicPath = FCPATH . 'uploads/comprobantes/';
+                if (!is_dir($publicPath)) {
+                    mkdir($publicPath, 0755, true);
                 }
+                $comprobante->move($publicPath, $comprobante_name);
             }
             // Crear contrato
             $sponsorId = $this->request->getPost('sponsor_id');
@@ -3016,6 +3049,26 @@ class Inmueble extends BaseController {
                 'message' => 'Plan de pago no encontrado'
             ]);
         }
+    }
+
+    public function check_payment_plan_code()
+    {
+        $code = $this->request->getPost('code') ?? $this->request->getJSON('code');
+        
+        if (empty($code)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Código no proporcionado',
+                'exists' => false
+            ]);
+        }
+        
+        $exists = $this->paymentPlanModel->where('code', $code)->countAllResults() > 0;
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'exists' => $exists
+        ]);
     }
 
     public function update_payment_plan($plan_id)

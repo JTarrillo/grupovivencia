@@ -205,40 +205,128 @@ class ContractsController extends BaseController
      */
     public function registrarPagoCuota()
     {
-        $request = service('request');
-        $id_cuota = $request->getPost('id_cuota');
-        $comprobante = $request->getFile('comprobante');
+        $timestamp = date('Y-m-d H:i:s');
+        $logFile = WRITEPATH . 'logs/pago_cuota_' . date('YmdHis') . '_' . uniqid() . '.log';
         
-        $paymentScheduleModel = new PaymentScheduleModel();
-        $cuota = $paymentScheduleModel->find($id_cuota);
+        // Helper para escribir logs directamente
+        $writeLog = function($message) use ($logFile) {
+            file_put_contents($logFile, $message . "\n", FILE_APPEND);
+        };
         
-        if (!$cuota) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Cuota no encontrada']);
-        }
+        $writeLog("=== INICIO REGISTRO PAGO CUOTA - $timestamp ===");
+        $writeLog("PID: " . getmypid() . " | IP: " . $_SERVER['REMOTE_ADDR']);
         
-        $updateData = [
-            'status' => 'registered',
-            'updated_at' => date('Y-m-d H:i:s')
-        ];
-        
-        // Guardar comprobante si se subió
-        if ($comprobante && $comprobante->isValid() && !$comprobante->hasMoved()) {
-            $comprobante_name = $comprobante->getRandomName();
-            // Guardar en writable/uploads/comprobantes (misma ubicación que cuota inicial)
-            $uploadPath = ROOTPATH . 'writable/uploads/comprobantes';
-            if (!is_dir($uploadPath)) {
-                mkdir($uploadPath, 0755, true);
+        try {
+            $request = service('request');
+            $writeLog("[1] Request obtenido");
+            
+            $id_cuota = $request->getPost('id_cuota');
+            $writeLog("[2] ID Cuota: $id_cuota");
+            
+            // Revisar todos los POST variables
+            $postVars = $request->getPost();
+            $writeLog("[3] POST vars: " . json_encode($postVars));
+            
+            // Revisar archivos
+            $files = $request->getFiles();
+            $writeLog("[4] FILES recibidos: " . json_encode(array_keys($files)));
+            
+            $comprobante = $request->getFile('comprobante');
+            $writeLog("[5] Archivo 'comprobante': " . ($comprobante ? 'SÍ RECIBIDO' : 'NO RECIBIDO'));
+            
+            if ($comprobante) {
+                $writeLog("[5.1] Nombre cliente: " . $comprobante->getClientName());
+                $writeLog("[5.2] Mime Type: " . $comprobante->getClientMimeType());
+                $writeLog("[5.3] Tamaño: " . ($comprobante->getSize() / 1024) . " KB");
+                $writeLog("[5.4] Nombre temporal: " . $comprobante->getTempName());
+                $writeLog("[5.5] Es válido: " . ($comprobante->isValid() ? 'SÍ' : 'NO'));
+                $writeLog("[5.6] Ya fue movido: " . ($comprobante->hasMoved() ? 'SÍ' : 'NO'));
             }
-            $comprobante->move($uploadPath, $comprobante_name);
-            $updateData['voucher_url'] = 'uploads/comprobantes/' . $comprobante_name;
+            
+            $paymentScheduleModel = new PaymentScheduleModel();
+            $cuota = $paymentScheduleModel->find($id_cuota);
+            $writeLog("[6] Cuota encontrada: " . ($cuota ? 'SÍ' : 'NO'));
+            
+            if (!$cuota) {
+                $writeLog("[ERROR] Cuota no encontrada: ID=$id_cuota");
+                return $this->response->setJSON([
+                    'success' => false, 
+                    'message' => 'Cuota no encontrada',
+                    'error' => 'ID Cuota inválido'
+                ]);
+            }
+            
+            $writeLog("[7] Estado actual cuota: " . $cuota['status']);
+            
+            $updateData = [
+                'status' => 'registered',
+                'paid_date' => $timestamp,
+                'updated_at' => $timestamp
+            ];
+            
+            // Guardar comprobante si se subió
+            $uploadPath = FCPATH . 'uploads/comprobantes';
+            if ($comprobante && $comprobante->isValid() && !$comprobante->hasMoved()) {
+                $writeLog("[8] Preparando para guardar archivo...");
+                
+                if (!is_dir($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                    $writeLog("[8.1] Directorio creado: $uploadPath");
+                } else {
+                    $writeLog("[8.1] Directorio ya existe: $uploadPath");
+                }
+                
+                $comprobante_name = $comprobante->getRandomName();
+                $writeLog("[8.2] Nombre aleatorio generado: $comprobante_name");
+                
+                $fullPath = $uploadPath . DIRECTORY_SEPARATOR . $comprobante_name;
+                $writeLog("[8.3] Ruta completa: $fullPath");
+                
+                $moveResult = $comprobante->move($uploadPath, $comprobante_name);
+                $writeLog("[8.4] Resultado move(): " . ($moveResult ? 'EXITOSO' : 'FALLIDO'));
+                
+                if ($moveResult) {
+                    $voucherUrl = 'uploads/comprobantes/' . $comprobante_name;
+                    $updateData['voucher_url'] = $voucherUrl;
+                    $writeLog("[8.5] URL guardada en BD: $voucherUrl");
+                    
+                    // Verificar que el archivo existe
+                    $fileExists = file_exists($fullPath);
+                    $fileSize = filesize($fullPath);
+                    $writeLog("[8.6] Archivo en servidor: " . ($fileExists ? "SÍ ($fileSize bytes)" : "NO"));
+                }
+            } else {
+                if (!$comprobante) {
+                    $writeLog("[8] ADVERTENCIA: No se adjuntó comprobante");
+                } else {
+                    $writeLog("[8] ADVERTENCIA: Comprobante inválido o ya fue movido");
+                }
+            }
+            
+            $writeLog("[9] Actualizando base de datos...");
+            $updateResult = $paymentScheduleModel->update($id_cuota, $updateData);
+            $writeLog("[10] Resultado update BD: " . ($updateResult ? 'EXITOSO' : 'FALLIDO'));
+            
+            $writeLog("=== FIN EXITOSO - " . date('Y-m-d H:i:s') . " ===");
+            
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Pago registrado. Será validado por el administrador.',
+                'voucher_saved' => isset($voucherUrl),
+                'log_file' => basename($logFile)
+            ]);
+            
+        } catch (\Exception $e) {
+            $writeLog("[ERROR EXCEPCIÓN] " . $e->getMessage());
+            $writeLog("[ERROR STACK] " . $e->getTraceAsString());
+            $writeLog("=== FIN ERROR - " . date('Y-m-d H:i:s') . " ===");
+            
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al registrar pago',
+                'error' => $e->getMessage()
+            ]);
         }
-        
-        $paymentScheduleModel->update($id_cuota, $updateData);
-        
-        return $this->response->setJSON([
-            'success' => true,
-            'message' => 'Pago registrado. Será validado por el administrador.'
-        ]);
     }
     
     /**

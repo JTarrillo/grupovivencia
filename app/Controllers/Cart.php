@@ -105,7 +105,11 @@ class Cart extends BaseController
             }
             $comprobante_name = $comprobante->getRandomName();
             $comprobante_url = 'uploads/comprobantes/' . $comprobante_name;
-            $comprobante->move(ROOTPATH . 'writable/uploads/comprobantes', $comprobante_name);
+            $uploadPath = FCPATH . 'uploads/comprobantes';
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+            $comprobante->move($uploadPath, $comprobante_name);
         } else {
             $comprobante_url = null;
         }
@@ -715,7 +719,11 @@ class Cart extends BaseController
         }
         $comprobante_name = $comprobante->getRandomName();
         $comprobante_url = 'uploads/comprobantes/' . $comprobante_name;
-        $comprobante->move(ROOTPATH . 'writable/uploads/comprobantes', $comprobante_name);
+        $uploadPath = FCPATH . 'uploads/comprobantes';
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0755, true);
+        }
+        $comprobante->move($uploadPath, $comprobante_name);
 
         $ContractModel = new \App\Models\ContractModel();
         $PaymentPlanModel = new \App\Models\PaymentPlanModel();

@@ -64,7 +64,11 @@ class B_contratos extends Controller
                 $comprobante_name = $comprobante->getRandomName();
                 $voucher_url = 'uploads/comprobantes/' . $comprobante_name;
                 $contract_file = $voucher_url;
-                $comprobante->move(ROOTPATH . 'writable/uploads/comprobantes', $comprobante_name);
+                $publicPath = FCPATH . 'uploads/comprobantes/';
+                if (!is_dir($publicPath)) {
+                    mkdir($publicPath, 0755, true);
+                }
+                $comprobante->move($publicPath, $comprobante_name);
             }
             $contractData = [
                 'lot_id' => $lotId,

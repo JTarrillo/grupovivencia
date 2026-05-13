@@ -155,7 +155,7 @@
                                                                                     class="form-control"
                                                                                     id="create_base_price_per_sqm"
                                                                                     name="base_price_per_sqm"
-                                                                                    step="0.01" min="0" required>
+                                                                                    step="1" min="0" required>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -966,7 +966,7 @@
                                             <span class="input-group-text">S/</span>
                                         </div>
                                         <input type="number" class="form-control" id="edit_base_price_per_sqm"
-                                            name="base_price_per_sqm" step="0.01" min="0" required>
+                                            name="base_price_per_sqm" step="1" min="0" required>
                                     </div>
                                     <small class="form-text text-warning">⚠️ Cambiar este precio afectará los nuevos
                                         lotes</small>

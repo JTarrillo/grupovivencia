@@ -523,6 +523,7 @@ $routes->group('dashboard/inmueble', static function($routes){
     $routes->get('api/available_lots', 'Inmueble::get_available_lots', ['filter' => 'authGuard']);
     $routes->get('api/payment_plans', 'Inmueble::get_payment_plans_api', ['filter' => 'authGuard']);
     $routes->get('api/get_payment_plan/(:num)', 'Inmueble::get_payment_plan_api/$1', ['filter' => 'authGuard']);
+    $routes->post('api/check_payment_plan_code', 'Inmueble::check_payment_plan_code', ['filter' => 'authGuard']);
     $routes->get('api/plan_contract_stats/(:num)', 'Inmueble::get_plan_contract_stats/$1', ['filter' => 'authGuard']);
     $routes->post('update_payment_plan/(:num)', 'Inmueble::update_payment_plan/$1', ['filter' => 'authGuard']);
     $routes->post('api/update_plan_status', 'Inmueble::update_plan_status', ['filter' => 'authGuard']);

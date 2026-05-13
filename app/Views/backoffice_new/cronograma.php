@@ -195,17 +195,32 @@
                                                     <div style="display: flex; gap: 4px; align-items: center;">
                                                         <button
                                                             class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm"
-                                                            title="Pago validado por admin"><i class="fa fa-check"></i></button>
-                                                        <?php if (!empty($pago['comprobante_pdf_url'])): ?>
-                                                        <a href="<?= esc($pago['comprobante_pdf_url']) ?>" target="_blank"
+                                                            title="Pago validado por admin"><i
+                                                                class="fa fa-check"></i></button>
+                                                        <?php if (!empty($pago['voucher_url'])): ?>
+                                                        <button
                                                             class="btn btn-icon btn-bg-light btn-active-color-success btn-sm"
-                                                            title="Descargar comprobante <?= esc($pago['comprobante_numero'] ?? '') ?>"><i class="fa fa-download"></i></a>
+                                                            title="Ver comprobante adjunto"
+                                                            onclick="abrirModalVoucherAmpliado('<?= base_url(ltrim($pago['voucher_url'], '/')) ?>')">
+                                                            <i class="fa fa-eye"></i>
+                                                        </button>
                                                         <?php endif; ?>
                                                     </div>
                                                     <?php elseif ($estado_btn == 'registered'): ?>
-                                                    <button
-                                                        class="btn btn-icon btn-bg-light btn-active-color-warning btn-sm"
-                                                        title="Pago registrado, esperando validación"><i class="fa fa-hourglass-half"></i></button>
+                                                    <div style="display: flex; gap: 4px; align-items: center;">
+                                                        <button
+                                                            class="btn btn-icon btn-bg-light btn-active-color-warning btn-sm"
+                                                            title="Pago registrado, esperando validación"><i
+                                                                class="fa fa-hourglass-half"></i></button>
+                                                        <?php if (!empty($pago['voucher_url'])): ?>
+                                                        <button
+                                                            class="btn btn-icon btn-bg-light btn-active-color-info btn-sm"
+                                                            title="Ver comprobante adjunto"
+                                                            onclick="abrirModalVoucherAmpliado('<?= base_url(ltrim($pago['voucher_url'], '/')) ?>')">
+                                                            <i class="fa fa-eye"></i>
+                                                        </button>
+                                                        <?php endif; ?>
+                                                    </div>
                                                     <?php else: ?>
                                                     <button
                                                         class="btn btn-icon btn-bg-light btn-active-color-success btn-sm"
@@ -272,9 +287,9 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Obtener lista de comprobantes desde PHP
         const comprobantes = <?= json_encode($comprobantes ?? []) ?>;
-        
+
         console.log('📦 Comprobantes disponibles:', comprobantes);
-        
+
         // Para cada fila pagada, buscar si tiene comprobante
         if (comprobantes && comprobantes.length > 0) {
             // Mapear comprobantes por pago_id para búsqueda rápida
@@ -284,26 +299,26 @@
                     comprobantesByPagoId[comp.pago_id] = comp;
                 }
             });
-            
+
             console.log('🗂️ Mapa de comprobantes:', comprobantesByPagoId);
-            
+
             // Obtener todas las filas de la tabla de cronograma
             const filas = document.querySelectorAll('table.table-compact tbody tr');
             console.log(`📊 Encontradas ${filas.length} filas en la tabla`);
-            
+
             filas.forEach((fila, index) => {
                 // Obtener el ID de la cuota del data attribute o del primer td
                 const numeroCuota = fila.querySelector('td:first-child')?.textContent?.trim();
                 console.log(`Fila ${index}: ${numeroCuota}`);
-                
+
                 // Buscar la celda de Acciones (última celda)
                 const celdaAcciones = fila.querySelector('td:last-child');
                 if (!celdaAcciones) return;
-                
+
                 // Buscar un comprobante para esta fila
                 // Intentar encontrarlo por pago_id desde el atributo data
                 let comprobante = null;
-                
+
                 // Si esta fila está pagada, buscar comprobante
                 const estadoBadge = fila.querySelector('[class*="badge"]');
                 if (estadoBadge && estadoBadge.textContent.includes('Pagado')) {
@@ -316,17 +331,18 @@
                         }
                     }
                 }
-                
+
                 // Si encontramos un comprobante, añadir botón de descarga
                 if (comprobante && comprobante.pdf_url) {
                     const botonDescargar = document.createElement('a');
                     botonDescargar.href = comprobante.pdf_url;
                     botonDescargar.target = '_blank';
-                    botonDescargar.className = 'btn btn-icon btn-bg-light btn-active-color-success btn-sm';
+                    botonDescargar.className =
+                        'btn btn-icon btn-bg-light btn-active-color-success btn-sm';
                     botonDescargar.title = `Descargar comprobante ${comprobante.numero_completo || ''}`;
                     botonDescargar.innerHTML = '<i class="fa fa-download"></i>';
                     botonDescargar.style.marginLeft = '4px';
-                    
+
                     // Añadir el botón a la celda de acciones
                     const contenedor = celdaAcciones.querySelector('div');
                     if (contenedor) {
@@ -334,8 +350,9 @@
                     } else {
                         celdaAcciones.appendChild(botonDescargar);
                     }
-                    
-                    console.log(`✓ Comprobante añadido a fila ${index}: ${comprobante.numero_completo}`);
+
+                    console.log(
+                        `✓ Comprobante añadido a fila ${index}: ${comprobante.numero_completo}`);
                 }
             });
         }
@@ -603,21 +620,62 @@ document.addEventListener('DOMContentLoaded', function() {
         Swal.fire('Copiado', 'Número de cuenta copiado', 'success');
     }
 
+    // Loguear cuando se selecciona un archivo
+    document.getElementById('input-cuota-comprobante').addEventListener('change', function(e) {
+        if (this.files.length > 0) {
+            var file = this.files[0];
+            console.log('📎 ARCHIVO SELECCIONADO:', {
+                nombre: file.name,
+                tamaño: (file.size / 1024).toFixed(2) + ' KB',
+                tipo: file.type,
+                lastModified: new Date(file.lastModified).toLocaleString()
+            });
+        }
+    });
+
     document.getElementById('btn-registrar-pago-cuota').onclick = function() {
         var btn = document.getElementById('btn-registrar-pago-cuota');
         btn.disabled = true;
         var comprobanteInput = document.getElementById('input-cuota-comprobante');
         var comprobante = comprobanteInput.files.length > 0 ? comprobanteInput.files[0] : null;
+
+        console.log('💾 INICIANDO REGISTRO DE PAGO:', {
+            'ID Cuota': cuotaIdActual,
+            'Archivo adjunto': comprobante ? comprobante.name : 'NO',
+            'Tamaño archivo': comprobante ? (comprobante.size / 1024).toFixed(2) + ' KB' : '-',
+            'Timestamp': new Date().toLocaleString()
+        });
+
         var formData = new FormData();
         formData.append('id_cuota', cuotaIdActual);
         if (comprobante) formData.append('comprobante', comprobante);
+
+        // Log para ver qué se envía en FormData
+        console.log('📤 DATOS A ENVIAR:', {
+            'id_cuota': cuotaIdActual,
+            'comprobante': comprobante ? {
+                'nombre': comprobante.name,
+                'tipo': comprobante.type,
+                'tamaño': comprobante.size + ' bytes'
+            } : 'no incluido'
+        });
+
         fetch('<?php echo site_url('backoffice_new/contracts/registrarPagoCuota'); ?>', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('📥 RESPUESTA DEL SERVIDOR:', {
+                    'status': response.status,
+                    'statusText': response.statusText,
+                    'headers': {
+                        'content-type': response.headers.get('content-type')
+                    }
+                });
+                return response.json();
+            })
             .then(data => {
-                console.log('Respuesta pago cuota:', data); // <-- Depuración
+                console.log('✅ DATOS RECIBIDOS:', data); // <-- Depuración
                 cerrarModalPagoCuota();
                 let msg = data.message || (data.success ? 'Tu pago será validado.' :
                     'Intenta nuevamente.');
@@ -634,6 +692,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             })
             .catch(error => {
+                console.error('❌ ERROR EN LA SOLICITUD:', error);
                 cerrarModalPagoCuota();
                 Swal.fire({
                     icon: 'error',
@@ -647,5 +706,109 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     };
 });
+
+// Función para abrir modal con imagen ampliada del comprobante
+window.abrirModalVoucherAmpliado = function(imagenUrl) {
+    console.log('🖼️ Abriendo comprobante:', imagenUrl);
+    const modal = document.getElementById('modal-comprobante-ampliado');
+    const img = document.getElementById('img-comprobante-ampliado');
+
+    img.onerror = function() {
+        console.error('❌ Error al cargar imagen:', imagenUrl);
+        img.src =
+            'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f0f0f0" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" font-size="24" fill="%23999" text-anchor="middle" dy=".3em"%3ENo se pudo cargar la imagen%3C/text%3E%3C/svg%3E';
+    };
+
+    img.onload = function() {
+        console.log('✅ Imagen cargada correctamente');
+    };
+
+    img.src = imagenUrl;
+    modal.classList.add('show');
+}
+
+window.cerrarModalComprobanteAmpliado = function() {
+    const modal = document.getElementById('modal-comprobante-ampliado');
+    modal.classList.remove('show');
+}
+
+// Cerrar al hacer clic fuera del modal
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('modal-comprobante-ampliado');
+    if (modal && e.target === modal) {
+        cerrarModalComprobanteAmpliado();
+    }
+});
+
+// Cerrar con tecla Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        cerrarModalComprobanteAmpliado();
+    }
+});
+</script>
+
+<!-- Modal Comprobante Ampliado -->
+<div id="modal-comprobante-ampliado" class="modal-custom" style="display:none;">
+    <div class="modal-content-custom" style="max-width: 90vw; max-height: 90vh;">
+        <div class="modal-header-custom"
+            style="background: linear-gradient(90deg, #11cdef 0%, #00bcd4 100%); border-radius: 16px 16px 0 0; color: #fff; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="fw-bold" style="font-size:1.25rem; margin: 0;"><i class="fa fa-file-image me-2"></i>Comprobante
+            </h3>
+            <button type="button" class="btn btn-sm btn-light" onclick="cerrarModalComprobanteAmpliado()"
+                style="border: none; background: rgba(255,255,255,0.3); color: white; cursor: pointer;">
+                <i class="fa fa-times fa-lg"></i>
+            </button>
+        </div>
+        <div class="modal-body-custom"
+            style="padding: 2rem; text-align: center; overflow: auto; max-height: calc(90vh - 120px);">
+            <img id="img-comprobante-ampliado" src=""
+                style="max-width: 100%; max-height: 100%; border-radius: 12px; box-shadow: 0 4px 16px #0002;"
+                alt="Comprobante">
+        </div>
+        <div class="modal-footer-custom" style="margin-top: 1rem; text-align: center;">
+            <button type="button" class="btn btn-secondary" onclick="cerrarModalComprobanteAmpliado()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<style>
+#modal-comprobante-ampliado {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+}
+
+#modal-comprobante-ampliado.show {
+    display: flex !important;
+}
+
+#modal-comprobante-ampliado .modal-content-custom {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 8px 48px #0003;
+    overflow: hidden;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: scale(0.95) translateY(-20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+</style>
 </script>
 </body>
