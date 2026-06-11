@@ -153,6 +153,8 @@
                                                             colspan="1" style="width: 136.817px;">Detracción</th>
                                                         <th class="pe-3 min-w-100px sorting" tabindex="0" rowspan="1"
                                                             colspan="1" style="width: 136.817px;">Factura</th>
+                                                        <th class="pe-3 min-w-100px sorting" tabindex="0" rowspan="1"
+                                                            colspan="1" style="width: 136.817px;">Voucher de Pago</th>
                                                         <th class="pe-3 min-w-50px sorting" tabindex="0" rowspan="1"
                                                             colspan="1" style="width: 85.9667px;">
                                                             <?php echo lang('Global.estado'); ?></th>
@@ -194,6 +196,16 @@
                                                                 class="btn btn-sm btn-light-primary">Ver factura</a>
                                                             <?php } else { ?>
                                                             <span class="text-muted">No adjunta</span>
+                                                            <?php } ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php if (!empty($value->voucher_pago)) {
+                                                                $voucher_url = site_url('public/vouchers/' . $value->voucher_pago);
+                                                            ?>
+                                                            <a href="<?php echo $voucher_url; ?>" target="_blank"
+                                                                class="btn btn-sm btn-light-success">Ver Voucher</a>
+                                                            <?php } else { ?>
+                                                            <span class="text-muted">Pendiente</span>
                                                             <?php } ?>
                                                         </td>
                                                         <td>

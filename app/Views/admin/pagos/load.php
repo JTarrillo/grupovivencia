@@ -39,7 +39,7 @@
 </div>
 
 <h5 class="mb-3 mt-4 border-bottom pb-2">Gestión del Pago</h5>
-<form id="form_pay" method="post" action="<?php echo site_url('dashboard/pagos/status'); ?>">
+<form id="form_pay" method="post" action="<?php echo site_url('dashboard/pagos/status'); ?>" enctype="multipart/form-data">
     <input type="hidden" name="id" value="<?php echo isset($obj_pay) ? $obj_pay->id : ''; ?>">
     
     <div class="form-group">
@@ -51,6 +51,14 @@
         </select>
     </div>
 
+    <div class="form-group">
+        <label>Voucher de Pago (Obligatorio si es Pagado):</label>
+        <input type="file" name="voucher_pago" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+        <?php if (isset($obj_pay) && !empty($obj_pay->voucher_pago)): ?>
+            <small class="form-text text-muted mt-2">Voucher actual: <a href="<?php echo site_url('public/vouchers/' . $obj_pay->voucher_pago); ?>" target="_blank">Ver Voucher</a></small>
+        <?php endif; ?>
+    </div>
+
     <div class="form-group text-right mt-4">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
         <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Guardar Estado</button>
@@ -60,10 +68,23 @@
 <script>
     $('#form_pay').submit(function(e) {
         e.preventDefault();
+        
+        var formData = new FormData(this);
+        var activeStatus = formData.get('active');
+        var voucherFile = formData.get('voucher_pago');
+        var existingVoucher = "<?php echo isset($obj_pay) && !empty($obj_pay->voucher_pago) ? $obj_pay->voucher_pago : ''; ?>";
+
+        if (activeStatus == '2' && !voucherFile.name && existingVoucher == '') {
+            Swal.fire('Atención', 'Debe adjuntar el voucher de pago cuando el estado es "Pagado".', 'warning');
+            return;
+        }
+
         $.ajax({
             url: $(this).attr('action'),
             type: $(this).attr('method'),
-            data: $(this).serialize(),
+            data: formData,
+            processData: false,
+            contentType: false,
             success: function(response) {
                 $('#modal_pay').modal('hide');
                 Swal.fire({

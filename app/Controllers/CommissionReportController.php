@@ -381,27 +381,24 @@ class CommissionReportController extends BaseController
      */
     public function delete($id)
     {
-        if (!$this->request->isAJAX()) {
-            return $this->response->setJSON(['status' => false, 'message' => 'Invalid request']);
-        }
-
-        $customerId = session()->get('id');
-        if (!$customerId) {
-            return $this->response->setJSON(['status' => false, 'message' => 'Unauthorized']);
-        }
+        $session = session();
+        $userId = $session->get('id');
 
         $report = $this->commissionReportModel->find($id);
 
-        if (!$report) {
-            return $this->response->setJSON(['status' => false, 'message' => 'Informe no encontrado']);
+        if (!$report || $report['customer_id'] != $userId) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Informe no encontrado o sin permisos'
+            ]);
         }
 
-        if ($report['customer_id'] != $customerId) {
-            return $this->response->setJSON(['status' => false, 'message' => 'No tienes permiso para eliminar este informe']);
-        }
-
-        if ($report['status'] !== 'pending') {
-            return $this->response->setJSON(['status' => false, 'message' => 'Solo se pueden eliminar informes en estado Pendiente']);
+        // Solo permitir borrar si está pendiente o rechazado
+        if (!in_array($report['status'], ['pending', 'rejected'])) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'No se puede eliminar un informe en proceso o aprobado'
+            ]);
         }
 
         // Eliminar archivos físicos
@@ -423,16 +420,64 @@ class CommissionReportController extends BaseController
             }
         }
 
-        // Eliminar de BD
         if ($this->commissionReportModel->delete($id)) {
             return $this->response->setJSON([
-                'status' => true,
+                'success' => true,
                 'message' => 'Informe eliminado correctamente'
             ]);
         }
 
         return $this->response->setJSON([
-            'status' => false,
+            'success' => false,
+            'message' => 'Error al eliminar el informe'
+        ]);
+    }
+
+    public function deleteAdmin($id)
+    {
+        $session = session();
+
+        $report = $this->commissionReportModel->find($id);
+
+        if (!$report) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Informe no encontrado'
+            ]);
+        }
+
+        // Eliminar archivos físicos
+        $files = [
+            'attachment_excel',
+            'attachment_vauchers',
+            'attachment_invoices',
+            'attachment_factura_pdf',
+            'generated_report_pdf',
+            'generated_report_word'
+        ];
+
+        foreach ($files as $fileField) {
+            if (!empty($report[$fileField])) {
+                $filePath = 'uploads/commission_reports/' . $report[$fileField];
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+        }
+
+        // Borrar el registro permanentemente usando query builder porque la tabla no tiene soft deletes configurados
+        $db = \Config\Database::connect();
+        $deleted = $db->table('commission_reports')->where('id', $id)->delete();
+
+        if ($deleted) {
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Informe eliminado correctamente'
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'success' => false,
             'message' => 'Error al eliminar el informe'
         ]);
     }

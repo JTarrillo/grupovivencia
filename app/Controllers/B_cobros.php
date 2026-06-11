@@ -65,9 +65,6 @@ class B_cobros extends BaseController
   // Ahora el balance disponible depende de los informes aprobados, no de las comisiones en bruto
   $obj_earn_disponible = $CommissionReport->getApprovedBalanceByCustomer($id); // Solo de informes aprobados
   
-  // OBTENER EL SALDO QUE AÚN NO HA SIDO PAGADO (DESCONTANDO LOS COBROS REALIZADOS)
-  // El Evox nos da el saldo real descontando pagos
-  $obj_earn_disponible = $evox->get_commission_by_period_id($id)->total_disponible ?? 0;
   
     //get all rpay
     $obj_pay = $Pay->get_search_by_id($id);

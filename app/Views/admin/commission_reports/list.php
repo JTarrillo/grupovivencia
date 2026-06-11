@@ -125,14 +125,12 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <a href="<?php echo site_url('/dashboard/commission-reports/view/' . $report['id']); ?>" 
-                                                   class="btn btn-sm btn-primary" title="Ver detalle">
-                                                    <i class="fa fa-eye"></i> Ver
+                                                <a href="<?php echo site_url('/dashboard/commission-reports/view/' . $report['id']); ?>" class="btn btn-sm btn-primary" title="Ver detalle">
+                                                    <i class="fa fa-eye"></i>
                                                 </a>
-                                                <a href="<?php echo site_url('dashboard/commission-reports?status=' . $report['status']); ?>" 
-                                                   class="btn btn-sm btn-info" title="Filtrar por este estado">
-                                                    <i class="fa fa-filter"></i>
-                                                </a>
+                                                <button type="button" class="btn btn-sm btn-danger btn-delete-report" data-id="<?php echo $report['id']; ?>" title="Eliminar informe">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -169,5 +167,55 @@
         </div>
     </section>
     <?php echo view("admin/footer"); ?>
+    
+    <script>
+    $(document).ready(function() {
+        $('.btn-delete-report').on('click', function(e) {
+            e.preventDefault();
+            var reportId = $(this).data('id');
+            var row = $(this).closest('tr');
+            
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "No podrás revertir esta acción. El informe será eliminado permanentemente.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "<?php echo site_url('dashboard/commission-reports/delete/'); ?>" + reportId,
+                        type: "POST",
+                        dataType: "json",
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire(
+                                    '¡Eliminado!',
+                                    response.message,
+                                    'success'
+                                ).then(() => {
+                                    row.fadeOut(400, function() {
+                                        $(this).remove();
+                                        if ($('table tbody tr').length === 0) {
+                                            location.reload();
+                                        }
+                                    });
+                                });
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'No se pudo procesar la solicitud', 'error');
+                        }
+                    });
+                }
+            });
+        });
+    });
+    </script>
 </body>
 </html>

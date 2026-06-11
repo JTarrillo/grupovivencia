@@ -20,7 +20,9 @@ class PaysModel extends Model{
                                 'bank',  
                                 'number',  
                                 'cci',  
-                                'total',  
+                                'total',
+                                'factura',
+                                'voucher_pago',
                                 'active'
                                 ];
     protected $useTimestamps = false;
@@ -145,7 +147,7 @@ class PaysModel extends Model{
     }
 
     public function get_search_by_id($id){
-        $obj_result =  $this->db->query("SELECT pays.date, pays.amount, pays.id, pays.created_at, pays.discount, pays.active, customers.pay , customers.name, customers.lastname, customers.code
+        $obj_result =  $this->db->query("SELECT pays.date, pays.amount, pays.id, pays.created_at, pays.discount, pays.active, pays.factura, pays.voucher_pago, customers.pay , customers.name, customers.lastname, customers.code
                                         FROM pays 
                                         JOIN customers
                                         ON pays.customer_id = customers.id

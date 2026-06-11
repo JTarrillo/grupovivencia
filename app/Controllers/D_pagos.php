@@ -217,7 +217,28 @@ class D_pagos extends BaseController
             $id = $this->request->getPost('id');
 
             $status = $this->request->getPost('status');
+            $active = $this->request->getPost('active');
+            
+            if(!$status && $active) {
+                $status = $active;
+            }
 
+            // Procesar archivo voucher_pago si existe
+            $voucher_pago = null;
+            $file = $this->request->getFile('voucher_pago');
+            if ($file && $file->isValid() && !$file->hasMoved()) {
+                $ext = $file->getExtension();
+                $allowed = ['pdf', 'jpg', 'jpeg', 'png'];
+                if (in_array(strtolower($ext), $allowed)) {
+                    $voucherName = uniqid('voucher_') . '.' . $ext;
+                    $dest = FCPATH . 'public/vouchers/';
+                    if (!is_dir($dest)) {
+                        mkdir($dest, 0777, true);
+                    }
+                    $file->move($dest, $voucherName);
+                    $voucher_pago = $voucherName;
+                }
+            }
 
 
             $obj_pays = new PaysModel();
@@ -231,8 +252,13 @@ class D_pagos extends BaseController
             $builder = $db->table('pays');
 
             $builder->where('id', $id);
+            
+            $updateData = ['active' => $status];
+            if ($voucher_pago) {
+                $updateData['voucher_pago'] = $voucher_pago;
+            }
 
-            $result = $builder->update(['active' => $status]);
+            $result = $builder->update($updateData);
 
 
 

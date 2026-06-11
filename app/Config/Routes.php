@@ -660,6 +660,7 @@ $routes->get('/dashboard/commission-reports', 'CommissionReportController::admin
 $routes->get('/dashboard/commission-reports/view/(:num)', 'CommissionReportController::view/$1', ['filter' => 'authGuard']);
 $routes->get('/dashboard/commission-reports/list', 'CommissionReportController::listAll', ['filter' => 'authGuard']);
 $routes->post('/dashboard/commission-reports/update-status', 'CommissionReportController::updateStatus', ['filter' => 'authGuard']);
+$routes->post('/dashboard/commission-reports/delete/(:num)', 'CommissionReportController::deleteAdmin/$1', ['filter' => 'authGuard']);
 $routes->post('/dashboard/commission-reports/store', 'CommissionReportController::store', ['filter' => 'authGuard']);
 $routes->get('/dashboard/commission-reports/download/(:num)/(:any)', 'CommissionReportController::downloadAttachment/$1/$2', ['filter' => 'authGuard']);
 
