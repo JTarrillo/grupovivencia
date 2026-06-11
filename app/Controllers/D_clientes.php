@@ -110,68 +110,75 @@ class D_clientes extends BaseController
         );
 
         // 2. Intentar insertar localmente
-        if ($Customer->insert($param)) {
-            $customer_id = $Customer->getInsertID();
+        try {
+            if ($Customer->insert($param)) {
+                $customer_id = $Customer->getInsertID();
 
-            // --- INICIO INTEGRACIÓN API FACTURACIÓN ---
-            $client = \Config\Services::curlrequest();
-            $token = $session->get('api_access_token');
-            $tokenType = $session->get('api_token_type') ?? 'Bearer';
+                // --- INICIO INTEGRACIÓN API FACTURACIÓN ---
+                $client = \Config\Services::curlrequest();
+                $token = $session->get('api_access_token');
+                $tokenType = $session->get('api_token_type') ?? 'Bearer';
 
-            // Lógica de tipo de documento para la API
-            $tipoDoc = "1"; // DNI por defecto
-            $numDoc  = $param['dni'];
-            if (!empty($param['ruc'])) {
-                $tipoDoc = "6"; // Si hay RUC, mandamos 6
-                $numDoc  = $param['ruc'];
-            }
-
-            // El array especial que pediste
-            $jsonApi = [
-                "company_id"       => 1,
-                "tipo_documento"   => $tipoDoc,
-                "numero_documento" => $numDoc,
-                "razon_social"     => trim($param['name'] . ' ' . $param['lastname'] . ' ' . $param['mother_last']),
-                "direccion"        => !empty($param['address']) ? $param['address'] : "Lima",
-                "ubigeo"           => "150101",
-                "distrito"         => "Lima",
-                "provincia"        => "Lima",
-                "departamento"     => "Lima",
-                "telefono"         => !empty($param['phone']) ? $param['phone'] : "999999999",
-                "email"            => $param['email']
-            ];
-
-            // Consumir API si tenemos token
-            $apiMessage = "API no ejecutada (sin token)";
-            if ($token) {
-                try {
-                    $response = $client->post('https://apifacturacion.groupdispensersac.com/api/v1/clients', [
-                        'headers' => [
-                            'Authorization' => $tokenType . ' ' . $token,
-                            'Accept'        => 'application/json',
-                        ],
-                        'json' => $jsonApi,
-                        'http_errors' => false
-                    ]);
-                    $apiResult = json_decode($response->getBody(), true);
-                    $apiMessage = "API ejecutada";
-                } catch (\Exception $e) {
-                    $apiMessage = "Error API: " . $e->getMessage();
+                // Lógica de tipo de documento para la API
+                $tipoDoc = "1"; // DNI por defecto
+                $numDoc  = $param['dni'];
+                if (!empty($param['ruc'])) {
+                    $tipoDoc = "6"; // Si hay RUC, mandamos 6
+                    $numDoc  = $param['ruc'];
                 }
-            }
-            // --- FIN INTEGRACIÓN API FACTURACIÓN ---
 
-            return $this->response->setJSON([
-                'success'     => true,
-                'message'     => 'Cliente creado correctamente',
-                'customer_id' => $customer_id,
-                'api_status'  => $apiMessage,
-                'api_debug'   => $jsonApi // Opcional: para ver qué se mandó
-            ]);
-        } else {
+                // El array especial que pediste
+                $jsonApi = [
+                    "company_id"       => 1,
+                    "tipo_documento"   => $tipoDoc,
+                    "numero_documento" => $numDoc,
+                    "razon_social"     => trim($param['name'] . ' ' . $param['lastname'] . ' ' . $param['mother_last']),
+                    "direccion"        => !empty($param['address']) ? $param['address'] : "Lima",
+                    "ubigeo"           => "150101",
+                    "distrito"         => "Lima",
+                    "provincia"        => "Lima",
+                    "departamento"     => "Lima",
+                    "telefono"         => !empty($param['phone']) ? $param['phone'] : "999999999",
+                    "email"            => $param['email']
+                ];
+
+                // Consumir API si tenemos token
+                $apiMessage = "API no ejecutada (sin token)";
+                if ($token) {
+                    try {
+                        $response = $client->post('https://apifacturacion.groupdispensersac.com/api/v1/clients', [
+                            'headers' => [
+                                'Authorization' => $tokenType . ' ' . $token,
+                                'Accept'        => 'application/json',
+                            ],
+                            'json' => $jsonApi,
+                            'http_errors' => false
+                        ]);
+                        $apiResult = json_decode($response->getBody(), true);
+                        $apiMessage = "API ejecutada";
+                    } catch (\Exception $e) {
+                        $apiMessage = "Error API: " . $e->getMessage();
+                    }
+                }
+                // --- FIN INTEGRACIÓN API FACTURACIÓN ---
+
+                return $this->response->setJSON([
+                    'success'     => true,
+                    'message'     => 'Cliente creado correctamente',
+                    'customer_id' => $customer_id,
+                    'api_status'  => $apiMessage,
+                    'api_debug'   => $jsonApi // Opcional: para ver qué se mandó
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Error al crear el cliente'
+                ]);
+            }
+        } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Error al crear el cliente'
+                'message' => 'El correo o DNI ya está registrado por otro cliente. Por favor, verifique.'
             ]);
         }
     }
@@ -222,15 +229,22 @@ class D_clientes extends BaseController
         }
 
         // Intentar actualizar
-        if ($Customer->update($customer_id, $param)) {
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Cliente actualizado correctamente'
-            ]);
-        } else {
+        try {
+            if ($Customer->update($customer_id, $param)) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Cliente actualizado correctamente'
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Error al actualizar el cliente'
+                ]);
+            }
+        } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Error al actualizar el cliente'
+                'message' => 'El correo o DNI ya está registrado por otro cliente. Por favor, verifique.'
             ]);
         }
     }

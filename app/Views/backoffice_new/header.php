@@ -14,7 +14,7 @@
                     </svg>
                 </span>
             </div>
-            <a href="<?php echo site_url() . "backoffice_new/home"; ?>">
+            <a href="<?php echo site_url() . "backoffice_new"; ?>">
                 <!-- start logo,  cambio de logo:  -->
                 <img alt="Logo" src="<?php echo site_url() . "assets/front/img/logo/logo_2025.png"; ?>" alt="logo"
                     width="80" />
@@ -266,7 +266,7 @@
                     </div>
                     <div class="separator my-2"></div>
                     <div class="menu-item px-5 my-1">
-                        <a href="<?php echo site_url() . "backoffice_new/home/configuracion"; ?>"
+                        <a href="<?php echo site_url() . "backoffice_new/configuracion"; ?>"
                             class="px-5 linked-icon-items"><?php echo lang('Global.configuración'); ?></a>
                     </div>
                     <div class="menu-item px-5">

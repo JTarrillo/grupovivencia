@@ -1,0 +1,121 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Informe de Comisiones</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 11pt;
+            line-height: 1.2;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            text-align: center;
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 15px;
+            font-size: 12pt;
+        }
+        .info-table {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .info-table td {
+            vertical-align: top;
+            padding: 2px 0;
+        }
+        .info-table td.label {
+            width: 15%;
+            font-weight: bold;
+        }
+        .info-table td.colon {
+            width: 5%;
+        }
+        .info-table td.value {
+            width: 80%;
+        }
+        .content {
+            text-align: justify;
+            margin-bottom: 15px;
+        }
+        .content p {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .signature-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        INFORME Nº002-2026-AREA DE VENTAS-GRUPO VIVENCIA S.A.C.
+    </div>
+
+    <table class="info-table">
+        <tr>
+            <td class="label">A</td>
+            <td class="colon">:</td>
+            <td class="value">
+                BACH.DEISSY FIORELA CHURA LOZANO<br>
+                <strong>AREA DE CONTABILIDAD</strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">DE</td>
+            <td class="colon">:</td>
+            <td class="value">ROLANDO IRVYNG CONTRERAS HUIDOBRO</td>
+        </tr>
+        <tr>
+            <td class="label">ASUNTO</td>
+            <td class="colon">:</td>
+            <td class="value">
+                PRUEBA<br>
+                <strong>(descripcion)</strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">FECHA</td>
+            <td class="colon">:</td>
+            <td class="value">Cusco, 11 de June del 2026</td>
+        </tr>
+    </table>
+
+    <hr style="border: 0; border-top: 1.5px solid #000; margin-bottom: 15px;">
+
+    <div class="content">
+        <p>Previo un cordial saludo, me dirijo a Usted con la finalidad de detallar el cierre mensual del mes de june del 2026, se presenta el desglose de las comisiones generadas por mis ventas realizadas en las asociaciones (descripcion) mencionados de manera detallada en el cuadro Excel, adjuntando nuestras comisiones por reserva, inicial y cuotas de los clientes.</p>
+
+        <p>prueba </p>
+
+        <p>Asimismo, el porcentaje por cada lote sumando un total de <strong>S/ 632.67</strong> factura número 12044864 a la empresa GRUPO VIVENCIA S.A.C</p>
+
+        <p>Este informe refleja las comisiones correspondientes al mes de june del 2026.</p>
+
+        <p>Los montos presentados están calculados de acuerdo con los procedimientos establecidos en la empresa y se encuentran listos para su verificación y pago por el departamento de contabilidad.</p>
+        
+        <p style="margin-bottom: 3px;">Se adjunta:</p>
+        <p style="margin-bottom: 3px; padding-left: 20px;">1. CUADRO EXCEL</p>
+        <p style="margin-bottom: 3px; padding-left: 20px;">2. VAUCHERS DE DEPOSITO</p>
+        <p style="margin-bottom: 10px; padding-left: 20px;">3. BOLETAS DE VENTA</p>
+
+        <p>Es cuanto informo a su despacho para su conocimiento y acciones correspondientes.</p>
+        
+        <p style="text-align: center; margin-bottom: 0;">Atentamente</p>
+    </div>
+
+    <div class="signature-section">
+                    <!-- For Word to correctly render base64 images, we need special formatting or just a regular img tag with explicit width/height -->
+            <img src="http://localhost:8081/uploads/commission_reports/signature_1781211940_6a2b23247a99d.png" width="200" height="90" style="border-bottom: 1px solid #000; margin-bottom: 5px; display: block; margin-left: auto; margin-right: auto;" alt="Firma Digital">
+                <br>
+        <div class="signature-name" style="font-weight: bold;">ROLANDO IRVYNG CONTRERAS HUIDOBRO</div>
+        <div>ASESOR DE VENTAS</div>
+    </div>
+
+</body>
+</html></body></html>

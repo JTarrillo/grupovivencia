@@ -22,6 +22,7 @@ class CommissionReportModel extends Model
         'description',
         'invoice_number',
         'total_amount',
+        'paid_amount',
         'projects',
         'attachment_excel',
         'attachment_vauchers',
@@ -156,15 +157,24 @@ class CommissionReportModel extends Model
     }
 
     /**
-     * Get the total amount of approved, unpaid commission reports for a specific customer
+     * Obtener el balance disponible de informes aprobados pero no pagados (o pagados parcialmente)
      */
     public function getApprovedBalanceByCustomer($customerId)
     {
-        $result = $this->selectSum('total_amount')
-            ->where('customer_id', $customerId)
-            ->where('status', 'approved')
-            ->first();
-            
-        return $result['total_amount'] ?? 0;
+        $db = \Config\Database::connect();
+        $builder = $db->table($this->table);
+        $builder->selectSum('total_amount', 'total');
+        $builder->selectSum('paid_amount', 'paid');
+        $builder->where('customer_id', $customerId);
+        $builder->whereIn('status', ['approved', 'paid']); // Consideramos los aprobados y parcialmente pagados
+        
+        $result = $builder->get()->getRow();
+        
+        $total = $result->total ?? 0;
+        $paid = $result->paid ?? 0;
+        
+        $available = $total - $paid;
+        
+        return $available > 0 ? $available : 0;
     }
 }

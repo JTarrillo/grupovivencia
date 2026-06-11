@@ -66,14 +66,14 @@
         </div>
     </div>
 
-    <!-- Tabla de Informes Pendientes -->
+    <!-- Tabla de Últimos Informes -->
     <div class="row">
         <div class="col-md-12">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
                     <h4 class="mb-0">
                         <i class="fa fa-list"></i>
-                        Informes Pendientes de Revisión
+                        Últimos Informes Registrados
                     </h4>
                 </div>
 
@@ -90,31 +90,65 @@
                                     <tr>
                                         <th width="12%">Nº Informe</th>
                                         <th width="20%">Patrocinador</th>
-                                        <th width="15%">Monto (S/)</th>
+                                        <th width="15%">Monto</th>
                                         <th width="15%">Factura</th>
-                                        <th width="15%">Fecha Creación</th>
-                                        <th width="23%">Acciones</th>
+                                        <th width="10%">Estado</th>
+                                        <th width="15%">Fecha</th>
+                                        <th width="13%">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($pending_reports as $report): ?>
                                         <tr>
-                                            <td class="fw-bold"><?php echo $report['report_number']; ?></td>
+                                            <td><strong><?php echo $report['report_number']; ?></strong></td>
                                             <td>
-                                                <?php echo $report['patron_name'] ?? 'N/A'; ?>
-                                                <br>
-                                                <small class="text-muted"><?php echo $report['patron_position'] ?? ''; ?></small>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar bg-light-primary text-primary rounded-circle mr-2" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                                        <?php echo substr($report['patron_name'], 0, 1); ?>
+                                                    </div>
+                                                    <div>
+                                                        <div class="font-weight-bold"><?php echo $report['patron_name']; ?></div>
+                                                        <small class="text-muted">ID: <?php echo $report['customer_id']; ?></small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><strong class="text-success">S/ <?php echo number_format($report['total_amount'], 2); ?></strong></td>
+                                            <td>
+                                                <?php if (!empty($report['invoice_number'])): ?>
+                                                    <span class="badge badge-light-secondary border"><i class="fa fa-file-invoice"></i> <?php echo $report['invoice_number']; ?></span>
+                                                <?php else: ?>
+                                                    <span class="text-muted">-</span>
+                                                <?php endif; ?>
                                             </td>
                                             <td>
-                                                <strong class="text-success">S/<?php echo number_format($report['total_amount'], 2); ?></strong>
+                                                <?php
+                                                    $statusBadge = [
+                                                        'pending' => 'badge-warning',
+                                                        'reviewed' => 'badge-info',
+                                                        'approved' => 'badge-success',
+                                                        'rejected' => 'badge-danger',
+                                                        'paid' => 'badge-primary'
+                                                    ];
+                                                    $statusText = [
+                                                        'pending' => 'Pendiente',
+                                                        'reviewed' => 'Revisado',
+                                                        'approved' => 'Aprobado',
+                                                        'rejected' => 'Rechazado',
+                                                        'paid' => 'Pagado'
+                                                    ];
+                                                    $badge = $statusBadge[$report['status']] ?? 'badge-secondary';
+                                                    $text = $statusText[$report['status']] ?? $report['status'];
+                                                ?>
+                                                <span class="badge <?php echo $badge; ?>">
+                                                    <?php echo $text; ?>
+                                                </span>
                                             </td>
-                                            <td><?php echo $report['invoice_number'] ?? '-'; ?></td>
                                             <td><?php echo date('d/m/Y H:i', strtotime($report['created_at'])); ?></td>
                                             <td>
                                                 <a href="<?php echo site_url('/dashboard/commission-reports/view/' . $report['id']); ?>" class="btn btn-sm btn-primary" title="Ver detalle">
                                                     <i class="fa fa-eye"></i> Ver
                                                 </a>
-                                                <a href="<?php echo site_url('/dashboard/commission-reports?status=pending'); ?>" class="btn btn-sm btn-secondary" title="Ver más">
+                                                <a href="<?php echo site_url('/dashboard/commission-reports/list'); ?>" class="btn btn-sm btn-secondary" title="Ver todos los informes">
                                                     <i class="fa fa-list"></i> Más
                                                 </a>
                                             </td>

@@ -127,22 +127,30 @@ class B_perfil extends BaseController
       $param = array(
         'name' => $name,
         'lastname' => $last_name,
-        //'dni' => $dni,
+        'email' => $request->getPostGet('email'), // Guardar el email actualizado
         'avatar' => $img,
         'phone' => $phone,
         'co_name' => $co_name,
         'address' => $address,
-        //'country_id' => $country,
       );
 
-      $result = $Customer->update($id, $param);
-      if (!is_null($result)) {
-        $data['status'] = true;
-        $data['message'] = SAVED;
-      } else {
+      try {
+        $result = $Customer->update($id, $param);
+        if (!is_null($result)) {
+          // Actualizar la sesión también si el correo cambia
+          $_SESSION['email'] = $request->getPostGet('email');
+          
+          $data['status'] = true;
+          $data['message'] = SAVED;
+        } else {
+          $data['status'] = false;
+          $data['message'] = ERROR;
+        }
+      } catch (\Exception $e) {
         $data['status'] = false;
-        $data['message'] = ERROR;
+        $data['message'] = 'El correo ya está en uso por otro cliente.';
       }
+      
       echo json_encode($data);
       exit();
     }

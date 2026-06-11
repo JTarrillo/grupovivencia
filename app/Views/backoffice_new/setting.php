@@ -257,10 +257,10 @@
                                                 <span class="required">Email</span>
                                             </label>
                                             <div class="col-lg-8 fv-row">
-                                                <input type="text"
+                                                <input type="text" name="email" id="email"
                                                     class="form-control form-control-lg form-control-solid"
                                                     placeholder="Email" value="<?php echo $obj_customer->email; ?>"
-                                                    readonly />
+                                                     />
                                             </div>
                                         </div>
                                         <div class="row mb-6">

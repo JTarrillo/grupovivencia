@@ -219,6 +219,12 @@ function create_customer() {
  * Detectar si es crear o editar y llamar función apropiada
  */
 function submitCustomerForm() {
+    const form = document.getElementById('form-customer');
+    if (form && !form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
     const action = document.querySelector('input[name="action"]').value;
     const submitBtn = document.querySelector('#modalCreateCustomer .modal-footer .btn-primary');
     

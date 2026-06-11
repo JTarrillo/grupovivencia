@@ -57,24 +57,30 @@
                                 </div>
                             </div>
                             <?php } ?>
+                            <!-- Columna 1: Balance y Contratos -->
                             <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-4 mb-md-5 mb-xl-10">
                                 <!--begin balance (comisiones)-->
                                 <div class="card card-flush h-md-50 mb-5 mb-xl-10">
                                     <div class="card-header pt-5">
                                         <div class="card-title d-flex flex-column">
                                             <div class="d-flex align-items-center">
-                                                <span
-                                                    class="fs-4 fw-semibold text-gray-400 me-1 align-self-start">S/</span>
-                                                <span
-                                                    class="fs-2hx fw-bold text-dark me-2 lh-1 ls-n2"><?php echo format_number_miles_decimal($total_periodo); ?></span>
+                                                <span class="fs-4 fw-semibold text-gray-400 me-1 align-self-start">S/</span>
+                                                <span class="fs-2hx fw-bold text-dark me-2 lh-1 ls-n2">
+                                                    <?php echo format_number_miles_decimal($total_disponible); ?>
+                                                </span>
                                             </div>
-                                            <span class="text-gray-400 pt-1 fw-semibold fs-6">Balance de Comisiones
-                                            </span>
+                                            <span class="card-label fw-bold text-gray-400">Balance de Comisiones</span>
                                         </div>
                                     </div>
-                                    <div class="card-body pt-2 pb-4 d-flex align-items-center">
-                                        <div class="d-flex flex-column content-justify-center w-100">
-                                            <div class="d-flex fs-6 fw-semibold align-items-center">
+                                    <div class="card-body pt-2 pb-4 d-flex flex-wrap align-items-center">
+                                        <div class="d-flex flex-center me-5 pt-2">
+                                            <div id="kt_card_widget_17_chart" style="min-width: 70px; min-height: 70px" data-kt-size="70"
+                                                data-kt-line="11">
+                                            </div>
+                                        </div>
+                                        <div class="d-flex flex-column content-justify-center flex-row-fluid">
+                                            <div class="d-flex fw-semibold align-items-center my-3">
+                                                <div class="bullet w-8px h-3px rounded-2 bg-success me-3"></div>
                                                 <div class="text-gray-500 flex-grow-1 me-4">Disponible</div>
                                                 <div class="fw-bolder text-gray-700 text-xxl-end">
                                                     S/<?php echo format_number_miles_decimal($total_disponible); ?>
@@ -84,7 +90,8 @@
                                     </div>
                                 </div>
                                 <!--end balance-->
-                                <!--begin proyectos/lotes inmobiliarios-->
+                                
+                                <!--begin proyectos/lotes inmobiliarios (Widget Inteligente)-->
                                 <div class="card card-flush h-md-50 mb-xl-10">
                                     <div class="card-header pt-5">
                                         <div class="card-title d-flex flex-column">
@@ -93,26 +100,55 @@
                                                     <?php echo isset($total_lotes_contrato) ? $total_lotes_contrato : 0; ?>
                                                 </span>
                                             </div>
-                                            <span class="card-label fw-bold text-dark">Proyectos en Gestión</span>
-                                            <span class="text-gray-400 pt-1 fw-semibold fs-6">Lotes con contrato:
-                                                <?php echo isset($total_lotes_contrato) ? $total_lotes_contrato : 0; ?></span>
-                                            <!-- Botón o mensaje según contratos -->
-                                            <div class="mt-3">
-                                                <?php if (isset($total_lotes_contrato) && $total_lotes_contrato > 0) { ?>
-                                                <a href="<?php echo site_url() . BACKOFFICE . "/contratos"; ?>"
-                                                    class="btn btn-primary">
-                                                    Ver Mis Contratos
-                                                </a>
-                                                <?php } else { ?>
-                                                <div class="alert alert-warning mb-0">No tiene contratos asignados.
+                                            <span class="card-label fw-bold text-dark">Mis Contratos Recientes</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body pt-2 pb-4">
+                                        <?php if (isset($obj_contracts) && count($obj_contracts) > 0) { ?>
+                                        <div class="d-flex flex-column gap-3" style="max-height: 250px; overflow-y: auto;">
+                                            <?php foreach ($obj_contracts as $c) { 
+                                                    // Determine the color based on status
+                                                    $statusColor = 'success';
+                                                    if (strtolower($c['status']) == 'pendiente') $statusColor = 'warning';
+                                                    if (strtolower($c['status']) == 'suspendido') $statusColor = 'danger';
+                                                ?>
+                                                <div class="d-flex align-items-center border border-dashed border-gray-300 rounded p-3 bg-hover-light">
+                                                    <div class="symbol symbol-40px me-4">
+                                                        <span class="symbol-label bg-light-<?= $statusColor ?>">
+                                                            <i class="fa fa-file-signature text-<?= $statusColor ?> fs-4"></i>
+                                                        </span>
+                                                    </div>
+                                                    <div class="d-flex flex-column flex-grow-1">
+                                                        <a href="<?= site_url('backoffice_new/contracts/cronograma/' . $c['id']) ?>" class="text-dark text-hover-primary fw-bold fs-6">
+                                                            <?= esc($c['project_name']) ?>
+                                                        </a>
+                                                        <span class="text-muted fw-semibold fs-7">
+                                                            Mz: <?= esc($c['block_name'] ?? '-') ?> | Lote: <?= esc($c['lot_name'] ?? $c['lot_id']) ?> | <?= date('d/m/Y', strtotime($c['contract_date'])) ?>
+                                                        </span>
+                                                    </div>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="badge badge-light-<?= $statusColor ?> fs-8 fw-bold">
+                                                            <?= ucfirst(esc($c['status'])) ?>
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 <?php } ?>
-                                            </div>
+                                        </div>
+                                        <?php } else { ?>
+                                        <div class="alert alert-warning mb-0">No tiene contratos asignados.</div>
+                                        <?php } ?>
+
+                                        <div class="mt-4">
+                                            <a href="<?php echo site_url() . BACKOFFICE . "/contratos"; ?>" class="btn w-100" style="background-color: #1d6e7e !important; color: white !important; border-radius: 4px; font-weight: 500; padding: 10px 20px; font-size: 14px;">
+                                                Ver Todos Mis Contratos
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
-                                <!--end proyectos/lotes-->
+                                <!--end proyectos/lotes inmobiliarios (Widget Inteligente)-->
                             </div>
+                            
+                            <!-- Columna 2: Enlace y Equipo -->
                             <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-4 mb-md-5 mb-xl-10">
                                 <!--begin referido-->
                                 <div class="card card-flush h-md-50 mb-5 mb-xl-10">
@@ -234,6 +270,8 @@
                                 </div>
                                 <!--end equipo -->
                             </div>
+                            
+                            <!-- Columna 3: Ventas Realizadas -->
                             <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-4 mb-md-5 mb-xl-10">
                                 <!--begin ventas/reservas inmobiliarias-->
                                 <div class="card card-flush h-md-50 mb-5 mb-xl-10">
@@ -245,25 +283,33 @@
                                                 </span>
                                             </div>
                                             <span class="card-label fw-bold text-dark">Ventas Realizadas</span>
-                                            <span class="text-gray-400 pt-1 fw-semibold fs-6">Reservas Activas:
-                                                <?php echo isset($total_reservas) ? $total_reservas : 0; ?></span>
+                                            <span class="text-gray-400 pt-1 fw-semibold fs-6">Reservas Activas: <?php echo isset($total_reservas) ? $total_reservas : 0; ?></span>
                                         </div>
+                                    </div>
+                                    <div class="card-body pt-2 pb-4 d-flex align-items-end">
+                                        <button type="button" class="btn w-100" style="background-color: #f1f1f4; color: #5e6278; border-radius: 4px; font-weight: 500; padding: 10px 20px; font-size: 14px;" data-bs-toggle="modal" data-bs-target="#modalHistorialOperaciones">
+                                            <i class="fa fa-list fs-5 me-2"></i> Ver Historial de Operaciones
+                                        </button>
                                     </div>
                                 </div>
                                 <!--end ventas/reservas-->
                             </div>
-                            <!--begin historial de operaciones inmobiliarias -->
-                            <div class="col-xl-12">
-                                <div class="card card-flush h-xl-100">
-                                    <div class="card-header pt-7">
-                                        <h3 class="card-title align-items-start flex-column">
-                                            <span class="card-label fw-bold text-dark">Historial de Operaciones
-                                                Inmobiliarias</span>
-                                            <span
-                                                class="text-gray-400 mt-1 fw-semibold fs-6"><?php echo formato_fecha_dia_mes_anio_abrev($dataPeriod->begin) . " - " . formato_fecha_dia_mes_anio_abrev($dataPeriod->end); ?></span>
+                        </div>
+                        
+                        <!-- Modal Historial de Operaciones Inmobiliarias -->
+                        <div class="modal fade" id="modalHistorialOperaciones" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-xl">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h3 class="modal-title align-items-start flex-column">
+                                            <span class="fw-bold text-dark">Historial de Operaciones Inmobiliarias</span>
+                                            <span class="text-gray-400 mt-1 fw-semibold fs-6 d-block"><?php echo formato_fecha_dia_mes_anio_abrev($dataPeriod->begin) . " - " . formato_fecha_dia_mes_anio_abrev($dataPeriod->end); ?></span>
                                         </h3>
+                                        <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                                            <i class="fa fa-times fs-2"></i>
+                                        </div>
                                     </div>
-                                    <div class="card-body">
+                                    <div class="modal-body">
                                         <div class="row">
                                             <div class="col-12 mb-4">
                                                 <div id="table_filter" class="dataTables_filter">
@@ -273,73 +319,78 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <table id="table" class="table align-middle table-row-dashed fs-6 gy-3">
-                                            <thead>
-                                                <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
-                                                    <th class="min-w-80px">ID</th>
-                                                    <th class="min-w-100px">Tipo</th>
-                                                    <th class="pe-3 min-w-150px">Fecha</th>
-                                                    <th class="pe-3 min-w-100px">Importe</th>
-                                                    <th class="pe-3 min-w-100px">Venta ID</th>
-                                                    <th class="pe-3 min-w-50px">Estado</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="fw-bold text-gray-600">
-                                                <?php
-                                                foreach ($obj_commissions as $key => $value) {
-                                                    ?>
-                                                <tr>
-                                                    <td>
-                                                        <?php echo $value->id; ?>
-                                                    </td>
-                                                    <td>
-                                                        <a class="text-dark text-hover-primary">
+                                        <div class="table-responsive">
+                                            <table id="table" class="table align-middle table-row-dashed fs-6 gy-3 w-100">
+                                                <thead>
+                                                    <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                                                        <th class="min-w-80px">ID</th>
+                                                        <th class="min-w-100px">Tipo</th>
+                                                        <th class="pe-3 min-w-150px">Fecha</th>
+                                                        <th class="pe-3 min-w-100px">Importe</th>
+                                                        <th class="pe-3 min-w-100px">Venta ID</th>
+                                                        <th class="pe-3 min-w-50px">Estado</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="fw-bold text-gray-600">
+                                                    <?php
+                                                    foreach ($obj_commissions as $key => $value) {
+                                                        ?>
+                                                    <tr>
+                                                        <td>
+                                                            <?php echo $value->id; ?>
+                                                        </td>
+                                                        <td>
+                                                            <a class="text-dark text-hover-primary">
+                                                                <?php
+                                                                if (isset($value->tipo_comision)) {
+                                                                    echo ($value->tipo_comision == 'venta_base') ? 'Venta de lote' : str_to_first_capital($value->tipo_comision);
+                                                                } else {
+                                                                    echo '-';
+                                                                }
+                                                                ?>
+                                                            </a>
+                                                        </td>
+                                                        <td class="">
                                                             <?php
-                                                            if (isset($value->tipo_comision)) {
-                                                                echo ($value->tipo_comision == 'venta_base') ? 'Venta de lote' : str_to_first_capital($value->tipo_comision);
+                                                            echo isset($value->fecha_generada) ? formato_fecha_dia_mes_anio_abrev($value->fecha_generada) . " - " . formato_fecha_minutos($value->fecha_generada) : "-";
+                                                            ?>
+                                                        </td>
+                                                        <td class="">
+                                                            S/<?php echo format_number_miles_decimal($value->monto); ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php
+                                                            echo isset($value->venta_id) ? $value->venta_id : "-";
+                                                            ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php
+                                                            if (isset($value->estado)) {
+                                                                if ($value->estado == 'aprobada' || $value->estado == 'pagada') {
+                                                                    echo '<span class="badge py-3 px-4 fs-7 badge-light-success">Ingreso</span>';
+                                                                } elseif ($value->estado == 'pendiente') {
+                                                                    echo '<span class="badge py-3 px-4 fs-7 badge-light-warning">Pendiente</span>';
+                                                                } else {
+                                                                    echo '<span class="badge py-3 px-4 fs-7 badge-light-danger">Salida</span>';
+                                                                }
                                                             } else {
-                                                                echo '-';
+                                                                echo "-";
                                                             }
                                                             ?>
-                                                        </a>
-                                                    </td>
-                                                    <td class="">
-                                                        <?php
-                                                        echo isset($value->fecha_generada) ? formato_fecha_dia_mes_anio_abrev($value->fecha_generada) . " - " . formato_fecha_minutos($value->fecha_generada) : "-";
-                                                        ?>
-                                                    </td>
-                                                    <td class="">
-                                                        S/<?php echo format_number_miles_decimal($value->monto); ?>
-                                                    </td>
-                                                    <td>
-                                                        <?php
-                                                        echo isset($value->venta_id) ? $value->venta_id : "-";
-                                                        ?>
-                                                    </td>
-                                                    <td>
-                                                        <?php
-                                                        if (isset($value->estado)) {
-                                                            if ($value->estado == 'aprobada' || $value->estado == 'pagada') {
-                                                                echo '<span class="badge py-3 px-4 fs-7 badge-light-success">Ingreso</span>';
-                                                            } elseif ($value->estado == 'pendiente') {
-                                                                echo '<span class="badge py-3 px-4 fs-7 badge-light-warning">Pendiente</span>';
-                                                            } else {
-                                                                echo '<span class="badge py-3 px-4 fs-7 badge-light-danger">Salida</span>';
-                                                            }
-                                                        } else {
-                                                            echo "-";
-                                                        }
-                                                        ?>
-                                                    </td>
-                                                </tr>
-                                                <?php } ?>
-                                            </tbody>
-                                        </table>
+                                                        </td>
+                                                    </tr>
+                                                    <?php } ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!--end historial -->
+                        <!--end modal historial -->
                     </div>
                 </div>
                 <script>

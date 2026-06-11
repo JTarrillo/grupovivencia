@@ -165,8 +165,8 @@
                                                         completado</span>
                                                 </td>
                                                 <td>
-                                                    <a href="<?= site_url('backoffice_new/contracts/detail/'.$contract['id']) ?>"
-                                                        class="btn btn-sm btn-info" title="Ver"><i
+                                                    <a href="<?= site_url('backoffice_new/contracts/cronograma/'.$contract['id']) ?>"
+                                                        class="btn btn-sm btn-info" title="Ver Cronograma"><i
                                                             class="fa fa-eye"></i></a>
 
                                                     <a href="#" class="btn btn-sm btn-danger btn-delete-contract"

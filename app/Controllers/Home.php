@@ -93,6 +93,19 @@ class Home extends BaseController
             if (method_exists($LotModel, 'countLotsWithContract')) {
                 $total_lotes_contrato = $LotModel->countLotsWithContract($id);
             }
+
+            $db = \Config\Database::connect();
+            $obj_contracts = $db->table('contracts')
+                ->select('contracts.*, lots.lot_number as lot_name, lots.block as block_name, projects.name as project_name')
+                ->join('lots', 'lots.id = contracts.lot_id', 'left')
+                ->join('projects', 'projects.id = lots.project_id', 'left')
+                ->where('contracts.customer_id', $id)
+                ->orderBy('contracts.id', 'DESC')
+                ->limit(5)
+                ->get()
+                ->getResultArray();
+        } else {
+            $obj_contracts = [];
         }
 
         //send
@@ -115,7 +128,8 @@ class Home extends BaseController
             "total_team_active" => $total_team_active,
             "dataPeriod" => $dataPeriod,
             "total_lotes_asignados" => $total_lotes_asignados,
-            "total_lotes_contrato" => $total_lotes_contrato
+            "total_lotes_contrato" => $total_lotes_contrato,
+            "obj_contracts" => $obj_contracts
         ];
         // Crear log de datos enviados al home
         $logData = [

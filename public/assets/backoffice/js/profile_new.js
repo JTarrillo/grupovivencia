@@ -139,7 +139,7 @@ function save_profile() {
                         Swal.fire({
                             position: 'center',
                             icon: 'success',
-                            title: 'Cambios Guardado',
+                            title: 'Cambios Guardados',
                             showConfirmButton: false,
                         });
                         window.setTimeout(function () {
@@ -147,11 +147,11 @@ function save_profile() {
                         }, 1000);
                     } else {
                         document.getElementById("profile").disabled = false;
-                        document.getElementById("profile").innerHTML = "Guardar Cambios";
+                        document.getElementById("profile").innerHTML = "Guardar";
                         Swal.fire({
                             position: 'center',
                             icon: 'info',
-                            title: 'No se pudo guardar',
+                            title: data.message || 'No se pudo guardar',
                             showConfirmButton: true,
                         });
                     }

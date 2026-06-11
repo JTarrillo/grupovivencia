@@ -463,8 +463,7 @@
                     <button type="button" class="btn btn-secondary"
                         onclick="$('#modalCreateCustomer').modal('hide');">Cancelar</button>
                     <button type="button" class="btn btn-primary"
-                        onclick="document.getElementById('form-customer').dispatchEvent(new Event('submit'));">Crear
-                        Cliente</button>
+                        onclick="submitCustomerForm();">Crear Cliente</button>
                 </div>
             </div>
         </div>

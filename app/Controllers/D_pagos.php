@@ -237,6 +237,43 @@ class D_pagos extends BaseController
 
 
             if ($result) {
+                // Si el pago es aprobado (status == 2), disminuir el balance en los informes de comisión
+                if ($status == '2') {
+                    $pay = $builder->where('id', $id)->get()->getRowArray();
+                    if ($pay) {
+                        $customerId = $pay['customer_id'];
+                        $amountToDeduct = floatval($pay['amount']);
+                        
+                        // Buscar informes aprobados del cliente ordenados por fecha
+                        $reportsBuilder = $db->table('commission_reports');
+                        $reports = $reportsBuilder->where('customer_id', $customerId)
+                                                  ->where('status', 'approved')
+                                                  ->orderBy('created_at', 'ASC')
+                                                  ->get()->getResultArray();
+                                                  
+                        foreach ($reports as $report) {
+                            if ($amountToDeduct <= 0) break;
+                            
+                            $reportAmount = floatval($report['total_amount']);
+                            $reportPaid = floatval($report['paid_amount'] ?? 0);
+                            $reportAvailable = $reportAmount - $reportPaid;
+                            
+                            if ($reportAvailable > 0) {
+                                if ($amountToDeduct >= $reportAvailable) {
+                                    // Este informe se paga por completo
+                                    $reportsBuilder->where('id', $report['id'])
+                                                   ->update(['paid_amount' => $reportAmount, 'status' => 'paid']);
+                                    $amountToDeduct -= $reportAvailable;
+                                } else {
+                                    // Este informe se paga parcialmente
+                                    $reportsBuilder->where('id', $report['id'])
+                                                   ->update(['paid_amount' => $reportPaid + $amountToDeduct]);
+                                    $amountToDeduct = 0;
+                                }
+                            }
+                        }
+                    }
+                }
 
                 echo json_encode(array("status" => true));
 

@@ -4,6 +4,12 @@ namespace App\Controllers;
 
 use App\Models\CommissionReportModel;
 use App\Models\CustomerModel;
+use App\Models\CommissionSalesModel;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class CommissionReportController extends BaseController
 {
@@ -65,9 +71,9 @@ class CommissionReportController extends BaseController
         $totalAmount = floatval($this->request->getPost('total_amount'));
         $projects = $this->request->getPost('projects');
         $digitalSignature = $this->request->getPost('digital_signature');
+        $salesData = $this->request->getPost('sales'); // Datos dinámicos de ventas
 
         // Manejo de archivos
-        $excelFile = $this->request->getFile('attachment_excel');
         $vouchersFile = $this->request->getFile('attachment_vauchers');
         $invoicesFile = $this->request->getFile('attachment_invoices');
         $facturaFile = $this->request->getFile('attachment_factura_pdf');
@@ -83,11 +89,6 @@ class CommissionReportController extends BaseController
         $invoicesName = null;
         $facturaName = null;
 
-        if ($excelFile && $excelFile->isValid()) {
-            $excelName = $excelFile->getRandomName();
-            $excelFile->move($uploadPath, $excelName);
-        }
-
         if ($vouchersFile && $vouchersFile->isValid()) {
             $vouchersName = $vouchersFile->getRandomName();
             $vouchersFile->move($uploadPath, $vouchersName);
@@ -101,6 +102,142 @@ class CommissionReportController extends BaseController
         if ($facturaFile && $facturaFile->isValid()) {
             $facturaName = $facturaFile->getRandomName();
             $facturaFile->move($uploadPath, $facturaName);
+        }
+
+        // GENERACIÓN AUTOMÁTICA DEL EXCEL
+        if (!empty($salesData)) {
+            try {
+                $spreadsheet = new Spreadsheet();
+                $sheet = $spreadsheet->getActiveSheet();
+                $sheet->setTitle('Comisiones');
+
+                // Estilos generales
+                $headerStyle = [
+                    'font' => ['bold' => true, 'color' => ['argb' => '000000']],
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                    ],
+                    'borders' => [
+                        'allBorders' => ['borderStyle' => Border::BORDER_THIN],
+                    ],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['argb' => 'FFE5E5E5']
+                    ],
+                ];
+
+                $projectHeaderStyle = [
+                    'font' => ['bold' => true],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFFFF2CC']], // Amarillo claro
+                ];
+
+                $dataStyle = [
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+                ];
+                
+                $totalStyle = [
+                    'font' => ['bold' => true],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+                ];
+                
+                $totalAmountStyle = [
+                    'font' => ['bold' => true],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFFFD966']], // Amarillo fuerte
+                ];
+
+                // Ajustar anchos de columna
+                $sheet->getColumnDimension('A')->setWidth(35);
+                $sheet->getColumnDimension('B')->setWidth(12);
+                $sheet->getColumnDimension('C')->setWidth(10);
+                $sheet->getColumnDimension('D')->setWidth(25);
+                $sheet->getColumnDimension('E')->setWidth(15);
+                $sheet->getColumnDimension('F')->setWidth(15);
+                $sheet->getColumnDimension('G')->setWidth(15);
+                $sheet->getColumnDimension('H')->setWidth(20);
+
+                $currentRow = 2; // Empezamos en la fila 2
+
+                foreach ($salesData as $project) {
+                    $projectName = strtoupper($project['project_name']);
+                    $rows = $project['rows'] ?? [];
+
+                    // Cabecera principal (GRUPO VIVENCIA)
+                    $sheet->mergeCells("A{$currentRow}:H{$currentRow}");
+                    $sheet->setCellValue("A{$currentRow}", 'GRUPO VIVENCIA');
+                    $sheet->getStyle("A{$currentRow}:H{$currentRow}")->applyFromArray($headerStyle);
+                    $currentRow++;
+
+                    // Cabecera del Proyecto
+                    $sheet->mergeCells("A{$currentRow}:H{$currentRow}");
+                    $sheet->setCellValue("A{$currentRow}", $projectName);
+                    $sheet->getStyle("A{$currentRow}:H{$currentRow}")->applyFromArray($projectHeaderStyle);
+                    $currentRow++;
+
+                    // Títulos de columnas
+                    $sheet->setCellValue("A{$currentRow}", 'APELLIDOS Y NOMBRES');
+                    $sheet->setCellValue("B{$currentRow}", 'MANZANA');
+                    $sheet->setCellValue("C{$currentRow}", 'LOTE');
+                    $sheet->setCellValue("D{$currentRow}", 'Nº CUOTA, INICIAL, RESERVA');
+                    $sheet->setCellValue("E{$currentRow}", 'Nº DEPOSITO');
+                    $sheet->setCellValue("F{$currentRow}", 'DEPOSITO');
+                    $sheet->setCellValue("G{$currentRow}", 'PORCENTAJE');
+                    $sheet->setCellValue("H{$currentRow}", 'TOTAL PORCENTAJE');
+                    $sheet->getStyle("A{$currentRow}:H{$currentRow}")->applyFromArray($headerStyle);
+                    // Fondo amarillo claro para la cabecera de la tabla
+                    $sheet->getStyle("A{$currentRow}:H{$currentRow}")->getFill()->setStartColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFCE4D6'));
+                    $currentRow++;
+
+                    $projectTotal = 0;
+
+                    // Filas de datos
+                    foreach ($rows as $row) {
+                        $sheet->setCellValue("A{$currentRow}", mb_strtoupper($row['client_name']));
+                        $sheet->setCellValue("B{$currentRow}", mb_strtoupper($row['manzana']));
+                        $sheet->setCellValue("C{$currentRow}", mb_strtoupper($row['lote']));
+                        $sheet->setCellValue("D{$currentRow}", mb_strtoupper($row['payment_type']));
+                        $sheet->setCellValue("E{$currentRow}", $row['deposit_number']);
+                        
+                        $sheet->setCellValue("F{$currentRow}", $row['deposit_amount']);
+                        $sheet->getStyle("F{$currentRow}")->getNumberFormat()->setFormatCode('"S/ "#,##0.00');
+                        
+                        $sheet->setCellValue("G{$currentRow}", ($row['percentage'] / 100));
+                        $sheet->getStyle("G{$currentRow}")->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_PERCENTAGE_00);
+                        
+                        $sheet->setCellValue("H{$currentRow}", $row['commission_amount']);
+                        $sheet->getStyle("H{$currentRow}")->getNumberFormat()->setFormatCode('"S/ "#,##0.00');
+
+                        $sheet->getStyle("A{$currentRow}:H{$currentRow}")->applyFromArray($dataStyle);
+                        $sheet->getStyle("A{$currentRow}")->getFill()->setFillType(Fill::FILL_SOLID)->setStartColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFF2CC')); // Fondo celda cliente
+                        
+                        $projectTotal += floatval($row['commission_amount']);
+                        $currentRow++;
+                    }
+
+                    // Fila de TOTAL del proyecto
+                    $sheet->mergeCells("A{$currentRow}:G{$currentRow}");
+                    $sheet->setCellValue("A{$currentRow}", 'TOTAL');
+                    $sheet->getStyle("A{$currentRow}:G{$currentRow}")->applyFromArray($totalStyle);
+                    
+                    $sheet->setCellValue("H{$currentRow}", $projectTotal);
+                    $sheet->getStyle("H{$currentRow}")->applyFromArray($totalAmountStyle);
+                    $sheet->getStyle("H{$currentRow}")->getNumberFormat()->setFormatCode('"S/ "#,##0.00');
+                    
+                    $currentRow += 2; // Espacio entre proyectos
+                }
+
+                $excelName = 'EXCEL_' . str_replace([' ', '/', '\\'], '_', $reportNumber) . '_' . time() . '.xlsx';
+                $writer = new Xlsx($spreadsheet);
+                $writer->save($uploadPath . '/' . $excelName);
+
+            } catch (\Exception $e) {
+                log_message('error', 'Error generando Excel automático: ' . $e->getMessage());
+            }
         }
 
         // Guardar firma digital como archivo físico para que MS Word la pueda leer
@@ -182,6 +319,29 @@ class CommissionReportController extends BaseController
         $result = $this->commissionReportModel->insert($data);
 
         if ($result) {
+            // Guardar ventas dinámicas en BD
+            if (!empty($salesData)) {
+                $commissionSalesModel = new CommissionSalesModel();
+                foreach ($salesData as $project) {
+                    $projectName = $project['project_name'];
+                    $rows = $project['rows'] ?? [];
+                    foreach ($rows as $row) {
+                        $commissionSalesModel->insert([
+                            'report_id' => $result,
+                            'project_name' => $projectName,
+                            'client_name' => $row['client_name'],
+                            'manzana' => $row['manzana'],
+                            'lote' => $row['lote'],
+                            'payment_type' => $row['payment_type'],
+                            'deposit_number' => $row['deposit_number'],
+                            'deposit_amount' => $row['deposit_amount'],
+                            'percentage' => $row['percentage'],
+                            'commission_amount' => $row['commission_amount']
+                        ]);
+                    }
+                }
+            }
+
             return $this->response->setJSON([
                 'status' => true,
                 'message' => 'Informe creado exitosamente',
@@ -311,7 +471,12 @@ class CommissionReportController extends BaseController
         // El authGuard filter ya verifica que esté logueado
 
         $summary = $this->commissionReportModel->getDashboardSummary();
-        $pendingReports = $this->commissionReportModel->getPendingReports();
+        // AHORA OBTENDRA LOS ÚLTIMOS 5 INFORMES SIN IMPORTAR SU ESTADO
+        $pendingReports = $this->commissionReportModel->select('commission_reports.*, customers.name as customer_name, customers.lastname as customer_lastname')
+            ->join('customers', 'customers.id = commission_reports.customer_id', 'left')
+            ->orderBy('created_at', 'DESC')
+            ->limit(5)
+            ->findAll();
 
         $data = [
             'title' => 'Gestión de Informes de Comisiones',

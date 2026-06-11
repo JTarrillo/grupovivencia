@@ -65,6 +65,19 @@ class B_home extends BaseController
         // Convertir a objetos para acceso tipo $comision->campo en la vista
         $obj_commissions = array_map(function($row) { return (object)$row; }, $obj_commissions);
 
+        // Obtener contratos activos para el widget inteligente en el dashboard
+        $db = \Config\Database::connect();
+        $obj_contracts = $db->table('contracts')
+            ->select('contracts.*, lots.lot_number as lot_name, projects.name as project_name')
+            ->join('lots', 'lots.id = contracts.lot_id', 'left')
+            ->join('projects', 'projects.id = lots.project_id', 'left')
+            ->where('contracts.customer_id', $id)
+            ->orderBy('contracts.id', 'DESC')
+            ->limit(5)
+            ->get()
+            ->getResultArray();
+
+
         
         //get range_id and next range
         $Ranges = new RangesModel();
@@ -103,7 +116,8 @@ class B_home extends BaseController
             'percent' => $percent,
             'title' => $title,
             'cart_count' => $cart_count,
-            'total_lotes_contrato' => $total_lotes_contrato
+            'total_lotes_contrato' => $total_lotes_contrato,
+            'obj_contracts' => $obj_contracts
         );
         // Crear log de datos enviados al home
         $logData = [

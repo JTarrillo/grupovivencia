@@ -254,8 +254,7 @@
                                         <h1 class="text-custom fw-semibold">
                                             <?php echo lang('Global.solicitar_cobro'); ?></h1>
                                         <div class="text-custom fw-semibold fs-5"><?php echo lang('Global.balance'); ?>
-                                            <a
-                                                class="fw-bold link-primary">S/<?php echo format_number_miles_decimal($obj_earn_disponible); ?></a>
+                                            <a class="fw-bold link-primary">S/<?php echo format_number_miles_decimal($obj_earn_disponible); ?></a>
                                         </div>
                                     </div>
                                     <div class="d-flex flex-column mb-8 fv-row fv-plugins-icon-container">
