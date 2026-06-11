@@ -20,8 +20,10 @@ class D_pagos extends BaseController
     {
 
         //get data session
-
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $session = session();
+        $first_name = $session->get('first_name') ?? $session->get('name') ?? '';
+        $last_name = $session->get('last_name') ?? $session->get('lastname') ?? '';
+        $session_name = $first_name . " " . $last_name;
 
         //get data invoices by customer
 
@@ -50,30 +52,24 @@ class D_pagos extends BaseController
     {
 
         //get data session
+        $session = session();
+        $first_name = $session->get('first_name') ?? $session->get('name') ?? '';
+        $last_name = $session->get('last_name') ?? $session->get('lastname') ?? '';
+        $session_name = $first_name . " " . $last_name;
 
-        $session_name = $_SESSION['first_name']." ".$_SESSION['last_name'];
+        $Pay = new PaysModel();
 
-        //isset id
-
-        if ($id != false){
-
-            $Pay = new PaysModel();
-
-            $obj_pays = $Pay->get_data_by_customer_id($id);
-
-        }
-
-        //send data
+        $obj_pay = $Pay->get_pay($id);
 
         $data = array(
 
-            'obj_pays' => $obj_pays,
+            'obj_pay' => $obj_pay,
 
-            'session_name' => $session_name,
+            'session_name' => $session_name
 
         );
 
-        return view('admin/pagos/load',$data);
+        return view('admin/pagos/load', $data);
 
     }
 
@@ -207,6 +203,81 @@ class D_pagos extends BaseController
             return $this->response->setJSON(['status' => true, 'message' => 'Solicitud de retiro enviada correctamente.']);
         }
         return $this->response->setJSON(['status' => false, 'message' => 'Método no permitido.']);
+    }
+
+    public function status()
+
+    {
+
+        //get data session
+        $session = session();
+
+        if ($session->has('role') && $session->get('role') == '1') {
+
+            $id = $this->request->getPost('id');
+
+            $status = $this->request->getPost('status');
+
+
+
+            $obj_pays = new PaysModel();
+
+
+
+            // Actualizar el estado usando el Query Builder para evitar problemas de compatibilidad
+
+            $db = \Config\Database::connect();
+
+            $builder = $db->table('pays');
+
+            $builder->where('id', $id);
+
+            $result = $builder->update(['active' => $status]);
+
+
+
+            if ($result) {
+
+                echo json_encode(array("status" => true));
+
+            } else {
+
+                echo json_encode(array("status" => false));
+
+            }
+
+        } else {
+
+            return redirect()->to(site_url('admin'));
+
+        }
+
+    }
+
+    public function eliminar(){
+        $id = $this->request->getPost('id');
+        $Pay = new PaysModel();
+        $db = \Config\Database::connect();
+        
+        // Obtenemos el registro usando builder directo para evitar problemas de deleted_at
+        $builder = $db->table('pays');
+        $pay_record = $builder->where('id', $id)->get()->getRowArray();
+        
+        if ($pay_record && !empty($pay_record['factura'])) {
+            $file_path = ROOTPATH . 'public/facturas/' . $pay_record['factura'];
+            if (file_exists($file_path)) {
+                unlink($file_path);
+            }
+        }
+        
+        // Eliminamos el registro de la base de datos usando query directo
+        $result = $builder->where('id', $id)->delete();
+        
+        if($result) {
+            echo json_encode(['status' => true]);
+        } else {
+            echo json_encode(['status' => false]);
+        }
     }
 
 }

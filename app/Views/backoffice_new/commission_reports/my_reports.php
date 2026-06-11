@@ -53,9 +53,11 @@
                                                 </td>
                                                 <td><?php echo date('d/m/Y', strtotime($report['created_at'])); ?></td>
                                                 <td>
-                                                    <a href="<?php echo site_url(BACKOFFICE . '/commission_reports/view/' . $report['id']); ?>" class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm">
-                                                        <i class="ki-duotone ki-eye fs-2"></i>
-                                                    </a>
+                                                    <?php if ($report['status'] == 'pending'): ?>
+                                                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteReport(<?php echo $report['id']; ?>)" title="Eliminar informe">
+                                                        <i class="ti-trash"></i> Eliminar
+                                                    </button>
+                                                    <?php endif; ?>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -71,6 +73,55 @@
     <script src="<?php echo site_url() . "assets/metronic8/plugins/global/plugins.bundle.js"; ?>"></script>
     <script src="<?php echo site_url() . "assets/metronic8/js/scripts.bundle.js"; ?>"></script>
     <script src="<?php echo site_url() . "assets/metronic8/js/widgets.bundle.js"; ?>"></script>
+    <script>
+    function deleteReport(id) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Esta acción no se puede deshacer",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('<?php echo site_url(BACKOFFICE . '/commission_reports/delete/'); ?>' + id, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        Swal.fire(
+                            'Eliminado',
+                            data.message,
+                            'success'
+                        ).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error',
+                            data.message,
+                            'error'
+                        );
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire(
+                        'Error',
+                        'Ocurrió un error al intentar eliminar el informe',
+                        'error'
+                    );
+                });
+            }
+        });
+    }
+    </script>
     <?php echo view("backoffice_new/footer"); ?>
 </body>
 </html>

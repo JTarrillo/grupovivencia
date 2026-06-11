@@ -169,6 +169,16 @@ class PaysModel extends Model{
         return $obj_data->getResult();
     }
 
+    public function get_pay($id){
+        $db = \Config\Database::connect();
+        $builder = $db->table('pays');
+        $builder->select('pays.*, customers.name, customers.lastname, customers.dni, customers.code');
+        $builder->join('customers', 'customers.id = pays.customer_id');
+        $builder->where('pays.id', $id);
+        $query = $builder->get();
+        return $query->getRow();
+    }
+
     public function get_data_by_customer_id($id){
         $obj_data =  $this->db->query("SELECT `pays`.`id`, `pays`.`amount`, `pays`.`discount`, `pays`.`total`, `pays`.`date`,`pays`.`hash_id`,`pays`.`active`, `pays`.`customer_id` AS customer_id, `customers`.`name`, `customers`.`lastname`, `customers`.`code` 
                                         FROM (`pays`) 
@@ -209,5 +219,15 @@ class PaysModel extends Model{
 
     public function eliminar($id){
         return $this->db->query("DELETE FROM pays WHERE id = $id");
+    }
+
+    public function update_status_pay(){
+        $id = $_POST['id'];
+        $active = $_POST['active'];
+
+        $db = \Config\Database::connect();
+        $builder = $db->table('pays');
+        $builder->where('id', $id);
+        $builder->update(['active' => $active]);
     }
 }

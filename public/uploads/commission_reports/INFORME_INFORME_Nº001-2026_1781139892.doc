@@ -1,0 +1,121 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Informe de Comisiones</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            color: #000;
+        }
+        .header {
+            text-align: center;
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 30px;
+        }
+        .info-table {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        .info-table td {
+            vertical-align: top;
+            padding: 5px 0;
+        }
+        .info-table td.label {
+            width: 15%;
+            font-weight: bold;
+        }
+        .info-table td.colon {
+            width: 5%;
+        }
+        .info-table td.value {
+            width: 80%;
+        }
+        .content {
+            text-align: justify;
+            margin-bottom: 30px;
+        }
+        .signature-section {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .signature-image {
+            max-width: 250px;
+            max-height: 120px;
+            border-bottom: 1px solid #000;
+            margin-bottom: 5px;
+        }
+        .signature-name {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        INFORME Nº001-2026-AREA DE VENTAS-GRUPO VIVENCIA S.A.C.
+    </div>
+
+    <table class="info-table">
+        <tr>
+            <td class="label">A</td>
+            <td class="colon">:</td>
+            <td class="value">
+                BACH.DEISSY FIORELA CHURA LOZANO<br>
+                <strong>AREA DE CONTABILIDAD</strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">DE</td>
+            <td class="colon">:</td>
+            <td class="value">ROLANDO IRVYNG CONTRERAS HUIDOBRO</td>
+        </tr>
+        <tr>
+            <td class="label">ASUNTO</td>
+            <td class="colon">:</td>
+            <td class="value">
+                PRUEBA<br>
+                <strong>(ytrtyrt)</strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">FECHA</td>
+            <td class="colon">:</td>
+            <td class="value">Cusco, 10 de June del 2026</td>
+        </tr>
+    </table>
+
+    <hr style="border: 0; border-top: 2px solid #000; margin-bottom: 20px;">
+
+    <div class="content">
+        <p>Previo un cordial saludo, me dirijo a Usted con la finalidad de detallar el cierre mensual del mes de june del 2026, se presenta el desglose de las comisiones generadas por mis ventas realizadas en las asociaciones (ytrtyrt) mencionados de manera detallada en el cuadro Excel, adjuntando nuestras comisiones por reserva, inicial y cuotas de los clientes.</p>
+
+        <p>tertert</p>
+
+        <p>Asimismo, el porcentaje por cada lote sumando un total de <strong>S/ 700.00</strong> factura número 12044864 a la empresa GRUPO VIVENCIA S.A.C</p>
+
+        <p>Este informe refleja las comisiones correspondientes al mes de june del 2026.</p>
+
+        <p>Los montos presentados están calculados de acuerdo con los procedimientos establecidos en la empresa y se encuentran listos para su verificación y pago por el departamento de contabilidad.</p>
+        
+        <p>Se adjunta:<br>
+        1. CUADRO EXCEL<br>
+        2. VAUCHERS DE DEPOSITO<br>
+        3. BOLETAS DE VENTA</p>
+
+        <p>Es cuanto informo a su despacho para su conocimiento y acciones correspondientes.</p>
+        
+        <p style="text-align: center;">Atentamente</p>
+    </div>
+
+    <div class="signature-section">
+                    <img src="data:image/png;base64,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" class="signature-image" alt="Firma">
+                <div class="signature-name">ROLANDO IRVYNG CONTRERAS HUIDOBRO</div>
+        <div>ASESOR DE VENTAS</div>
+    </div>
+
+</body>
+</html></body></html>

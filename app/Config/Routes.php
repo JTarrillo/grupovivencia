@@ -447,6 +447,7 @@ $routes->post('/dashboard/concepto_ticket/eliminar', 'D_concepto_ticket::elimina
 $routes->get('/dashboard/pagos', 'D_pagos::index', ['filter' => 'authGuard']);
 $routes->get('/dashboard/pagos/load', 'D_pagos::load', ['filter' => 'authGuard']);
 $routes->get('/dashboard/pagos/load/(:num)', 'D_pagos::load/$1', ['filter' => 'authGuard']);
+$routes->post('/dashboard/pagos/status', 'D_pagos::status', ['filter' => 'authGuard']);
 $routes->post('/dashboard/pagos/validate', 'D_pagos::validacion', ['filter' => 'authGuard']);
 $routes->post('/dashboard/pagos/eliminar', 'D_pagos::eliminar', ['filter' => 'authGuard']);
 
@@ -650,7 +651,9 @@ $routes->post('/dashboard/integracion_puntos_rango/delete', 'D_integracion_pagos
 // Backoffice - Patrocinador
 $routes->get('/backoffice_new/commission_reports/create', 'CommissionReportController::create', ['filter' => 'authGuard']);
 $routes->get('/backoffice_new/commission_reports/my', 'CommissionReportController::myReports', ['filter' => 'authGuard']);
+$routes->get('/backoffice_new/commission_reports/view/(:num)', 'CommissionReportController::view_user/$1', ['filter' => 'authGuard']);
 $routes->post('/backoffice_new/commission_reports/store', 'CommissionReportController::store', ['filter' => 'authGuard']);
+$routes->post('/backoffice_new/commission_reports/delete/(:num)', 'CommissionReportController::delete/$1', ['filter' => 'authGuard']);
 
 // Admin - Gestión de Informes
 $routes->get('/dashboard/commission-reports', 'CommissionReportController::adminDashboard', ['filter' => 'authGuard']);

@@ -64,6 +64,7 @@ class CommissionReportController extends BaseController
         $invoiceNumber = $this->request->getPost('invoice_number');
         $totalAmount = floatval($this->request->getPost('total_amount'));
         $projects = $this->request->getPost('projects');
+        $digitalSignature = $this->request->getPost('digital_signature');
 
         // Manejo de archivos
         $excelFile = $this->request->getFile('attachment_excel');
@@ -102,6 +103,61 @@ class CommissionReportController extends BaseController
             $facturaFile->move($uploadPath, $facturaName);
         }
 
+        // Guardar firma digital como archivo físico para que MS Word la pueda leer
+        $digitalSignatureUrl = $digitalSignature;
+        if (!empty($digitalSignature) && preg_match('/^data:image\/(\w+);base64,/', $digitalSignature, $type)) {
+            $data = substr($digitalSignature, strpos($digitalSignature, ',') + 1);
+            $type = strtolower($type[1]); // png
+            $data = base64_decode($data);
+            $signatureFileName = 'signature_' . time() . '_' . uniqid() . '.' . $type;
+            file_put_contents($uploadPath . '/' . $signatureFileName, $data);
+            $digitalSignatureUrl = base_url($uploadPath . '/' . $signatureFileName);
+        }
+
+        // Generar formato Word (.doc) a partir del HTML
+        $generatedWordName = null;
+        $generatedPdfName = null;
+        try {
+            $pdfData = [
+                'report_number' => $reportNumber,
+                'patron_name' => $patronName,
+                'patron_position' => $patronPosition,
+                'subject' => $subject,
+                'projects' => $projects,
+                'description' => $description,
+                'total_amount' => $totalAmount,
+                'invoice_number' => $invoiceNumber,
+                'digital_signature' => $digitalSignatureUrl
+            ];
+            
+            $html = view('backoffice_new/commission_reports/pdf_template', $pdfData);
+            
+            $baseFileName = 'INFORME_' . str_replace([' ', '/', '\\'], '_', $reportNumber) . '_' . time();
+
+            // Generar formato Word (.doc) a partir del HTML
+            $wordContent = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body>" . $html . "</body></html>";
+            $generatedWordName = $baseFileName . '.doc';
+            file_put_contents($uploadPath . '/' . $generatedWordName, $wordContent);
+
+            // Intentar generar PDF si Dompdf y GD están instalados
+            if (class_exists('\Dompdf\Dompdf') && extension_loaded('gd')) {
+                $options = new \Dompdf\Options();
+                $options->set('isHtml5ParserEnabled', true);
+                $options->set('isRemoteEnabled', true);
+                
+                $dompdf = new \Dompdf\Dompdf($options);
+                $dompdf->loadHtml($html);
+                $dompdf->setPaper('A4', 'portrait');
+                $dompdf->render();
+                
+                $generatedPdfName = $baseFileName . '.pdf';
+                file_put_contents($uploadPath . '/' . $generatedPdfName, $dompdf->output());
+            }
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error generando PDF/Word de informe: ' . $e->getMessage());
+        }
+
         // Preparar datos
         $data = [
             'report_number' => $reportNumber,
@@ -117,6 +173,9 @@ class CommissionReportController extends BaseController
             'attachment_vauchers' => $vouchersName,
             'attachment_invoices' => $invoicesName,
             'attachment_factura_pdf' => $facturaName,
+            'generated_report_pdf' => $generatedPdfName,
+            'generated_report_word' => $generatedWordName,
+            'digital_signature' => $digitalSignature,
             'status' => 'pending',
         ];
 
@@ -155,6 +214,93 @@ class CommissionReportController extends BaseController
         ];
 
         return view('backoffice_new/commission_reports/my_reports', $data);
+    }
+
+    /**
+     * Eliminar informe (solo si está pendiente)
+     */
+    public function delete($id)
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Invalid request']);
+        }
+
+        $customerId = session()->get('id');
+        if (!$customerId) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Unauthorized']);
+        }
+
+        $report = $this->commissionReportModel->find($id);
+
+        if (!$report) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Informe no encontrado']);
+        }
+
+        if ($report['customer_id'] != $customerId) {
+            return $this->response->setJSON(['status' => false, 'message' => 'No tienes permiso para eliminar este informe']);
+        }
+
+        if ($report['status'] !== 'pending') {
+            return $this->response->setJSON(['status' => false, 'message' => 'Solo se pueden eliminar informes en estado Pendiente']);
+        }
+
+        // Eliminar archivos físicos
+        $files = [
+            'attachment_excel',
+            'attachment_vauchers',
+            'attachment_invoices',
+            'attachment_factura_pdf',
+            'generated_report_pdf',
+            'generated_report_word'
+        ];
+
+        foreach ($files as $fileField) {
+            if (!empty($report[$fileField])) {
+                $filePath = 'uploads/commission_reports/' . $report[$fileField];
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+        }
+
+        // Eliminar de BD
+        if ($this->commissionReportModel->delete($id)) {
+            return $this->response->setJSON([
+                'status' => true,
+                'message' => 'Informe eliminado correctamente'
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'status' => false,
+            'message' => 'Error al eliminar el informe'
+        ]);
+    }
+
+    // --- MÉTODOS PARA EL BACKOFFICE DEL CLIENTE ---
+    
+    // Nueva vista para que el cliente vea el detalle de su informe
+    public function view_user($id)
+    {
+        $session = session();
+        if (!$session->has('role') || $session->get('role') != '2') {
+            return redirect()->to(site_url('admin'));
+        }
+
+        $report = $this->commissionReportModel->find($id);
+
+        if (!$report) {
+            return redirect()->to('/backoffice_new/commission_reports/my')->with('error', 'Informe no encontrado.');
+        }
+        
+        // Verificar que el informe pertenezca al usuario logueado
+        if ($report['customer_id'] != $session->get('id')) {
+            return redirect()->to('/backoffice_new/commission_reports/my')->with('error', 'No tienes permiso para ver este informe.');
+        }
+
+        $data['report'] = $report;
+
+        return view('backoffice_new/commission_reports/view', $data);
     }
 
     /**
@@ -258,6 +404,8 @@ class CommissionReportController extends BaseController
             'vauchers' => 'attachment_vauchers',
             'invoices' => 'attachment_invoices',
             'factura' => 'attachment_factura_pdf',
+            'report_pdf' => 'generated_report_pdf',
+            'report_word' => 'generated_report_word',
         ];
 
         if (!isset($fileMap[$fileType])) {

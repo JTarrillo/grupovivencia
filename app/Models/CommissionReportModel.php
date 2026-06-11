@@ -27,6 +27,9 @@ class CommissionReportModel extends Model
         'attachment_vauchers',
         'attachment_invoices',
         'attachment_factura_pdf',
+        'generated_report_pdf',
+        'generated_report_word',
+        'digital_signature',
         'status',
         'admin_notes',
         'reviewed_at',
@@ -150,5 +153,18 @@ class CommissionReportModel extends Model
             'rejected' => $this->countByStatus('rejected'),
             'paid' => $this->countByStatus('paid'),
         ];
+    }
+
+    /**
+     * Get the total amount of approved, unpaid commission reports for a specific customer
+     */
+    public function getApprovedBalanceByCustomer($customerId)
+    {
+        $result = $this->selectSum('total_amount')
+            ->where('customer_id', $customerId)
+            ->where('status', 'approved')
+            ->first();
+            
+        return $result['total_amount'] ?? 0;
     }
 }

@@ -85,6 +85,7 @@
         $comisiones_color = null;
         $facturas_style = null;
         $facturas_color = null;
+        $solicitudes_retiro_color = null;
         $compras_style = null;
         $compras_color = null;
         $gastos_style = null;
@@ -226,7 +227,7 @@
                 $planes_color = "active_nav";
                 break;
             case "pagos":
-                $mantenimientos_style = "active pcoded-trigger";
+                $pagos_style = "active pcoded-trigger";
                 $pagos_color = "active_nav";
                 break;
             case "puntos":
@@ -572,6 +573,7 @@
                     <ul class="pcoded-submenu">
                         <li class=""><a href="/dashboard/comisiones" class="nav-link <?php echo $comisiones_color; ?>" style="<?php echo ($comisiones_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-money-bill"></i></span><span class="pcoded-mtext">Gestión de Comisiones</span></a></li>
                         <li class=""><a href="/dashboard/commission-reports" class="nav-link <?php echo $commission_reports_color; ?>" style="<?php echo ($commission_reports_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-file-invoice-dollar"></i></span><span class="pcoded-mtext">Informes de Comisiones</span></a></li>
+                        <li class=""><a href="/dashboard/pagos" class="nav-link <?php echo $pagos_color; ?>" style="<?php echo ($pagos_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-money-check-alt"></i></span><span class="pcoded-mtext">Solicitudes de Retiro</span></a></li>
                     </ul>
                 </li>
                 <!-- Demo Comisiones Multinivel -->

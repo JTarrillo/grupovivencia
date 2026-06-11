@@ -7,6 +7,7 @@ use App\Models\CustomerModel;
 use App\Models\PaysModel;
 use App\Models\Pay_commissionModel;
 use App\Models\Customer_bankModel;
+use App\Models\CommissionReportModel;
 use Fluent\ShoppingCart\Facades\Cart;
 use App\Libraries\Evox;
 
@@ -57,8 +58,13 @@ class B_cobros extends BaseController
 
   // Calcular ganancia total y disponible solo de comisiones inmobiliarias
   $ComisionesInmobiliarias = new ComisionesInmobiliariasModel();
+  $CommissionReport = new CommissionReportModel();
+  
   $obj_earn_total = $ComisionesInmobiliarias->getGananciaTotalPeriodo($id, '2000-01-01', $fecha_fin); // Total histórico
-  $obj_earn_disponible = $ComisionesInmobiliarias->getGananciaTotalPeriodo($id, $fecha_inicio, $fecha_fin); // Solo periodo actual
+  
+  // Ahora el balance disponible depende de los informes aprobados, no de las comisiones en bruto
+  $obj_earn_disponible = $CommissionReport->getApprovedBalanceByCustomer($id); // Solo de informes aprobados
+  
     //get all rpay
     $obj_pay = $Pay->get_search_by_id($id);
 
@@ -143,6 +149,7 @@ class B_cobros extends BaseController
           $factura = $facturaName;
         }
       }
+
       //verify Pin
       $Customer = new CustomerModel();
       $result = $Customer->get_data_customer_pin($id, $pin);

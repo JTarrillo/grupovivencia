@@ -29,77 +29,67 @@
     <div class="row">
         <!-- Columna Izquierda - Información del Informe -->
         <div class="col-md-8">
-            <!-- Card de Información General -->
+            <!-- Botones de Descarga Destacados -->
             <div class="card shadow mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">
-                        <i class="fa fa-file-invoice"></i>
-                        Información del Informe: <?php echo $report['report_number']; ?>
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="fw-bold text-muted">Patrocinador:</label>
-                            <p><?php echo $report['patron_name']; ?></p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="fw-bold text-muted">Posición:</label>
-                            <p><?php echo $report['patron_position']; ?></p>
-                        </div>
-                    </div>
+                <div class="card-body bg-light">
+                    <h5 class="card-title mb-3"><i class="fa fa-download"></i> Descargar Documentos</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <?php if ($report['generated_report_word']): ?>
+                        <a href="<?php echo site_url('dashboard/commission-reports/download/' . $report['id'] . '/report_word'); ?>" 
+                           class="btn btn-primary fw-bold" target="_blank">
+                            <i class="fa fa-file-word fs-5"></i> Descargar Informe en Word
+                        </a>
+                        <?php endif; ?>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="fw-bold text-muted">Contacto Contabilidad:</label>
-                            <p><?php echo $report['accounting_contact']; ?></p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="fw-bold text-muted">Número de Factura:</label>
-                            <p><?php echo $report['invoice_number']; ?></p>
-                        </div>
-                    </div>
+                        <?php if ($report['attachment_excel']): ?>
+                        <a href="<?php echo site_url('dashboard/commission-reports/download/' . $report['id'] . '/excel'); ?>" 
+                           class="btn btn-success fw-bold" target="_blank">
+                            <i class="fa fa-file-excel fs-5"></i> Descargar Excel
+                        </a>
+                        <?php endif; ?>
 
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">Asunto:</label>
-                            <p><?php echo $report['subject']; ?></p>
-                        </div>
-                    </div>
+                        <?php if ($report['attachment_vauchers']): ?>
+                        <a href="<?php echo site_url('dashboard/commission-reports/download/' . $report['id'] . '/vauchers'); ?>" 
+                           class="btn btn-danger fw-bold" target="_blank">
+                            <i class="fa fa-file-pdf fs-5"></i> Descargar Vouchers
+                        </a>
+                        <?php endif; ?>
 
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">Proyectos:</label>
-                            <p><?php echo nl2br($report['projects']); ?></p>
-                        </div>
-                    </div>
-
-                    <div class="row mb-0">
-                        <div class="col-md-6">
-                            <label class="fw-bold text-muted">Monto Total:</label>
-                            <p class="fs-5">
-                                <span class="badge bg-success">S/ <?php echo number_format($report['total_amount'], 2); ?></span>
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="fw-bold text-muted">Fecha de Creación:</label>
-                            <p><?php echo date('d/m/Y H:i', strtotime($report['created_at'])); ?></p>
-                        </div>
+                        <?php if ($report['attachment_invoices']): ?>
+                        <a href="<?php echo site_url('dashboard/commission-reports/download/' . $report['id'] . '/invoices'); ?>" 
+                           class="btn btn-warning text-dark fw-bold" target="_blank">
+                            <i class="fa fa-file-invoice fs-5"></i> Descargar Boletas
+                        </a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
 
-            <!-- Card de Descripción -->
-            <div class="card shadow mb-4">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">
-                        <i class="fa fa-align-left"></i>
-                        Descripción de Comisiones
-                    </h5>
+            <!-- Vista tipo Documento Word (A4) -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i> Vista Previa del Documento</h5>
                 </div>
-                <div class="card-body">
-                    <div class="text-justify">
-                        <?php echo nl2br(htmlspecialchars($report['description'])); ?>
+                <div class="card-body bg-light p-4">
+                    <div class="bg-white p-5 border shadow-sm mx-auto" style="max-width: 800px; min-height: 1000px; font-family: 'Arial', sans-serif;">
+                        <?php 
+                        // Prepare data for the template
+                        $pdfData = [
+                            'report_number' => $report['report_number'],
+                            'patron_name' => $report['patron_name'],
+                            'patron_position' => $report['patron_position'],
+                            'subject' => $report['subject'],
+                            'projects' => $report['projects'],
+                            'description' => $report['description'],
+                            'total_amount' => $report['total_amount'],
+                            'invoice_number' => $report['invoice_number'],
+                            'digital_signature' => $report['digital_signature'],
+                            'created_at' => $report['created_at']
+                        ];
+                        
+                        // Load and echo the template directly
+                        echo view('backoffice_new/commission_reports/pdf_template', $pdfData);
+                        ?>
                     </div>
                 </div>
             </div>
@@ -114,6 +104,24 @@
                 </div>
                 <div class="card-body">
                     <div class="list-group">
+                        <?php if ($report['generated_report_pdf']): ?>
+                        <a href="<?php echo site_url('dashboard/commission-reports/download/' . $report['id'] . '/report_pdf'); ?>" 
+                           class="list-group-item list-group-item-action bg-light-danger border-danger" target="_blank">
+                            <i class="fa fa-file-pdf text-danger fs-4"></i>
+                            <strong class="text-danger">Informe Autogenerado (con Firma)</strong>
+                            <span class="badge bg-danger float-end">Descargar PDF</span>
+                        </a>
+                        <?php endif; ?>
+
+                        <?php if ($report['generated_report_word']): ?>
+                        <a href="<?php echo site_url('dashboard/commission-reports/download/' . $report['id'] . '/report_word'); ?>" 
+                           class="list-group-item list-group-item-action bg-light-primary border-primary" target="_blank">
+                            <i class="fa fa-file-word text-primary fs-4"></i>
+                            <strong class="text-primary">Informe Autogenerado (Word)</strong>
+                            <span class="badge bg-primary float-end">Descargar Word</span>
+                        </a>
+                        <?php endif; ?>
+
                         <?php if ($report['attachment_excel']): ?>
                         <a href="<?php echo site_url('dashboard/commission-reports/download/' . $report['id'] . '/excel'); ?>" 
                            class="list-group-item list-group-item-action" target="_blank">

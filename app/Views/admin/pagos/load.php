@@ -1,158 +1,85 @@
-<!doctype html>
-
-<html lang="es-PE">
-
-   <?php echo view("admin/head"); ?>
-
-   <body data-new-gr-c-s-check-loaded="14.1042.0" data-gr-ext-installed="">
-
-      <?php echo view("admin/header"); ?>
-
-      <section class="pcoded-main-container">
-
-         <div class="pcoded-wrapper">
-
-            <div class="pcoded-content">
-
-               <div class="pcoded-inner-content">
-
-                  <div class="page-header">
-
-                     <div class="page-block">
-
-                        <div class="row align-items-center">
-
-                           <div class="col-md-12">
-
-                              <div class="page-header-title">
-
-                                 <h5 class="m-b-10">Formulario de Puntos</h5> 
-
-                              </div>
-
-                              <ul class="breadcrumb">
-
-                                 <li class="breadcrumb-item"><a href="<?php echo site_url()."dashboard/panel";?>">Panel</a></li>
-
-                                 <li class="breadcrumb-item"><a href="<?php echo site_url()."dashboard/puntos";?>">Listado de Pagos</a></li>
-
-                                 <li class="breadcrumb-item"><a>Puntos</a></li>
-
-                              </ul>
-
-                           </div>
-
-                        </div>
-
-                     </div>
-
-                  </div>
-
-                  <div class="main-body">
-
-                     <div class="page-wrapper">
-
-                        <div class="row">
-
-                           <div class="col-sm-12">
-
-                              <div class="card">
-
-                                 <div class="card-header">
-
-                                    <h5>Datos</h5>
-
-                                 </div>
-
-                                 <div class="card-body">
-
-                                    <form name="form-points" enctype="multipart/form-data" method="post" action="javascript:void(0);"; onsubmit="validate();">
-
-                                       <div class="form-row">
-
-                                          <div class="form-group col-md-12">
-
-                                                <div class="form-group">
-
-                                                      <label>ID</label>
-
-                                                      <input class="form-control" type="text" value="<?php echo isset($pointsData)?$pointsData->id:"";?>" class="input-xlarge-fluid" placeholder="ID" disabled="">
-
-                                                      <input type="hidden" id="id" name="id" value="<?php echo isset($pointsData)?$pointsData->id:"";?>">
-
-                                                </div>
-
-                                          </div>
-
-                                       <div class="form-group col-md-6">
-
-                                             <div class="form-group">
-
-                                                   <label>Código</label>
-
-                                                   <input class="form-control" type="text" id="username" name="username" value="<?php echo isset($pointsData)?$pointsData->code:"";?>" class="input-xlarge-fluid" disabled="">
-
-                                             </div>
-
-                                             <div class="form-group">
-
-                                                   <label>Nombre</label>
-
-                                                   <input class="form-control" stype="text" id="name" name="name" value="<?php echo isset($pointsData)?$pointsData->name." ".$pointsData->lastname:"";?>" class="input-xlarge-fluid" placeholder="Nombre" disabled="">
-
-                                             </div>
-
-                                          </div>
-
-                                          <div class="form-group col-md-6">
-
-                                             <div class="form-group">
-
-                                                      <label>Puntos</label>
-
-                                                      <input class="form-control" stype="text" id="points" name="points" value="<?php echo isset($pointsData)?$pointsData->points:0;?>" class="input-xlarge-fluid">
-
-                                             </div>
-
-                                             <div class="form-group">
-
-                                                   <label>Fecha</label>
-
-                                                   <input class="form-control" type="text" id="date" name="date" value="<?php echo isset($pointsData)?formato_fecha_db_time($pointsData->date):"";?>" class="input-xlarge-fluid" disabled="">
-
-                                             </div>
-
-                                          </div>
-
-                                       </div>
-
-                                       <button type="submit" id="submit" class="btn btn-primary"><i class="fa fa-cloud" aria-hidden="true"></i>Guardar</button>
-
-                                       <button class="btn waves-effect waves-light btn-light" type="reset" onclick="cancel_points();"><i class="fa fa-arrow-left" aria-hidden="true"></i>Regresar</button>                    
-                                       
-
-                                 </form>
-
-                                 </div>
-
-                              </div>
-
-                           </div>
-
-                        </div>
-
-                     </div>
-
-                  </div>
-
-               </div>
-
-            </div>
-
-         </div>
-
-      </section>
-
-      <script src="<?php echo base_url('assets/admin/js/script/point_list.js'); ?>"></script> 
-
-      <?php echo view("admin/footer"); ?>
+<div class="row">
+    <div class="col-md-12">
+        <h5 class="mb-3 border-bottom pb-2">Detalles de la Solicitud</h5>
+        <table class="table table-bordered table-striped">
+            <tbody>
+                <tr>
+                    <th width="30%" class="bg-light">Usuario:</th>
+                    <td><?php echo isset($obj_pay) ? $obj_pay->name . " " . $obj_pay->lastname . " (#" . $obj_pay->code . ")" : ''; ?></td>
+                </tr>
+                <tr>
+                    <th class="bg-light">Banco:</th>
+                    <td><?php echo isset($obj_pay) ? $obj_pay->bank : ''; ?></td>
+                </tr>
+                <tr>
+                    <th class="bg-light">N° Cuenta:</th>
+                    <td><?php echo isset($obj_pay) ? $obj_pay->number : ''; ?></td>
+                </tr>
+                <tr>
+                    <th class="bg-light">CCI:</th>
+                    <td><?php echo isset($obj_pay) ? ($obj_pay->cci ? $obj_pay->cci : 'No registrado') : ''; ?></td>
+                </tr>
+                <tr>
+                    <th class="bg-light">Importe Solicitado:</th>
+                    <td><strong class="text-success"><?php echo isset($obj_pay) ? "S/ " . number_format($obj_pay->amount, 2) : ''; ?></strong></td>
+                </tr>
+                <tr>
+                    <th class="bg-light">Factura Adjunta:</th>
+                    <td>
+                        <?php if (isset($obj_pay) && !empty($obj_pay->factura)): ?>
+                            <a href="<?php echo site_url('public/facturas/' . $obj_pay->factura); ?>" target="_blank" class="btn btn-sm btn-primary"><i class="fa fa-eye"></i> Ver Factura</a>
+                        <?php else: ?>
+                            <span class="text-danger"><i class="fa fa-times-circle"></i> No adjunta</span>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h5 class="mb-3 mt-4 border-bottom pb-2">Gestión del Pago</h5>
+<form id="form_pay" method="post" action="<?php echo site_url('dashboard/pagos/status'); ?>">
+    <input type="hidden" name="id" value="<?php echo isset($obj_pay) ? $obj_pay->id : ''; ?>">
+    
+    <div class="form-group">
+        <label>Cambiar Estado:</label>
+        <select class="form-control" name="active">
+            <option value="1" <?php echo (isset($obj_pay) && $obj_pay->active == 1) ? 'selected' : ''; ?>>En espera</option>
+            <option value="2" <?php echo (isset($obj_pay) && $obj_pay->active == 2) ? 'selected' : ''; ?>>Pagado</option>
+            <option value="3" <?php echo (isset($obj_pay) && $obj_pay->active == 3) ? 'selected' : ''; ?>>Cancelado</option>
+        </select>
+    </div>
+
+    <div class="form-group text-right mt-4">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Guardar Estado</button>
+    </div>
+</form>
+
+<script>
+    $('#form_pay').submit(function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: $(this).attr('action'),
+            type: $(this).attr('method'),
+            data: $(this).serialize(),
+            success: function(response) {
+                $('#modal_pay').modal('hide');
+                Swal.fire({
+                    title: '¡Actualizado!',
+                    text: 'El estado de la solicitud ha sido cambiado exitosamente.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    location.reload();
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error("Error updating status:", error);
+                Swal.fire('Error', 'Hubo un error al actualizar el estado. Por favor, intenta de nuevo.', 'error');
+            }
+        });
+    });
+</script>
