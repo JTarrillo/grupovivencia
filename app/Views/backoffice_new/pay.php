@@ -76,9 +76,7 @@
                                                 <span>Las solicitudes de retiro se realizan <b>solo los días 1 y 2 de
                                                         cada mes</b>.</span>
                                                 <span>El importe mínimo de retiro es de S/100.</span>
-                                                <span>Si el monto en factura es <b>mayor o igual a S/700</b>, se aplica una <b>detracción del 10%</b>.</span>
-                                                <span>Es obligatorio adjuntar factura para retiros de gestión
-                                                    inmobiliaria.</span>
+                                                <span>Si el monto es <b>mayor o igual a S/700</b>, se aplica una <b>detracción del 10%</b>.</span>
                                             </div>
                                         </div>
                                     </div>
@@ -277,7 +275,7 @@
                                         <input type="number" name="amount" id="amount"
                                             class="form-control form-control-solid"
                                             placeholder="<?php echo lang('Global.ingresar_importe'); ?>" min="20"
-                                            max="50000" step=".01" autofocus="autofocus" required>
+                                            max="50000" step=".01" autofocus="autofocus" value="<?php echo $obj_earn_disponible; ?>" required>
                                         <div class="fv-plugins-message-container invalid-feedback"></div>
                                     </div>
                                     <div class="d-flex flex-column mb-8 fv-row fv-plugins-icon-container">
@@ -287,8 +285,8 @@
                                                 onclick="send_pin('<?php echo $obj_customer->id; ?>','<?php echo $obj_customer->name; ?>','<?php echo $obj_customer->email; ?>');">Clic
                                                 Aquí para solicitar PIN</span>
                                         </label>
-                                        <input type="password" class="form-control form-control-lg form-control-solid"
-                                            name="pin" id="pin" required />
+                                        <input type="text" class="form-control form-control-lg form-control-solid"
+                                            name="pin_retiro" id="pin" autocomplete="off" required />
                                     </div>
                                     <?php
 									if (is_null($obj_customer_bank)) { ?>
@@ -333,15 +331,6 @@
                                         </label>
                                         <input type="text" value="<?php echo $obj_customer_bank->number; ?>"
                                             class="form-control form-control-solid" readonly>
-                                    </div>
-                                    <div class="d-flex flex-column mb-8 fv-row fv-plugins-icon-container">
-                                        <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
-                                            <span class="required">Factura (PDF/JPG/PNG)</span>
-                                        </label>
-                                        <input type="file" name="factura" id="factura"
-                                            class="form-control form-control-solid" accept=".pdf,.jpg,.jpeg,.png"
-                                            required />
-                                        <div class="fv-plugins-message-container invalid-feedback"></div>
                                     </div>
                                     <div class="text-center">
                                         <button type="submit" id="submit" class="btn btn-primary">

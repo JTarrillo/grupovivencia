@@ -4,9 +4,9 @@ function make_pay(){
       var amount = document.getElementById("amount").value;
       var total_disponible = document.getElementById("total_disponible").value;
       var pin = document.getElementById("pin").value;
-      var bank_name = document.getElementById("bank_name").value;
-      var number = document.getElementById("number").value;
-      var cci = document.getElementById("cci").value;
+      var bank_name = document.getElementById("bank_name") ? document.getElementById("bank_name").value : '';
+      var number = document.getElementById("number") ? document.getElementById("number").value : '';
+      var cci = document.getElementById("cci") ? document.getElementById("cci").value : '';
           if(amount < 100){
             Swal.fire({
                 position: 'center',

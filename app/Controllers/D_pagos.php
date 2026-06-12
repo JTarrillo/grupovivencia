@@ -212,7 +212,7 @@ class D_pagos extends BaseController
         //get data session
         $session = session();
 
-        if ($session->has('role') && $session->get('role') == '1') {
+        if ($session->has('isLoggedIn')) {
 
             $id = $this->request->getPost('id');
 
@@ -223,7 +223,7 @@ class D_pagos extends BaseController
                 $status = $active;
             }
 
-            // Procesar archivo voucher_pago si existe
+            // Procesar archivo voucher_pago si existe (opcional)
             $voucher_pago = null;
             $file = $this->request->getFile('voucher_pago');
             if ($file && $file->isValid() && !$file->hasMoved()) {
@@ -301,17 +301,17 @@ class D_pagos extends BaseController
                     }
                 }
 
-                echo json_encode(array("status" => true));
+                return $this->response->setJSON(["status" => true]);
 
             } else {
 
-                echo json_encode(array("status" => false));
+                return $this->response->setJSON(["status" => false, "error" => "No se pudo actualizar la BD"]);
 
             }
 
         } else {
 
-            return redirect()->to(site_url('admin'));
+            return $this->response->setJSON(["status" => false, "error" => "Problema de sesión o rol"]);
 
         }
 

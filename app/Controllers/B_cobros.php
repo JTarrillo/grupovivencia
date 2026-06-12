@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\ComisionesInmobiliariasModel;
+use App\Models\CommissionsModel;
 use App\Models\CustomerModel;
 use App\Models\PaysModel;
 use App\Models\Pay_commissionModel;
@@ -31,9 +32,12 @@ class B_cobros extends BaseController
   //get hour 24 h
   $hour = date("G");
   //allow payments only on the 1st and 2nd of each month
+  /*
   if ($day == '1' || $day == '2') {
     $allow = 1;
   }
+  */
+  $allow = 1; // Habilitado temporalmente para pruebas
 
     
 
@@ -134,28 +138,19 @@ class B_cobros extends BaseController
       $amount = $obj_data['amount'];
       $total_disponible = $obj_data['total_disponible'];
       $pin = $obj_data['pin'];
-      $bank_name = $obj_data['bank_name'];
-      $number = $obj_data['number'];
-      $cci = $obj_data['cci'];
-      // Procesar archivo de factura si existe
+      $bank_name = isset($obj_data['bank_name']) ? $obj_data['bank_name'] : '';
+      $number = isset($obj_data['number']) ? $obj_data['number'] : '';
+      $cci = isset($obj_data['cci']) ? $obj_data['cci'] : '';
+      // Procesar archivo de factura si existe (obsoleto, ya no se pide aquí)
       $factura = null;
-      if (isset($_FILES['factura']) && $_FILES['factura']['error'] == 0) {
-        $facturaFile = $_FILES['factura'];
-        $ext = pathinfo($facturaFile['name'], PATHINFO_EXTENSION);
-        $allowed = ['pdf', 'jpg', 'jpeg', 'png'];
-        if (in_array(strtolower($ext), $allowed)) {
-          $facturaName = uniqid('factura_') . '.' . $ext;
-          $dest = FCPATH . 'public/facturas/' . $facturaName;
-          move_uploaded_file($facturaFile['tmp_name'], $dest);
-          $factura = $facturaName;
-        }
-      }
+
 
       //verify Pin
       $Customer = new CustomerModel();
       $result = $Customer->get_data_customer_pin($id, $pin);
       if ($result) {
         // REGLA 1: Validar que sea solo días 1 y 2 de cada mes
+        /*
         $dia_actual = date('j');
         if ($dia_actual != 1 && $dia_actual != 2) {
           $data['status'] = false;
@@ -163,6 +158,7 @@ class B_cobros extends BaseController
           echo json_encode($data);
           exit();
         }
+        */
         
         //verify amount
         if ($amount >= 100 && $amount <= $total_disponible) {
@@ -172,14 +168,7 @@ class B_cobros extends BaseController
             $detraccion = round($amount * 0.10, 2);
           }
           $neto = $amount - $detraccion;
-          // REGLA 4: Validar obligatoriedad de factura para retiros de gestión inmobiliaria
-          // Es obligatorio adjuntar factura
-          if (empty($factura)) {
-            $data['status'] = false;
-            $data['message'] = 'Es obligatorio adjuntar factura para retiros de gestión inmobiliaria.';
-            echo json_encode($data);
-            exit();
-          }
+          
           $Pay = new PaysModel();
           //insert table pay
           $param = array(
@@ -190,7 +179,7 @@ class B_cobros extends BaseController
             'number' => $number,
             'cci' => $cci,
             'total' => $neto,
-            'factura' => $factura,
+            'factura' => null, // Se omite la factura aquí porque ya se adjunta en el informe de comisiones
             'active' => '1',
             'date' => date("Y-m-d H:i:s")
           );

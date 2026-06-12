@@ -65,7 +65,9 @@ class Home extends BaseController
                 ->get()->getRow()->monto ?? 0;
 
             // Total disponible (ajusta según lógica de retiros si aplica)
-            $total_disponible = $total_periodo;
+            // Para el nuevo sistema, usamos el balance de los informes aprobados:
+            $CommissionReport = new \App\Models\CommissionReportModel();
+            $total_disponible = $CommissionReport->getApprovedBalanceByCustomer($id);
 
             // Historial de comisiones solo con venta_id
             $builder = $db->table('comisiones_inmobiliarias');

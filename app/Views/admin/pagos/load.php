@@ -23,16 +23,6 @@
                     <th class="bg-light">Importe Solicitado:</th>
                     <td><strong class="text-success"><?php echo isset($obj_pay) ? "S/ " . number_format($obj_pay->amount, 2) : ''; ?></strong></td>
                 </tr>
-                <tr>
-                    <th class="bg-light">Factura Adjunta:</th>
-                    <td>
-                        <?php if (isset($obj_pay) && !empty($obj_pay->factura)): ?>
-                            <a href="<?php echo site_url('public/facturas/' . $obj_pay->factura); ?>" target="_blank" class="btn btn-sm btn-primary"><i class="fa fa-eye"></i> Ver Factura</a>
-                        <?php else: ?>
-                            <span class="text-danger"><i class="fa fa-times-circle"></i> No adjunta</span>
-                        <?php endif; ?>
-                    </td>
-                </tr>
             </tbody>
         </table>
     </div>
@@ -52,14 +42,14 @@
     </div>
 
     <div class="form-group">
-        <label>Voucher de Pago (Obligatorio si es Pagado):</label>
+        <label>Voucher de Pago (Opcional):</label>
         <input type="file" name="voucher_pago" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
         <?php if (isset($obj_pay) && !empty($obj_pay->voucher_pago)): ?>
             <small class="form-text text-muted mt-2">Voucher actual: <a href="<?php echo site_url('public/vouchers/' . $obj_pay->voucher_pago); ?>" target="_blank">Ver Voucher</a></small>
         <?php endif; ?>
     </div>
 
-    <div class="form-group text-right mt-4">
+    <div class="modal-footer bg-light">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
         <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Guardar Estado</button>
     </div>
@@ -74,11 +64,6 @@
         var voucherFile = formData.get('voucher_pago');
         var existingVoucher = "<?php echo isset($obj_pay) && !empty($obj_pay->voucher_pago) ? $obj_pay->voucher_pago : ''; ?>";
 
-        if (activeStatus == '2' && !voucherFile.name && existingVoucher == '') {
-            Swal.fire('Atención', 'Debe adjuntar el voucher de pago cuando el estado es "Pagado".', 'warning');
-            return;
-        }
-
         $.ajax({
             url: $(this).attr('action'),
             type: $(this).attr('method'),
@@ -86,16 +71,20 @@
             processData: false,
             contentType: false,
             success: function(response) {
-                $('#modal_pay').modal('hide');
-                Swal.fire({
-                    title: '¡Actualizado!',
-                    text: 'El estado de la solicitud ha sido cambiado exitosamente.',
-                    icon: 'success',
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                    location.reload();
-                });
+                if(response.status) {
+                    $('#modal_pay').modal('hide');
+                    Swal.fire({
+                        title: '¡Actualizado!',
+                        text: 'El estado de la solicitud ha sido cambiado exitosamente.',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire('Error', response.error || 'No se pudo actualizar el estado.', 'error');
+                }
             },
             error: function(xhr, status, error) {
                 console.error("Error updating status:", error);

@@ -97,8 +97,6 @@
                                                                     <th>CCI</th>
 
                                                                     <th>Importe</th>
-                                                                    
-                                                                    <th>Factura</th>
 
                                                                     <th>Estado</th>
 
@@ -127,14 +125,6 @@
                                                                         <td><?php echo $value->cci;?></td>
 
                                                                         <td><b><?php echo format_number_moneda_soles($value->amount);?></b></td>
-                                                                        
-                                                                        <td>
-                                                                            <?php if (!empty($value->factura)): ?>
-                                                                                <a href="<?php echo site_url('public/facturas/' . $value->factura); ?>" target="_blank" class="btn btn-sm btn-primary"><i class="fa fa-download"></i> Ver</a>
-                                                                            <?php else: ?>
-                                                                                <span class="text-muted">No adjunta</span>
-                                                                            <?php endif; ?>
-                                                                        </td>
 
                                                                         <td>
 
@@ -201,8 +191,6 @@
                                                                     <th>CCI</th>
 
                                                                     <th>Importe</th>
-                                                                    
-                                                                    <th>Factura</th>
 
                                                                     <th>Estado</th>
 

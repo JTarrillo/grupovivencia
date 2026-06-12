@@ -1,3 +1,22 @@
+<?php
+$meses = [
+    'January' => 'enero',
+    'February' => 'febrero',
+    'March' => 'marzo',
+    'April' => 'abril',
+    'May' => 'mayo',
+    'June' => 'junio',
+    'July' => 'julio',
+    'August' => 'agosto',
+    'September' => 'septiembre',
+    'October' => 'octubre',
+    'November' => 'noviembre',
+    'December' => 'diciembre'
+];
+$mes_nombre = isset($created_at) ? $meses[date('F', strtotime($created_at))] : $meses[date('F')];
+$dia_numero = isset($created_at) ? date('d', strtotime($created_at)) : date('d');
+$anio_numero = isset($created_at) ? date('Y', strtotime($created_at)) : date('Y');
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -82,20 +101,20 @@
         <tr>
             <td class="label">FECHA</td>
             <td class="colon">:</td>
-            <td class="value">Cusco, <?= isset($created_at) ? date('d \d\e F \d\e\l Y', strtotime($created_at)) : date('d \d\e F \d\e\l Y') ?></td>
+            <td class="value">Cusco, <?= $dia_numero ?> de <?= ucfirst($mes_nombre) ?> del <?= $anio_numero ?></td>
         </tr>
     </table>
 
     <hr style="border: 0; border-top: 1.5px solid #000; margin-bottom: 15px;">
 
     <div class="content">
-        <p>Previo un cordial saludo, me dirijo a Usted con la finalidad de detallar el cierre mensual del mes de <?= isset($created_at) ? mb_strtolower(date('F', strtotime($created_at))) : mb_strtolower(date('F')) ?> del <?= isset($created_at) ? date('Y', strtotime($created_at)) : date('Y') ?>, se presenta el desglose de las comisiones generadas por mis ventas realizadas en las asociaciones (<?= $projects ?>) mencionados de manera detallada en el cuadro Excel, adjuntando nuestras comisiones por reserva, inicial y cuotas de los clientes.</p>
+        <p>Previo un cordial saludo, me dirijo a Usted con la finalidad de detallar el cierre mensual del mes de <?= $mes_nombre ?> del <?= $anio_numero ?>, se presenta el desglose de las comisiones generadas por mis ventas realizadas en las asociaciones (<?= $projects ?>) mencionados de manera detallada en el cuadro Excel, adjuntando nuestras comisiones por reserva, inicial y cuotas de los clientes.</p>
 
         <p><?= nl2br(htmlspecialchars($description)) ?></p>
 
         <p>Asimismo, el porcentaje por cada lote sumando un total de <strong>S/ <?= number_format($total_amount, 2) ?></strong> factura número <?= htmlspecialchars($invoice_number) ?> a la empresa GRUPO VIVENCIA S.A.C</p>
 
-        <p>Este informe refleja las comisiones correspondientes al mes de <?= isset($created_at) ? mb_strtolower(date('F', strtotime($created_at))) : mb_strtolower(date('F')) ?> del <?= isset($created_at) ? date('Y', strtotime($created_at)) : date('Y') ?>.</p>
+        <p>Este informe refleja las comisiones correspondientes al mes de <?= $mes_nombre ?> del <?= $anio_numero ?>.</p>
 
         <p>Los montos presentados están calculados de acuerdo con los procedimientos establecidos en la empresa y se encuentran listos para su verificación y pago por el departamento de contabilidad.</p>
         
