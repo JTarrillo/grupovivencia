@@ -154,8 +154,8 @@
                                                                                 <input type="number"
                                                                                     class="form-control"
                                                                                     id="create_base_price_per_sqm"
-                                                                                    name="base_price_per_sqm"
-                                                                                    step="1" min="0" required>
+                                                                                    name="base_price_per_sqm" step="1"
+                                                                                    min="0" required>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -541,12 +541,6 @@
                                                     fixedGroup.classList.remove('d-none');
                                                 }
                                             }
-                                            // Inicializar al abrir el modal (solo para editar)
-                                            document.getElementById('editProjectModal').addEventListener(
-                                                'shown.bs.modal',
-                                                function() {
-                                                    // Funcionalidad de editar si es necesaria
-                                                });
 
                                             function showCreateProjectModal() {
                                                 document.getElementById('create-project-form').reset();
@@ -606,6 +600,170 @@
                                                     });
                                             }
 
+                                            function resetCreateProjectSubmitState(form) {
+                                                delete form.dataset.submitting;
+                                                const submitButtons = form.querySelectorAll(
+                                                    'button[type="submit"]');
+                                                submitButtons.forEach(button => button.removeAttribute(
+                                                    'disabled'));
+                                            }
+
+                                            function showCreateProjectAlert(icon, title, text) {
+                                                return Swal.fire({
+                                                    icon: icon,
+                                                    title: title,
+                                                    text: text,
+                                                    confirmButtonText: 'Aceptar'
+                                                });
+                                            }
+
+                                            function escapeHtml(value) {
+                                                return String(value ?? '')
+                                                    .replace(/&/g, '&amp;')
+                                                    .replace(/</g, '&lt;')
+                                                    .replace(/>/g, '&gt;')
+                                                    .replace(/"/g, '&quot;')
+                                                    .replace(/'/g, '&#039;');
+                                            }
+
+                                            function getProjectStatusBadge(status) {
+                                                switch (status) {
+                                                    case 'active':
+                                                        return '<span class="badge badge-success">Activo</span>';
+                                                    case 'sold_out':
+                                                        return '<span class="badge badge-danger">Agotado</span>';
+                                                    case 'suspended':
+                                                        return '<span class="badge badge-secondary">Suspendido</span>';
+                                                    case 'planning':
+                                                    default:
+                                                        return '<span class="badge badge-warning">En Planificación</span>';
+                                                }
+                                            }
+
+                                            function formatProjectDate(dateValue) {
+                                                const date = dateValue ? new Date(dateValue) : new Date();
+                                                if (Number.isNaN(date.getTime())) {
+                                                    return new Date().toLocaleDateString('es-PE');
+                                                }
+                                                return date.toLocaleDateString('es-PE');
+                                            }
+
+                                            function buildProjectRow(project, departamentos, provincias, distritos) {
+                                                const projectId = escapeHtml(project.id);
+                                                const imagePath = project.image ? '/' + String(project.image).replace(
+                                                    /^\/+/, '') : '/assets/project_images/no-image.png';
+                                                const description = project.description ? escapeHtml(project
+                                                    .description) : '';
+                                                const shortDescription = description.length > 50 ? description
+                                                    .substring(0, 50) + '...' : (description || '...');
+                                                const dep = departamentos?. [project.department_id] ?
+                                                    escapeHtml(departamentos[project.department_id]) :
+                                                    '<span style="color:#bbb">(Sin departamento)</span>';
+                                                const prov = provincias?. [project.province_id] ?
+                                                    escapeHtml(provincias[project.province_id]) :
+                                                    '<span style="color:#bbb">(Sin provincia)</span>';
+                                                const dist = distritos?. [project.district_id] ?
+                                                    escapeHtml(distritos[project.district_id]) :
+                                                    '<span style="color:#bbb">(Sin distrito)</span>';
+                                                const price = Number(project.base_price_per_sqm || 0).toLocaleString(
+                                                    'es-PE', {
+                                                        minimumFractionDigits: 2,
+                                                        maximumFractionDigits: 2
+                                                    });
+
+                                                return `
+                                                    <tr data-project-id="${projectId}">
+                                                        <td>${projectId}</td>
+                                                        <td>
+                                                            <img src="${imagePath}" alt="Imagen" style="max-width:60px;max-height:60px;border-radius:6px;object-fit:cover;" onerror="this.onerror=null;this.src='/assets/project_images/no-image.png';">
+                                                        </td>
+                                                        <td><strong>${escapeHtml(project.code || '')}</strong></td>
+                                                        <td>
+                                                            ${escapeHtml(project.name || '')}<br>
+                                                            <small class="text-muted">${shortDescription}</small>
+                                                        </td>
+                                                        <td>${dep} / ${prov} / ${dist}</td>
+                                                        <td><span class="badge badge-info">${escapeHtml(project.total_lots || 0)}</span></td>
+                                                        <td><span class="badge badge-success">${escapeHtml(project.available_lots || 0)}</span></td>
+                                                        <td>S/ ${price}</td>
+                                                        <td>${getProjectStatusBadge(project.status)}</td>
+                                                        <td>${formatProjectDate(project.created_at)}</td>
+                                                        <td>
+                                                            <div class="btn-group">
+                                                                <button type="button" class="btn btn-icon btn-info btn-sm" title="Detalle" onclick="showProjectDetail(${projectId})"><i class="fa fa-search"></i></button>
+                                                                <button type="button" class="btn btn-icon btn-warning btn-sm" title="Editar" onclick="editProject(${projectId})"><i class="fa fa-edit"></i></button>
+                                                                <button type="button" class="btn btn-icon btn-danger btn-sm" title="Eliminar" onclick="eliminar('${projectId}');"><i class="fa fa-trash"></i></button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                `;
+                                            }
+
+                                            function insertProjectIntoList(projectResponse) {
+                                                const tableBody = document.querySelector('#zero-configuration tbody');
+                                                if (!tableBody || !projectResponse?.project) {
+                                                    return;
+                                                }
+
+                                                const existingRow = tableBody.querySelector(
+                                                    `tr[data-project-id="${projectResponse.project.id}"]`);
+                                                if (existingRow) {
+                                                    existingRow.remove();
+                                                }
+
+                                                tableBody.insertAdjacentHTML('afterbegin', buildProjectRow(
+                                                    projectResponse.project,
+                                                    projectResponse.departamentos,
+                                                    projectResponse.provincias,
+                                                    projectResponse.distritos
+                                                ));
+
+                                                filterProjectTable();
+                                            }
+
+                                            function syncCreatedProject(projectId) {
+                                                if (!projectId) {
+                                                    return Promise.resolve();
+                                                }
+
+                                                return fetch(`/dashboard/inmueble/api/get_project/${projectId}`, {
+                                                        headers: {
+                                                            'X-Requested-With': 'XMLHttpRequest'
+                                                        }
+                                                    })
+                                                    .then(response => response.json())
+                                                    .then(data => {
+                                                        if (data.success) {
+                                                            insertProjectIntoList(data);
+                                                        }
+                                                    })
+                                                    .catch(error => {
+                                                        console.error(
+                                                            'No se pudo sincronizar el proyecto creado en la tabla:',
+                                                            error);
+                                                    });
+                                            }
+
+                                            function showCreateProjectSuccess(message, code, projectId) {
+                                                const $createModal = $('#createProjectModal');
+                                                const openSuccessAlert = function() {
+                                                    Swal.fire({
+                                                        icon: 'success',
+                                                        title: '¡Proyecto creado!',
+                                                        html: `
+                                                            <p>${message || 'Proyecto creado exitosamente.'}</p>
+                                                            <p><strong>Código:</strong> ${code || 'Generado automáticamente'}</p>
+                                                            <p class="mb-0">Puedes seguir trabajando sin recargar la página.</p>
+                                                        `,
+                                                        confirmButtonText: 'Continuar'
+                                                    }).then(() => {
+                                                        syncCreatedProject(projectId);
+                                                    });
+                                                };
+                                                $createModal.one('hidden.bs.modal', openSuccessAlert);
+                                                $createModal.modal('hide');
+                                            }
+
                                             document.getElementById('create-project-form').addEventListener('submit',
                                                 function(e) {
                                                     // Prevent double submission if external script also attached a handler
@@ -620,120 +778,138 @@
                                                     submitButtons.forEach(b => b.setAttribute('disabled',
                                                         'disabled'));
                                                     e.preventDefault();
-                                                    const formData = new FormData(this);
+
+                                                    const form = this;
+                                                    const formData = new FormData(form);
                                                     const interestRate = parseFloat(formData.get(
                                                         'base_interest_rate'));
                                                     const pricePerSqm = parseFloat(formData.get(
                                                         'base_price_per_sqm'));
-                                                    // Siempre es monto fijo
-                                                    const downPaymentType = 'fixed';
                                                     let downPaymentValid = true;
                                                     const fixed = parseFloat(formData.get(
                                                         'min_down_payment_fixed')) || 0;
+
                                                     if (isNaN(fixed) || fixed < 0) {
-                                                        alert(
+                                                        downPaymentValid = false;
+                                                        resetCreateProjectSubmitState(form);
+                                                        showCreateProjectAlert('warning', 'Validación',
                                                             'La cuota inicial en soles debe ser mayor o igual a 0'
                                                         );
-                                                        downPaymentValid = false;
+                                                        return false;
                                                     }
+
                                                     // Validaciones generales
                                                     const deptId = parseInt(formData.get('department_id'));
                                                     if (deptId === 8) {
                                                         // Cusco permite 0%
                                                         if (interestRate < 0 || interestRate > 6) {
-                                                            alert(
+                                                            resetCreateProjectSubmitState(form);
+                                                            showCreateProjectAlert('warning',
+                                                                'Validación',
                                                                 'La tasa de interés para Cusco debe estar entre 0% y 6%'
                                                             );
                                                             return false;
                                                         }
                                                     } else {
                                                         if (interestRate < 0 || interestRate > 6) {
-                                                            alert('La tasa de interés debe estar entre 0% y 6%.');
+                                                            resetCreateProjectSubmitState(form);
+                                                            showCreateProjectAlert('warning',
+                                                                'Validación',
+                                                                'La tasa de interés debe estar entre 0% y 6%.'
+                                                            );
                                                             return false;
                                                         }
                                                     }
                                                     if (pricePerSqm <= 0) {
-                                                        alert('El precio por m² debe ser mayor a 0');
+                                                        resetCreateProjectSubmitState(form);
+                                                        showCreateProjectAlert('warning', 'Validación',
+                                                            'El precio por m² debe ser mayor a 0');
                                                         return false;
                                                     }
                                                     if (!formData.get('name')) {
-                                                        alert('Completa los campos obligatorios (nombre)');
+                                                        resetCreateProjectSubmitState(form);
+                                                        showCreateProjectAlert('warning', 'Validación',
+                                                            'Completa los campos obligatorios (nombre)');
                                                         return false;
                                                     }
                                                     if (!downPaymentValid) {
+                                                        resetCreateProjectSubmitState(form);
                                                         return false;
                                                     }
-                                                    // Habilitar el campo si está readonly antes de enviar
-                                                    document.getElementById('create_base_interest_rate')
-                                                        .removeAttribute('readonly');
-                                                    fetch('/dashboard/inmueble/create_project', {
-                                                            method: 'POST',
-                                                            body: formData,
-                                                            headers: {
-                                                                'X-Requested-With': 'XMLHttpRequest'
-                                                            }
-                                                        })
-                                                        .then(async response => {
-                                                            console.log('HTTP status:', response.status);
-                                                            console.log('Content-Type:', response.headers
-                                                                .get('content-type'));
-
-                                                            let text = await response.text();
-                                                            console.log('Response body:', text);
-
-                                                            let data;
-                                                            try {
-                                                                data = JSON.parse(text);
-                                                            } catch (e) {
-                                                                console.error('JSON parse error:', e);
-                                                                data = {
-                                                                    success: false,
-                                                                    message: 'Respuesta no es JSON válido: ' +
-                                                                        text.substring(0, 100)
-                                                                };
-                                                            }
-
-                                                            const errorDiv = document.getElementById(
-                                                                'createProjectErrorMsg');
-                                                            if (data.success) {
-                                                                $('#createProjectModal').modal('hide');
-                                                                // Mostrar mensaje de éxito
-                                                                Swal.fire({
-                                                                    icon: 'success',
-                                                                    title: '¡Éxito!',
-                                                                    text: data.message ||
-                                                                        'Proyecto creado exitosamente',
-                                                                    timer: 2000,
-                                                                    didClose: function() {
-                                                                        window.location.replace(
-                                                                            '/dashboard/inmueble/projects?t=' +
-                                                                            Date.now());
-                                                                    }
-                                                                });
-                                                            } else {
-                                                                errorDiv.textContent = data.message ||
-                                                                    'Error desconocido';
-                                                                errorDiv.classList.remove('d-none');
-                                                            }
-                                                        })
-                                                        .catch(error => {
-                                                            console.error('Error en fetch:', error);
-                                                            const errorDiv = document.getElementById(
-                                                                'createProjectErrorMsg');
-                                                            errorDiv.textContent =
-                                                                'Error al procesar la solicitud: ' + error
-                                                                .message;
-                                                            errorDiv.classList.remove('d-none');
-                                                        })
-                                                        .finally(() => {
-                                                            // Re-enable buttons after request completes
-                                                            delete this.dataset.submitting;
-                                                            const submitButtons = this.querySelectorAll(
-                                                                'button[type="submit"]');
-                                                            submitButtons.forEach(b => b.removeAttribute(
-                                                                'disabled'));
-                                                        });
+                                                    title: 'Creando proyecto',
+                                                        text: 'Guardando la información, espera un momento...',
+                                                        allowOutsideClick: false,
+                                                        allowOutsideClick: false,
+                                                        allowEscapeKey: false,
+                                                        didOpen: () => {
+                                                            Swal.showLoading();
+                                                        }
                                                 });
+
+                                            // Habilitar el campo si está readonly antes de enviar
+                                            document.getElementById('create_base_interest_rate')
+                                                .removeAttribute('readonly');
+                                            fetch('/dashboard/inmueble/create_project', {
+                                                    method: 'POST',
+                                                    body: formData,
+                                                    headers: {
+                                                        'X-Requested-With': 'XMLHttpRequest'
+                                                    }
+                                                })
+                                                .then(async response => {
+                                                    console.log('HTTP status:', response.status);
+                                                    console.log('Content-Type:', response.headers
+                                                        .get('content-type'));
+
+                                                    let text = await response.text();
+                                                    console.log('Response body:', text);
+
+                                                    let data;
+                                                    try {
+                                                        data = JSON.parse(text);
+                                                    } catch (e) {
+                                                        console.error('JSON parse error:', e);
+                                                        data = {
+                                                            success: false,
+                                                            message: 'Respuesta no es JSON válido: ' +
+                                                                text.substring(0, 100)
+                                                        };
+                                                    }
+
+                                                    const errorDiv = document.getElementById(
+                                                        'createProjectErrorMsg');
+                                                    if (data.success) {
+                                                        // #region debug-point E:success-branch
+                                                        showCreateProjectSuccess(data.message,
+                                                            data.code, data.id);
+                                                    } else {
+                                                        // #region debug-point D:error-branch
+                                                        'Error desconocido';
+                                                        errorDiv.textContent = errorMessage;
+                                                        errorDiv.classList.remove('d-none');
+                                                        errorDiv.textContent = errorMessage;
+                                                        errorDiv.classList.remove('d-none');
+                                                        showCreateProjectAlert('error',
+                                                            'No se pudo crear el proyecto',
+                                                            errorMessage);
+                                                    }
+                                                })
+                                                .catch(error => {
+                                                        Swal.close();
+                                                        const errorDiv = document.getElementById(
+                                                            'createProjectErrorMsg');
+                                                        'createProjectErrorMsg');
+                                                    const errorMessage =
+                                                        'Error al procesar la solicitud: ' + error
+                                                        .message; errorDiv.textContent = errorMessage; errorDiv
+                                                    .classList.remove('d-none'); showCreateProjectAlert('error',
+                                                        'Error de conexión',
+                                                        errorMessage);
+                                                })
+                                            .finally(() => {
+                                            resetCreateProjectSubmitState(form);
+                                            });
+                                            });
                                             </script>
                                         </div>
                                         <div class="card-block">

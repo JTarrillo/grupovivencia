@@ -14,7 +14,7 @@ function login() {
         success: function (data) {
             if (data.status == true) {
                 Swal.fire({
-                    position: 'top-end',
+                    position: 'center',
                     icon: 'success',
                     title: data.message,
                     showConfirmButton: false,
@@ -27,7 +27,7 @@ function login() {
                 document.getElementById("submit").disabled = false;
                 document.getElementById("submit").innerHTML = "Iniciar Sesión";
                 Swal.fire({
-                    position: 'top-end',
+                    position: 'center',
                     icon: 'info',
                     title: data.message,
                 });

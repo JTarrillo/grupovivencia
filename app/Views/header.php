@@ -111,7 +111,7 @@
                         <ul class="ut-header-extra-module-buttons ut-navigation-menu ut-navigation-more-disabled menu">
                             <li>
                                 <div id="bklyn_btn_66703f49e7a7d" class="bklyn-btn-holder bklyn-btn-header">
-                                    <a title="Iniciar Sesión" href="<?php echo site_url()."iniciar-sesion";?>"
+                                    <a title="Iniciddar Sesión" href="<?php echo site_url()."iniciar-sesion";?>"
                                         class="bklyn-btn"><span class="ut-btn-text">Iniciar Sesión</span></a>
                                 </div>
                             </li>
