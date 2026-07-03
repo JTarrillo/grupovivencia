@@ -93,31 +93,6 @@
                                                 </div>
                                             </div>
 
-                                            <?php if (isset($debug_info['api_boletas']) && is_array($debug_info['api_boletas'])): ?>
-                                                <?php
-                                                $apiBoletas = $debug_info['api_boletas'];
-                                                $fuentes = $debug_info['fuentes'] ?? [];
-                                                $ventasComprobantes = (int)($fuentes['ventas_comprobantes'] ?? 0);
-                                                $ventasLocal = (int)($fuentes['ventas_local'] ?? 0);
-                                                $showApiWarning = (
-                                                    ((int)($apiBoletas['rows_after_filter'] ?? 0) === 0) &&
-                                                    ($ventasComprobantes === 0) &&
-                                                    ($ventasLocal === 0)
-                                                );
-                                                ?>
-                                                <?php if ($showApiWarning): ?>
-                                                    <div class="alert alert-warning" role="alert">
-                                                        <strong>Debug API Ventas:</strong> no ingresaron boletas API al periodo.<br>
-                                                        token_present=<?php echo !empty($apiBoletas['token_present']) ? 'true' : 'false'; ?>,
-                                                        http_code=<?php echo esc((string)($apiBoletas['http_code'] ?? 'null')); ?>,
-                                                        response_success=<?php echo esc((string)($apiBoletas['response_success'] ?? 'null')); ?>,
-                                                        raw_items=<?php echo esc((string)($apiBoletas['raw_items'] ?? '0')); ?>,
-                                                        rows_after_filter=<?php echo esc((string)($apiBoletas['rows_after_filter'] ?? '0')); ?>,
-                                                        curl_error=<?php echo esc((string)($apiBoletas['curl_error'] ?? '')); ?>
-                                                    </div>
-                                                <?php endif; ?>
-                                            <?php endif; ?>
-
                                             <div class="table-responsive">
                                                 <table class="table table-striped table-hover table-bordered">
                                                     <thead>

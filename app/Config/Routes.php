@@ -33,6 +33,21 @@ $routes->setAutoRoute(true);
  * Route Definitions
  * ============================================================================
  */
+// RUTAS DEL MÓDULO DE DOCUMENTOS PDF
+$routes->get('/dashboard/documentos',            'D_documentos::index',  ['filter' => 'authGuard']);
+$routes->post('/dashboard/documentos/upload',    'D_documentos::upload', ['filter' => 'authGuard']);
+$routes->post('/dashboard/documentos/delete/(:num)',   'D_documentos::delete/$1',   ['filter' => 'authGuard']);
+$routes->post('/dashboard/documentos/procesar/(:num)', 'D_documentos::procesar/$1', ['filter' => 'authGuard']);
+$routes->post('/dashboard/documentos/cargarConciliacion', 'D_documentos::cargarConciliacion', ['filter' => 'authGuard']);
+
+// RUTAS DEL CRUD DE DESCRIPCIONES DE MOVIMIENTO
+$routes->get('/dashboard/mov_descripcion',                 'D_mov_descripcion::index',      ['filter' => 'authGuard']);
+$routes->post('/dashboard/mov_descripcion/store',          'D_mov_descripcion::store',      ['filter' => 'authGuard']);
+$routes->post('/dashboard/mov_descripcion/update/(:num)',  'D_mov_descripcion::update/$1',  ['filter' => 'authGuard']);
+$routes->post('/dashboard/mov_descripcion/delete/(:num)',  'D_mov_descripcion::delete/$1',  ['filter' => 'authGuard']);
+$routes->get('/dashboard/documentos/ver/(:num)', 'D_documentos::ver/$1', ['filter' => 'authGuard']);
+// ============================================================================
+
 // RUTAS DEL MÓDULO DE COMPRAS - PRIORITARIAS (Antes de cualquier otra ruta)
 // ============================================================================
 

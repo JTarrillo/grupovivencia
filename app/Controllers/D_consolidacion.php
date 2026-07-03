@@ -349,27 +349,121 @@ class D_consolidacion extends BaseController
             }
         }
 
-        // Fallback API: solo usar si no hay ventas locales en comprobantes_emitidos.
-        if (count($ventasComprobantesRows) === 0) {
-            $apiRows = $this->getApiBoletasMovimientos($fechaInicio, $fechaFin);
+        // Movimientos bancarios cargados desde PDF (estados de cuenta)
+        $bancoRows = [];
+        if ($db->tableExists('conciliacion_movimientos')) {
+
+            // Cruce con comprobantes_emitidos para movimientos TRAN TI (transferencias internas).
+            // Solo se arma si la tabla existe; si no, las expresiones quedan en NULL.
+            $hasCE = $db->tableExists('comprobantes_emitidos');
+
+            $ceTipo  = $hasCE
+                ? "CASE WHEN ce.tipo_documento='01' THEN 'FACTURA' WHEN ce.tipo_documento='03' THEN 'BOLETA' WHEN ce.tipo_documento IS NOT NULL THEN 'OTROS' ELSE NULL END"
+                : 'NULL';
+            $ceSerie = $hasCE ? "NULLIF(TRIM(ce.numero_completo), '')"  : 'NULL';
+            $ceRuc   = $hasCE ? "NULLIF(TRIM(ce.cliente_num_doc), '')"  : 'NULL';
+            $ceRazon = $hasCE ? "NULLIF(TRIM(ce.cliente_nombre), '')"   : 'NULL';
+            $ceDesc  = $hasCE ? "NULLIF(TRIM(ce.descripcion), '')"      : 'NULL';
+            $ceJoin  = $hasCE
+                ? "LEFT JOIN comprobantes_emitidos ce ON ce.id = (
+                        SELECT e2.id
+                        FROM comprobantes_emitidos e2
+                        WHERE UPPER(COALESCE(cm.movimiento, '')) LIKE '%TRAN TI%'
+                          AND CAST(e2.monto_total AS DECIMAL(15,2)) = CAST(cm.monto AS DECIMAL(15,2))
+                          AND DATE(e2.fecha_emision) = cm.fecha
+                        ORDER BY e2.id ASC
+                        LIMIT 1
+                    )"
+                : '';
+
+            $sqlBanco = "
+                SELECT
+                    cm.fecha AS fecha_operacion,
+                    UPPER(COALESCE(NULLIF(TRIM(md.nombre), ''),
+                        CASE
+                            WHEN UPPER(COALESCE(cm.movimiento, '')) LIKE '%ITF%' THEN 'ITF'
+                            WHEN cm.tipo = 'abono' THEN 'ABONO BANCO'
+                            ELSE 'CARGO BANCO'
+                        END
+                    )) AS tipo_operacion,
+                    cm.id AS nro_operacion,
+                    COALESCE(NULLIF(TRIM(cm.desc_operacion), ''), {$ceDesc}, NULLIF(TRIM(cm.detalle), ''), cm.movimiento, 'MOVIMIENTO BANCARIO') AS desc_operacion,
+                    UPPER(COALESCE({$ceTipo}, NULLIF(TRIM(co.tipo_comprobante), ''), 'MOV. BANCARIO')) AS tipo_documento,
+                    COALESCE({$ceSerie}, NULLIF(TRIM(co.numero_comprobante), ''), '') AS serie_numero,
+                    COALESCE({$ceRuc}, NULLIF(TRIM(su.ruc), ''), '') AS ruc_dni,
+                    UPPER(TRIM(COALESCE(
+                        {$ceRazon},
+                        NULLIF(TRIM(su.name), ''),
+                        NULLIF(TRIM(cm.detalle), ''),
+                        'MOVIMIENTO BANCARIO'
+                    ))) AS razon_social,
+                    CAST(CASE WHEN cm.tipo = 'abono' THEN cm.monto ELSE 0 END AS DECIMAL(15,2)) AS ingreso,
+                    CAST(CASE WHEN cm.tipo = 'cargo' THEN cm.monto ELSE 0 END AS DECIMAL(15,2)) AS egreso
+                FROM conciliacion_movimientos cm
+                LEFT JOIN movimiento_descripciones md ON md.id = cm.mov_descripcion_id
+                LEFT JOIN compras co ON co.id = (
+                    SELECT c2.id
+                    FROM compras c2
+                    LEFT JOIN suppliers s2 ON s2.id = c2.proveedor_id
+                    WHERE cm.tipo = 'cargo'
+                      AND CAST(c2.total AS DECIMAL(15,2)) = CAST(cm.monto AS DECIMAL(15,2))
+                    ORDER BY
+                      (DATE(c2.fecha_compra) = cm.fecha) DESC,
+                      (UPPER(COALESCE(cm.detalle,'')) LIKE CONCAT('%', UPPER(COALESCE(s2.name,'')), '%')) DESC,
+                      ABS(DATEDIFF(DATE(c2.fecha_compra), cm.fecha)) ASC,
+                      c2.id ASC
+                    LIMIT 1
+                )
+                LEFT JOIN suppliers su ON su.id = co.proveedor_id
+                {$ceJoin}
+                WHERE cm.fecha >= ? AND cm.fecha <= ?
+            ";
+            $queryBanco = $db->query($sqlBanco, [$fechaInicio, $fechaFin]);
+            if ($queryBanco !== false) {
+                $bancoRows = $queryBanco->getResultArray();
+            } else {
+                log_message('error', 'Error en conciliacion SQL conciliacion_movimientos: ' . json_encode($db->error()));
+            }
         }
 
-        // Fuente prioritaria de ventas: comprobantes_emitidos.
-        $ventasFuente = count($ventasComprobantesRows) > 0 ? $ventasComprobantesRows : $ventasRows;
+        // Si hay movimientos bancarios cargados (PDF), el estado de cuenta ES la fuente
+        // de verdad: se muestran SOLO esos movimientos (tal cual el PDF), enriquecidos
+        // con la factura/serie de compras donde haya cruce. No se mezclan ventas/compras
+        // por separado para evitar duplicados.
+        if (count($bancoRows) > 0) {
+            $this->debugSources = [
+                'ventas_comprobantes' => count($ventasComprobantesRows),
+                'ventas_local' => count($ventasRows),
+                'compras' => count($comprasRows),
+                'ventas_api' => 0,
+                'movimientos_banco' => count($bancoRows),
+                'total_fuentes' => count($bancoRows),
+            ];
+            $result = $bancoRows;
+        } else {
+            // Fallback API: solo usar si no hay ventas locales en comprobantes_emitidos.
+            if (count($ventasComprobantesRows) === 0) {
+                $apiRows = $this->getApiBoletasMovimientos($fechaInicio, $fechaFin);
+            }
 
-        $this->debugSources = [
-            'ventas_comprobantes' => count($ventasComprobantesRows),
-            'ventas_local' => count($ventasRows),
-            'compras' => count($comprasRows),
-            'ventas_api' => count($apiRows),
-            'total_fuentes' => count($ventasFuente) + count($comprasRows) + count($apiRows),
-        ];
+            // Fuente prioritaria de ventas: comprobantes_emitidos.
+            $ventasFuente = count($ventasComprobantesRows) > 0 ? $ventasComprobantesRows : $ventasRows;
 
-        $result = array_merge(
-            $ventasFuente,
-            $comprasRows,
-            $apiRows
-        );
+            $this->debugSources = [
+                'ventas_comprobantes' => count($ventasComprobantesRows),
+                'ventas_local' => count($ventasRows),
+                'compras' => count($comprasRows),
+                'ventas_api' => count($apiRows),
+                'movimientos_banco' => 0,
+                'total_fuentes' => count($ventasFuente) + count($comprasRows) + count($apiRows),
+            ];
+
+            $result = array_merge(
+                $ventasFuente,
+                $comprasRows,
+                $apiRows
+            );
+        }
 
         usort($result, static function ($a, $b) {
             $fechaA = strtotime((string) ($a['fecha_operacion'] ?? ''));
