@@ -594,6 +594,8 @@
                         <li class=""><a href="/dashboard/compras" class="nav-link <?php echo $compras_color; ?>" style="<?php echo ($compras_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-file-invoice"></i></span><span class="pcoded-mtext">Registrar Compra</span></a></li>
                         <li class=""><a href="/dashboard/gastos" class="nav-link <?php echo $gastos_color; ?>" style="<?php echo ($gastos_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-money-bill-wave"></i></span><span class="pcoded-mtext">Gastos</span></a></li>
                         <li class=""><a href="/dashboard/clasificacion" class="nav-link <?php echo $clasificacion_color; ?>" style="<?php echo ($clasificacion_color ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-tags"></i></span><span class="pcoded-mtext">Clasificación</span></a></li>
+                        <li class=""><a href="/dashboard/documentos" class="nav-link <?php echo (strpos(current_url(), '/documentos') !== false ? 'active' : ''); ?>" style="<?php echo (strpos(current_url(), '/documentos') !== false ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-file-pdf"></i></span><span class="pcoded-mtext">Documentos</span></a></li>
+                        <li class=""><a href="/dashboard/mov_descripcion" class="nav-link <?php echo (strpos(current_url(), '/mov_descripcion') !== false ? 'active' : ''); ?>" style="<?php echo (strpos(current_url(), '/mov_descripcion') !== false ? 'font-weight: bold;' : ''); ?>"><span class="pcoded-micon"><i class="fa fa-tags"></i></span><span class="pcoded-mtext">Desc. Movimiento</span></a></li>
                     </ul>
                 </li>
 

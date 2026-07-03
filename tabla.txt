@@ -1,0 +1,66 @@
+-- ============================================================
+-- Tabla: conciliacion_movimientos
+-- Guarda las transacciones leídas de los PDF de estados de cuenta
+-- y clasificadas por tipo de gasto, para cargarlas a Conciliación.
+-- (Se usó este nombre porque 'movimientos_bancarios' ya existe
+--  con otra estructura para otra funcionalidad.)
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `conciliacion_movimientos` (
+    `id`            INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `documento_id`  INT(11) UNSIGNED NULL,                 -- FK al PDF de origen (documentos.id)
+    `banco`         VARCHAR(100) NULL,
+    `cuenta`        VARCHAR(60)  NULL,
+    `periodo`       VARCHAR(40)  NULL,
+    `fecha`         DATE         NULL,
+    `movimiento`    VARCHAR(120) NULL,                     -- ej: TRAN TIL, COMISION, DEPOSITO
+    `detalle`       VARCHAR(500) NULL,
+    `monto`         DECIMAL(15,2) NOT NULL DEFAULT 0,      -- siempre positivo
+    `tipo`          ENUM('abono','cargo') NOT NULL DEFAULT 'cargo',
+    `saldo`         DECIMAL(15,2) NULL,
+    `categoria_id`  INT(11) UNSIGNED NULL,                 -- FK a gasto_subcategorias.id
+    `created_by`    VARCHAR(100) NOT NULL DEFAULT 'sistema',
+    `created_at`    DATETIME NULL,
+    `updated_at`    DATETIME NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_fecha` (`fecha`),
+    KEY `idx_documento` (`documento_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- ============================================================
+-- Tabla: movimiento_descripciones
+-- Catálogo CRUD de "Descripción del Movimiento" para clasificar
+-- los movimientos del estado de cuenta (Transferencias, Comisiones, etc.)
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `movimiento_descripciones` (
+    `id`          INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `nombre`      VARCHAR(120) NOT NULL,
+    `descripcion` VARCHAR(255) NULL,
+    `activo`      TINYINT(1)   NOT NULL DEFAULT 1,
+    `created_at`  DATETIME NULL,
+    `updated_at`  DATETIME NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Registros por defecto
+INSERT INTO `movimiento_descripciones` (`nombre`, `activo`, `created_at`) VALUES
+('Transferencias Bancarias',      1, NOW()),
+('Transferencias Interbancarias', 1, NOW()),
+('ETF',                           1, NOW()),
+('Comisiones',                    1, NOW()),
+('Deposito en Efectivo',          1, NOW()),
+('Gastos',                        1, NOW());
+
+
+-- ============================================================
+-- Cambios a conciliacion_movimientos:
+-- Reemplaza el uso de categoria_id (Tipo de Gasto) por
+-- mov_descripcion_id (Desc. del Movimiento) y agrega desc_operacion
+-- (texto libre para motivo/justificación de la operación).
+-- ============================================================
+
+ALTER TABLE `conciliacion_movimientos`
+    ADD COLUMN `mov_descripcion_id` INT(11) UNSIGNED NULL AFTER `categoria_id`,
+    ADD COLUMN `desc_operacion`     VARCHAR(500)     NULL AFTER `mov_descripcion_id`;
