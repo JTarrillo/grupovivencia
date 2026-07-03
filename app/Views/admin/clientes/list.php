@@ -4,7 +4,7 @@
 <body data-new-gr-c-s-check-loaded="14.1042.0" data-gr-ext-installed="">
     <!-- LOAD CUSTOMER SCRIPT EARLY -->
     <script src="<?php echo base_url('assets/admin/js/script/customer.js?v=' . time()); ?>"></script>
-    
+
     <?php echo view("admin/header"); ?>
     <section class="pcoded-main-container">
         <div class="pcoded-wrapper">
@@ -47,8 +47,10 @@
                                         <!-- Buscador por DNI y Nombre -->
                                         <div class="card-block">
                                             <div class="input-group mb-3" style="max-width: 350px;">
-                                                <input type="text" id="searchDNIandNombre" class="form-control" placeholder="Buscar por DNI o Nombre...">
-                                                <button class="btn btn-outline-secondary" type="button" onclick="limpiarBusqueda()">
+                                                <input type="text" id="searchDNIandNombre" class="form-control"
+                                                    placeholder="Buscar por DNI o Nombre...">
+                                                <button class="btn btn-outline-secondary" type="button"
+                                                    onclick="limpiarBusqueda()">
                                                     <i class="fa fa-times"></i> Limpiar
                                                 </button>
                                             </div>
@@ -296,7 +298,7 @@
         let totalVisible = 0;
         for (let i = 0; i < rows.length; i++) {
             const cells = rows[i].getElementsByTagName('td');
-            
+
             // Columna 0: Cliente (Nombre)
             // Columna 1: DNI
             const nombre = cells[0] ? cells[0].textContent.toUpperCase() : '';
@@ -324,7 +326,8 @@
 
     // Ocultar elementos por defecto de DataTables con CSS y JavaScript
     const style = document.createElement('style');
-    style.textContent = '.dataTables_filter { display: none !important; } .dataTables_length { display: none !important; }';
+    style.textContent =
+        '.dataTables_filter { display: none !important; } .dataTables_length { display: none !important; }';
     document.head.appendChild(style);
 
     // También intentar ocultarlos directamente después de un pequeño delay
@@ -462,8 +465,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary"
                         onclick="$('#modalCreateCustomer').modal('hide');">Cancelar</button>
-                    <button type="button" class="btn btn-primary"
-                        onclick="submitCustomerForm();">Crear Cliente</button>
+                    <button type="button" class="btn btn-primary" onclick="submitCustomerForm();">Crear Cliente</button>
                 </div>
             </div>
         </div>

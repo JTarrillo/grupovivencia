@@ -501,13 +501,18 @@ class D_clientes extends BaseController
             $id = $res['id'];
             //verify                     
             if ($id != null) {
-                $result = $Customer->eliminar($id);
-                if (!is_null($result)) {
-                    $data['status'] = true;
-                    $data['message'] = DELETED;
-                } else {
+                try {
+                    $result = $Customer->eliminar($id);
+                    if ($result) {
+                        $data['status'] = true;
+                        $data['message'] = DELETED;
+                    } else {
+                        $data['status'] = false;
+                        $data['message'] = ERROR;
+                    }
+                } catch (\Exception $e) {
                     $data['status'] = false;
-                    $data['message'] = ERROR;
+                    $data['message'] = 'No se puede eliminar el cliente porque tiene registros asociados (contratos, comisiones, pagos, etc).';
                 }
             } else {
                 $data['status'] = false;
