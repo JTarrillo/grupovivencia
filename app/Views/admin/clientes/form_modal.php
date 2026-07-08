@@ -1,10 +1,28 @@
-<form name="form-customer" id="form-customer" enctype="multipart/form-data" method="post" action="javascript:void(0);" onsubmit="submitCustomerForm();">
+<form name="form-customer" id="form-customer" enctype="multipart/form-data" method="post" action="javascript:void(0);" onsubmit="submitCustomerForm();" autocomplete="off">
     <?php if(isset($obj_customer) && $obj_customer): ?>
         <input type="hidden" name="action" value="update">
         <input type="hidden" name="customer_id" id="customer_id" value="<?php echo $obj_customer->id; ?>">
     <?php else: ?>
         <input type="hidden" name="action" value="create">
     <?php endif; ?>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label>Código</label>
+            <input class="form-control" type="text" id="code_preview"
+                value="<?php echo isset($obj_customer->code) && $obj_customer->code ? $obj_customer->code : 'Se genera automáticamente al guardar'; ?>"
+                <?php echo isset($obj_customer) && $obj_customer ? '' : 'readonly'; ?>>
+            <small class="form-text text-muted">
+                <?php echo isset($obj_customer) && $obj_customer ? 'Puedes ajustarlo manualmente si fuera necesario.' : 'Se genera usando país, ID e iniciales.'; ?>
+            </small>
+        </div>
+        <div class="form-group col-md-6">
+            <label>Contraseña <?php echo isset($obj_customer) && $obj_customer ? '' : '<span class="text-danger">*</span>'; ?></label>
+            <input class="form-control" type="password" id="password" name="password"
+                placeholder="<?php echo isset($obj_customer) && $obj_customer ? 'Solo si deseas cambiarla' : 'Contraseña de acceso'; ?>"
+                autocomplete="new-password" <?php echo isset($obj_customer) && $obj_customer ? '' : 'required'; ?>>
+        </div>
+    </div>
 
     <div class="form-row">
         <div class="form-group col-md-6">
@@ -104,3 +122,38 @@
         </div>
     </div>
 </form>
+<script>
+    (function() {
+        const actionInput = document.querySelector('#form-customer input[name="action"]');
+        const codePreview = document.getElementById('code_preview');
+        const nameInput = document.getElementById('name');
+        const lastNameInput = document.getElementById('lastname');
+        const motherLastInput = document.getElementById('mother_last');
+        const countrySelect = document.getElementById('country_id');
+
+        if (!actionInput || actionInput.value !== 'create' || !codePreview || !nameInput || !lastNameInput || !motherLastInput || !countrySelect) {
+            return;
+        }
+
+        function getInitial(value, fallback) {
+            const normalized = (value || '').trim();
+            return normalized ? normalized.charAt(0).toUpperCase() : fallback;
+        }
+
+        function updateCodePreview() {
+            const selectedOption = countrySelect.options[countrySelect.selectedIndex];
+            const countryCode = selectedOption && selectedOption.value ? String(selectedOption.value).padStart(2, '0') : 'PA';
+            codePreview.value = countryCode + '00ID'
+                + getInitial(lastNameInput.value, 'X')
+                + getInitial(motherLastInput.value, 'X')
+                + getInitial(nameInput.value, 'X')
+                + ' (referencial)';
+        }
+
+        [nameInput, lastNameInput, motherLastInput].forEach((input) => {
+            input.addEventListener('input', updateCodePreview);
+        });
+        countrySelect.addEventListener('change', updateCodePreview);
+        updateCodePreview();
+    })();
+</script>

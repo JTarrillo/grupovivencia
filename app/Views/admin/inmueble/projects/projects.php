@@ -550,6 +550,7 @@
                                                 cargarPlanesDepago();
                                                 $('#createProjectModal').modal('show');
                                             }
+                                            window.showCreateProjectModal = showCreateProjectModal;
 
                                             function cargarPlanesDepago() {
                                                 fetch('/dashboard/inmueble/getPaymentPlans')

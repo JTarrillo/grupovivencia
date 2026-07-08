@@ -12,6 +12,77 @@ use App\Models\UnilevelsModel;
 
 class D_clientes extends BaseController
 {
+    private function getCustomerRangeOptions(): array
+    {
+        $Ranges = new RangesModel();
+        return $Ranges->get_all_data();
+    }
+
+    private function getCustomerMembershipOptions(): array
+    {
+        $Memberships = new MembershipsModel();
+        return $Memberships->get_data_countable_adm('0');
+    }
+
+    private function resolveDefaultId(array $items, int $preferredId = 0): ?int
+    {
+        if ($preferredId > 0) {
+            foreach ($items as $item) {
+                $itemId = is_array($item) ? ($item['id'] ?? null) : ($item->id ?? null);
+                if ((int) $itemId === $preferredId) {
+                    return $preferredId;
+                }
+            }
+        }
+
+        if (empty($items)) {
+            return null;
+        }
+
+        $first = $items[0];
+        $firstId = is_array($first) ? ($first['id'] ?? null) : ($first->id ?? null);
+
+        return $firstId !== null ? (int) $firstId : null;
+    }
+
+    private function normalizeAgentType(?string $tipoAgente): string
+    {
+        $tipoAgente = strtolower(trim((string) $tipoAgente));
+        return in_array($tipoAgente, ['interno', 'externo'], true) ? $tipoAgente : '';
+    }
+
+    private function getCustomerCodeInitial(?string $value, string $fallback = 'X'): string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return $fallback;
+        }
+
+        return strtoupper(substr($value, 0, 1));
+    }
+
+    private function generateCustomerCode(int $customerId, int $countryId, ?string $name, ?string $lastname, ?string $motherLast): string
+    {
+        $db = \Config\Database::connect();
+        $objCountry = $db->table('countries')
+            ->select('id_wsp')
+            ->where('id', $countryId)
+            ->get()
+            ->getRow();
+
+        $countryPrefix = !empty($objCountry->id_wsp) ? preg_replace('/\D+/', '', (string) $objCountry->id_wsp) : '51';
+        if ($countryPrefix === '') {
+            $countryPrefix = '51';
+        }
+
+        return $countryPrefix
+            . '00'
+            . $customerId
+            . $this->getCustomerCodeInitial($lastname)
+            . $this->getCustomerCodeInitial($motherLast)
+            . $this->getCustomerCodeInitial($name);
+    }
+
     public function index()
     {
         //get data session
@@ -60,9 +131,15 @@ class D_clientes extends BaseController
     {
         $Paises = new CountriesModel();
         $obj_paises = $Paises->get_data();
+        $obj_ranges = $this->getCustomerRangeOptions();
+        $obj_memberships = $this->getCustomerMembershipOptions();
 
         $data = array(
             'obj_paises' => $obj_paises,
+            'obj_ranges' => $obj_ranges,
+            'obj_memberships' => $obj_memberships,
+            'default_range_id' => $this->resolveDefaultId($obj_ranges, 1),
+            'default_membership_id' => $this->resolveDefaultId($obj_memberships, 4),
         );
         return view('admin/clientes/create', $data);
     }
@@ -83,14 +160,19 @@ class D_clientes extends BaseController
         $res = $this->request->getVar();
 
         // Validar datos requeridos
-        if (empty($res['name']) || empty($res['lastname']) || empty($res['dni']) || empty($res['email'])) {
+        if (empty($res['name']) || empty($res['lastname']) || empty($res['dni']) || empty($res['email']) || empty($res['country_id']) || empty($res['password'])) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Faltan campos requeridos (nombre, apellido, DNI, email)'
+                'message' => 'Faltan campos requeridos (nombre, apellido, DNI, email, pais y contrasena)'
             ]);
         }
 
         $session = session();
+        $rangeOptions = $this->getCustomerRangeOptions();
+        $membershipOptions = $this->getCustomerMembershipOptions();
+        $rangeId = isset($res['range_id']) && $res['range_id'] !== '' ? (int) $res['range_id'] : $this->resolveDefaultId($rangeOptions, 1);
+        $membershipId = isset($res['membership_id']) && $res['membership_id'] !== '' ? (int) $res['membership_id'] : $this->resolveDefaultId($membershipOptions, 4);
+        $countryId = (int) $res['country_id'];
 
         // 1. Preparar datos para tu base de datos local
         $param = array(
@@ -101,18 +183,30 @@ class D_clientes extends BaseController
             'ruc'          => isset($res['ruc']) ? $res['ruc'] : '',
             'email'        => $res['email'],
             'civil_status' => isset($res['civil_status']) ? $res['civil_status'] : '',
-            'tipo_agente'  => isset($res['tipo_agente']) ? $res['tipo_agente'] : '',
+            'tipo_agente'  => $this->normalizeAgentType($res['tipo_agente'] ?? ''),
             'phone'        => isset($res['phone']) ? $res['phone'] : '',
-            'country_id'   => isset($res['country_id']) ? $res['country_id'] : 0,
+            'country_id'   => $countryId,
             'address'      => isset($res['address']) ? $res['address'] : '',
+            'range_id'     => $rangeId,
+            'membership_id'=> $membershipId,
+            'password'     => password_hash((string) $res['password'], PASSWORD_DEFAULT),
             'active'       => isset($res['active']) ? $res['active'] : 1,
-            'date'         => date('Y-m-d H:i:s'),
+            'pay'          => isset($res['pay']) && $res['pay'] !== '' ? (int) $res['pay'] : 0,
+            'date'         => date('Y-m-d'),
         );
 
         // 2. Intentar insertar localmente
         try {
             if ($Customer->insert($param)) {
                 $customer_id = $Customer->getInsertID();
+                $generatedCode = $this->generateCustomerCode(
+                    $customer_id,
+                    $countryId,
+                    $param['name'],
+                    $param['lastname'],
+                    $param['mother_last']
+                );
+                $Customer->update($customer_id, ['code' => $generatedCode]);
 
                 // --- INICIO INTEGRACIÓN API FACTURACIÓN ---
                 $client = \Config\Services::curlrequest();
@@ -166,6 +260,7 @@ class D_clientes extends BaseController
                     'success'     => true,
                     'message'     => 'Cliente creado correctamente',
                     'customer_id' => $customer_id,
+                    'code'        => $generatedCode,
                     'api_status'  => $apiMessage,
                     'api_debug'   => $jsonApi // Opcional: para ver qué se mandó
                 ]);

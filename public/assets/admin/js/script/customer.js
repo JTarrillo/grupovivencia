@@ -43,6 +43,12 @@ function validate() {
  * Crear nuevo cliente - función separada para STORE
  */
 function createCustomer() {
+    const form = document.getElementById('form-customer');
+    if (form && !form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
     document.getElementById("submit").disabled = true;
     document.getElementById("submit").innerHTML = "<span class='spinner-border spinner-border-sm' role='status'></span> Creando...";
     
@@ -61,13 +67,14 @@ function createCustomer() {
                     position: 'center',
                     icon: 'success',
                     title: 'Cliente creado correctamente',
+                    html: data.code ? ('<p>Codigo generado: <strong>' + data.code + '</strong></p>') : '',
                     showConfirmButton: false,
-                    timer: 1500
+                    timer: 1800
                 });
                 $('#modalCreateCustomer').modal('hide');
                 window.setTimeout(function () {
                     window.location = site + "dashboard/clientes";
-                }, 1500);
+                }, 1800);
             } else {
                 Swal.fire({
                     position: 'center',
@@ -250,13 +257,14 @@ function submitCustomerForm() {
                     position: 'center',
                     icon: 'success',
                     title: message,
+                    html: action === 'create' && data.code ? ('<p>Codigo generado: <strong>' + data.code + '</strong></p>') : '',
                     showConfirmButton: false,
-                    timer: 1500
+                    timer: 1800
                 });
                 $('#modalCreateCustomer').modal('hide');
                 window.setTimeout(function () {
                     window.location = site + "dashboard/clientes";
-                }, 1500);
+                }, 1800);
             } else {
                 Swal.fire({
                     position: 'center',

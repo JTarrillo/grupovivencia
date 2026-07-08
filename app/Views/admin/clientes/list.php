@@ -228,13 +228,15 @@
                 fetch('/dashboard/clientes/eliminar', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
                         },
                         body: 'id=' + encodeURIComponent(id)
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.success) {
+                        const isSuccess = data.success === true || data.status === true;
+                        if (isSuccess) {
                             alert('Eliminado correctamente');
                             location.reload();
                         } else {
@@ -260,17 +262,19 @@
                 fetch('/dashboard/clientes/eliminar', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
                         },
                         body: 'id=' + encodeURIComponent(id)
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.success) {
+                        const isSuccess = data.success === true || data.status === true;
+                        if (isSuccess) {
                             Swal.fire('Eliminado', 'El cliente ha sido eliminado.', 'success')
                                 .then(() => location.reload());
                         } else {
-                            Swal.fire('Error', 'No se pudo eliminar el cliente.', 'error');
+                            Swal.fire('Error', data.message || 'No se pudo eliminar el cliente.', 'error');
                         }
                     })
                     .catch(() => {

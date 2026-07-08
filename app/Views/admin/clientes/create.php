@@ -36,8 +36,24 @@
                                         </div>
                                         <div class="card-body">
                                             <form name="form-customer" id="form-customer" enctype="multipart/form-data"
-                                                method="post" action="javascript:void(0);" onsubmit="createCustomer();">
+                                                method="post" action="javascript:void(0);" onsubmit="createCustomer();" autocomplete="off">
                                                 <input type="hidden" name="action" value="create">
+
+                                                <div class="form-row">
+                                                    <div class="form-group col-md-6">
+                                                        <label>Código</label>
+                                                        <input class="form-control" type="text" id="code_preview"
+                                                            value="Se genera automáticamente al guardar" readonly>
+                                                        <small class="form-text text-muted">Se calcula con el país,
+                                                            el ID y las iniciales del cliente.</small>
+                                                    </div>
+                                                    <div class="form-group col-md-6">
+                                                        <label>Contraseña <span class="text-danger">*</span></label>
+                                                        <input class="form-control" type="password" id="password"
+                                                            name="password" placeholder="Contraseña de acceso"
+                                                            autocomplete="new-password" required>
+                                                    </div>
+                                                </div>
 
                                                 <div class="form-row">
                                                     <div class="form-group col-md-6">
@@ -158,6 +174,41 @@
     </section>
 
     <script src="<?php echo base_url('assets/admin/js/script/customer.js?2025'); ?>"></script>
+    <script>
+        (function() {
+            const nameInput = document.getElementById('name');
+            const lastNameInput = document.getElementById('lastname');
+            const motherLastInput = document.getElementById('mother_last');
+            const countrySelect = document.getElementById('country_id');
+            const codePreview = document.getElementById('code_preview');
+
+            if (!nameInput || !lastNameInput || !motherLastInput || !countrySelect || !codePreview) {
+                return;
+            }
+
+            function getInitial(value, fallback) {
+                const normalized = (value || '').trim();
+                return normalized ? normalized.charAt(0).toUpperCase() : fallback;
+            }
+
+            function updateCodePreview() {
+                const selectedOption = countrySelect.options[countrySelect.selectedIndex];
+                const countryCode = selectedOption && selectedOption.value ? String(selectedOption.value).padStart(2, '0') : 'PA';
+                const preview = countryCode + '00ID'
+                    + getInitial(lastNameInput.value, 'X')
+                    + getInitial(motherLastInput.value, 'X')
+                    + getInitial(nameInput.value, 'X');
+
+                codePreview.value = preview + ' (referencial)';
+            }
+
+            [nameInput, lastNameInput, motherLastInput].forEach((input) => {
+                input.addEventListener('input', updateCodePreview);
+            });
+            countrySelect.addEventListener('change', updateCodePreview);
+            updateCodePreview();
+        })();
+    </script>
     <?php echo view("admin/footer"); ?>
 </body>
 
