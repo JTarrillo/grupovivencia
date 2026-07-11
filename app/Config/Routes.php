@@ -487,9 +487,11 @@ $routes->post('/dashboard/clientes/validacion', 'D_clientes::validacion');
 
 // Ruta para asignar/modificar patrocinador a clientes (admin)
 $routes->get('/dashboard/clientes/asignar_patocinador', 'D_clientes::asignar_patocinador', ['filter' => 'authGuard']);
+$routes->post('/dashboard/clientes/asignar_patocinador', 'D_clientes::asignar_patocinador', ['filter' => 'authGuard']);
 
 // Ruta alternativa para acceder desde /admin/clientes/asignar_patocinador
 $routes->get('/admin/clientes/asignar_patocinador', 'D_clientes::asignar_patocinador', ['filter' => 'authGuard']);
+$routes->post('/admin/clientes/asignar_patocinador', 'D_clientes::asignar_patocinador', ['filter' => 'authGuard']);
 $routes->get('/dashboard/kit_afiliacion', 'D_kit_afiliacion::index', ['filter' => 'authGuard']);
 $routes->get('/dashboard/kit_afiliacion/load', 'D_kit_afiliacion::load', ['filter' => 'authGuard']);
 $routes->get('/dashboard/kit_afiliacion/load/(:num)', 'D_kit_afiliacion::load/$1', ['filter' => 'authGuard']);

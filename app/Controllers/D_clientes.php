@@ -51,6 +51,51 @@ class D_clientes extends BaseController
         return in_array($tipoAgente, ['interno', 'externo'], true) ? $tipoAgente : '';
     }
 
+    private function getSponsorOptions(?int $excludeCustomerId = null): array
+    {
+        $Customer = new CustomerModel();
+        return $Customer->getActiveSponsors($excludeCustomerId);
+    }
+
+    private function normalizeSponsorId($value): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        $sponsorId = (int) $value;
+        return $sponsorId > 0 ? $sponsorId : null;
+    }
+
+    private function syncCustomerSponsor(int $customerId, ?int $sponsorId): void
+    {
+        if ($customerId <= 0) {
+            return;
+        }
+
+        $Unilevels = new UnilevelsModel();
+        $currentRelation = $Unilevels->where('customer_id', $customerId)->first();
+
+        if ($sponsorId !== null && $sponsorId === $customerId) {
+            throw new \InvalidArgumentException('El cliente no puede ser su propio patrocinador.');
+        }
+
+        if ($currentRelation) {
+            $Unilevels->update($currentRelation['id'], [
+                'sponsor_id' => $sponsorId,
+            ]);
+            return;
+        }
+
+        if ($sponsorId !== null) {
+            $Unilevels->insert([
+                'customer_id' => $customerId,
+                'sponsor_id' => $sponsorId,
+                'active' => 1,
+            ]);
+        }
+    }
+
     private function getCustomerCodeInitial(?string $value, string $fallback = 'X'): string
     {
         $value = trim((string) $value);
@@ -95,6 +140,7 @@ class D_clientes extends BaseController
         }
         //get data customers con JOIN LEFT para traer clientes sin rango o país asignado
         $Customer = new CustomerModel();
+        $Paises = new CountriesModel();
         $obj_customer = $Customer->db->query("
             SELECT DISTINCT
                 `customers`.`id`, 
@@ -119,7 +165,9 @@ class D_clientes extends BaseController
         //send
         $data = array(
             'obj_customer' => $obj_customer,
-            'session_name' => $session_name
+            'session_name' => $session_name,
+            'obj_paises' => $Paises->get_data(),
+            'obj_sponsors' => $this->getSponsorOptions(),
         );
         return view('admin/clientes/list', $data);
     }
@@ -133,11 +181,13 @@ class D_clientes extends BaseController
         $obj_paises = $Paises->get_data();
         $obj_ranges = $this->getCustomerRangeOptions();
         $obj_memberships = $this->getCustomerMembershipOptions();
+        $obj_sponsors = $this->getSponsorOptions();
 
         $data = array(
             'obj_paises' => $obj_paises,
             'obj_ranges' => $obj_ranges,
             'obj_memberships' => $obj_memberships,
+            'obj_sponsors' => $obj_sponsors,
             'default_range_id' => $this->resolveDefaultId($obj_ranges, 1),
             'default_membership_id' => $this->resolveDefaultId($obj_memberships, 4),
         );
@@ -185,6 +235,7 @@ class D_clientes extends BaseController
         $rangeId = isset($res['range_id']) && $res['range_id'] !== '' ? (int) $res['range_id'] : $this->resolveDefaultId($rangeOptions, 1);
         $membershipId = isset($res['membership_id']) && $res['membership_id'] !== '' ? (int) $res['membership_id'] : $this->resolveDefaultId($membershipOptions, 4);
         $countryId = (int) $res['country_id'];
+        $sponsorId = $this->normalizeSponsorId($res['sponsor_id'] ?? null);
 
         // 1. Preparar datos para tu base de datos local
         $param = array(
@@ -219,6 +270,7 @@ class D_clientes extends BaseController
                     $param['mother_last']
                 );
                 $Customer->update($customer_id, ['code' => $generatedCode]);
+                $this->syncCustomerSponsor((int) $customer_id, $sponsorId);
 
                 // --- INICIO INTEGRACIÓN API FACTURACIÓN ---
                 $client = \Config\Services::curlrequest();
@@ -332,6 +384,14 @@ class D_clientes extends BaseController
         }
 
         $customer_id = $res['customer_id'];
+        $sponsorId = $this->normalizeSponsorId($res['sponsor_id'] ?? null);
+
+        if ($sponsorId !== null && $sponsorId === (int) $customer_id) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'El cliente no puede ser su propio patrocinador.'
+            ]);
+        }
 
         // Preparar datos para actualizar
         $param = array(
@@ -342,7 +402,7 @@ class D_clientes extends BaseController
             'ruc' => $documentType === 'ruc' ? $documentNumber : '',
             'email' => isset($res['email']) ? $res['email'] : '',
             'civil_status' => isset($res['civil_status']) ? $res['civil_status'] : '',
-            'tipo_agente' => isset($res['tipo_agente']) ? $res['tipo_agente'] : '',
+            'tipo_agente' => $this->normalizeAgentType($res['tipo_agente'] ?? ''),
             'phone' => isset($res['phone']) ? $res['phone'] : '',
             'country_id' => isset($res['country_id']) ? $res['country_id'] : 0,
             'address' => isset($res['address']) ? $res['address'] : '',
@@ -357,6 +417,7 @@ class D_clientes extends BaseController
         // Intentar actualizar
         try {
             if ($Customer->update($customer_id, $param)) {
+                $this->syncCustomerSponsor((int) $customer_id, $sponsorId);
                 return $this->response->setJSON([
                     'success' => true,
                     'message' => 'Cliente actualizado correctamente'
@@ -422,9 +483,13 @@ class D_clientes extends BaseController
     public function form_modal($id = false)
     {
         $obj_customer = null;
+        $obj_sponsor = null;
+        $customerId = null;
         if ($id != false) {
             $Customer = new CustomerModel();
             $obj_customer = $Customer->get_data_customer($id);
+            $obj_sponsor = $Customer->get_data_customer_sponsor($id);
+            $customerId = (int) $id;
         }
         //get paises
         $Paises = new CountriesModel();
@@ -432,7 +497,9 @@ class D_clientes extends BaseController
         //send data
         $data = array(
             'obj_customer' => $obj_customer,
+            'obj_sponsor' => $obj_sponsor,
             'obj_paises' => $obj_paises,
+            'obj_sponsors' => $this->getSponsorOptions($customerId),
         );
         return view('admin/clientes/form_modal', $data);
     }

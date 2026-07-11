@@ -826,14 +826,38 @@
     let comprobanteUrlActual = null;
     let contractIdGlobal = <?= $contract['id'] ?? 'null' ?>;
 
+    function getBootstrapModalCompat(modalElement) {
+        if (!modalElement || !window.bootstrap || !window.bootstrap.Modal) {
+            return null;
+        }
+
+        if (typeof window.bootstrap.Modal.getOrCreateInstance === 'function') {
+            return window.bootstrap.Modal.getOrCreateInstance(modalElement);
+        }
+
+        if (typeof window.bootstrap.Modal.getInstance === 'function') {
+            const existingInstance = window.bootstrap.Modal.getInstance(modalElement);
+            if (existingInstance) {
+                return existingInstance;
+            }
+        }
+
+        try {
+            return new window.bootstrap.Modal(modalElement);
+        } catch (error) {
+            console.warn('No se pudo crear la instancia del modal con Bootstrap:', error);
+            return null;
+        }
+    }
+
     function abrirModalCompat(modalId) {
         const modalElement = document.getElementById(modalId);
         if (!modalElement) {
             return;
         }
 
-        if (window.bootstrap && window.bootstrap.Modal) {
-            const instance = window.bootstrap.Modal.getOrCreateInstance(modalElement);
+        const instance = getBootstrapModalCompat(modalElement);
+        if (instance && typeof instance.show === 'function') {
             instance.show();
             return;
         }
@@ -864,8 +888,8 @@
             return;
         }
 
-        if (window.bootstrap && window.bootstrap.Modal) {
-            const instance = window.bootstrap.Modal.getOrCreateInstance(modalElement);
+        const instance = getBootstrapModalCompat(modalElement);
+        if (instance && typeof instance.hide === 'function') {
             instance.hide();
             return;
         }
@@ -885,6 +909,30 @@
         if (backdrop) {
             backdrop.remove();
         }
+    }
+
+    function fireSwalSobreModal(options) {
+        if (typeof Swal === 'undefined' || typeof Swal.fire !== 'function') {
+            return Promise.resolve();
+        }
+
+        const swalOptions = typeof options === 'object' && options !== null ? {
+            ...options
+        } : {};
+        const originalDidOpen = swalOptions.didOpen;
+
+        swalOptions.didOpen = (popup) => {
+            const container = Swal.getContainer();
+            if (container) {
+                container.style.zIndex = '200000';
+            }
+
+            if (typeof originalDidOpen === 'function') {
+                originalDidOpen(popup);
+            }
+        };
+
+        return Swal.fire(swalOptions);
     }
 
     document.addEventListener('click', function(event) {
@@ -1001,7 +1049,11 @@
 
     document.getElementById('btn-confirmar-validacion').addEventListener('click', function() {
         if (!pagoIdActual) {
-            Swal.fire('Error', 'No se especificó el pago a validar', 'error');
+            fireSwalSobreModal({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se especificó el pago a validar'
+            });
             return;
         }
 
@@ -1012,14 +1064,22 @@
         // Si no existe comprobante del cliente, validar que el admin lo suba
         if (!comprobanteUrlActual) {
             if (comprobanteInput.files.length === 0) {
-                Swal.fire('Error', 'Debe subir un comprobante', 'error');
+                fireSwalSobreModal({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Debe subir un comprobante'
+                });
                 return;
             }
             comprobante = comprobanteInput.files[0];
 
             // Validar tamaño
             if (comprobante.size > 5 * 1024 * 1024) {
-                Swal.fire('Error', 'El archivo no debe exceder 5MB', 'error');
+                fireSwalSobreModal({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'El archivo no debe exceder 5MB'
+                });
                 return;
             }
         }
@@ -1044,7 +1104,7 @@
                 cerrarModalCompat('validarPagoModal');
 
                 if (data.success) {
-                    Swal.fire({
+                    fireSwalSobreModal({
                         icon: 'success',
                         title: '¡Pago Validado!',
                         text: data.message || 'El pago ha sido validado correctamente',
@@ -1053,12 +1113,20 @@
                         location.reload();
                     });
                 } else {
-                    Swal.fire('Error', data.message || 'No se pudo validar el pago', 'error');
+                    fireSwalSobreModal({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'No se pudo validar el pago'
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                Swal.fire('Error', 'Error en la conexión', 'error');
+                fireSwalSobreModal({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error en la conexión'
+                });
             })
             .finally(() => {
                 btn.disabled = false;
@@ -1229,14 +1297,16 @@
         // Mostrar modal (método Bootstrap 4)
         if (typeof jQuery !== 'undefined' && jQuery.fn.modal) {
             jQuery('#voucherAmpliadoModal').modal('show');
-        } else if (window.bootstrap && window.bootstrap.Modal) {
-            const instance = window.bootstrap.Modal.getOrCreateInstance(modal);
-            instance.show();
         } else {
-            // Fallback: mostrar el modal manualmente
-            modal.style.display = 'block';
-            modal.classList.add('show');
-            document.body.classList.add('modal-open');
+            const instance = getBootstrapModalCompat(modal);
+            if (instance && typeof instance.show === 'function') {
+                instance.show();
+            } else {
+                // Fallback: mostrar el modal manualmente
+                modal.style.display = 'block';
+                modal.classList.add('show');
+                document.body.classList.add('modal-open');
+            }
         }
     }
 
@@ -1246,14 +1316,16 @@
 
         if (typeof jQuery !== 'undefined' && jQuery.fn.modal) {
             jQuery('#voucherAmpliadoModal').modal('hide');
-        } else if (window.bootstrap && window.bootstrap.Modal) {
-            const instance = window.bootstrap.Modal.getOrCreateInstance(modal);
-            instance.hide();
         } else {
-            // Fallback: ocultar el modal manualmente
-            modal.style.display = 'none';
-            modal.classList.remove('show');
-            document.body.classList.remove('modal-open');
+            const instance = getBootstrapModalCompat(modal);
+            if (instance && typeof instance.hide === 'function') {
+                instance.hide();
+            } else {
+                // Fallback: ocultar el modal manualmente
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                document.body.classList.remove('modal-open');
+            }
         }
     }
 

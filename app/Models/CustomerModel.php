@@ -4,23 +4,29 @@ use CodeIgniter\Model;
 
 class CustomerModel extends Model{
         /**
-         * Devuelve los patrocinadores activos (IDs únicos en sponsor_id de unilevels)
+         * Devuelve clientes activos que pueden actuar como patrocinadores.
          * @return array
          */
-        public function getActiveSponsors()
+        public function getActiveSponsors(?int $excludeCustomerId = null)
         {
-            $db = \Config\Database::connect();
-            $sponsorIds = $db->table('unilevels')
-                ->select('sponsor_id')
-                ->distinct()
-                ->where('sponsor_id IS NOT NULL')
-                ->get()
-                ->getResultArray();
-            $ids = array_column($sponsorIds, 'sponsor_id');
-            if (empty($ids)) return [];
-            return $this->whereIn('id', $ids)
-                        ->where('active', 1)
-                        ->findAll();
+            $builder = $this->builder();
+            $builder->select('id, code, name, lastname, mother_last, dni, ruc, email, active');
+            $builder->where('active', '1');
+            $builder->where('id <>', 1);
+
+            if ($excludeCustomerId !== null && $excludeCustomerId > 0) {
+                $builder->where('id <>', $excludeCustomerId);
+            }
+
+            if (in_array('deleted_at', $this->allowedFields, true)) {
+                $builder->where('deleted_at', null);
+            }
+
+            return $builder
+                        ->orderBy('name', 'ASC')
+                        ->orderBy('lastname', 'ASC')
+                        ->get()
+                        ->getResultArray();
         }
     
     protected $table      = 'customers';

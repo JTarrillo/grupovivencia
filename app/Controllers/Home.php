@@ -64,10 +64,11 @@ class Home extends BaseController
                 ->whereIn('estado', ['aprobada', 'pagada'])
                 ->get()->getRow()->monto ?? 0;
 
-            // Total disponible (ajusta según lógica de retiros si aplica)
-            // Para el nuevo sistema, usamos el balance de los informes aprobados:
+            // El dashboard principal debe mostrar la comision ya ganada aunque aun
+            // no exista un informe aprobado para retiro.
             $CommissionReport = new \App\Models\CommissionReportModel();
-            $total_disponible = $CommissionReport->getApprovedBalanceByCustomer($id);
+            $total_disponible_reportes = $CommissionReport->getApprovedBalanceByCustomer($id);
+            $total_disponible = $total_disponible_reportes > 0 ? $total_disponible_reportes : $total_periodo;
 
             // Historial de comisiones solo con venta_id
             $builder = $db->table('comisiones_inmobiliarias');

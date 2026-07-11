@@ -36,7 +36,8 @@
                                         </div>
                                         <div class="card-body">
                                             <form name="form-customer" id="form-customer" enctype="multipart/form-data"
-                                                method="post" action="javascript:void(0);" onsubmit="createCustomer();" autocomplete="off">
+                                                method="post" action="javascript:void(0);" onsubmit="createCustomer();"
+                                                autocomplete="off">
                                                 <input type="hidden" name="action" value="create">
 
                                                 <div class="form-row">
@@ -76,7 +77,8 @@
                                                             name="mother_last" placeholder="Apellido Materno">
                                                     </div>
                                                     <div class="form-group col-md-6">
-                                                        <label>Tipo de Documento <span class="text-danger">*</span></label>
+                                                        <label>Tipo de Documento <span
+                                                                class="text-danger">*</span></label>
                                                         <select class="form-control" id="document_type"
                                                             name="document_type" required>
                                                             <option value="dni" selected>DNI</option>
@@ -87,10 +89,14 @@
 
                                                 <div class="form-row">
                                                     <div class="form-group col-md-6">
-                                                        <label id="document_number_label">Documento <span class="text-danger">*</span></label>
-                                                        <input class="form-control" type="text" id="document_number_display"
-                                                            placeholder="Ingrese documento" inputmode="numeric" required>
-                                                        <small class="form-text text-muted" id="document_number_help">Ingresa el número del documento.</small>
+                                                        <label id="document_number_label">Documento <span
+                                                                class="text-danger">*</span></label>
+                                                        <input class="form-control" type="text"
+                                                            id="document_number_display" placeholder="Ingrese documento"
+                                                            inputmode="numeric" required>
+                                                        <small class="form-text text-muted"
+                                                            id="document_number_help">Ingresa el número del
+                                                            documento.</small>
                                                         <input type="hidden" id="dni" name="dni" value="">
                                                         <input type="hidden" id="ruc" name="ruc" value="">
                                                     </div>
@@ -161,6 +167,30 @@
                                                     </div>
                                                 </div>
 
+                                                <div class="form-row">
+                                                    <div class="form-group col-md-6">
+                                                        <label>Patrocinador</label>
+                                                        <select class="form-control" id="sponsor_id" name="sponsor_id">
+                                                            <option value="">Sin patrocinador asignado</option>
+                                                            <?php if (isset($obj_sponsors) && is_array($obj_sponsors)): ?>
+                                                            <?php foreach ($obj_sponsors as $sponsor): ?>
+                                                            <?php
+                                                                $sponsorId = (int) ($sponsor['id'] ?? 0);
+                                                                $sponsorName = trim(($sponsor['name'] ?? '') . ' ' . ($sponsor['lastname'] ?? '') . ' ' . ($sponsor['mother_last'] ?? ''));
+                                                                $sponsorCode = trim((string) ($sponsor['code'] ?? ''));
+                                                                $sponsorDocument = trim((string) (($sponsor['dni'] ?? '') ?: ($sponsor['ruc'] ?? '')));
+                                                            ?>
+                                                            <option value="<?php echo $sponsorId; ?>">
+                                                                <?php echo trim($sponsorCode . ' - ' . $sponsorName . ($sponsorDocument !== '' ? ' (' . $sponsorDocument . ')' : '')); ?>
+                                                            </option>
+                                                            <?php endforeach; ?>
+                                                            <?php endif; ?>
+                                                        </select>
+                                                        <small class="form-text text-muted">Opcional. Se usara para
+                                                            enlazar al cliente dentro de la red.</small>
+                                                    </div>
+                                                </div>
+
                                                 <div class="form-group">
                                                     <button type="submit" class="btn btn-primary" id="submit">Crear
                                                         Cliente</button>
@@ -181,43 +211,44 @@
 
     <script src="<?php echo base_url('assets/admin/js/script/customer.js?2025'); ?>"></script>
     <script>
-        (function() {
-            const nameInput = document.getElementById('name');
-            const lastNameInput = document.getElementById('lastname');
-            const motherLastInput = document.getElementById('mother_last');
-            const countrySelect = document.getElementById('country_id');
-            const codePreview = document.getElementById('code_preview');
+    (function() {
+        const nameInput = document.getElementById('name');
+        const lastNameInput = document.getElementById('lastname');
+        const motherLastInput = document.getElementById('mother_last');
+        const countrySelect = document.getElementById('country_id');
+        const codePreview = document.getElementById('code_preview');
 
-            if (!nameInput || !lastNameInput || !motherLastInput || !countrySelect || !codePreview) {
-                return;
-            }
+        if (!nameInput || !lastNameInput || !motherLastInput || !countrySelect || !codePreview) {
+            return;
+        }
 
-            function getInitial(value, fallback) {
-                const normalized = (value || '').trim();
-                return normalized ? normalized.charAt(0).toUpperCase() : fallback;
-            }
+        function getInitial(value, fallback) {
+            const normalized = (value || '').trim();
+            return normalized ? normalized.charAt(0).toUpperCase() : fallback;
+        }
 
-            function updateCodePreview() {
-                const selectedOption = countrySelect.options[countrySelect.selectedIndex];
-                const countryCode = selectedOption && selectedOption.value ? String(selectedOption.value).padStart(2, '0') : 'PA';
-                const preview = countryCode + '00ID'
-                    + getInitial(lastNameInput.value, 'X')
-                    + getInitial(motherLastInput.value, 'X')
-                    + getInitial(nameInput.value, 'X');
+        function updateCodePreview() {
+            const selectedOption = countrySelect.options[countrySelect.selectedIndex];
+            const countryCode = selectedOption && selectedOption.value ? String(selectedOption.value).padStart(2,
+                '0') : 'PA';
+            const preview = countryCode + '00ID' +
+                getInitial(lastNameInput.value, 'X') +
+                getInitial(motherLastInput.value, 'X') +
+                getInitial(nameInput.value, 'X');
 
-                codePreview.value = preview + ' (referencial)';
-            }
+            codePreview.value = preview + ' (referencial)';
+        }
 
-            [nameInput, lastNameInput, motherLastInput].forEach((input) => {
-                input.addEventListener('input', updateCodePreview);
-            });
-            countrySelect.addEventListener('change', updateCodePreview);
-            updateCodePreview();
+        [nameInput, lastNameInput, motherLastInput].forEach((input) => {
+            input.addEventListener('input', updateCodePreview);
+        });
+        countrySelect.addEventListener('change', updateCodePreview);
+        updateCodePreview();
 
-            if (typeof initCustomerDocumentSelector === 'function') {
-                initCustomerDocumentSelector(document);
-            }
-        })();
+        if (typeof initCustomerDocumentSelector === 'function') {
+            initCustomerDocumentSelector(document);
+        }
+    })();
     </script>
     <?php echo view("admin/footer"); ?>
 </body>

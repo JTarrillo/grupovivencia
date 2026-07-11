@@ -88,6 +88,40 @@ function initCustomerDocumentSelector(scope) {
     applyDocumentConfig();
 }
 
+function initCustomerSponsorSelector(scope) {
+    const container = scope || document;
+    const form = container.querySelector ? container.querySelector('#form-customer') : document.getElementById('form-customer');
+
+    if (!form) {
+        return;
+    }
+
+    const sponsorSelect = form.querySelector('#sponsor_id');
+    if (!sponsorSelect) {
+        return;
+    }
+
+    function refreshSponsorOptions() {
+        const currentCustomerId = parseInt((form.querySelector('#customer_id')?.value || '0'), 10);
+
+        Array.from(sponsorSelect.options).forEach((option) => {
+            if (!option.value) {
+                return;
+            }
+
+            const optionId = parseInt(option.value, 10);
+            const isSelf = currentCustomerId > 0 && optionId === currentCustomerId;
+            option.disabled = isSelf;
+
+            if (isSelf && option.selected) {
+                sponsorSelect.value = '';
+            }
+        });
+    }
+
+    refreshSponsorOptions();
+}
+
 function validate() {
     syncCustomerDocumentFields();
     document.getElementById("submit").disabled = true;
@@ -255,6 +289,7 @@ function loadCreateCustomerModal() {
             $('#modalCreateCustomer .modal-title').text('Crear Nuevo Cliente');
             $('#modalCreateCustomer .modal-footer .btn-primary').text('Crear Cliente');
             initCustomerDocumentSelector(document.getElementById('modalCreateCustomer'));
+            initCustomerSponsorSelector(document.getElementById('modalCreateCustomer'));
             $('#modalCreateCustomer').modal('show');
         },
         error: function() {
@@ -299,6 +334,7 @@ function edit_customer(customer_id) {
             $('#modalCreateCustomer .modal-title').text('Editar Cliente');
             $('#modalCreateCustomer .modal-footer .btn-primary').text('Guardar Cambios');
             initCustomerDocumentSelector(document.getElementById('modalCreateCustomer'));
+            initCustomerSponsorSelector(document.getElementById('modalCreateCustomer'));
             $('#modalCreateCustomer').modal('show');
         },
         error: function() {
@@ -463,4 +499,5 @@ function eliminar(id){
 
 document.addEventListener('DOMContentLoaded', function() {
     initCustomerDocumentSelector(document);
+    initCustomerSponsorSelector(document);
 });

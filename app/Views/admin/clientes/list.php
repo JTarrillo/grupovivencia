@@ -471,6 +471,28 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Patrocinador</label>
+                                <select class="form-control" id="sponsor_id" name="sponsor_id">
+                                    <option value="">Sin patrocinador asignado</option>
+                                    <?php if (isset($obj_sponsors) && is_array($obj_sponsors)): ?>
+                                    <?php foreach ($obj_sponsors as $sponsor): ?>
+                                    <?php
+                                        $sponsorId = (int) ($sponsor['id'] ?? 0);
+                                        $sponsorName = trim(($sponsor['name'] ?? '') . ' ' . ($sponsor['lastname'] ?? '') . ' ' . ($sponsor['mother_last'] ?? ''));
+                                        $sponsorCode = trim((string) ($sponsor['code'] ?? ''));
+                                        $sponsorDocument = trim((string) (($sponsor['dni'] ?? '') ?: ($sponsor['ruc'] ?? '')));
+                                    ?>
+                                    <option value="<?php echo $sponsorId; ?>">
+                                        <?php echo trim($sponsorCode . ' - ' . $sponsorName . ($sponsorDocument !== '' ? ' (' . $sponsorDocument . ')' : '')); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
+                                <small class="form-text text-muted">Opcional. Se usara como patrocinador dentro de la red.</small>
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">

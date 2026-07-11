@@ -1,3 +1,6 @@
+<?php
+$selectedSponsorId = isset($obj_sponsor->customer_id) ? (int) $obj_sponsor->customer_id : 0;
+?>
 <form name="form-customer" id="form-customer" enctype="multipart/form-data" method="post" action="javascript:void(0);" onsubmit="submitCustomerForm();" autocomplete="off">
     <?php if(isset($obj_customer) && $obj_customer): ?>
         <input type="hidden" name="action" value="update">
@@ -112,6 +115,29 @@
                     <?php endforeach; ?>
                 <?php endif; ?>
             </select>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label>Patrocinador</label>
+            <select class="form-control" id="sponsor_id" name="sponsor_id">
+                <option value="">Sin patrocinador asignado</option>
+                <?php if (isset($obj_sponsors) && is_array($obj_sponsors)): ?>
+                    <?php foreach ($obj_sponsors as $sponsor): ?>
+                        <?php
+                        $sponsorId = (int) ($sponsor['id'] ?? 0);
+                        $sponsorName = trim(($sponsor['name'] ?? '') . ' ' . ($sponsor['lastname'] ?? '') . ' ' . ($sponsor['mother_last'] ?? ''));
+                        $sponsorCode = trim((string) ($sponsor['code'] ?? ''));
+                        $sponsorDocument = trim((string) (($sponsor['dni'] ?? '') ?: ($sponsor['ruc'] ?? '')));
+                        ?>
+                        <option value="<?php echo $sponsorId; ?>" <?php echo $selectedSponsorId === $sponsorId ? 'selected' : ''; ?>>
+                            <?php echo trim($sponsorCode . ' - ' . $sponsorName . ($sponsorDocument !== '' ? ' (' . $sponsorDocument . ')' : '')); ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+            <small class="form-text text-muted">Se usara como patrocinador del cliente dentro de la red y para comisiones.</small>
         </div>
     </div>
 

@@ -49,7 +49,9 @@ class B_home extends BaseController
             ->where('fecha_generada >=', $dataPeriod->begin)
             ->where('fecha_generada <=', $dataPeriod->end)
             ->first()['monto'] ?? 0;
-        $total_disponible = $total_periodo; // Si hay lógica de retenciones/pagos, ajustar aquí
+        $CommissionReport = new \App\Models\CommissionReportModel();
+        $total_disponible_reportes = $CommissionReport->getApprovedBalanceByCustomer($id);
+        $total_disponible = $total_disponible_reportes > 0 ? $total_disponible_reportes : $total_periodo;
         $total_comissions = $total_periodo; // Para compatibilidad con la vista
         $code_period = date('my'); // O usa el código de periodo que corresponda
 
