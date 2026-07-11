@@ -44,16 +44,24 @@
                 value="<?php echo isset($obj_customer->mother_last) ? $obj_customer->mother_last : ''; ?>">
         </div>
         <div class="form-group col-md-6">
-            <label>DNI <span class="text-danger">*</span></label>
-            <input class="form-control" type="text" id="dni" name="dni" placeholder="DNI"
-                value="<?php echo isset($obj_customer->dni) ? $obj_customer->dni : ''; ?>" required>
+            <label>Tipo de Documento <span class="text-danger">*</span></label>
+            <select class="form-control" id="document_type" name="document_type" required>
+                <option value="dni" <?php echo !isset($obj_customer->ruc) || empty($obj_customer->ruc) ? 'selected' : ''; ?>>DNI</option>
+                <option value="ruc" <?php echo isset($obj_customer->ruc) && !empty($obj_customer->ruc) ? 'selected' : ''; ?>>RUC</option>
+            </select>
         </div>
     </div>
 
     <div class="form-row">
         <div class="form-group col-md-6">
-            <label>RUC</label>
-            <input class="form-control" type="text" id="ruc" name="ruc" placeholder="RUC"
+            <label id="document_number_label">Documento <span class="text-danger">*</span></label>
+            <input class="form-control" type="text" id="document_number_display" placeholder="Ingrese documento"
+                value="<?php echo isset($obj_customer->ruc) && !empty($obj_customer->ruc) ? $obj_customer->ruc : (isset($obj_customer->dni) ? $obj_customer->dni : ''); ?>"
+                inputmode="numeric" required>
+            <small class="form-text text-muted" id="document_number_help">Ingresa el número del documento.</small>
+            <input type="hidden" id="dni" name="dni"
+                value="<?php echo isset($obj_customer->dni) ? $obj_customer->dni : ''; ?>">
+            <input type="hidden" id="ruc" name="ruc"
                 value="<?php echo isset($obj_customer->ruc) ? $obj_customer->ruc : ''; ?>">
         </div>
         <div class="form-group col-md-6">
@@ -155,5 +163,9 @@
         });
         countrySelect.addEventListener('change', updateCodePreview);
         updateCodePreview();
+
+        if (typeof initCustomerDocumentSelector === 'function') {
+            initCustomerDocumentSelector(document);
+        }
     })();
 </script>

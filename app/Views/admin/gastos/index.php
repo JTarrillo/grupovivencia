@@ -12,7 +12,7 @@
                             <div class="row align-items-center">
                                 <div class="col-md-12">
                                     <div class="page-header-title">
-                                        <h5 class="m-b-10">Módulo de Gastos</h5>
+                                        <h5 class="m-b-10">Modulo de Gastos</h5>
                                     </div>
                                     <ul class="breadcrumb">
                                         <li class="breadcrumb-item"><a href="/dashboard/">Panel</a></li>
@@ -64,7 +64,7 @@
                                     <div class="card">
                                         <div class="card-header">
                                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <h5><i class="fa fa-list"></i> Listado de Gastos Clasificados</h5>
+                                                <h5><i class="fa fa-list"></i> Listado de Gastos</h5>
                                                 <div style="display: flex; gap: 8px;">
                                                     <a href="<?php echo base_url('dashboard/compras'); ?>" class="btn btn-sm btn-primary">
                                                         <i class="fa fa-plus"></i> Nueva Compra
@@ -74,17 +74,16 @@
                                                     </a>
                                                 </div>
                                             </div>
-                                            <span class="text-muted d-block m-t-5">Gestione los gastos clasificados por período</span>
+                                            <span class="text-muted d-block m-t-5">Gestione los gastos por periodo</span>
 
-                                            <!-- Filtro de Período con Date Picker Moderno -->
                                             <form method="get" class="form-inline" id="formGastosPeriodo" style="margin-top: 12px;">
                                                 <div class="form-group mr-3" style="display: flex; align-items: center;">
-                                                    <label for="periodo_fecha_gastos" class="mr-2" style="margin-bottom: 0;"><strong>Período:</strong></label>
-                                                    <input 
-                                                        type="date" 
-                                                        id="periodo_fecha_gastos" 
-                                                        name="periodo_fecha" 
-                                                        class="form-control" 
+                                                    <label for="periodo_fecha_gastos" class="mr-2" style="margin-bottom: 0;"><strong>Periodo:</strong></label>
+                                                    <input
+                                                        type="date"
+                                                        id="periodo_fecha_gastos"
+                                                        name="periodo_fecha"
+                                                        class="form-control"
                                                         value="<?php echo $periodo_fecha ?? date('Y-m-d'); ?>"
                                                         onchange="document.getElementById('formGastosPeriodo').submit();"
                                                         style="max-width: 150px; border-radius: 5px; border: 1px solid #ddd; padding: 8px 12px; font-size: 14px;">
@@ -102,7 +101,8 @@
                                                             <th>Comprobante</th>
                                                             <th>Fecha</th>
                                                             <th>Proveedor</th>
-                                                            <th>Clasificación</th>
+                                                            <th>Tipo de Gasto</th>
+                                                            <th>Subcategoria</th>
                                                             <th>Total</th>
                                                             <th>Estado</th>
                                                         </tr>
@@ -115,29 +115,31 @@
                                                                     <td><?php echo date('d/m/Y', strtotime($gasto['fecha_compra'] ?? date('Y-m-d'))); ?></td>
                                                                     <td><?php echo $gasto['proveedor_nombre'] ?? 'N/A'; ?></td>
                                                                     <td>
-                                                                        <?php 
-                                                                            $clasificaciones = [
-                                                                                '1' => 'Materiales',
-                                                                                '2' => 'Servicios',
-                                                                                '3' => 'Activos',
-                                                                                '4' => 'Suministros',
-                                                                                '5' => 'Otros'
-                                                                            ];
-                                                                            echo $clasificaciones[$gasto['clasificacion']] ?? 'N/A';
-                                                                        ?>
+                                                                        <span class="badge badge-info">
+                                                                            <?php echo esc($gasto['tipo_nombre'] ?? 'Sin tipo'); ?>
+                                                                        </span>
                                                                     </td>
+                                                                    <td><?php echo esc($gasto['subcategoria_nombre'] ?? 'Sin subcategoria'); ?></td>
                                                                     <td>S/. <?php echo number_format($gasto['total'] ?? 0, 2); ?></td>
                                                                     <td>
-                                                                        <span class="badge badge-<?php echo match($gasto['estado']) { 'aprobado' => 'success', 'clasificado' => 'info', default => 'warning' }; ?>">
-                                                                            <?php echo ucfirst($gasto['estado']); ?>
+                                                                        <?php
+                                                                        $estadoBadgeClass = 'warning';
+                                                                        if (($gasto['estado'] ?? '') === 'aprobado') {
+                                                                            $estadoBadgeClass = 'success';
+                                                                        } elseif (($gasto['estado'] ?? '') === 'clasificado') {
+                                                                            $estadoBadgeClass = 'info';
+                                                                        }
+                                                                        ?>
+                                                                        <span class="badge badge-<?php echo $estadoBadgeClass; ?>">
+                                                                            <?php echo ucfirst($gasto['estado'] ?? 'pendiente'); ?>
                                                                         </span>
                                                                     </td>
                                                                 </tr>
                                                             <?php endforeach; ?>
                                                         <?php else: ?>
                                                             <tr>
-                                                                <td colspan="6" class="text-center p-4">
-                                                                    <p class="text-muted">No hay gastos clasificados</p>
+                                                                <td colspan="7" class="text-center p-4">
+                                                                    <p class="text-muted">No hay gastos registrados</p>
                                                                 </td>
                                                             </tr>
                                                         <?php endif; ?>

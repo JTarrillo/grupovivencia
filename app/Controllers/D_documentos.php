@@ -72,7 +72,7 @@ class D_documentos extends BaseController
 
         $file->move($destino, $nuevo_nombre);
 
-        $this->documentoModel->insert([
+        $this->documentoModel->insertarDocumento([
             'nombre'      => pathinfo($nombre_original, PATHINFO_FILENAME),
             'archivo'     => $nuevo_nombre,
             'descripcion' => $this->request->getPost('descripcion') ?? '',

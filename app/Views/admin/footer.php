@@ -18,34 +18,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    if (window.location && window.location.pathname && window.location.pathname.indexOf(
-            '/dashboard/inmueble/projects') !== -1) {
-        if (typeof window.showCreateProjectModal !== 'function') {
-            window.showCreateProjectModal = function() {
-                const form = document.getElementById('create-project-form');
-                if (form) {
-                    form.reset();
-                }
-
-                const errorMsg = document.getElementById('createProjectErrorMsg');
-                if (errorMsg) {
-                    errorMsg.classList.add('d-none');
-                }
-
-                if (window.$ && typeof window.$.fn?.modal === 'function') {
-                    window.$('#createProjectModal').modal('show');
-                    return;
-                }
-
-                const modal = document.getElementById('createProjectModal');
-                if (modal) {
-                    modal.style.display = 'block';
-                    modal.classList.add('show');
-                }
-            };
-        }
-    }
-
     // Obtener todos los elementos del menú que tienen submenu
     const menuItems = document.querySelectorAll('.pcoded-navbar .nav-item.pcoded-hasmenu');
     const sidebar = document.querySelector('.pcoded-navbar');

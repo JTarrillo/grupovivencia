@@ -85,7 +85,9 @@
                                                         <td><?= esc($doc['descripcion'] ?: '—') ?></td>
                                                         <td><?= number_format($doc['tamanio'] / 1024, 1) ?> KB</td>
                                                         <td><?= esc($doc['created_by']) ?></td>
-                                                        <td><?= date('d/m/Y H:i', strtotime($doc['created_at'])) ?></td>
+                                                        <td>
+                                                            <?= !empty($doc['created_at']) ? date('d/m/Y H:i', strtotime($doc['created_at'])) : '-' ?>
+                                                        </td>
                                                         <td>
                                                             <button class="btn btn-sm btn-success btn-procesar" data-id="<?= $doc['id'] ?>" data-nombre="<?= esc($doc['nombre']) ?>" title="Leer con IA">
                                                                 <i class="fa fa-magic mr-1"></i>Leer

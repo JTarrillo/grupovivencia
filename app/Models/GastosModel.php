@@ -29,13 +29,29 @@ class GastosModel extends Model
         $db = db_connect();
         $query = $db->query("
             SELECT 
-                c.id, c.numero_comprobante, c.tipo_comprobante, c.fecha_compra,
-                c.subtotal, c.igv, c.total, c.estado, c.clasificacion,
-                s.name as proveedor_nombre, s.ruc
-            FROM compras c
+                cg.id,
+                cg.compra_id,
+                cg.gasto_tipo_id,
+                cg.gasto_subcategoria_id,
+                c.numero_comprobante,
+                c.tipo_comprobante,
+                c.fecha_compra,
+                c.subtotal,
+                c.igv,
+                c.total,
+                c.estado,
+                c.clasificacion,
+                s.name as proveedor_nombre,
+                s.ruc,
+                gt.nombre as tipo_nombre,
+                gs.nombre as subcategoria_nombre
+            FROM compra_gastos cg
+            LEFT JOIN compras c ON c.id = cg.compra_id
             LEFT JOIN suppliers s ON s.id = c.proveedor_id
+            LEFT JOIN gasto_tipos gt ON gt.id = cg.gasto_tipo_id
+            LEFT JOIN gasto_subcategorias gs ON gs.id = cg.gasto_subcategoria_id
             WHERE c.estado != 'registrado'
-            ORDER BY c.fecha_compra DESC
+            ORDER BY c.fecha_compra DESC, cg.id DESC
         ");
         return $query->getResultArray();
     }
@@ -182,4 +198,3 @@ class GastosModel extends Model
         ];
     }
 }
-

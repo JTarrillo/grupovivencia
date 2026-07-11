@@ -70,11 +70,13 @@ class D_compras extends BaseController
                     cg.gasto_subcategoria_id,
                     cg.observaciones,
                     gt.nombre as tipo_nombre,
-                    gt.color
+                    gt.color,
+                    gs.nombre as subcategoria_nombre
                 FROM compras c
                 LEFT JOIN suppliers s ON s.id = c.proveedor_id
                 LEFT JOIN compra_gastos cg ON cg.compra_id = c.id
                 LEFT JOIN gasto_tipos gt ON gt.id = cg.gasto_tipo_id
+                LEFT JOIN gasto_subcategorias gs ON gs.id = cg.gasto_subcategoria_id
             ';
             
             if ($periodo_fecha) {
@@ -117,7 +119,8 @@ class D_compras extends BaseController
                     $compras[$compraId]['gastos'][] = [
                         'id' => $row['gasto_id'],
                         'tipo_nombre' => $row['tipo_nombre'],
-                        'color' => $row['color']
+                        'color' => $row['color'],
+                        'subcategoria_nombre' => $row['subcategoria_nombre'] ?? ''
                     ];
                 }
             }
@@ -209,11 +212,21 @@ class D_compras extends BaseController
             $fecha_compra = $this->request->getPost('fecha_compra');
             $subtotal = (float) $this->request->getPost('subtotal') ?: 0;
             $igv = (float) $this->request->getPost('igv') ?: 0;
-            $total = (float) $this->request->getPost('total');
+            $total = (float) $this->request->getPost('total') ?: 0;
             $descripcion = $this->request->getPost('descripcion') ?: '';
             $gasto_tipo_id = $this->request->getPost('gasto_tipo_id');
             $gasto_subcategoria_id = $this->request->getPost('gasto_subcategoria_id');
+            $igvRate = 0.18;
 
+            if ($total > 0 && $subtotal <= 0) {
+                $subtotal = round($total / (1 + $igvRate), 2);
+                $igv = round($total - $subtotal, 2);
+            } elseif ($subtotal > 0 && $total <= 0) {
+                $igv = round($subtotal * $igvRate, 2);
+                $total = round($subtotal + $igv, 2);
+            } elseif ($subtotal > 0 && $total > 0) {
+                $igv = round($total - $subtotal, 2);
+            }
             // Validaciones
             if (empty($proveedor_id) || empty($numero_comprobante) || empty($fecha_compra) || empty($total)) {
                 return $this->response->setJSON([
@@ -596,9 +609,11 @@ class D_compras extends BaseController
                     cg.gasto_subcategoria_id,
                     cg.observaciones,
                     gt.nombre as tipo_nombre,
-                    gt.color
+                    gt.color,
+                    gs.nombre as subcategoria_nombre
                 FROM compra_gastos cg
                 LEFT JOIN gasto_tipos gt ON gt.id = cg.gasto_tipo_id
+                LEFT JOIN gasto_subcategorias gs ON gs.id = cg.gasto_subcategoria_id
                 WHERE cg.compra_id = ?
                 ORDER BY cg.id DESC
             ', [$compra_id])->getResultArray();
@@ -787,13 +802,26 @@ class D_compras extends BaseController
     public function delete($id)
     {
         $session = session();
+        $isAjax = $this->request->isAJAX();
         if (!$session->get('isLoggedIn')) {
+            if ($isAjax) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'SesiÃ³n expirada'
+                ])->setStatusCode(401);
+            }
             return redirect()->to(base_url('login'));
         }
 
         $redirectTo = base_url('dashboard/compras');
         
         if (strtoupper($this->request->getMethod()) !== 'POST') {
+            if ($isAjax) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'MÃ©todo no permitido'
+                ])->setStatusCode(405);
+            }
             return redirect()->to($redirectTo)->with('error', 'Método no permitido');
         }
 
@@ -806,10 +834,25 @@ class D_compras extends BaseController
             // Eliminar compra
             $this->comprasModel->delete($id);
 
+            if ($isAjax) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Compra eliminada exitosamente',
+                    'id' => (int) $id
+                ]);
+            }
+
             return redirect()->to($redirectTo)
                 ->with('success', 'Compra eliminada exitosamente');
         } catch (\Exception $e) {
             log_message('error', 'Error al eliminar compra: ' . $e->getMessage());
+
+            if ($isAjax) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Error al eliminar la compra: ' . $e->getMessage()
+                ])->setStatusCode(500);
+            }
 
             return redirect()->to($redirectTo)
                 ->with('error', 'Error: ' . $e->getMessage());

@@ -35,12 +35,30 @@ class D_gastos extends BaseController
             // Filtrar gastos por fecha específica
             $db = db_connect();
             $query = $db->query("
-                SELECT * FROM compra_gastos cg
+                SELECT
+                    cg.id,
+                    cg.compra_id,
+                    cg.gasto_tipo_id,
+                    cg.gasto_subcategoria_id,
+                    c.numero_comprobante,
+                    c.tipo_comprobante,
+                    c.fecha_compra,
+                    c.subtotal,
+                    c.igv,
+                    c.total,
+                    c.estado,
+                    c.clasificacion,
+                    s.name as proveedor_nombre,
+                    gt.nombre as tipo_nombre,
+                    gs.nombre as subcategoria_nombre
+                FROM compra_gastos cg
                 LEFT JOIN compras c ON cg.compra_id = c.id
                 LEFT JOIN suppliers s ON c.proveedor_id = s.id
                 LEFT JOIN gasto_tipos gt ON cg.gasto_tipo_id = gt.id
+                LEFT JOIN gasto_subcategorias gs ON cg.gasto_subcategoria_id = gs.id
                 WHERE DATE(c.fecha_compra) = ?
-                ORDER BY c.fecha_compra DESC
+                AND c.estado != 'registrado'
+                ORDER BY c.fecha_compra DESC, cg.id DESC
             ", [$periodo_fecha]);
             $gastos = $query ? $query->getResultArray() : [];
         } else {

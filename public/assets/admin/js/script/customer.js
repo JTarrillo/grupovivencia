@@ -2,7 +2,94 @@
 console.log('customer.js loaded successfully at ' + new Date().toISOString());
 console.log('loadCreateCustomerModal function will be available');
 
+function normalizeCustomerDocumentNumber(value) {
+    return String(value || '').replace(/\D/g, '');
+}
+
+function syncCustomerDocumentFields(form) {
+    const targetForm = form || document.getElementById('form-customer');
+    if (!targetForm) {
+        return;
+    }
+
+    const typeSelect = targetForm.querySelector('#document_type');
+    const visibleInput = targetForm.querySelector('#document_number_display');
+    const dniInput = targetForm.querySelector('#dni');
+    const rucInput = targetForm.querySelector('#ruc');
+
+    if (!typeSelect || !visibleInput || !dniInput || !rucInput) {
+        return;
+    }
+
+    const normalizedValue = normalizeCustomerDocumentNumber(visibleInput.value);
+    visibleInput.value = normalizedValue;
+
+    if (typeSelect.value === 'ruc') {
+        rucInput.value = normalizedValue;
+        dniInput.value = '';
+        return;
+    }
+
+    dniInput.value = normalizedValue;
+    rucInput.value = '';
+}
+
+function initCustomerDocumentSelector(scope) {
+    const container = scope || document;
+    const form = container.querySelector ? container.querySelector('#form-customer') : document.getElementById('form-customer');
+
+    if (!form) {
+        return;
+    }
+
+    const typeSelect = form.querySelector('#document_type');
+    const visibleInput = form.querySelector('#document_number_display');
+    const label = form.querySelector('#document_number_label');
+    const helper = form.querySelector('#document_number_help');
+    const dniInput = form.querySelector('#dni');
+    const rucInput = form.querySelector('#ruc');
+
+    if (!typeSelect || !visibleInput || !label || !helper || !dniInput || !rucInput) {
+        return;
+    }
+
+    function applyDocumentConfig() {
+        const documentType = typeSelect.value === 'ruc' ? 'ruc' : 'dni';
+        const currentValue = documentType === 'ruc'
+            ? (rucInput.value || visibleInput.value)
+            : (dniInput.value || visibleInput.value);
+
+        visibleInput.value = normalizeCustomerDocumentNumber(currentValue);
+        visibleInput.maxLength = documentType === 'ruc' ? 11 : 8;
+        visibleInput.placeholder = documentType === 'ruc' ? 'Ingrese RUC' : 'Ingrese DNI';
+        visibleInput.pattern = documentType === 'ruc' ? '\\d{11}' : '\\d{8}';
+        label.innerHTML = (documentType === 'ruc' ? 'RUC' : 'DNI') + " <span class='text-danger'>*</span>";
+        helper.textContent = documentType === 'ruc'
+            ? 'Ingresa 11 dígitos para el RUC.'
+            : 'Ingresa 8 dígitos para el DNI.';
+
+        syncCustomerDocumentFields(form);
+    }
+
+    if (form.dataset.documentSelectorBound !== '1') {
+        form.dataset.documentSelectorBound = '1';
+
+        typeSelect.addEventListener('change', applyDocumentConfig);
+        visibleInput.addEventListener('input', function() {
+            this.value = normalizeCustomerDocumentNumber(this.value);
+            syncCustomerDocumentFields(form);
+        });
+    }
+
+    if (!typeSelect.value) {
+        typeSelect.value = rucInput.value ? 'ruc' : 'dni';
+    }
+
+    applyDocumentConfig();
+}
+
 function validate() {
+    syncCustomerDocumentFields();
     document.getElementById("submit").disabled = true;
     document.getElementById("submit").innerHTML = "<span class='spinner-border spinner-border-sm' role='status'></span> Procesando...";
     oData = new FormData(document.forms.namedItem("form-customer"));
@@ -48,6 +135,8 @@ function createCustomer() {
         form.reportValidity();
         return;
     }
+
+    syncCustomerDocumentFields(form);
 
     document.getElementById("submit").disabled = true;
     document.getElementById("submit").innerHTML = "<span class='spinner-border spinner-border-sm' role='status'></span> Creando...";
@@ -103,6 +192,7 @@ function createCustomer() {
  * Actualizar cliente - función separada para UPDATE
  */
 function updateCustomer() {
+    syncCustomerDocumentFields(document.getElementById('form-customer'));
     document.getElementById("submit").disabled = true;
     document.getElementById("submit").innerHTML = "<span class='spinner-border spinner-border-sm' role='status'></span> Actualizando...";
     
@@ -164,6 +254,7 @@ function loadCreateCustomerModal() {
             $('#modalCreateCustomer .modal-body').html(data);
             $('#modalCreateCustomer .modal-title').text('Crear Nuevo Cliente');
             $('#modalCreateCustomer .modal-footer .btn-primary').text('Crear Cliente');
+            initCustomerDocumentSelector(document.getElementById('modalCreateCustomer'));
             $('#modalCreateCustomer').modal('show');
         },
         error: function() {
@@ -207,6 +298,7 @@ function edit_customer(customer_id) {
             $('#modalCreateCustomer .modal-body').html(data);
             $('#modalCreateCustomer .modal-title').text('Editar Cliente');
             $('#modalCreateCustomer .modal-footer .btn-primary').text('Guardar Cambios');
+            initCustomerDocumentSelector(document.getElementById('modalCreateCustomer'));
             $('#modalCreateCustomer').modal('show');
         },
         error: function() {
@@ -231,6 +323,8 @@ function submitCustomerForm() {
         form.reportValidity();
         return;
     }
+
+    syncCustomerDocumentFields(form);
 
     const action = document.querySelector('input[name="action"]').value;
     const submitBtn = document.querySelector('#modalCreateCustomer .modal-footer .btn-primary');
@@ -366,3 +460,7 @@ function eliminar(id){
         }
     }); 
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    initCustomerDocumentSelector(document);
+});

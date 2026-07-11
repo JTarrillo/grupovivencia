@@ -81,7 +81,8 @@
                                                         <div class="form-group">
                                                             <label>Total *</label>
                                                             <input type="number" step="0.01" class="form-control"
-                                                                name="total" placeholder="0.00" required>
+                                                                id="formNuevaCompraTotal" name="total"
+                                                                placeholder="0.00" required>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -90,14 +91,16 @@
                                                         <div class="form-group">
                                                             <label>Subtotal</label>
                                                             <input type="number" step="0.01" class="form-control"
-                                                                name="subtotal" placeholder="0.00">
+                                                                id="formNuevaCompraSubtotal" name="subtotal"
+                                                                placeholder="0.00">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4">
                                                         <div class="form-group">
                                                             <label>IGV</label>
                                                             <input type="number" step="0.01" class="form-control"
-                                                                name="igv" placeholder="0.00">
+                                                                id="formNuevaCompraIgv" name="igv" placeholder="0.00"
+                                                                readonly>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4">
@@ -232,7 +235,7 @@
                                                     <tbody>
                                                         <?php if (!empty($compras)): ?>
                                                         <?php foreach ($compras as $compra): ?>
-                                                        <tr>
+                                                        <tr id="compra-row-<?php echo $compra['id']; ?>">
                                                             <td><strong><?php echo $compra['numero_comprobante']; ?></strong>
                                                             </td>
                                                             <td><?php echo date('d/m/Y', strtotime($compra['fecha_compra'] ?? date('Y-m-d'))); ?>
@@ -246,9 +249,16 @@
                                                                 <div id="gastos-<?php echo $compra['id']; ?>">
                                                                     <?php if (!empty($compra['gastos'])): ?>
                                                                         <?php foreach ($compra['gastos'] as $gasto): ?>
-                                                                            <span class="badge" style="background-color: <?php echo $gasto['color']; ?>; color: white; margin-right: 5px; display: inline-block; margin-bottom: 3px;">
-                                                                                <?php echo $gasto['tipo_nombre']; ?>
-                                                                            </span>
+                                                                            <div style="display: inline-block; margin-right: 8px; margin-bottom: 6px; vertical-align: top;">
+                                                                                <span class="badge" style="background-color: <?php echo $gasto['color']; ?>; color: white; display: inline-block; margin-bottom: 2px;">
+                                                                                    <?php echo $gasto['tipo_nombre']; ?>
+                                                                                </span>
+                                                                                <?php if (!empty($gasto['subcategoria_nombre'])): ?>
+                                                                                    <div style="font-size: 11px; color: #6c757d; line-height: 1.2;">
+                                                                                        <?php echo esc($gasto['subcategoria_nombre']); ?>
+                                                                                    </div>
+                                                                                <?php endif; ?>
+                                                                            </div>
                                                                         <?php endforeach; ?>
                                                                     <?php else: ?>
                                                                         <span class="badge badge-secondary">Sin clasificar</span>
@@ -411,6 +421,107 @@
     // Variables globales
     const gastoTipos = <?php echo json_encode($gastoTipos); ?>;
     const gastoSubcategorias = <?php echo json_encode($gastoSubcategorias); ?>;
+    const formNuevaCompra = document.getElementById('formNuevaCompra');
+    const formNuevaCompraSubtotal = document.getElementById('formNuevaCompraSubtotal');
+    const formNuevaCompraIgv = document.getElementById('formNuevaCompraIgv');
+    const formNuevaCompraTotal = document.getElementById('formNuevaCompraTotal');
+
+    (function() {
+        const IGV_RATE = 0.18;
+
+        if (!formNuevaCompra || !formNuevaCompraSubtotal || !formNuevaCompraIgv || !formNuevaCompraTotal) {
+            return;
+        }
+
+        let isUpdatingTotals = false;
+        let lastManualAmountSource = '';
+
+        function toNumber(value) {
+            const parsed = parseFloat(value);
+            return Number.isFinite(parsed) ? parsed : 0;
+        }
+
+        function roundMoney(value) {
+            return Math.round((value + Number.EPSILON) * 100) / 100;
+        }
+
+        function writeValue(input, value) {
+            input.value = value > 0 ? roundMoney(value).toFixed(2) : '';
+        }
+
+        function updateFromSubtotal() {
+            if (isUpdatingTotals) {
+                return;
+            }
+
+            if (lastManualAmountSource === 'total' && document.activeElement !== formNuevaCompraSubtotal) {
+                return;
+            }
+
+            const subtotal = toNumber(formNuevaCompraSubtotal.value);
+            isUpdatingTotals = true;
+
+            if (subtotal > 0) {
+                const igv = roundMoney(subtotal * IGV_RATE);
+                const total = roundMoney(subtotal + igv);
+                writeValue(formNuevaCompraIgv, igv);
+                writeValue(formNuevaCompraTotal, total);
+            } else {
+                formNuevaCompraIgv.value = '';
+                formNuevaCompraTotal.value = '';
+            }
+
+            isUpdatingTotals = false;
+        }
+
+        function updateFromTotal() {
+            if (isUpdatingTotals) {
+                return;
+            }
+
+            if (lastManualAmountSource === 'subtotal' && document.activeElement !== formNuevaCompraTotal) {
+                return;
+            }
+
+            const total = toNumber(formNuevaCompraTotal.value);
+            isUpdatingTotals = true;
+
+            if (total > 0) {
+                const subtotal = roundMoney(total / (1 + IGV_RATE));
+                const igv = roundMoney(total - subtotal);
+                writeValue(formNuevaCompraSubtotal, subtotal);
+                writeValue(formNuevaCompraIgv, igv);
+            } else {
+                formNuevaCompraSubtotal.value = '';
+                formNuevaCompraIgv.value = '';
+            }
+
+            isUpdatingTotals = false;
+        }
+
+        formNuevaCompraSubtotal.addEventListener('focus', function() {
+            lastManualAmountSource = 'subtotal';
+        });
+
+        formNuevaCompraTotal.addEventListener('focus', function() {
+            lastManualAmountSource = 'total';
+        });
+
+        ['input', 'keyup', 'change', 'blur'].forEach((eventName) => {
+            formNuevaCompraSubtotal.addEventListener(eventName, updateFromSubtotal);
+            formNuevaCompraTotal.addEventListener(eventName, updateFromTotal);
+        });
+
+        formNuevaCompra.addEventListener('submit', function() {
+            if (lastManualAmountSource === 'total' && toNumber(formNuevaCompraTotal.value) > 0) {
+                updateFromTotal();
+            } else if (toNumber(formNuevaCompraSubtotal.value) > 0) {
+                updateFromSubtotal();
+            } else if (toNumber(formNuevaCompraTotal.value) > 0) {
+                updateFromTotal();
+            }
+        });
+    })();
 
     function llenarSubcategorias(selectId, tipoId, subcategoriaSeleccionada = '') {
         const select = document.getElementById(selectId);
@@ -541,9 +652,13 @@
                         // Usar directamente tipo_nombre y color del JSON devuelto
                         const tipoNombre = gasto.tipo_nombre || 'N/A';
                         const tipoColor = gasto.color || '#6c757d';
-                        html += `<span class="badge" style="background-color: ${tipoColor}; color: white; margin-right: 5px; display: inline-block; margin-bottom: 3px;">
-                                ${tipoNombre}
-                            </span>`;
+                        const subcategoriaNombre = gasto.subcategoria_nombre || '';
+                        html += `<div style="display: inline-block; margin-right: 8px; margin-bottom: 6px; vertical-align: top;">
+                                <span class="badge" style="background-color: ${tipoColor}; color: white; display: inline-block; margin-bottom: 2px;">
+                                    ${tipoNombre}
+                                </span>
+                                ${subcategoriaNombre ? `<div style="font-size: 11px; color: #6c757d; line-height: 1.2;">${subcategoriaNombre}</div>` : ''}
+                            </div>`;
                     });
                     container.innerHTML = html;
                 } else {
@@ -615,9 +730,10 @@
 
     // ELIMINAR COMPRA - Form submit con SweetAlert
     document.querySelectorAll('.delete-compra-btn').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
+        btn.addEventListener('click', async function(e) {
             e.preventDefault();
             const form = btn.closest('form');
+            const row = btn.closest('tr');
             Swal.fire({
                 title: '¿Eliminar esta compra?',
                 text: 'Esta acción eliminará la compra de forma permanente.',
@@ -627,9 +743,54 @@
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Sí, eliminar',
                 cancelButtonText: 'Cancelar'
-            }).then((result) => {
+            }).then(async (result) => {
                 if (result.isConfirmed) {
-                    form.submit();
+                    btn.disabled = true;
+
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok || !data.success) {
+                            throw new Error(data.message || 'No se pudo eliminar la compra');
+                        }
+
+                        if (row) {
+                            row.remove();
+                        }
+
+                        const tbody = document.querySelector('#tablasCompras tbody');
+                        if (tbody && tbody.querySelectorAll('tr').length === 0) {
+                            tbody.innerHTML = `
+                                <tr>
+                                    <td colspan="8" class="text-center p-4">
+                                        <p class="text-muted">No hay compras registradas</p>
+                                    </td>
+                                </tr>
+                            `;
+                        }
+
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Eliminada',
+                            text: data.message || 'Compra eliminada exitosamente',
+                            confirmButtonColor: '#28a745'
+                        });
+                    } catch (error) {
+                        btn.disabled = false;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.message || 'No se pudo eliminar la compra',
+                            confirmButtonColor: '#dc3545'
+                        });
+                    }
                 }
             });
         });

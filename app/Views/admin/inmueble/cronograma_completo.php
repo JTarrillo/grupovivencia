@@ -1188,8 +1188,11 @@
             // Mostrar mensaje de error sin destruir el resto del modal
             const errorDiv = document.createElement('div');
             errorDiv.id = 'voucher-error-msg';
-            errorDiv.style.cssText = 'text-align:center;padding:30px;background:#ffe6e6;border-radius:8px;border:2px dashed #ff5252;margin-bottom:12px;';
-            errorDiv.innerHTML = '<i class="fa fa-exclamation-triangle" style="font-size:48px;color:#ff5252;"></i><br><p style="color:#c62828;font-weight:bold;margin-top:10px;">Error al cargar la imagen</p><p style="font-size:0.85rem;color:#d32f2f;word-break:break-all;">' + imagenUrl + '</p>';
+            errorDiv.style.cssText =
+                'text-align:center;padding:30px;background:#ffe6e6;border-radius:8px;border:2px dashed #ff5252;margin-bottom:12px;';
+            errorDiv.innerHTML =
+                '<i class="fa fa-exclamation-triangle" style="font-size:48px;color:#ff5252;"></i><br><p style="color:#c62828;font-weight:bold;margin-top:10px;">Error al cargar la imagen</p><p style="font-size:0.85rem;color:#d32f2f;word-break:break-all;">' +
+                imagenUrl + '</p>';
             this.parentNode.insertBefore(errorDiv, this.nextSibling);
         };
 
@@ -1499,6 +1502,4 @@
             });
     }
     </script>
-</body>
-
-</html>
+    <?php echo view("admin/footer"); ?>

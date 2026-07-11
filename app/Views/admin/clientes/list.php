@@ -396,15 +396,22 @@
                                     placeholder="Apellido Materno">
                             </div>
                             <div class="form-group col-md-6">
-                                <label>DNI <span class="text-danger">*</span></label>
-                                <input class="form-control" type="text" id="dni" name="dni" placeholder="DNI" required>
+                                <label>Tipo de Documento <span class="text-danger">*</span></label>
+                                <select class="form-control" id="document_type" name="document_type" required>
+                                    <option value="dni" selected>DNI</option>
+                                    <option value="ruc">RUC</option>
+                                </select>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group col-md-6">
-                                <label>RUC</label>
-                                <input class="form-control" type="text" id="ruc" name="ruc" placeholder="RUC">
+                                <label id="document_number_label">Documento <span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" id="document_number_display"
+                                    placeholder="Ingrese documento" inputmode="numeric" required>
+                                <small class="form-text text-muted" id="document_number_help">Ingresa el número del documento.</small>
+                                <input type="hidden" id="dni" name="dni" value="">
+                                <input type="hidden" id="ruc" name="ruc" value="">
                             </div>
                             <div class="form-group col-md-6">
                                 <label>Email <span class="text-danger">*</span></label>

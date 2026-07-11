@@ -31,6 +31,25 @@ class D_clasificacion extends BaseController
 
     public function index()
     {
+        $periodo_fecha = service('request')->getGet('periodo_fecha');
+        $compras = $this->compraGastoModel->listarComprasParaClasificar($periodo_fecha);
+
+        $total_sin_clasificar = count(array_filter($compras, fn($c) => $c['tiene_clasificacion'] == 0));
+        $total_clasificadas = count(array_filter($compras, fn($c) => $c['tiene_clasificacion'] > 0));
+        $total_mes = array_sum(array_column($compras, 'total'));
+
+        $data = [
+            'compras' => $compras,
+            'total_sin_clasificar' => $total_sin_clasificar,
+            'total_clasificadas' => $total_clasificadas,
+            'total_mes' => $total_mes,
+            'periodo_fecha' => $periodo_fecha ?? date('Y-m-d'),
+            'gastoTipos' => $this->gastoTipoModel->getTiposActivos(),
+            'gastoSubcategorias' => $this->gastoSubcategoriaModel->findAll(),
+        ];
+
+        return view('admin/clasificacion/index', $data);
+
         // Obtener parámetro de fecha (formato: YYYY-MM-DD)
         $periodo_fecha = service('request')->getGet('periodo_fecha');
         
@@ -452,12 +471,12 @@ class D_clasificacion extends BaseController
     }
 
     /**
-     * Guardar clasificación de compra
+     * Guardar clasificacion de compra
      */
     public function guardarClasificacion()
     {
         if (!$this->request->isAjax()) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Solicitud inválida']);
+            return $this->response->setJSON(['success' => false, 'message' => 'Solicitud invalida']);
         }
 
         $compraId = $this->request->getPost('compra_id');
@@ -481,7 +500,7 @@ class D_clasificacion extends BaseController
             ]);
         }
 
-        // Eliminar clasificación anterior si existe
+        // Eliminar clasificacion anterior si existe
         $this->compraGastoModel->where('compra_id', $compraId)->delete();
 
         // Crear nueva clasificación
@@ -508,12 +527,12 @@ class D_clasificacion extends BaseController
 
         return $this->response->setJSON([
             'success' => false,
-            'message' => 'Error al guardar clasificación'
+            'message' => 'Error al guardar clasificacion'
         ]);
     }
 
     /**
-     * Cargar subcategorías por tipo (AJAX)
+     * Cargar subcategorias por tipo (AJAX)
      */
     public function subcategoriasPorTipo($tipoId)
     {

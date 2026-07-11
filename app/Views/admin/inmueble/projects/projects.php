@@ -6,6 +6,213 @@
 <!-- <script src="/assets/js/project/project-edit.js"></script> -->
 <!-- <script src="/assets/js/project/project-delete.js"></script> -->
 <!-- <script src="/assets/js/project/project-detail.js"></script> -->
+<script>
+const CREATE_PROJECT_ENDPOINTS = {
+    departments: "<?= site_url('dashboard/inmueble/getDepartments') ?>",
+    provincesBase: "<?= rtrim(site_url('dashboard/inmueble/getProvinces'), '/') ?>",
+    districtsBase: "<?= rtrim(site_url('dashboard/inmueble/getDistricts'), '/') ?>",
+    paymentPlans: "<?= site_url('dashboard/inmueble/getPaymentPlans') ?>"
+};
+
+function fetchCreateProjectJson(url) {
+    return fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+            }
+            return res.json();
+        });
+}
+
+function loadCreateProjectDepartmentsFallback() {
+    const departmentSelect = document.getElementById('create_department_id');
+    const provinceSelect = document.getElementById('create_province_id');
+    const districtSelect = document.getElementById('create_district_id');
+    if (!departmentSelect) {
+        return;
+    }
+
+    departmentSelect.innerHTML = '<option value="">Seleccionar departamento</option>';
+    if (provinceSelect) {
+        provinceSelect.innerHTML = '<option value="">Seleccionar provincia</option>';
+    }
+    if (districtSelect) {
+        districtSelect.innerHTML = '<option value="">Seleccionar distrito</option>';
+    }
+
+    fetchCreateProjectJson(CREATE_PROJECT_ENDPOINTS.departments)
+        .then(data => {
+            (Array.isArray(data) ? data : []).forEach(dep => {
+                departmentSelect.innerHTML +=
+                    `<option value="${dep.id}">${dep.name}</option>`;
+            });
+        })
+        .catch(() => {
+            departmentSelect.innerHTML =
+                '<option value="">Error cargando departamentos</option>';
+        });
+}
+
+function loadCreateProjectProvincesFallback(departmentId) {
+    const provinceSelect = document.getElementById('create_province_id');
+    const districtSelect = document.getElementById('create_district_id');
+    if (!provinceSelect) {
+        return;
+    }
+
+    provinceSelect.innerHTML = '<option value="">Seleccionar provincia</option>';
+    if (districtSelect) {
+        districtSelect.innerHTML = '<option value="">Seleccionar distrito</option>';
+    }
+
+    if (!departmentId) {
+        return;
+    }
+
+    fetchCreateProjectJson(`${CREATE_PROJECT_ENDPOINTS.provincesBase}/${departmentId}`)
+        .then(data => {
+            (Array.isArray(data) ? data : []).forEach(prov => {
+                provinceSelect.innerHTML +=
+                    `<option value="${prov.id}">${prov.name}</option>`;
+            });
+        })
+        .catch(() => {
+            provinceSelect.innerHTML = '<option value="">Error cargando provincias</option>';
+        });
+}
+
+function loadCreateProjectDistrictsFallback(provinceId) {
+    const districtSelect = document.getElementById('create_district_id');
+    if (!districtSelect) {
+        return;
+    }
+
+    districtSelect.innerHTML = '<option value="">Seleccionar distrito</option>';
+
+    if (!provinceId) {
+        return;
+    }
+
+    fetchCreateProjectJson(`${CREATE_PROJECT_ENDPOINTS.districtsBase}/${provinceId}`)
+        .then(data => {
+            (Array.isArray(data) ? data : []).forEach(dist => {
+                districtSelect.innerHTML +=
+                    `<option value="${dist.id}">${dist.name}</option>`;
+            });
+        })
+        .catch(() => {
+            districtSelect.innerHTML = '<option value="">Error cargando distritos</option>';
+        });
+}
+
+function bindCreateProjectLocationFallback() {
+    const departmentSelect = document.getElementById('create_department_id');
+    const provinceSelect = document.getElementById('create_province_id');
+
+    if (departmentSelect && departmentSelect.dataset.locationBound !== '1') {
+        departmentSelect.dataset.locationBound = '1';
+        departmentSelect.addEventListener('change', function() {
+            loadCreateProjectProvincesFallback(this.value);
+        });
+    }
+
+    if (provinceSelect && provinceSelect.dataset.locationBound !== '1') {
+        provinceSelect.dataset.locationBound = '1';
+        provinceSelect.addEventListener('change', function() {
+            loadCreateProjectDistrictsFallback(this.value);
+        });
+    }
+}
+
+function syncCreateProjectRateFallback() {
+    const paymentPlanSelect = document.getElementById('create_payment_plan_id');
+    const interestRateInput = document.getElementById('create_base_interest_rate');
+    if (!paymentPlanSelect || !interestRateInput) {
+        return;
+    }
+
+    const selectedOption = paymentPlanSelect.options[paymentPlanSelect.selectedIndex];
+    if (!selectedOption) {
+        return;
+    }
+
+    const interestRate = selectedOption.getAttribute('data-interest-rate');
+    if (interestRate !== null && interestRate !== '') {
+        interestRateInput.value = interestRate;
+    }
+}
+
+function loadCreateProjectPaymentPlansFallback() {
+    const paymentPlanSelect = document.getElementById('create_payment_plan_id');
+    if (!paymentPlanSelect) {
+        return;
+    }
+
+    paymentPlanSelect.innerHTML = '<option value="">Seleccionar plan de pago</option>';
+
+    fetchCreateProjectJson(CREATE_PROJECT_ENDPOINTS.paymentPlans)
+        .then(data => {
+            (Array.isArray(data) ? data : []).forEach(plan => {
+                const selected = plan.is_default ? ' selected' : '';
+                paymentPlanSelect.innerHTML +=
+                    `<option value="${plan.id}" data-interest-rate="${plan.base_interest_rate}"${selected}>${plan.name} (${plan.code})</option>`;
+            });
+
+            paymentPlanSelect.onchange = syncCreateProjectRateFallback;
+            syncCreateProjectRateFallback();
+        })
+        .catch(() => {
+            paymentPlanSelect.innerHTML = '<option value="">Error cargando planes</option>';
+        });
+}
+
+window.loadCreateProjectModalData = function() {
+    bindCreateProjectLocationFallback();
+    loadCreateProjectDepartmentsFallback();
+    loadCreateProjectPaymentPlansFallback();
+};
+
+if (typeof window.showCreateProjectModal !== 'function') {
+    window.showCreateProjectModal = function() {
+        const form = document.getElementById('create-project-form');
+        if (form) {
+            form.reset();
+        }
+
+        const errorMsg = document.getElementById('createProjectErrorMsg');
+        if (errorMsg) {
+            errorMsg.classList.add('d-none');
+        }
+
+        const provinceSelect = document.getElementById('create_province_id');
+        if (provinceSelect) {
+            provinceSelect.innerHTML = '<option value="">Seleccionar provincia</option>';
+        }
+
+        const districtSelect = document.getElementById('create_district_id');
+        if (districtSelect) {
+            districtSelect.innerHTML = '<option value="">Seleccionar distrito</option>';
+        }
+
+        window.loadCreateProjectModalData();
+
+        if (window.$ && typeof window.$.fn?.modal === 'function') {
+            window.$('#createProjectModal').modal('show');
+            return;
+        }
+
+        const modal = document.getElementById('createProjectModal');
+        if (modal) {
+            modal.style.display = 'block';
+            modal.classList.add('show');
+        }
+    };
+}
+</script>
 
 <body data-new-gr-c-s-check-loaded="14.1042.0" data-gr-ext-installed="">
     <?php echo view("admin/header"); ?>
@@ -471,18 +678,45 @@
                                                     });
                                             });
 
+                                            const INMUEBLE_ENDPOINTS = {
+                                                departments: "<?= site_url('dashboard/inmueble/getDepartments') ?>",
+                                                provincesBase: "<?= rtrim(site_url('dashboard/inmueble/getProvinces'), '/') ?>",
+                                                districtsBase: "<?= rtrim(site_url('dashboard/inmueble/getDistricts'), '/') ?>",
+                                                paymentPlans: "<?= site_url('dashboard/inmueble/getPaymentPlans') ?>"
+                                            };
+
+                                            function fetchJson(url) {
+                                                return fetch(url, {
+                                                        headers: {
+                                                            'X-Requested-With': 'XMLHttpRequest'
+                                                        }
+                                                    })
+                                                    .then(res => {
+                                                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                                                        return res.json();
+                                                    });
+                                            }
+
                                             function cargarDepartamentos() {
-                                                fetch('/dashboard/inmueble/getDepartments')
-                                                    .then(res => res.json())
+                                                fetchJson(INMUEBLE_ENDPOINTS.departments)
                                                     .then(data => {
                                                         let select = document.getElementById(
                                                             'create_department_id');
                                                         select.innerHTML =
                                                             '<option value="">Seleccionar departamento</option>';
-                                                        data.forEach(dep => {
+                                                        (Array.isArray(data) ? data : []).forEach(dep => {
                                                             select.innerHTML +=
                                                                 `<option value="${dep.id}">${dep.name}</option>`;
                                                         });
+                                                    })
+                                                    .catch(err => {
+                                                        console.error('Error cargando departamentos:', err);
+                                                        const select = document.getElementById(
+                                                            'create_department_id');
+                                                        if (select) {
+                                                            select.innerHTML =
+                                                                '<option value="">Error cargando departamentos</option>';
+                                                        }
                                                     });
                                             }
 
@@ -490,13 +724,19 @@
                                                 let select = document.getElementById('create_province_id');
                                                 select.innerHTML = '<option value="">Seleccionar provincia</option>';
                                                 if (!departmentId) return;
-                                                fetch(`/dashboard/inmueble/getProvinces/${departmentId}`)
-                                                    .then(res => res.json())
+                                                fetchJson(`${INMUEBLE_ENDPOINTS.provincesBase}/${departmentId}`)
                                                     .then(data => {
-                                                        data.forEach(prov => {
+                                                        (Array.isArray(data) ? data : []).forEach(prov => {
                                                             select.innerHTML +=
                                                                 `<option value="${prov.id}">${prov.name}</option>`;
                                                         });
+                                                    })
+                                                    .catch(err => {
+                                                        console.error('Error cargando provincias:', err);
+                                                        if (select) {
+                                                            select.innerHTML =
+                                                                '<option value="">Error cargando provincias</option>';
+                                                        }
                                                     });
                                             }
 
@@ -504,13 +744,19 @@
                                                 let select = document.getElementById('create_district_id');
                                                 select.innerHTML = '<option value="">Seleccionar distrito</option>';
                                                 if (!provinceId) return;
-                                                fetch(`/dashboard/inmueble/getDistricts/${provinceId}`)
-                                                    .then(res => res.json())
+                                                fetchJson(`${INMUEBLE_ENDPOINTS.districtsBase}/${provinceId}`)
                                                     .then(data => {
-                                                        data.forEach(dist => {
+                                                        (Array.isArray(data) ? data : []).forEach(dist => {
                                                             select.innerHTML +=
                                                                 `<option value="${dist.id}">${dist.name}</option>`;
                                                         });
+                                                    })
+                                                    .catch(err => {
+                                                        console.error('Error cargando distritos:', err);
+                                                        if (select) {
+                                                            select.innerHTML =
+                                                                '<option value="">Error cargando distritos</option>';
+                                                        }
                                                     });
                                             }
 
@@ -546,51 +792,49 @@
                                                 document.getElementById('create-project-form').reset();
                                                 document.getElementById('createProjectErrorMsg').classList.add(
                                                     'd-none');
-                                                // Cargar planes de pago disponibles
-                                                cargarPlanesDepago();
+                                                window.loadCreateProjectModalData();
+                                                document.getElementById('create_province_id').innerHTML =
+                                                    '<option value="">Seleccionar provincia</option>';
+                                                document.getElementById('create_district_id').innerHTML =
+                                                    '<option value="">Seleccionar distrito</option>';
                                                 $('#createProjectModal').modal('show');
                                             }
                                             window.showCreateProjectModal = showCreateProjectModal;
 
+                                            function syncCreateProjectInterestRateFromPlan() {
+                                                const select = document.getElementById(
+                                                    'create_payment_plan_id');
+                                                const rateInput = document.getElementById(
+                                                    'create_base_interest_rate');
+                                                if (!select || !rateInput) return;
+
+                                                const selectedOption = select.options[select.selectedIndex];
+                                                if (!selectedOption) return;
+
+                                                const interestRate = selectedOption.getAttribute(
+                                                    'data-interest-rate');
+                                                if (interestRate !== null && interestRate !== '') {
+                                                    rateInput.value = interestRate;
+                                                }
+                                            }
+
                                             function cargarPlanesDepago() {
-                                                fetch('/dashboard/inmueble/getPaymentPlans')
-                                                    .then(res => res.json())
+                                                fetchJson(INMUEBLE_ENDPOINTS.paymentPlans)
                                                     .then(data => {
                                                         let select = document.getElementById(
                                                             'create_payment_plan_id');
                                                         select.innerHTML =
                                                             '<option value="">Seleccionar plan de pago</option>';
-                                                        data.forEach(plan => {
+                                                        (Array.isArray(data) ? data : []).forEach(plan => {
                                                             const selected = plan.is_default ? ' selected' :
                                                                 '';
                                                             select.innerHTML +=
                                                                 `<option value="${plan.id}" data-interest-rate="${plan.base_interest_rate}"${selected}>${plan.name} (${plan.code})</option>`;
                                                         });
 
-                                                        // Si hay un plan seleccionado por defecto, cargar su tasa
-                                                        const selectedOption = select.querySelector(
-                                                            'option[selected]');
-                                                        if (selectedOption) {
-                                                            const interestRate = selectedOption.getAttribute(
-                                                                'data-interest-rate');
-                                                            if (interestRate) {
-                                                                document.getElementById('create_base_interest_rate')
-                                                                    .value = interestRate;
-                                                            }
-                                                        }
-
-                                                        // Agregar listener para cambios en el plan
-                                                        select.addEventListener('change', function() {
-                                                            const selectedOption = this.options[this
-                                                                .selectedIndex];
-                                                            const interestRate = selectedOption
-                                                                .getAttribute('data-interest-rate');
-                                                            if (interestRate) {
-                                                                document.getElementById(
-                                                                        'create_base_interest_rate').value =
-                                                                    interestRate;
-                                                            }
-                                                        });
+                                                        syncCreateProjectInterestRateFromPlan();
+                                                        select.onchange =
+                                                            syncCreateProjectInterestRateFromPlan;
                                                     })
                                                     .catch(err => {
                                                         console.error('Error cargando planes de pago:', err);
@@ -765,6 +1009,170 @@
                                                 $createModal.modal('hide');
                                             }
 
+                                            function submitCreateProjectFormSafely(form) {
+                                                const submitStartedAt = Date.now();
+                                                const minimumLoadingMs = 900;
+                                                const formData = new FormData(form);
+                                                const interestRate = parseFloat(formData.get(
+                                                    'base_interest_rate'));
+                                                const pricePerSqm = parseFloat(formData.get(
+                                                    'base_price_per_sqm'));
+                                                const fixed = parseFloat(formData.get(
+                                                    'min_down_payment_fixed')) || 0;
+                                                const deptId = parseInt(formData.get('department_id'));
+
+                                                if (isNaN(fixed) || fixed < 0) {
+                                                    resetCreateProjectSubmitState(form);
+                                                    showCreateProjectAlert('warning', 'Validación',
+                                                        'La cuota inicial en soles debe ser mayor o igual a 0'
+                                                    );
+                                                    return;
+                                                }
+
+                                                if (deptId === 8) {
+                                                    if (interestRate < 0 || interestRate > 6) {
+                                                        resetCreateProjectSubmitState(form);
+                                                        showCreateProjectAlert('warning', 'Validación',
+                                                            'La tasa de interés para Cusco debe estar entre 0% y 6%'
+                                                        );
+                                                        return;
+                                                    }
+                                                } else if (interestRate < 0 || interestRate > 6) {
+                                                    resetCreateProjectSubmitState(form);
+                                                    showCreateProjectAlert('warning', 'Validación',
+                                                        'La tasa de interés debe estar entre 0% y 6%.'
+                                                    );
+                                                    return;
+                                                }
+
+                                                if (pricePerSqm <= 0) {
+                                                    resetCreateProjectSubmitState(form);
+                                                    showCreateProjectAlert('warning', 'Validación',
+                                                        'El precio por m² debe ser mayor a 0');
+                                                    return;
+                                                }
+
+                                                if (!formData.get('name')) {
+                                                    resetCreateProjectSubmitState(form);
+                                                    showCreateProjectAlert('warning', 'Validación',
+                                                        'Completa los campos obligatorios (nombre)');
+                                                    return;
+                                                }
+
+                                                document.getElementById('create_base_interest_rate')
+                                                    .removeAttribute('readonly');
+
+                                                Swal.fire({
+                                                    title: 'Creando proyecto',
+                                                    text: 'Guardando la información, espera un momento...',
+                                                    allowOutsideClick: false,
+                                                    allowEscapeKey: false,
+                                                    showConfirmButton: false,
+                                                    didOpen: () => {
+                                                        Swal.showLoading();
+                                                    }
+                                                });
+
+                                                function waitForMinimumLoading() {
+                                                    const elapsed = Date.now() - submitStartedAt;
+                                                    const remaining = Math.max(0, minimumLoadingMs -
+                                                        elapsed);
+
+                                                    return new Promise(resolve => {
+                                                        window.setTimeout(resolve, remaining);
+                                                    });
+                                                }
+
+                                                fetch('/dashboard/inmueble/create_project', {
+                                                        method: 'POST',
+                                                        body: formData,
+                                                        headers: {
+                                                            'X-Requested-With': 'XMLHttpRequest'
+                                                        }
+                                                    })
+                                                    .then(async response => {
+                                                        const text = await response.text();
+                                                        let data;
+
+                                                        try {
+                                                            data = JSON.parse(text);
+                                                        } catch (jsonError) {
+                                                            data = {
+                                                                success: false,
+                                                                message: 'Respuesta no es JSON válido: ' +
+                                                                    text.substring(0, 120)
+                                                            };
+                                                        }
+
+                                                        const errorDiv = document.getElementById(
+                                                            'createProjectErrorMsg');
+
+                                                        if (data.success) {
+                                                            return waitForMinimumLoading().then(
+                                                                () => {
+                                                                    Swal.close();
+                                                                    showCreateProjectSuccess(data
+                                                                        .message, data.code,
+                                                                        data.id);
+                                                                });
+                                                        }
+
+                                                        const errorMessage = data.message ||
+                                                            'Error desconocido';
+                                                        errorDiv.textContent = errorMessage;
+                                                        errorDiv.classList.remove('d-none');
+                                                        return waitForMinimumLoading().then(() => {
+                                                            Swal.close();
+                                                            showCreateProjectAlert('error',
+                                                                'No se pudo crear el proyecto',
+                                                                errorMessage);
+                                                        });
+                                                    })
+                                                    .catch(error => {
+                                                        const errorDiv = document.getElementById(
+                                                            'createProjectErrorMsg');
+                                                        const errorMessage =
+                                                            'Error al procesar la solicitud: ' + error
+                                                            .message;
+                                                        errorDiv.textContent = errorMessage;
+                                                        errorDiv.classList.remove('d-none');
+                                                        return waitForMinimumLoading().then(() => {
+                                                            Swal.close();
+                                                            showCreateProjectAlert('error',
+                                                                'Error de conexiÃ³n',
+                                                                errorMessage);
+                                                        });
+                                                    })
+                                                    .finally(() => {
+                                                        resetCreateProjectSubmitState(form);
+                                                    });
+                                            }
+
+                                            const createProjectForm = document.getElementById(
+                                                'create-project-form');
+                                            if (createProjectForm && createProjectForm.dataset.safeSubmitBound !==
+                                                '1') {
+                                                createProjectForm.dataset.safeSubmitBound = '1';
+                                                createProjectForm.addEventListener('submit', function(e) {
+                                                    e.preventDefault();
+                                                    e.stopImmediatePropagation();
+
+                                                    if (this.dataset.submitting === '1') {
+                                                        return false;
+                                                    }
+
+                                                    this.dataset.submitting = '1';
+                                                    const submitButtons = this.querySelectorAll(
+                                                        'button[type="submit"]');
+                                                    submitButtons.forEach(button => button
+                                                        .setAttribute('disabled', 'disabled'));
+
+                                                    submitCreateProjectFormSafely(this);
+                                                    return false;
+                                                }, true);
+                                            }
+
+                                            /* Handler legado desactivado: el flujo seguro con Swal vive arriba.
                                             document.getElementById('create-project-form').addEventListener('submit',
                                                 function(e) {
                                                     // Prevent double submission if external script also attached a handler
@@ -911,6 +1319,7 @@
                                             resetCreateProjectSubmitState(form);
                                             });
                                             });
+                                            */
                                             </script>
                                         </div>
                                         <div class="card-block">
@@ -1446,16 +1855,22 @@
     <script>
     // ===== FUNCIONES PARA CARGAR CASCADA DE DEPARTAMENTO/PROVINCIA/DISTRITO (EDITAR) =====
     function cargarDepartamentosEdit(selectedDept, selectedProv, selectedDist) {
-        fetch('/dashboard/inmueble/getDepartments')
-            .then(res => res.json())
+        fetchJson(INMUEBLE_ENDPOINTS.departments)
             .then(data => {
                 let select = document.getElementById('edit_department_id');
                 select.innerHTML = '<option value="">Seleccionar departamento</option>';
-                data.forEach(dep => {
+                (Array.isArray(data) ? data : []).forEach(dep => {
                     select.innerHTML +=
                         `<option value="${dep.id}"${dep.id == selectedDept ? ' selected' : ''}>${dep.name}</option>`;
                 });
                 if (selectedDept) cargarProvinciasEdit(selectedDept, selectedProv, selectedDist);
+            })
+            .catch(err => {
+                console.error('Error cargando departamentos (editar):', err);
+                const select = document.getElementById('edit_department_id');
+                if (select) {
+                    select.innerHTML = '<option value="">Error cargando departamentos</option>';
+                }
             });
     }
 
@@ -1463,14 +1878,19 @@
         let select = document.getElementById('edit_province_id');
         select.innerHTML = '<option value="">Seleccionar provincia</option>';
         if (!departmentId) return;
-        fetch(`/dashboard/inmueble/getProvinces/${departmentId}`)
-            .then(res => res.json())
+        fetchJson(`${INMUEBLE_ENDPOINTS.provincesBase}/${departmentId}`)
             .then(data => {
-                data.forEach(prov => {
+                (Array.isArray(data) ? data : []).forEach(prov => {
                     select.innerHTML +=
                         `<option value="${prov.id}"${prov.id == selectedProv ? ' selected' : ''}>${prov.name}</option>`;
                 });
                 if (selectedProv) cargarDistritosEdit(selectedProv, selectedDist);
+            })
+            .catch(err => {
+                console.error('Error cargando provincias (editar):', err);
+                if (select) {
+                    select.innerHTML = '<option value="">Error cargando provincias</option>';
+                }
             });
     }
 
@@ -1478,13 +1898,18 @@
         let select = document.getElementById('edit_district_id');
         select.innerHTML = '<option value="">Seleccionar distrito</option>';
         if (!provinceId) return;
-        fetch(`/dashboard/inmueble/getDistricts/${provinceId}`)
-            .then(res => res.json())
+        fetchJson(`${INMUEBLE_ENDPOINTS.districtsBase}/${provinceId}`)
             .then(data => {
-                data.forEach(dist => {
+                (Array.isArray(data) ? data : []).forEach(dist => {
                     select.innerHTML +=
                         `<option value="${dist.id}"${dist.id == selectedDist ? ' selected' : ''}>${dist.name}</option>`;
                 });
+            })
+            .catch(err => {
+                console.error('Error cargando distritos (editar):', err);
+                if (select) {
+                    select.innerHTML = '<option value="">Error cargando distritos</option>';
+                }
             });
     }
 

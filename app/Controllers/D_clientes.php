@@ -158,12 +158,24 @@ class D_clientes extends BaseController
 
         $Customer = new CustomerModel();
         $res = $this->request->getVar();
+        $documentType = isset($res['document_type']) && strtolower((string) $res['document_type']) === 'ruc' ? 'ruc' : 'dni';
+        $documentNumber = preg_replace('/\D+/', '', (string) ($documentType === 'ruc'
+            ? ($res['ruc'] ?? '')
+            : ($res['dni'] ?? '')));
 
         // Validar datos requeridos
-        if (empty($res['name']) || empty($res['lastname']) || empty($res['dni']) || empty($res['email']) || empty($res['country_id']) || empty($res['password'])) {
+        if (empty($res['name']) || empty($res['lastname']) || empty($documentNumber) || empty($res['email']) || empty($res['country_id']) || empty($res['password'])) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Faltan campos requeridos (nombre, apellido, DNI, email, pais y contrasena)'
+                'message' => 'Faltan campos requeridos (nombre, apellido, documento, email, pais y contrasena)'
+            ]);
+        }
+
+        if (($documentType === 'dni' && strlen($documentNumber) !== 8) ||
+            ($documentType === 'ruc' && strlen($documentNumber) !== 11)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => $documentType === 'ruc' ? 'El RUC debe tener 11 digitos.' : 'El DNI debe tener 8 digitos.'
             ]);
         }
 
@@ -179,8 +191,8 @@ class D_clientes extends BaseController
             'name'         => $res['name'],
             'lastname'     => $res['lastname'],
             'mother_last'  => isset($res['mother_last']) ? $res['mother_last'] : '',
-            'dni'          => $res['dni'],
-            'ruc'          => isset($res['ruc']) ? $res['ruc'] : '',
+            'dni'          => $documentType === 'dni' ? $documentNumber : '',
+            'ruc'          => $documentType === 'ruc' ? $documentNumber : '',
             'email'        => $res['email'],
             'civil_status' => isset($res['civil_status']) ? $res['civil_status'] : '',
             'tipo_agente'  => $this->normalizeAgentType($res['tipo_agente'] ?? ''),
@@ -273,7 +285,7 @@ class D_clientes extends BaseController
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'El correo o DNI ya está registrado por otro cliente. Por favor, verifique.'
+                'message' => 'El correo o documento ya estÃ¡ registrado por otro cliente. Por favor, verifique.'
             ]);
         }
     }
@@ -292,11 +304,30 @@ class D_clientes extends BaseController
 
         $Customer = new CustomerModel();
         $res = $this->request->getVar();
+        $documentType = isset($res['document_type']) && strtolower((string) $res['document_type']) === 'ruc' ? 'ruc' : 'dni';
+        $documentNumber = preg_replace('/\D+/', '', (string) ($documentType === 'ruc'
+            ? ($res['ruc'] ?? '')
+            : ($res['dni'] ?? '')));
 
         if (empty($res['customer_id'])) {
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'ID de cliente no válido'
+            ]);
+        }
+
+        if (empty($documentNumber)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Debes ingresar un documento.'
+            ]);
+        }
+
+        if (($documentType === 'dni' && strlen($documentNumber) !== 8) ||
+            ($documentType === 'ruc' && strlen($documentNumber) !== 11)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => $documentType === 'ruc' ? 'El RUC debe tener 11 digitos.' : 'El DNI debe tener 8 digitos.'
             ]);
         }
 
@@ -307,8 +338,8 @@ class D_clientes extends BaseController
             'name' => isset($res['name']) ? $res['name'] : '',
             'lastname' => isset($res['lastname']) ? $res['lastname'] : '',
             'mother_last' => isset($res['mother_last']) ? $res['mother_last'] : '',
-            'dni' => isset($res['dni']) ? $res['dni'] : '',
-            'ruc' => isset($res['ruc']) ? $res['ruc'] : '',
+            'dni' => $documentType === 'dni' ? $documentNumber : '',
+            'ruc' => $documentType === 'ruc' ? $documentNumber : '',
             'email' => isset($res['email']) ? $res['email'] : '',
             'civil_status' => isset($res['civil_status']) ? $res['civil_status'] : '',
             'tipo_agente' => isset($res['tipo_agente']) ? $res['tipo_agente'] : '',
@@ -339,7 +370,7 @@ class D_clientes extends BaseController
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'El correo o DNI ya está registrado por otro cliente. Por favor, verifique.'
+                'message' => 'El correo o documento ya estÃ¡ registrado por otro cliente. Por favor, verifique.'
             ]);
         }
     }
