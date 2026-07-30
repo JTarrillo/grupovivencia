@@ -1,4 +1,5 @@
 const key = '6LequQIqAAAAAMB6PlUNXRmRAh-TP-uY89l02_4G';
+let registrationRequestInFlight = false;
 
 function validate_captcha() {
     document.getElementById("submit").disabled = true;
@@ -30,6 +31,9 @@ function validate_captcha() {
 
 
 function new_registro() {
+    if (registrationRequestInFlight) {
+        return;
+    }
 
     document.getElementById("submit").disabled = true;
     document.getElementById("submit").innerHTML = "<span class='spinner-border spinner-border-sm' role='status'></span> Procesando...";
@@ -39,6 +43,7 @@ function new_registro() {
     confirm_password = document.getElementById("confirm_password").value;
     oData = new FormData(document.forms.namedItem("form-new_registro"));
     if (password == confirm_password) {
+        registrationRequestInFlight = true;
         $.ajax({
             url: site + "register/validacion",
             method: "POST",
@@ -65,11 +70,23 @@ function new_registro() {
                         title: data.message
                     });
                 }
+                registrationRequestInFlight = false;
+                document.getElementById("submit").disabled = false;
+                document.getElementById("submit").innerHTML = "REGISTRAR";
+            },
+            error: function () {
+                registrationRequestInFlight = false;
+                Swal.fire({
+                    position: 'center',
+                    icon: 'error',
+                    title: 'No se pudo completar el registro'
+                });
                 document.getElementById("submit").disabled = false;
                 document.getElementById("submit").innerHTML = "REGISTRAR";
             }
         });
     } else {
+        registrationRequestInFlight = false;
         $(".alert-1").removeClass('text-success').addClass('d-flex justify-content-start align-items-center text-danger mb-2').html("Las contraseñas no son iguales");
         document.getElementById("submit").innerHTML = "REGISTRAR";
         document.getElementById("submit").disabled = false;

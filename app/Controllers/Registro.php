@@ -72,11 +72,12 @@ class Registro extends BaseController
 {
     $Customer = new CustomerModel();
     $Unilevel = new UnilevelsModel();
+    $db = \Config\Database::connect();
     $res = service('request')->getPost();
 
-    $email = $res['email'];
-    $dni = $res['dni'];
-    $address = $res['address'];
+    $email = strtolower(trim((string) ($res['email'] ?? '')));
+    $dni = trim((string) ($res['dni'] ?? ''));
+    $address = trim((string) ($res['address'] ?? ''));
 
     // Validaciones
     $result = $this->validate_dni_register($dni);
@@ -89,34 +90,49 @@ class Registro extends BaseController
         $data['status'] = false;
         $data['message'] = EMAIL_TAKEN;
     } else {
-        $sponsor_id = $res['sponsor_id'] ?? 1;
+        $sponsor_id = isset($res['sponsor_id']) ? (int) $res['sponsor_id'] : 1;
         $name = $res['name'];
         $lastname = $res['lastname'];
         $motherLast = $res['motherLast'];
         $pass = $res['password'];
-        $country = $res['country_id'];
+        $country = isset($res['country_id']) ? (int) $res['country_id'] : 0;
 
-        // INSERT TABLE CUSTOMER
-        $param = array(
-            'name' => $name,
-            'lastname' => $lastname,
-            'mother_last' => $motherLast,
-            'phone' => $res['phone'],
-            'range_id' => 1,
-            'address' => $address,
-            'email' => $email,
-            'dni' => $dni,
-            'date' => date("Y-m-d"),
-            'membership_id' => 1,
-            'password' => password_hash($pass, PASSWORD_DEFAULT),
-            'country_id' => $country,
-            'active' => '0'
-        );
-        $customer_id = $Customer->insertar($param);
+        $obj_sponsor = $Customer->where('id', $sponsor_id)
+                                ->where('active', '1')
+                                ->first();
 
-        // get code id_wsp country
-        $db = \Config\Database::connect();
-        $obj_country = $db->query("SELECT id_wsp FROM (`countries`) WHERE id = $country")->getRow();
+        if (!$obj_sponsor) {
+            $data['status'] = false;
+            $data['message'] = "Patrocinador no válido.";
+            echo json_encode($data);
+            exit();
+        }
+
+        $obj_unilevel = $Unilevel->get_ident_by_customer($sponsor_id);
+        $base_node = $obj_unilevel && !empty($obj_unilevel->node)
+            ? trim((string) $obj_unilevel->node, ',') . ',' . $sponsor_id
+            : (string) $sponsor_id;
+
+        $obj_country = $db->table('countries')
+                          ->select('id, id_wsp, nombre')
+                          ->where('id', $country)
+                          ->get()
+                          ->getRow();
+
+        // El flujo administrativo fija el registro a Perú. Si el ID 89 no existe
+        // en un entorno concreto, buscamos Perú por prefijo o nombre.
+        if (!$obj_country) {
+            $obj_country = $db->table('countries')
+                              ->select('id, id_wsp, nombre')
+                              ->groupStart()
+                                  ->where('id_wsp', '51')
+                                  ->orLike('nombre', 'Peru')
+                                  ->orLike('nombre', 'Perú')
+                              ->groupEnd()
+                              ->orderBy('id', 'ASC')
+                              ->get()
+                              ->getRow();
+        }
 
         if (!$obj_country) {
             $data['status'] = false;
@@ -124,44 +140,80 @@ class Registro extends BaseController
             echo json_encode($data);
             exit();
         }
-        $id_wsp = $obj_country->id_wsp;
 
-        // make code
-        $co_na = substr($name, 0, 1);
-        $co_fa = substr($lastname, 0, 1);
-        $co_ma = substr($motherLast, 0, 1);
-        $code = $id_wsp . '00' .  $customer_id . strtoupper($co_fa) .  strtoupper($co_ma) . strtoupper($co_na);
+        try {
+            $db->transBegin();
 
-        // Actualizar el registro del cliente con el code
-        $Customer->update($customer_id, ['code' => $code]);
+            if ($this->validate_dni_register($dni) > 0) {
+                throw new \RuntimeException(DNI_TAKEN);
+            }
 
-        // get ident by sponsor
-        $obj_unilevel = $Unilevel->get_ident_by_customer($sponsor_id);
-        if (!$obj_unilevel) {
-            $data['status'] = false;
-            $data['message'] = "Patrocinador no válido.";
-            echo json_encode($data);
-            exit();
-        }
-        $node = $obj_unilevel->node;
-        $new_node = $node . ",$sponsor_id";
+            if ($this->validate_email_register($email) > 0) {
+                throw new \RuntimeException(EMAIL_TAKEN);
+            }
 
-        // insert table unilevel
-        $param_unilevel = array(
-            'customer_id' => $customer_id,
-            'sponsor_id' => $sponsor_id,
-            'node' => $new_node,
-            'active' => '1'
-        );
-        $unilevel_id = $Unilevel->insertar($param_unilevel);
+            $param = array(
+                'name' => $name,
+                'lastname' => $lastname,
+                'mother_last' => $motherLast,
+                'phone' => $res['phone'],
+                'range_id' => 1,
+                'address' => $address,
+                'email' => $email,
+                'dni' => $dni,
+                'date' => date("Y-m-d"),
+                'membership_id' => 1,
+                'password' => password_hash($pass, PASSWORD_DEFAULT),
+                'country_id' => (int) $obj_country->id,
+                'active' => '0'
+            );
+            $customer_id = $Customer->insertar($param);
 
-        if (!is_null($unilevel_id)) {
+            if (!$customer_id) {
+                throw new \RuntimeException(ERROR);
+            }
+
+            $id_wsp = $obj_country->id_wsp;
+            $co_na = substr($name, 0, 1);
+            $co_fa = substr($lastname, 0, 1);
+            $co_ma = substr($motherLast, 0, 1);
+            $code = $id_wsp . '00' .  $customer_id . strtoupper($co_fa) .  strtoupper($co_ma) . strtoupper($co_na);
+
+            if (!$Customer->update($customer_id, ['code' => $code])) {
+                throw new \RuntimeException(ERROR);
+            }
+
+            $new_node = trim($base_node, ',');
+            $param_unilevel = array(
+                'customer_id' => $customer_id,
+                'sponsor_id' => $sponsor_id,
+                'node' => $new_node,
+                'active' => '1'
+            );
+            $unilevel_id = $Unilevel->insertar($param_unilevel);
+
+            if (is_null($unilevel_id)) {
+                throw new \RuntimeException(ERROR);
+            }
+
+            if ($db->transStatus() === false) {
+                throw new \RuntimeException(ERROR);
+            }
+
+            $db->transCommit();
             $this->message($name, $email , $code);
             $data['status'] = true;
             $data['message'] = $code;
-        } else {
+        } catch (\Throwable $e) {
+            $db->transRollback();
+
+            $message = $e->getMessage();
+            if (stripos($message, 'customers_email_unique') !== false) {
+                $message = EMAIL_TAKEN;
+            }
+
             $data['status'] = false;
-            $data['message'] = ERROR;
+            $data['message'] = $message !== '' ? $message : ERROR;
         }
     }
     echo json_encode($data);
@@ -179,7 +231,7 @@ class Registro extends BaseController
   {
     //search email
     $db = \Config\Database::connect();
-    $customer = $db->query("SELECT id FROM (`customers`) WHERE email = '$email'")->getNumRows();
+    $customer = $db->query("SELECT id FROM (`customers`) WHERE email = ?", [$email])->getNumRows();
     return $customer;
   }
 
@@ -187,7 +239,7 @@ class Registro extends BaseController
   {
     //search email
     $db = \Config\Database::connect();
-    $customer = $db->query("SELECT id FROM (`customers`) WHERE dni = '$dni'")->getNumRows();
+    $customer = $db->query("SELECT id FROM (`customers`) WHERE dni = ?", [$dni])->getNumRows();
     return $customer;
   }
 

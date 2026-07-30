@@ -598,11 +598,33 @@
         opacity: 1;
     }
 }
+
+.swal2-container.swal2-cronograma-centered {
+    z-index: 20000 !important;
+}
+
+.swal2-container.swal2-cronograma-centered .swal2-popup {
+    z-index: 20001 !important;
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     let cuotaIdActual = null;
+
+    function fireCenteredSwal(options) {
+        const swalOptions = Object.assign({
+            position: 'center',
+            target: document.body,
+            heightAuto: false
+        }, options || {});
+
+        swalOptions.customClass = Object.assign({
+            container: 'swal2-cronograma-centered'
+        }, (swalOptions.customClass || {}));
+
+        return Swal.fire(swalOptions);
+    }
 
     window.abrirModalPagoCuota = function(idCuota, monto, vencimiento) {
         cuotaIdActual = idCuota;
@@ -617,7 +639,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.copiarCuenta = function() {
         navigator.clipboard.writeText('0011 0083 0200310937 34');
-        Swal.fire('Copiado', 'Número de cuenta copiado', 'success');
+        fireCenteredSwal({
+            icon: 'success',
+            title: 'Copiado',
+            text: 'NÃºmero de cuenta copiado',
+            confirmButtonText: 'Aceptar'
+        });
     }
 
     // Loguear cuando se selecciona un archivo
@@ -683,6 +710,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     msg += '\nDetalle: ' + data.error;
                 }
                 Swal.fire({
+                    position: 'center',
                     icon: data.success ? 'success' : 'error',
                     title: data.success ? '¡Pago registrado!' : 'Error',
                     text: msg,
@@ -695,6 +723,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('❌ ERROR EN LA SOLICITUD:', error);
                 cerrarModalPagoCuota();
                 Swal.fire({
+                    position: 'center',
                     icon: 'error',
                     title: 'Error de conexión',
                     text: error ? error.toString() : '',

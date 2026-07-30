@@ -15,6 +15,38 @@ use App\Controllers\B_home;
 
 class D_panel extends BaseController
 {
+    private function getCustomerCodeInitial(?string $value, string $fallback = 'X'): string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return $fallback;
+        }
+
+        return strtoupper(substr($value, 0, 1));
+    }
+
+    private function generateAdminCustomerCode(int $customerId, int $countryId, ?string $name, ?string $lastname, ?string $motherLast): string
+    {
+        $db = \Config\Database::connect();
+        $objCountry = $db->table('countries')
+            ->select('id_wsp')
+            ->where('id', $countryId)
+            ->get()
+            ->getRow();
+
+        $countryPrefix = !empty($objCountry->id_wsp) ? preg_replace('/\D+/', '', (string) $objCountry->id_wsp) : '51';
+        if ($countryPrefix === '') {
+            $countryPrefix = '51';
+        }
+
+        return $countryPrefix
+            . '00'
+            . $customerId
+            . $this->getCustomerCodeInitial($lastname)
+            . $this->getCustomerCodeInitial($motherLast)
+            . $this->getCustomerCodeInitial($name);
+    }
+
     public function index()
     {
         //get data session
@@ -89,51 +121,137 @@ class D_panel extends BaseController
     public function postNewCustomer()
     {
         $request = service('request');
-        if ($request->getMethod() === 'post') {
-            $data = $request->getPost();
-            $Customer = new CustomerModel();
-            $Unilevels = new UnilevelsModel();
-            // Validar que el patrocinador no sea el mismo (por seguridad)
-            if (!empty($data['sponsor_id']) && !empty($data['dni'])) {
-                // Verificar si ya existe un cliente con ese DNI
-                $existing = $Customer->where('dni', $data['dni'])->first();
-                if ($existing) {
-                    return redirect()->back()->with('msg', 'Ya existe un cliente con ese DNI.');
-                }
-                // Crear nuevo cliente
-                $customerData = [
-                    'name' => $data['name'],
-                    'lastname' => $data['lastname'],
-                    'mother_last' => $data['motherLast'],
-                    'dni' => $data['dni'],
-                    'email' => $data['email'],
-                    'phone' => $data['phone'],
-                    'address' => $data['address'],
-                    'country_id' => $data['country_id'],
-                    'password' => password_hash($data['password'], PASSWORD_DEFAULT),
-                    'tipo_agente' => 'externo', // O ajusta según lógica
-                    'active' => '1',
-                ];
-                $customer_id = $Customer->insert($customerData, true);
-                // No permitir que el patrocinador sea el mismo
-                if ($customer_id && $customer_id != $data['sponsor_id']) {
-                    // Crear relación en unilevels
-                    $Unilevels->insert([
-                        'customer_id' => $customer_id,
-                        'sponsor_id' => $data['sponsor_id'],
-                        'active' => '1',
-                    ]);
-                    return redirect()->to('/dashboard/clientes')->with('msg', 'Agente registrado correctamente.');
-                } else {
-                    // Si el patrocinador es el mismo
-                    $Customer->delete($customer_id);
-                    return redirect()->back()->with('msg', 'El patrocinador no puede ser el mismo nuevo agente.');
-                }
-            } else {
-                return redirect()->back()->with('msg', 'Datos incompletos.');
-            }
+        if ($request->getMethod() !== 'post') {
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => 'Metodo no permitido.'
+            ]);
         }
-        return redirect()->back();
+
+        $data = $request->getPost();
+        $Customer = new CustomerModel();
+        $Unilevels = new UnilevelsModel();
+        $db = \Config\Database::connect();
+
+        $sponsorId = isset($data['sponsor_id']) ? (int) $data['sponsor_id'] : 0;
+        $dni = preg_replace('/\D+/', '', (string) ($data['dni'] ?? ''));
+        $email = strtolower(trim((string) ($data['email'] ?? '')));
+        $countryId = isset($data['country_id']) ? (int) $data['country_id'] : 0;
+
+        if ($sponsorId <= 0 || $dni === '' || empty($data['name']) || empty($data['lastname']) || $email === '' || empty($data['password'])) {
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => 'Datos incompletos.'
+            ]);
+        }
+
+        if (strlen($dni) !== 8) {
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => 'Ingrese un DNI valido de 8 digitos.'
+            ]);
+        }
+
+        $objSponsor = $Customer->where('id', $sponsorId)->where('active', '1')->first();
+        if (!$objSponsor) {
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => 'Patrocinador no valido.'
+            ]);
+        }
+
+        if ($Customer->where('dni', $dni)->first()) {
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => 'Ya existe un cliente con ese DNI.'
+            ]);
+        }
+
+        if ($Customer->where('email', $email)->first()) {
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => 'El email ya esta registrado.'
+            ]);
+        }
+
+        if ($countryId <= 0) {
+            $objPeru = $db->table('countries')
+                ->select('id')
+                ->groupStart()
+                    ->where('id_wsp', '51')
+                    ->orLike('nombre', 'Peru')
+                    ->orLike('nombre', 'Perú')
+                ->groupEnd()
+                ->orderBy('id', 'ASC')
+                ->get()
+                ->getRow();
+            $countryId = (int) ($objPeru->id ?? 89);
+        }
+
+        try {
+            $db->transBegin();
+
+            $customerData = [
+                'name' => trim((string) $data['name']),
+                'lastname' => trim((string) $data['lastname']),
+                'mother_last' => trim((string) ($data['motherLast'] ?? '')),
+                'dni' => $dni,
+                'email' => $email,
+                'phone' => trim((string) ($data['phone'] ?? '')),
+                'address' => trim((string) ($data['address'] ?? '')),
+                'country_id' => $countryId,
+                'civil_status' => trim((string) ($data['civil_status'] ?? '')),
+                'password' => password_hash((string) $data['password'], PASSWORD_DEFAULT),
+                'tipo_agente' => 'externo',
+                'range_id' => 1,
+                'membership_id' => 1,
+                'date' => date('Y-m-d'),
+                'active' => '0',
+            ];
+
+            $customerId = $Customer->insert($customerData, true);
+            if (!$customerId) {
+                throw new \RuntimeException('No se pudo registrar el socio.');
+            }
+
+            if ($customerId === $sponsorId) {
+                throw new \RuntimeException('El patrocinador no puede ser el mismo nuevo agente.');
+            }
+
+            $generatedCode = $this->generateAdminCustomerCode(
+                (int) $customerId,
+                $countryId,
+                $customerData['name'],
+                $customerData['lastname'],
+                $customerData['mother_last']
+            );
+            $Customer->update($customerId, ['code' => $generatedCode]);
+
+            $Unilevels->insert([
+                'customer_id' => $customerId,
+                'sponsor_id' => $sponsorId,
+                'active' => '1',
+            ]);
+
+            if ($db->transStatus() === false) {
+                throw new \RuntimeException('No se pudo registrar el socio.');
+            }
+
+            $db->transCommit();
+
+            return $this->response->setJSON([
+                'status' => true,
+                'message' => 'Socio registrado correctamente en estado inactivo.',
+                'code' => $generatedCode
+            ]);
+        } catch (\Throwable $e) {
+            $db->transRollback();
+
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => $e->getMessage() !== '' ? $e->getMessage() : 'No se pudo registrar el socio.'
+            ]);
+        }
     }
     // ...otros métodos...
 
@@ -141,16 +259,31 @@ class D_panel extends BaseController
     {
         // ...existing code...
     {
-        //verify method post
-        $res = service('request')->getPost();
-        if ($res) {
-            $search = $res['search'];
+        $request = service('request');
+        $search = trim((string) ($request->getGet('search') ?? ''));
+        if ($search === '') {
+            $search = trim((string) ($request->getPost('search') ?? ''));
+        }
+
+        if ($search !== '') {
             $search_explo = explode(" (", $search);
-            $code = $search_explo[0];
+            $search_term = trim((string) ($search_explo[0] ?? ''));
 
             //get data by username
             $Customer = new CustomerModel();
-            $obj_customer = $Customer->get_data_code($code);
+            $obj_customer = null;
+
+            if ($search_term !== '') {
+                $obj_customer = $Customer->get_data_code($search_term);
+
+                if (!$obj_customer && ctype_digit($search_term)) {
+                    $obj_customer = $Customer->get_search_by_dni($search_term);
+                }
+
+                if (!$obj_customer && ctype_digit($search_term)) {
+                    $obj_customer = $Customer->get_data_by_id((int) $search_term);
+                }
+            }
 
             if ($obj_customer) {
                 $id = $obj_customer->id;
@@ -208,8 +341,7 @@ class D_panel extends BaseController
         }
 
         //get partner level 2 (direct referrals)
-        // Forzar sponsor_id 28 para depuración
-        $obj_customer_n2 = $Unilevel->get_partners_by_level(28, $period['first_month_day'], $period['last_month_day']);
+        $obj_customer_n2 = $Unilevel->get_partners_by_level($id, $period['first_month_day'], $period['last_month_day']);
         // Enrich each level 2 agent with tipo_agente and inscripcion_vigente
         if ($obj_customer_n2) {
             foreach ($obj_customer_n2 as $key => $value) {
@@ -278,8 +410,8 @@ class D_panel extends BaseController
         }
         //get all paises
         $obj_paises = $Paises->get_data();
-        //get all sponsors (clientes activos) como objetos
-        $obj_sponsors = $Customer->where('active', 1)->asObject()->findAll();
+        // Usar la misma logica del modulo de clientes: solo patrocinadores activos y vigentes
+        $obj_sponsors = $Customer->getActiveSponsors();
 
         //set var
         $data = array(

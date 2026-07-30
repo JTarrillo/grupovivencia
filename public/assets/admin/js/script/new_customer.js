@@ -1,4 +1,42 @@
+let newCustomerRequestInFlight = false;
+
+function fireNewCustomerSwal(options) {
+    if (typeof Swal === 'undefined' || typeof Swal.fire !== 'function') {
+        return Promise.resolve();
+    }
+
+    const swalOptions = (typeof options === 'object' && options !== null) ? Object.assign({
+        position: 'center',
+        target: document.body,
+        heightAuto: false
+    }, options) : {
+        position: 'center',
+        target: document.body,
+        heightAuto: false
+    };
+    const originalDidOpen = swalOptions.didOpen;
+
+    swalOptions.didOpen = function (popup) {
+        const container = popup && popup.parentElement ? popup.parentElement : document.querySelector('.swal2-container');
+        if (container) {
+            container.style.zIndex = '20000';
+        }
+
+        if (typeof originalDidOpen === 'function') {
+            originalDidOpen(popup);
+        }
+    };
+
+    return Swal.fire(swalOptions);
+}
+
+window.fireNewCustomerSwal = fireNewCustomerSwal;
+
 function validate() {
+    if (newCustomerRequestInFlight) {
+        return;
+    }
+
     document.getElementById("submit").disabled = true;
     document.getElementById("submit").innerHTML = "<span class='spinner-border spinner-border-sm' role='status'></span> Procesando...";
     //get pass
@@ -6,37 +44,48 @@ function validate() {
     confirm_password = document.getElementById("confirm_password").value;
     oData = new FormData(document.forms.namedItem("form"));
     if (password == confirm_password) {
+        newCustomerRequestInFlight = true;
         $.ajax({
-            url: site + "register/validacion",
+            url: site + "dashboard/postNewCustomer",
             method: "POST",
             data: oData,
             contentType: false,
             cache: false,
             processData: false,
             success: function (data) {
-                var data = JSON.parse(data);
+                data = (typeof data === 'string') ? JSON.parse(data) : data;
                 if (data.status == true) {
-                    Swal.fire({
-                        position: 'top-end',
+                    fireNewCustomerSwal({
                         icon: 'success',
-                        title: 'Cliente creado',
-                        showConfirmButton: false,
-                    });
-                    window.setTimeout(function () {
+                        title: data.message || 'Cliente creado',
+                        confirmButtonText: 'Aceptar'
+                    }).then(function () {
                         location.reload();
-                    }, 1000);
+                    });
                 } else {
-                    Swal.fire({
-                        position: 'top-end',
+                    fireNewCustomerSwal({
                         icon: 'info',
-                        title: data.message
+                        title: data.message,
+                        confirmButtonText: 'Aceptar'
                     });
                 }
+                newCustomerRequestInFlight = false;
+                document.getElementById("submit").disabled = false;
+                document.getElementById("submit").innerHTML = "Nuevo Registro";
+            },
+            error: function () {
+                newCustomerRequestInFlight = false;
+                fireNewCustomerSwal({
+                    icon: 'error',
+                    title: 'No se pudo completar el registro',
+                    confirmButtonText: 'Aceptar'
+                });
                 document.getElementById("submit").disabled = false;
                 document.getElementById("submit").innerHTML = "Nuevo Registro";
             }
         });
     } else {
+        newCustomerRequestInFlight = false;
         $(".alert-1").removeClass('text-success').addClass('text-danger').html("Las contraseñas no son iguales <i class='fa fa-times-circle-o' aria-hidden='true'></i>");
         document.getElementById("submit").innerHTML = "Nuevo Registro";
         document.getElementById("submit").disabled = false;
